@@ -1,0 +1,36 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=SvRec.chm
+Contents file=SvRec.hhc
+Default Window=SvRec
+Default topic=overview.html
+Display compile notes=No
+Display compile progress=No
+Index file=SvRec.hhk
+Language=0x419 Русский
+Title=StepVoice Recorder Help
+
+[WINDOWS]
+SvRec="StepVoice Recorder Help","SvRec.hhc","SvRec.hhk","overview.html",,"web_site.html","Web Site",,,0x42120,220,0x4300e,[95,43,745,527],,,,,,,0
+
+
+[FILES]
+overview.html
+sys_req.html
+main_view.html
+main_menu.html
+rec_pref.html
+order.html
+user_support.html
+faq.html
+web_site.html
+contact_info.html
+tip1.html
+rec_mixer.html
+howto_rec_smx.html
+howto_rec_lin.html
+howto_rec_mic.html
+lost_key.html
+
+[INFOTYPES]
+

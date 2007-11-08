@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<OBJECT type="text/site properties">
+	<param name="WindowName" value="SvRec">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="About">
+		<param name="Name" value="StepVoice Recorder (SVR) Help">
+		<param name="Local" value="overview.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Autoname">
+		<param name="Name" value="StepVoice Recorder (SVR) Help">
+		<param name="Local" value="rec_pref.html#A03">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Bitrate">
+		<param name="Name" value="StepVoice Recorder (SVR) Help">
+		<param name="Local" value="rec_pref.html#A02">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Preferences">
+		<param name="Name" value="StepVoice Recorder (SVR) Help">
+		<param name="Local" value="rec_pref.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Register">
+		<param name="Name" value="StepVoice Recorder (SVR) Help">
+		<param name="Local" value="order.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="User support">
+		<param name="Name" value="StepVoice Recorder (SVR) Help">
+		<param name="Local" value="user_support.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Web Site">
+		<param name="Name" value="StepVoice Recorder (SVR) Help">
+		<param name="Local" value="web_site.html">
+		</OBJECT>
+</UL>
+</BODY></HTML>
