@@ -1,0 +1,26 @@
+(*) - нужно изменить
+
+Introduction
+  + Overview (*)
+  + System Requirements (*)
+
+Using StepVoice Recorder (*)
+  + Main View (*)
+  + Menu Commands (*)
+  + Recording Preferences (*)
+  + Sound Mixer
+
+How to...
+  + How to record from a Microphone
+  + How to record from an external audio device
+  + How to record an internet audio
+  + How to get optimal records (*)
+
+Order & Support (*)
+  + How To Register
+  + User Support
+  - Contact Info
+
+FAQ (*)
+
+(!) Не забыть проставить перекрестные ссылки.

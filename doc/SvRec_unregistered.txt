@@ -1,0 +1,38 @@
+Возможные ограничения триальной версии программы:
+  - нагскрин при старте программы;
+  - напоминание в диалоге настроек, что некоторые возможности
+    будут отключены после окончания триального периода;
+  - отключение SHR, VAS, M после окончания триального периода;
+  - 
+
+Возможные надписи в диалоге настроек:
+1) "ЗАМЕЧАНИЕ: эта функция будет отключена после
+    окончания триального периода";
+2) 
+
+
+
+(?) "NOTE: this feature will be disabled
+     after the trial period is over"
+
+(?) "NOTE: after the trial period is over
+     this feature will be disabled since
+     the program is UNREGISTERED"
+
+(?) "NOTE: this feature will be enabled
+     ONLY till the end of the trial period
+     since the copy of the program is
+     UNREGISTERED"
+
+(?) "NOTE: this feature will be enabled
+     ONLY till the trial period is over
+     since the copy of the program is
+     UNREGISTERED"
+
+------------------------------------------
+    "NOTE: any changes of these properties
+     will be applied ONLY till exiting the
+     program since the copy of the program
+     is UNREGISTERED"
+		       (c) Chameleon Clock
+------------------------------------------
