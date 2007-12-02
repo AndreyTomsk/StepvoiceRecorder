@@ -8,7 +8,7 @@
 
 #include "struct.h"
 #include "encoder.h"
-#include "BladeMP3EncDll.h"
+#include <BladeMP3EncDll.h>
 
 //////////////////////////////////////////////////////////////////////
 /*typedef struct ENC_FLAGS {

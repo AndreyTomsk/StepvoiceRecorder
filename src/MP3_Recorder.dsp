@@ -38,12 +38,12 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 5
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release"
-# PROP Intermediate_Dir "Release"
+# PROP Output_Dir "..\bin"
+# PROP Intermediate_Dir "..\obj\Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MT /W3 /GX /Zd /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /Zd /O2 /I "..\..\HtmlHelp\include" /I "..\..\lame\Dll" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x419 /d "NDEBUG"
@@ -53,8 +53,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 winmm.lib htmlhelp.lib /nologo /version:1.5 /subsystem:windows /map /machine:I386 /out:"Release/SvRec.exe" /mapinfo:lines /OPT:REF
+# ADD LINK32 winmm.lib htmlhelp.lib /nologo /version:1.5 /subsystem:windows /map /machine:I386 /out:"..\bin\SvRec.exe" /libpath:"..\..\HtmlHelp\lib" /mapinfo:lines /OPT:REF
 # SUBTRACT LINK32 /pdb:none /debug
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds="C:\Program Files\ASProtect 1.35 Release\ASProtect.exe" -process "..\doc\StepVoice Recorder.aspr"
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "MP3_Recorder - Win32 Debug"
 
@@ -65,12 +69,12 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 5
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Debug"
-# PROP Intermediate_Dir "Debug"
+# PROP Output_Dir "..\bin"
+# PROP Intermediate_Dir "..\obj\Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR /Yu"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\..\HtmlHelp\include" /I "..\..\lame\Dll" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR /Yu"stdafx.h" /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x419 /d "_DEBUG"
@@ -80,7 +84,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 winmm.lib htmlhelp.lib /nologo /subsystem:windows /debug /machine:I386 /out:"Debug/StepVoice Recorder.exe" /pdbtype:sept
+# ADD LINK32 winmm.lib htmlhelp.lib /nologo /subsystem:windows /debug /machine:I386 /out:"..\bin\SvRec_d.exe" /pdbtype:sept /libpath:"..\..\HtmlHelp\lib"
 # SUBTRACT LINK32 /pdb:none /map
 
 !ENDIF 

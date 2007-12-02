@@ -1,8 +1,8 @@
 [Options]
 EPRODUCTNAME=StepVoice Recorder
 EPRODUCTVERSION=1.5b
-EFILETOPROTECT=E:\Work\MyProjects\Recorder\Release\SvRec.exe
-EFILETOSAVE=E:\Work\MyProjects\Recorder\Release\Protected\SvRec.exe
+EFILETOPROTECT=..\bin\SvRec.exe
+EFILETOSAVE=..\bin\SvRec.exe
 CBGETVERSION=1
 CBSERVICE=0
 CBDEBUGCHECK=0
@@ -37,7 +37,7 @@ KEYFILENAME=D:\Мои документы\Work\Projects\MP3_Recorder\SendKeys\out\SvRec.key
 EKEYFILENAME=E:\Мои документы\Work\Projects\MP3_Recorder\SendKeys\out\SvRec.key
 CBREGISTRYPATH=0
 EREGISTRYKEY=StepVoice Software\svrec
-PAGEINDEX=2
+PAGEINDEX=4
 MUSERINFO={CRLF}{CRLF}CBS News 60 Minutes{CRLF}- site license on 4 computers - 
 CBLIBRARY=0
 ELIBRARYNAME=
