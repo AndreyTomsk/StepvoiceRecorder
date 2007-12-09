@@ -41,7 +41,7 @@ public:
 
 	// Generated message map functions
 protected:
-	bool OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
+	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
 	//{{AFX_MSG(CStatWnd)
 	afx_msg void OnBtnVas();
 	afx_msg void OnBtnSched();

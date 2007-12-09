@@ -112,37 +112,51 @@ void CPageRec::OnAutofreq()
 //===========================================================================
 void CPageRec::EnableFreqSel(int nBitBITRATE)
 {
-	if(nBitBITRATE == 32) {
+	int i;
+
+	if (nBitBITRATE == 32)
+	{
 		EnableFreqSel(true, true);
 		return;
 	}
 	// determine which radio button checked
-	int nID[] = {IDC_SAMPLEFREQ, IDC_11KHZ, IDC_22KHZ, IDC_44KHZ};
-	for(int i = 0; i<4; i++)
-		if(IsDlgButtonChecked(nID[i])) break;
+	const int nID[] = {IDC_SAMPLEFREQ, IDC_11KHZ, IDC_22KHZ, IDC_44KHZ};
+	for(i = 0; i < 4; i++)
+	{
+		if (IsDlgButtonChecked(nID[i]))
+			break;
+	}
 
-	if(nBitBITRATE < 32) {
+	if (nBitBITRATE < 32)
+	{
 		EnableFreqSel(true, false);	// Enable MPEG2 bitBITRATEs
-		if(i > 1) SetFreq(24);
-	}else {
+		if (i > 1)
+			SetFreq(24);
+	}
+	else
+	{
 		EnableFreqSel(false, true);	// Enable MPEG1 bitBITRATEs
-		if(i < 2) SetFreq(64);
+		if (i < 2)
+			SetFreq(64);
 	}
 }
 
 //===========================================================================
 void CPageRec::EnableFreqSel(bool bmpg2freq, bool bmpg1freq)
 {
+	int i;
 	CButton* btn;
-	int nID[]	= {IDC_SAMPLEFREQ, IDC_11KHZ, IDC_22KHZ, IDC_44KHZ};
+	const int nID[]	= {IDC_SAMPLEFREQ, IDC_11KHZ, IDC_22KHZ, IDC_44KHZ};
 
-	for(int i = 0; i<2; i++) {
+	for (i = 0; i < 2; i++)
+	{
 		btn = (CButton *)GetDlgItem(nID[i]);
 		if(bmpg2freq) btn->ModifyStyle(WS_DISABLED, 0);
 		else		  btn->ModifyStyle(0, WS_DISABLED);
 		btn->Invalidate(false);
 	}
-	for(i = 2; i<4; i++) {
+	for (i = 2; i < 4; i++)
+	{
 		btn = (CButton *)GetDlgItem(nID[i]);
 		if(bmpg1freq) btn->ModifyStyle(WS_DISABLED, 0);
 		else		  btn->ModifyStyle(0, WS_DISABLED);

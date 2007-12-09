@@ -5,6 +5,7 @@
 
 #include "MainFrm.h"
 #include "HtmlHelp.h"
+#include <htmlhelp.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -102,7 +103,7 @@ BOOL CMySheet::OnCommand(WPARAM wParam, LPARAM lParam)
 		CString strFile = pFrame->GetProgramDir();
 		strFile += "\\svrec.chm::/rec_pref.html";
 		strFile += szIndex[GetActiveIndex()];
-		HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
+		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 	}
 
 	return CPropertySheet::OnCommand(wParam, lParam);

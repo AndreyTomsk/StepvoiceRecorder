@@ -1701,7 +1701,7 @@ void CMainFrame::OnOptSnddev()
 }
 
 /////////////////////////////////////////////////////////////////////////////
-bool CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
+BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
 	if(!m_conf.GetConfDialGen()->bToolTips)
 		return true;

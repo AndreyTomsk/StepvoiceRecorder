@@ -227,7 +227,7 @@ protected:
 	afx_msg void OnRecMixMenuSelect(UINT nID);
 	afx_msg void OnPlayMixMenuSelect(UINT nID);
 public:
-	bool OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
+	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
 protected:
 	void UpdateButtonState(UINT nID);
 	LRESULT OnTrayNotification(WPARAM wParam, LPARAM lParam);

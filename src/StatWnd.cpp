@@ -290,7 +290,7 @@ void CStatWnd::OnBtnVas()
 
 /////////////////////////////////////////////////////////////////////////////
 
-bool CStatWnd::OnToolTipNotify(UINT id, NMHDR *pNMHDR, LRESULT *pResult)
+BOOL CStatWnd::OnToolTipNotify(UINT id, NMHDR *pNMHDR, LRESULT *pResult)
 {
 	CMainFrame* pMainWnd = (CMainFrame *)GetParent();
 	return pMainWnd->OnToolTipNotify(id, pNMHDR, pResult);

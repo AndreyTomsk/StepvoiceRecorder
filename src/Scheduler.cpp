@@ -146,7 +146,7 @@ void CScheduler::GetCurTime( SchedTime* curtime )
 {
 	// Получаем текущее время...
 	CTime ct = CTime::GetCurrentTime();
-	struct tm *newtime = ct.GetLocalTm();
+	struct tm *newtime = ct.GetLocalTm(NULL);
 
 	// Заполняем вых. структуру времени...
 	curtime->nHour = newtime->tm_hour;

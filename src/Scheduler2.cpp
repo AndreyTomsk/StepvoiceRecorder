@@ -135,7 +135,7 @@ void CScheduler2::GetCurTime(SHR_TIME* pCurTime)
 {
 	// Получаем текущее время
 	CTime ct = CTime::GetCurrentTime();
-	struct tm *newtime = ct.GetLocalTm();
+	struct tm *newtime = ct.GetLocalTm(NULL);
 
 	pCurTime->h = newtime->tm_hour;
 	pCurTime->m = newtime->tm_min;

@@ -4,6 +4,7 @@
 #include "MainFrm.h"
 #include "PageVAS.h"
 #include <algorithm>
+#include <htmlhelp.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -200,7 +201,7 @@ BOOL CPageVAS::OnCommand(WPARAM wParam, LPARAM lParam)
 		CMainFrame* pFrame = (CMainFrame *)AfxGetMainWnd();
 		CString strFile = pFrame->GetProgramDir();
 		strFile += "\\svrec.chm::/order.html";
-		HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
+		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 	}
 	
 	return CPropertyPage::OnCommand(wParam, lParam);

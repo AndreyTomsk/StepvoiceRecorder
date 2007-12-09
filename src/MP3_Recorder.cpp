@@ -7,6 +7,7 @@
 #include "NagScreenDlg.h"
 
 #include "UrlWnd.h"
+#include <htmlhelp.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -15,7 +16,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 #pragma comment(linker,"/MERGE:.rdata=.text")
-#pragma comment(linker,"/FILEALIGN:512 /SECTION:.text,EWRX /IGNORE:4078")
+//#pragma comment(linker,"/FILEALIGN:512 /SECTION:.text,EWRX /IGNORE:4078")
+#pragma comment(linker,"/FILEALIGN:512")
 
 #define SPECIAL_VERSION
 
@@ -262,7 +264,7 @@ void CMP3_RecorderApp::OnHelpDoc()
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
 	CString strFile = pFrame->GetProgramDir();
 	strFile += "\\svrec.chm::/main_view.html";
-	HtmlHelp(GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
+	::HtmlHelp(GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -278,7 +280,7 @@ void CMP3_RecorderApp::OnHelpHowto()
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
 	CString strFile = pFrame->GetProgramDir();
 	strFile += "\\svrec.chm::/order.html";
-	HtmlHelp(GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
+	::HtmlHelp(GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 }
 
 /////////////////////////////////////////////////////////////////////////////

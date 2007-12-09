@@ -5,6 +5,7 @@
 #include "mp3_recorder.h"
 #include "PageSH2.h"
 #include "MainFrm.h"
+#include <htmlhelp.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -427,7 +428,7 @@ BOOL CPageSH2::OnCommand(WPARAM wParam, LPARAM lParam)
 		CMainFrame* pFrame = (CMainFrame *)AfxGetMainWnd();
 		CString strFile = pFrame->GetProgramDir();
 		strFile += "\\svrec.chm::/order.html";
-		HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
+		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 	}
 	
 	return CPropertyPage::OnCommand(wParam, lParam);
