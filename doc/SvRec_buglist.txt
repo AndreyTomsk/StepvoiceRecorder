@@ -1,0 +1,5 @@
+
+20071209 (enh) - Saving files after the recording is complete
+20071209 (enh) - Change mp3 playing to bass.dll
+20071209 (nor) - Wave meter freezes while playing
+20071209 (cri) - Playback problem under Vista
