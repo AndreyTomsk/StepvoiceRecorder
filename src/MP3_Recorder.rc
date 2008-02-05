@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -27,18 +27,18 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"
@@ -66,17 +66,17 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_TRAY_STOP           ICON    DISCARDABLE     "res\\tray_sto.ico"
-IDI_TRAY_REC            ICON    DISCARDABLE     "res\\tray_rec.ico"
-IDI_TRAY_PAUSE          ICON    DISCARDABLE     "res\\tray_pau.ico"
-IDI_TRAY_PLAY           ICON    DISCARDABLE     "res\\tray_pla.ico"
+IDI_TRAY_STOP           ICON                    "res\\tray_sto.ico"
+IDI_TRAY_REC            ICON                    "res\\tray_rec.ico"
+IDI_TRAY_PAUSE          ICON                    "res\\tray_pau.ico"
+IDI_TRAY_PLAY           ICON                    "res\\tray_pla.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-IDR_TRAY_MENU MENU DISCARDABLE 
+IDR_TRAY_MENU MENU 
 BEGIN
     POPUP "Tray"
     BEGIN
@@ -98,12 +98,12 @@ END
 // Bitmap
 //
 
-IDB_GWBG_LNP            BITMAP  DISCARDABLE     "res\\gwbg_lnp.bmp"
-IDB_GWBG_LGP            BITMAP  DISCARDABLE     "res\\gwbg_lgp.bmp"
-IDB_GWBG_DOTS           BITMAP  DISCARDABLE     "res\\gwbg_dot.bmp"
-IDB_GWBG_NONE           BITMAP  DISCARDABLE     "res\\gwbg_non.bmp"
-IDB_GWPM_LN             BITMAP  DISCARDABLE     "RES\\pmln_24.bmp"
-IDB_GWPM_LG             BITMAP  DISCARDABLE     "RES\\pmlg_24.bmp"
+IDB_GWBG_LNP            BITMAP                  "res\\gwbg_lnp.bmp"
+IDB_GWBG_LGP            BITMAP                  "res\\gwbg_lgp.bmp"
+IDB_GWBG_DOTS           BITMAP                  "res\\gwbg_dot.bmp"
+IDB_GWBG_NONE           BITMAP                  "res\\gwbg_non.bmp"
+IDB_GWPM_LN             BITMAP                  "RES\\pmln_24.bmp"
+IDB_GWPM_LG             BITMAP                  "RES\\pmlg_24.bmp"
 #endif    // Russian resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -124,33 +124,33 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "res\\MP3_Recorder.ico"
-IDR_MAINFRAME2          ICON    DISCARDABLE     "res\\idr_main.ico"
-IDI_PLAY                ICON    DISCARDABLE     "res\\icon1.ico"
-IDI_STOP                ICON    DISCARDABLE     "res\\stop.ico"
-IDI_REC                 ICON    DISCARDABLE     "res\\ico00001.ico"
-IDI_OPEN                ICON    DISCARDABLE     "res\\ico00002.ico"
-IDI_PAUSE               ICON    DISCARDABLE     "res\\pause.ico"
-IDI_OPEN2               ICON    DISCARDABLE     "res\\open2.ico"
-IDI_MIXLINE             ICON    DISCARDABLE     "res\\mixline0.ico"
-IDI_MIXLINE00           ICON    DISCARDABLE     "res\\ico00004.ico"
-IDI_MIXLINE01           ICON    DISCARDABLE     "res\\ico00006.ico"
-IDI_MIXLINE02           ICON    DISCARDABLE     "res\\ico00007.ico"
-IDI_MIXLINE03           ICON    DISCARDABLE     "res\\ico00008.ico"
-IDI_MIXLINE04           ICON    DISCARDABLE     "res\\ico00009.ico"
-IDI_MIXLINE05           ICON    DISCARDABLE     "res\\ico00010.ico"
-IDI_MIXLINE06           ICON    DISCARDABLE     "res\\ico00011.ico"
-IDI_MIXLINE07           ICON    DISCARDABLE     "res\\ico00012.ico"
-IDI_MIXLINE08           ICON    DISCARDABLE     "res\\ico00013.ico"
-IDI_MIXLINE09           ICON    DISCARDABLE     "res\\ico00014.ico"
-IDI_MIXLINE10           ICON    DISCARDABLE     "res\\ico00005.ico"
+IDR_MAINFRAME           ICON                    "res\\MP3_Recorder.ico"
+IDR_MAINFRAME2          ICON                    "res\\idr_main.ico"
+IDI_PLAY                ICON                    "res\\icon1.ico"
+IDI_STOP                ICON                    "res\\stop.ico"
+IDI_REC                 ICON                    "res\\ico00001.ico"
+IDI_OPEN                ICON                    "res\\ico00002.ico"
+IDI_PAUSE               ICON                    "res\\pause.ico"
+IDI_OPEN2               ICON                    "res\\open2.ico"
+IDI_MIXLINE             ICON                    "res\\mixline0.ico"
+IDI_MIXLINE00           ICON                    "res\\ico00004.ico"
+IDI_MIXLINE01           ICON                    "res\\ico00006.ico"
+IDI_MIXLINE02           ICON                    "res\\ico00007.ico"
+IDI_MIXLINE03           ICON                    "res\\ico00008.ico"
+IDI_MIXLINE04           ICON                    "res\\ico00009.ico"
+IDI_MIXLINE05           ICON                    "res\\ico00010.ico"
+IDI_MIXLINE06           ICON                    "res\\ico00011.ico"
+IDI_MIXLINE07           ICON                    "res\\ico00012.ico"
+IDI_MIXLINE08           ICON                    "res\\ico00013.ico"
+IDI_MIXLINE09           ICON                    "res\\ico00014.ico"
+IDI_MIXLINE10           ICON                    "res\\ico00005.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+IDR_MAINFRAME MENU 
 BEGIN
     POPUP "&File"
     BEGIN
@@ -206,7 +206,7 @@ BEGIN
     MENUITEM "&Register",                   ID_HELP_HOWTO, HELP
 END
 
-IDR_GRAPHMENU MENU DISCARDABLE 
+IDR_GRAPHMENU MENU 
 BEGIN
     POPUP "Graph"
     BEGIN
@@ -219,7 +219,7 @@ BEGIN
     END
 END
 
-IDR_STATMENU MENU DISCARDABLE 
+IDR_STATMENU MENU 
 BEGIN
     POPUP "Stat"
     BEGIN
@@ -233,83 +233,69 @@ END
 // Bitmap
 //
 
-IDB_TIME_WND            BITMAP  DISCARDABLE     "res\\time_wnd.bmp"
-IDB_STATBITMAPS         BITMAP  DISCARDABLE     "res\\stat_bitmaps.bmp"
-IDB_TIMEBITMAPS         BITMAP  DISCARDABLE     "res\\big_digits.bmp"
-IDB_PROC_ICONS          BITMAP  DISCARDABLE     "res\\icons_proc.bmp"
-IDB_STAT_WND            BITMAP  DISCARDABLE     "res\\stat_wnd2.bmp"
-IDT_MAINBAR             BITMAP  DISCARDABLE     "res\\toolbar1.bmp"
-IDB_BTN_SCHED           BITMAP  DISCARDABLE     "res\\btn_sched.bmp"
-IDB_BTN_VAS             BITMAP  DISCARDABLE     "res\\btn_vas.bmp"
-IDB_BTN_MON             BITMAP  DISCARDABLE     "RES\\btn_mon.bmp"
+IDB_TIME_WND            BITMAP                  "res\\time_wnd.bmp"
+IDB_STATBITMAPS         BITMAP                  "res\\stat_bitmaps.bmp"
+IDB_TIMEBITMAPS         BITMAP                  "res\\big_digits.bmp"
+IDB_PROC_ICONS          BITMAP                  "res\\icons_proc.bmp"
+IDB_STAT_WND            BITMAP                  "res\\stat_wnd2.bmp"
+IDT_MAINBAR             BITMAP                  "res\\toolbar1.bmp"
+IDB_BTN_SCHED           BITMAP                  "res\\btn_sched.bmp"
+IDB_BTN_VAS             BITMAP                  "res\\btn_vas.bmp"
+IDB_BTN_MON             BITMAP                  "RES\\btn_mon.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Cursor
 //
 
-IDC_HAND2               CURSOR  DISCARDABLE     "res\\hand.cur"
-IDC_ARROW2              CURSOR  DISCARDABLE     "res\\arrow2.cur"
+IDC_HAND2               CURSOR                  "res\\hand.cur"
+IDC_ARROW2              CURSOR                  "res\\arrow2.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 195, 158
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_ABOUTBOX DIALOGEX 0, 0, 195, 158
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,73,140,50,14,WS_GROUP
-    EDITTEXT        IDC_THANKSTO,5,76,185,59,ES_MULTILINE | ES_READONLY | 
-                    WS_VSCROLL
-    CTEXT           "This copy of StepVoice Recorder is registered to:",
-                    IDC_STATIC,5,33,185,8
+    EDITTEXT        IDC_THANKSTO,5,76,185,59,ES_MULTILINE | ES_READONLY | WS_VSCROLL
+    CTEXT           "This copy of StepVoice Recorder is registered to:",IDC_STATIC,5,33,185,8
     CTEXT           "UNREGISTERED VERSION",IDC_REGNAME,5,44,185,25
-    CTEXT           "StepVoice Recorder. Version 1.5b\nCopyright © 2003-2007 StepVoice Software",
-                    IDC_STATIC,17,6,162,17,SS_NOPREFIX
-    ICON            IDR_MAINFRAME,IDC_PLAYERICON,5,5,21,20,SS_NOTIFY
-    LTEXT           "Click here to order online",IDC_GETNOW,58,59,79,8,
-                    SS_NOTIFY
+    CTEXT           "StepVoice Recorder. Version 1.6\nCopyright © 2003-2008 StepVoice Software",IDC_STATIC,17,6,162,17,SS_NOPREFIX
+    ICON            IDR_MAINFRAME,IDC_PLAYERICON,5,5,20,20,SS_NOTIFY
+    LTEXT           "Click here to order online",IDC_GETNOW,58,59,79,8,SS_NOTIFY
     GROUPBOX        "",IDC_STATIC,5,25,185,46
 END
 
 IDD_COMMON DIALOGEX 0, 0, 232, 100
-STYLE DS_CONTEXTHELP | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_CONTEXTHELP | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "  General  "
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    CONTROL         "Disabled",IDR_OPT_BLANK,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP | WS_TABSTOP,11,15,105,10
-    CONTROL         "Create new file (autoname)",IDR_OPT_NEW,"Button",
-                    BS_AUTORADIOBUTTON,11,26,105,10
-    CONTROL         "Reload last opened file",IDR_OPT_RELOAD,"Button",
-                    BS_AUTORADIOBUTTON,11,37,105,10
-    CONTROL         "Run automatically at startup",IDC_AUTORUN,"Button",
-                    BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,5,55,103,10
-    CONTROL         "Start minimized",IDC_MINIMIZED,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,5,67,63,10
-    CONTROL         "Enable ToolTips",IDC_TOOLTIP_ENABLE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,116,81,67,10
-    CONTROL         "Show icon in the system tray",IDC_TRAYICON,"Button",
-                    BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,116,55,107,10
-    CONTROL         "Minimize to the system tray",IDC_TRAYMIN,"Button",
-                    BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,116,67,101,10
+    CONTROL         "Disabled",IDR_OPT_BLANK,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,11,15,105,10
+    CONTROL         "Create new file (autoname)",IDR_OPT_NEW,"Button",BS_AUTORADIOBUTTON,11,26,105,10
+    CONTROL         "Reload last opened file",IDR_OPT_RELOAD,"Button",BS_AUTORADIOBUTTON,11,37,105,10
+    CONTROL         "Run automatically at startup",IDC_AUTORUN,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,5,55,103,10
+    CONTROL         "Start minimized",IDC_MINIMIZED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,67,63,10
+    CONTROL         "Enable ToolTips",IDC_TOOLTIP_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,116,81,67,10
+    CONTROL         "Show icon in the system tray",IDC_TRAYICON,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,116,55,107,10
+    CONTROL         "Minimize to the system tray",IDC_TRAYMIN,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,116,67,101,10
     GROUPBOX        "Startup options",IDC_STATIC,5,5,222,46
-    CONTROL         "Allow multiple instances",IDC_GEN_MINSTANCES,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,5,81,102,10
+    CONTROL         "Allow multiple instances",IDC_GEN_MINSTANCES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,81,102,10
 END
 
 IDD_RECORD DIALOGEX 0, 0, 232, 100
-STYLE DS_CONTEXTHELP | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_CONTEXTHELP | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "  Record  "
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    WS_GROUP | WS_TABSTOP,7,14,217,19
+    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | WS_GROUP | WS_TABSTOP,7,14,217,19
     LTEXT           "8",IDC_STATIC,14,34,8,8
     LTEXT           "16",IDC_STATIC,31,34,10,8
     LTEXT           "24",IDC_STATIC,51,34,10,8
@@ -321,67 +307,50 @@ BEGIN
     LTEXT           "160",IDC_STATIC,169,34,15,8
     LTEXT           "192",IDC_STATIC,189,34,15,8
     LTEXT           "256",IDC_STATIC,209,34,15,8
-    LTEXT           "1 minute record - XX Mb (1 hour - XXX Mb);",
-                    IDC_BITRATE_DESCR,13,44,208,8
+    LTEXT           "1 minute record - XX Mb (1 hour - XXX Mb);",IDC_BITRATE_DESCR,13,44,208,8
     GROUPBOX        "MP3 bitrate (kbps)",IDC_STATIC,5,5,222,51
-    CONTROL         "Mono",IDC_MONO,"Button",BS_AUTORADIOBUTTON | WS_GROUP | 
-                    WS_TABSTOP,11,68,42,10
-    CONTROL         "Stereo",IDC_STEREO,"Button",BS_AUTORADIOBUTTON,11,80,42,
-                    10
+    CONTROL         "Mono",IDC_MONO,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,11,68,42,10
+    CONTROL         "Stereo",IDC_STEREO,"Button",BS_AUTORADIOBUTTON,11,80,42,10
     GROUPBOX        "Channels",IDC_STATIC,5,58,51,37
-    CONTROL         "8,000",IDC_SAMPLEFREQ,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP | WS_TABSTOP,67,68,34,10
-    CONTROL         "11,025",IDC_11KHZ,"Button",BS_AUTORADIOBUTTON,103,68,38,
-                    10
-    CONTROL         "22,050",IDC_22KHZ,"Button",BS_AUTORADIOBUTTON,143,68,38,
-                    10
-    CONTROL         "44,100",IDC_44KHZ,"Button",BS_AUTORADIOBUTTON,183,68,38,
-                    10
-    CONTROL         "Auto select",IDC_AUTOFREQ,"Button",BS_AUTOCHECKBOX | 
-                    WS_GROUP | WS_TABSTOP,67,81,76,8,WS_EX_TRANSPARENT
+    CONTROL         "8,000",IDC_SAMPLEFREQ,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,67,68,34,10
+    CONTROL         "11,025",IDC_11KHZ,"Button",BS_AUTORADIOBUTTON,103,68,38,10
+    CONTROL         "22,050",IDC_22KHZ,"Button",BS_AUTORADIOBUTTON,143,68,38,10
+    CONTROL         "44,100",IDC_44KHZ,"Button",BS_AUTORADIOBUTTON,183,68,38,10
+    CONTROL         "Auto select",IDC_AUTOFREQ,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,67,81,76,8,WS_EX_TRANSPARENT
     GROUPBOX        "Recording frequency (kHz)",IDC_GROUP_FREQ,61,58,166,37
 END
 
-IDD_ENTERCODE DIALOG DISCARDABLE  0, 0, 190, 97
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_ENTERCODE DIALOG  0, 0, 190, 97
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Program registration"
 FONT 8, "MS Sans Serif"
 BEGIN
-    EDITTEXT        IDC_EDITCODE,5,17,178,55,ES_MULTILINE | ES_AUTOVSCROLL | 
-                    WS_VSCROLL
+    EDITTEXT        IDC_EDITCODE,5,17,178,55,ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
     PUSHBUTTON      "Paste",IDC_PASTE,5,77,55,15
     PUSHBUTTON      "Clear",IDC_CLEAR,5,5,44,10,NOT WS_VISIBLE | WS_DISABLED
     DEFPUSHBUTTON   "OK",IDOK,68,77,55,15
     PUSHBUTTON      "Cancel",IDCANCEL,130,77,55,15
     PUSHBUTTON      "Help",IDHELP,5,5,53,11,NOT WS_VISIBLE | WS_DISABLED
-    LTEXT           "Enter your registration code below, please",IDC_STATIC,
-                    5,5,180,8
+    LTEXT           "Enter your registration code below, please",IDC_STATIC,5,5,180,8
 END
 
-IDD_AUTONAME DIALOG DISCARDABLE  0, 0, 232, 100
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_AUTONAME DIALOG  0, 0, 232, 100
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Autoname"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "Autoname template",IDC_STATIC,5,5,63,8
-    LTEXT           "(default: %b%d_%H%M):",IDC_AN_TDEFAULT,70,5,157,8,
-                    SS_NOTIFY
-    EDITTEXT        IDE_NAMETEMPLATE,5,16,222,14,ES_AUTOHSCROLL | 
-                    ES_WANTRETURN
+    LTEXT           "(default: %b%d_%H%M):",IDC_AN_TDEFAULT,70,5,157,8,SS_NOTIFY
+    EDITTEXT        IDE_NAMETEMPLATE,5,16,222,14,ES_AUTOHSCROLL | ES_WANTRETURN
     LTEXT           "Result:",IDC_STATIC,5,33,26,8
     LTEXT           "File Name.mp3",IDC_AN_EXTEXT,33,33,194,8
-    LTEXT           "= year without century (00 - 99)",IDC_STATIC0_1,23,48,
-                    98,8,SS_NOTIFY
+    LTEXT           "= year without century (00 - 99)",IDC_STATIC0_1,23,48,98,8,SS_NOTIFY
     LTEXT           "= year with century",IDC_STATIC1_1,23,56,60,8,SS_NOTIFY
-    LTEXT           "= abbreviated month name",IDC_STATIC2_1,23,67,85,8,
-                    SS_NOTIFY
+    LTEXT           "= abbreviated month name",IDC_STATIC2_1,23,67,85,8,SS_NOTIFY
     LTEXT           "= full month name",IDC_STATIC3_1,23,75,56,8,SS_NOTIFY
-    LTEXT           "= month number (01 - 12)",IDC_STATIC4_1,23,83,80,8,
-                    SS_NOTIFY
-    LTEXT           "= day of month (01 - 31)",IDC_STATIC5_1,143,48,76,8,
-                    SS_NOTIFY
-    LTEXT           "= day of year (001 - 366)",IDC_STATIC6_1,143,56,78,8,
-                    SS_NOTIFY
+    LTEXT           "= month number (01 - 12)",IDC_STATIC4_1,23,83,80,8,SS_NOTIFY
+    LTEXT           "= day of month (01 - 31)",IDC_STATIC5_1,143,48,76,8,SS_NOTIFY
+    LTEXT           "= day of year (001 - 366)",IDC_STATIC6_1,143,56,78,8,SS_NOTIFY
     LTEXT           "= hour (00 - 24)",IDC_STATIC7_1,143,67,49,8,SS_NOTIFY
     LTEXT           "= minute (00 - 59)",IDC_STATIC8_1,143,75,56,8,SS_NOTIFY
     LTEXT           "= second (00 - 59)",IDC_STATIC9_1,143,83,58,8,SS_NOTIFY
@@ -398,82 +367,59 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,5,42,222,53
 END
 
-IDD_VAS DIALOG DISCARDABLE  0, 0, 232, 100
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+IDD_VAS DIALOG  0, 0, 232, 100
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "VAS"
 FONT 8, "MS Sans Serif"
 BEGIN
     CONTROL         "Enable Voice Activation System (VAS)",IDC_VAS_ENABLE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,84,136,10
-    CONTROL         "Slider3",IDC_VAS_THRESHOLD,"msctls_trackbar32",
-                    TBS_AUTOTICKS | WS_TABSTOP,7,14,105,20
+    CONTROL         "Slider3",IDC_VAS_THRESHOLD,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,7,14,105,20
     LTEXT           "-54",IDC_STATIC,10,35,11,8
     LTEXT           "-42",IDC_STATIC,32,35,11,8
     LTEXT           "-30",IDC_STATIC,54,35,11,8
     LTEXT           "-18",IDC_STATIC,75,35,11,8
     LTEXT           "-6",IDC_STATIC,100,35,8,8
     GROUPBOX        "Threshold Level (dB)",IDC_STATIC,5,5,109,41
-    CONTROL         "Slider1",IDC_VAS_TIME,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    WS_TABSTOP,121,15,104,20
+    CONTROL         "Slider1",IDC_VAS_TIME,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,121,15,104,20
     LTEXT           "0.5",IDC_STATIC,125,36,11,8
     LTEXT           "1.0",IDC_STATIC,146,36,11,8
     LTEXT           "2",IDC_STATIC,171,36,8,8
     LTEXT           "4",IDC_STATIC,193,36,8,8
     LTEXT           "8",IDC_STATIC,214,36,8,8
     GROUPBOX        "Detection time (seconds)",IDC_STATIC,119,5,108,41
-    CONTROL         "Pause recording",IDC_VAS_SILENTPAUSE,"Button",
-                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,18,57,72,10
-    CONTROL         "Stop recording",IDC_VAS_SILENTSTOP,"Button",
-                    BS_AUTORADIOBUTTON,93,57,72,10
+    CONTROL         "Pause recording",IDC_VAS_SILENTPAUSE,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,18,57,72,10
+    CONTROL         "Stop recording",IDC_VAS_SILENTSTOP,"Button",BS_AUTORADIOBUTTON,93,57,72,10
     GROUPBOX        "After a silence detected",IDC_STATIC,5,48,222,24
-    LTEXT           "NOTE: after the trial period is over this feature will be disabled since the program is UNREGISTERED",
-                    IDC_DLG_TRIALNOTE,134,79,97,21,SS_NOTIFY | NOT 
-                    WS_VISIBLE
+    LTEXT           "NOTE: after the trial period is over this feature will be disabled since the program is UNREGISTERED",IDC_DLG_TRIALNOTE,134,79,97,21,SS_NOTIFY | NOT WS_VISIBLE
 END
 
-IDD_SCHEDULER2 DIALOG DISCARDABLE  0, 0, 232, 100
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_SCHEDULER2 DIALOG  0, 0, 232, 100
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Scheduler"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "Enable scheduler (SHR)",IDC_SH2_ENABLESHR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,5,84,92,10
-    EDITTEXT        IDC_SH2_EDITFILENAME,127,26,95,12,ES_MULTILINE | 
-                    ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT 
-                    WS_TABSTOP
+    CONTROL         "Enable scheduler (SHR)",IDC_SH2_ENABLESHR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,84,92,10
+    EDITTEXT        IDC_SH2_EDITFILENAME,127,26,95,12,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
     GROUPBOX        "",IDC_STATIC,5,5,222,35
-    CONTROL         "Scheduled start",IDC_SH2_ENABLESTART,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,11,5,65,10
-    CONTROL         "DateTimePicker1",IDC_SH2_TPSTART,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,64,17,58,
-                    14
-    CONTROL         "Run external file",IDC_SH2_RUNEXTERNAL,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,127,14,67,10
+    CONTROL         "Scheduled start",IDC_SH2_ENABLESTART,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,5,65,10
+    CONTROL         "DateTimePicker1",IDC_SH2_TPSTART,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,64,17,58,14
+    CONTROL         "Run external file",IDC_SH2_RUNEXTERNAL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,127,14,67,10
     PUSHBUTTON      "...",IDC_SH2_SELEXTERNAL,208,13,14,12,BS_ICON
-    CONTROL         "Stop Time:",IDC_SH2_BTN_STOPTIME,"Button",
-                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,12,52,51,10
-    CONTROL         "Rec. Time:",IDC_SH2_BTN_RECTIME,"Button",
-                    BS_AUTORADIOBUTTON,12,64,51,10
-    CONTROL         "DateTimePicker1",IDC_SH2_TPSTOP,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,64,55,58,
-                    14
-    CONTROL         "Shutdown computer",IDC_SH2_BTN_SHUTDOWN,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,139,52,79,10
-    CONTROL         "Close recorder",IDC_SH2_BTN_CLOSEALL,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,139,64,61,10
-    CONTROL         "DateTimePicker1",IDC_SH2_TPRECTIME,"SysDateTimePick32",
-                    DTS_RIGHTALIGN | DTS_UPDOWN | NOT WS_VISIBLE | 
-                    WS_DISABLED | 0x8,64,84,58,14
+    CONTROL         "Stop Time:",IDC_SH2_BTN_STOPTIME,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,12,52,51,10
+    CONTROL         "Rec. Time:",IDC_SH2_BTN_RECTIME,"Button",BS_AUTORADIOBUTTON,12,64,51,10
+    CONTROL         "DateTimePicker1",IDC_SH2_TPSTOP,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,64,55,58,14
+    CONTROL         "Shutdown computer",IDC_SH2_BTN_SHUTDOWN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,139,52,79,10
+    CONTROL         "Close recorder",IDC_SH2_BTN_CLOSEALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,139,64,61,10
+    CONTROL         "DateTimePicker1",IDC_SH2_TPRECTIME,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | NOT WS_VISIBLE | WS_DISABLED | 0x8,64,84,58,14
     GROUPBOX        "Scheduled stop by",IDC_STATIC,5,42,122,37
     GROUPBOX        "Actions",IDC_STATIC,132,42,95,37
-    LTEXT           "NOTE: after the trial period is over this feature will be disabled since the program is UNREGISTERED",
-                    IDC_DLG_TRIALNOTE,134,79,97,21,SS_NOTIFY | NOT 
-                    WS_VISIBLE
+    LTEXT           "NOTE: after the trial period is over this feature will be disabled since the program is UNREGISTERED",IDC_DLG_TRIALNOTE,134,79,97,21,SS_NOTIFY | NOT WS_VISIBLE
     LTEXT           "Start Time:",IDC_SH2_STARTTEXT,19,20,40,8
 END
 
-IDD_TIMERDLG DIALOG DISCARDABLE  0, 0, 182, 58
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+IDD_TIMERDLG DIALOG  0, 0, 182, 58
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "StepVoice Recorder"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -483,28 +429,22 @@ BEGIN
     ICON            IDR_MAINFRAME,IDC_TDLG_ICON,7,7,21,20
 END
 
-IDD_NAGSCREEN DIALOG DISCARDABLE  0, 0, 217, 141
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
-CAPTION "StepVoice Recorder 1.5b"
-FONT 8, "MS Sans Serif"
+IDD_NAGSCREEN DIALOGEX 0, 0, 217, 141
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "StepVoice Recorder 1.6"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CONTROL         "",IDC_BUTTON1,"Button",BS_OWNERDRAW | WS_TABSTOP,205,
-                    130,6,6
-    DEFPUSHBUTTON   "&Get Now!",IDC_ORDER,13,121,60,15
-    PUSHBUTTON      "I &Agree",IDCANCEL,79,121,60,15
-    PUSHBUTTON      "&Enter key...",IDC_ENTERCODE,145,121,60,15
-    LTEXT           "Thank you for trying StepVoice Recorder!",IDC_THANKYOU,
-                    5,7,186,9
+    CONTROL         "",IDC_BUTTON1,"Button",BS_OWNERDRAW | WS_TABSTOP,206,86,6,6
+    DEFPUSHBUTTON   "&Get Now!",IDC_ORDER,146,121,60,15
+    PUSHBUTTON      "I &Agree",IDCANCEL,78,121,60,15
+    PUSHBUTTON      "&Enter key...",IDC_ENTERCODE,10,121,60,15
+    LTEXT           "Thank you for trying StepVoice Recorder!",IDC_THANKYOU,5,7,186,9
     ICON            IDR_MAINFRAME,IDC_STATIC,191,1,20,20,SS_CENTERIMAGE
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,41,207,1
-    CTEXT           "Unregistered version (remained %d days)",
-                    IDC_UNREGVERSION,5,56,207,8
-    CTEXT           "Click here to order online",IDC_ONLINEREGISTER,39,72,
-                    141,8,SS_NOTIFY
-    CTEXT           "I understand that I may use this program only for evaluation and that any other use requires payment of the registration fee.",
-                    IDC_STATIC,5,99,207,17
-    LTEXT           "This trial version is for evaluation use only. The registered version does not display this notice.",
-                    IDC_STATIC,5,20,207,16
+    CTEXT           "Unregistered version (remained %d days)",IDC_UNREGVERSION,5,56,207,8
+    CTEXT           "Click here to order online",IDC_ONLINEREGISTER,39,72,141,8,SS_NOTIFY
+    CTEXT           "I understand that I may use this program only for evaluation and that any other use requires payment of the registration fee.",IDC_STATIC,5,99,207,17
+    LTEXT           "This trial version is for evaluation use only. The registered version does not display this notice.",IDC_STATIC,5,20,207,16
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,94,207,1
 END
 
@@ -515,7 +455,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -599,7 +539,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+IDR_MAINFRAME ACCELERATORS 
 BEGIN
     "A",            IDA_FILE_CLEAR,         VIRTKEY, CONTROL, NOINVERT
     "E",            IDA_OPT_EM,             VIRTKEY, CONTROL, NOINVERT
@@ -623,15 +563,14 @@ BEGIN
 END
 
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,5,0,120
- PRODUCTVERSION 1,5,0,120
+ FILEVERSION 1,6,0,122
+ PRODUCTVERSION 1,6,0,122
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -646,18 +585,15 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "Compact Mp3 Recorder with Friendly Interface.\0"
-            VALUE "CompanyName", "StepVoice Software\0"
-            VALUE "FileDescription", "StepVoice Recorder - friendly MP3 audio recorder\0"
-            VALUE "FileVersion", "1.5b\0"
-            VALUE "InternalName", "StepVoice Recorder\0"
-            VALUE "LegalCopyright", "Copyright (C) 2003-2007 StepVoice Software\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "SvRec.exe\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "StepVoice Recorder\0"
-            VALUE "ProductVersion", "1.5b\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "Comments", "Compact Mp3 Recorder with Friendly Interface."
+            VALUE "CompanyName", "StepVoice Software"
+            VALUE "FileDescription", "StepVoice Recorder - friendly MP3 audio recorder"
+            VALUE "FileVersion", "1.6"
+            VALUE "InternalName", "StepVoice Recorder"
+            VALUE "LegalCopyright", "Copyright (C) 2003-2008 StepVoice Software"
+            VALUE "OriginalFilename", "SvRec.exe"
+            VALUE "ProductName", "StepVoice Recorder"
+            VALUE "ProductVersion", "1.6"
         END
     END
     BLOCK "VarFileInfo"
@@ -666,15 +602,13 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Toolbar
 //
 
-IDT_MAINBAR TOOLBAR DISCARDABLE  16, 15
+IDT_MAINBAR TOOLBAR  16, 15
 BEGIN
     BUTTON      IDB_BTNOPEN
     BUTTON      IDB_BTNREC
@@ -688,7 +622,7 @@ END
 // String Table
 //
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDR_MAINFRAME           "MP3_Recorder"
     IDS_RECLEVEL            "Recording level: %d%%"
@@ -703,11 +637,11 @@ BEGIN
     IDS_LOADING             "Loading..."
     IDS_DEL_NOFILE          "Unable to delete - no file opened.\nPlease open a sound file first."
     IDS_DEL_UNABLE          """%1""\nUnable to delete the file."
-    IDS_DEL_ASK             "Using this command will remove file PERMANENTLY from disk.\nDelete this file:\n""%1"""
+    IDS_DEL_ASK             "Using this command will remove file PERMANENTLY from disk.\nDelete this file:\n""%1"" ?"
     IDS_OPEN_ERR            """%1""\nUnable to open(create) file for reading and writing."
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_REC_NOSPACE         "Unable to write on disk - no free space.\nRecording will be stopped."
     IDS_DEC_INIT            """%1\\%2""\nUnable fo find decoder library or it is damaged.\nPlease reinstall the recorder."
@@ -726,7 +660,7 @@ BEGIN
     IDS_TT_SEEKBAR          "Seeking Bar"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_TT_WAVEWND          "Peak/Wave Display (right click to select visualization type)"
     IDS_TT_TIMEWND          "Time Display"

@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -14,15 +14,39 @@ static char THIS_FILE[] = __FILE__;
 #include "common.h"
 
 #include "system.h"
+#include <math.h>
 
-/////////////////////////////////////////////////////////////////////////////
-//extern ShutDownComputer();
+HSTREAM g_stream_handle = 0;
+HRECORD g_record_handle = 0;
+HRECORD g_monitoring_handle = 0;
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// Check if a file is suitable for recording (not exist or length = 0).
+bool IsSuitableForRecording(CString a_filename)
+{
+	HANDLE l_file_handle = CreateFile(
+		a_filename.GetBuffer(a_filename.GetLength()),
+		GENERIC_READ,
+		FILE_SHARE_WRITE,
+		NULL,
+		OPEN_EXISTING,
+		0,
+		NULL);
+	if (l_file_handle == INVALID_HANDLE_VALUE)
+	{
+		return true;
+	}
+	DWORD l_size = GetFileSize(l_file_handle, NULL);
+	CloseHandle(l_file_handle);
+	return (l_size == 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 #define WM_ICON_NOTIFY WM_USER+10
-static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(_T("UWM_ARE_YOU_ME-{B87861B4-8BE0-4dc7-A952-E8FFEEF48FD3}"));
+static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(
+	_T("UWM_ARE_YOU_ME-{B87861B4-8BE0-4dc7-A952-E8FFEEF48FD3}"));
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 IMPLEMENT_DYNAMIC(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
@@ -106,7 +130,82 @@ LRESULT CMainFrame::OnAreYouMe(WPARAM, LPARAM)
     return UWM_ARE_YOU_ME;
 } // CMainFrame::OnAreYouMe
 
-//====================================================================
+////////////////////////////////////////////////////////////////////////////////
+double GetMaxPeakDB(HRECORD a_handle)
+{
+	BASS_CHANNELINFO l_ci;
+	BOOL l_result = BASS_ChannelGetInfo(a_handle, &l_ci);
+
+	int l_max_possible = 0xFFFF / 2; // 16-bit as default
+	if (l_ci.flags & BASS_SAMPLE_8BITS)
+	{
+		l_max_possible = 0xFF / 2;
+	}
+	else if (l_ci.flags & BASS_SAMPLE_FLOAT)
+	{
+		l_max_possible = 1;
+	}
+	DWORD l_ch_level = BASS_ChannelGetLevel(a_handle);
+	DWORD l_level = (LOWORD(l_ch_level) > HIWORD(l_ch_level)) ?
+		LOWORD(l_ch_level) : HIWORD(l_ch_level);
+	if (l_level < 1)
+	{
+		l_level = 1;
+	}
+	return 20 * log10(float(l_level)/l_max_possible);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
+										DWORD a_length, void* a_user)
+{
+	static char pBufOut[10240]; //10k buffer
+	char* pBufIn = (char*)a_buffer;
+	int	  nBufInSize = a_length;
+	int   nBufOutSize= 0;
+
+	CMainFrame* l_main_window = (CMainFrame *)a_user;
+
+	if (l_main_window->m_vas.IsRunning())
+	{
+		double l_peak_db = GetMaxPeakDB(a_handle);
+		l_main_window->m_vas.ProcessThreshold(l_peak_db);
+
+		if (l_main_window->m_vas.CheckVAS()) 
+		{
+			l_main_window->ProcessVAS(true);
+			return TRUE;
+		}
+		else
+		{
+			l_main_window->ProcessVAS(false);
+		}
+	}
+
+	while (l_main_window->m_pEncoder->EncodeChunk(pBufIn, nBufInSize,
+		pBufOut, nBufOutSize))
+	{
+		try
+		{
+			l_main_window->m_record_file.Write(pBufOut, nBufOutSize);
+		}
+		catch (CFileException *)
+		{	// Possible, the disk is full.
+			AfxMessageBox(IDS_REC_NOSPACE, MB_OK|MB_ICONSTOP);			
+			l_main_window->PostMessage(WM_COMMAND, IDB_BTNSTOP,
+				LONG(l_main_window->m_BtnSTOP.m_hWnd));
+			return FALSE;
+		}
+		if (pBufIn)
+		{	// Clearing pointer for iterations.
+			pBufIn = NULL;
+			nBufInSize = 0;
+		}
+	}
+	return TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 CMainFrame* CMainFrame::m_pMainFrame = NULL;
 
 void CMainFrame::_RecordProc(char* pBuf, int dwBufSize)
@@ -290,7 +389,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		SWP_NOZORDER | SWP_NOMOVE);
 
 	// инициализируем окна состояний
-	m_IcoWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(1, 0, 24, 26), this, IDW_ICO);
+	m_IcoWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(1, 0, 24, 25), this, IDW_ICO);
 	m_TimeWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(24, 0, 106, 25), this, IDW_TIME);
 	m_GraphWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(1, 24, 106, 77), this, IDW_GRAPH);
 	m_StatWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(106, 0, 282, 50), this, IDW_STAT);
@@ -301,7 +400,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_StatWnd.ShowWindow(SW_SHOW);  m_StatWnd.UpdateWindow();
 
 	// устанавливаем тип графика
-	m_GraphWnd.SetGraphType(m_conf.GetConfProg()->nGraphType);
+	m_GraphWnd.SetDisplayMode(m_conf.GetConfProg()->nGraphType);
 	m_GraphWnd.SetMaxpeaks(m_conf.GetConfProg()->bGraphMaxpeaks != 0);
 
 	// инициализируем слайдеры позиции и микшера
@@ -363,6 +462,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_SliderVol.SetPos(m_RecMixer.GetVol(m_RecMixer.GetCurLine()));
 	else
 		m_SliderVol.EnableWindow(false);
+
+	// Force updating button image
+	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
+	if (l_app->IsVistaOS())
+	{
+		PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
+	}
 	// Запоминаем системное значение громкости
 	//m_nSysVolume = 0;
 	//m_nSysVolume = m_PlayMixer.GetVol (m_PlayMixer.GetCurLine());
@@ -372,10 +478,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_title = new CTitleText(this->GetSafeHwnd());
 
 	// получаем директорию екзешника
-	m_strDir = GetProgramDir ();
+	m_strDir = GetProgramDir();
 
 	// обрабатываем опции загрузчика
-	CString strName = "", strPath = "";
+	CString strName = "";
 	switch (m_conf.GetConfDialGen()->nLoader)
 	{
 		case 1:		// создание нового файла - автоимя
@@ -386,17 +492,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			strName = m_conf.GetConfProg()->strLastFileName;
 			break;
 	}
-	// формируем директорию файла
-	strPath = m_conf.GetConfProg()->strLastFilePath;
-	if(strPath.IsEmpty())
-		strPath = m_strDir;	// директория программы
-	strPath += "\\";
-
 	OnFileClose();
-	// если имя не пустое - открываем файл
-	if(!strName.IsEmpty())
-	{	strName = strPath + strName;
-		OpenFile(strName);
+	if (!strName.IsEmpty())
+	{
+		CString strPath = m_conf.GetConfProg()->strLastFilePath;
+		if (strPath.IsEmpty())
+		{
+			strPath = GetProgramDir();
+		}
+		OpenFile(strPath + "\\" + strName);
 	}
 
 	// создаем иконку в трее
@@ -408,28 +512,26 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_TrayIcon.HideIcon();
 	UpdateTrayText();
 
-	// Обработка функции мониторинга
-	//m_bMonitoringBtn = m_conf.GetConfProg()->bMonitoring;
-	if(m_conf.GetConfProg()->bMonitoring)
+	// Setting up Monitoring
+	if (m_conf.GetConfProg()->bMonitoring)
 	{
 		m_bMonitoringBtn = false;
 		OnBtnMonitoring();
 	}
 
-	// устанавливаем функцию обработки срабатывания шедулера (SHR)
+	// Setting up Scheduler
 	m_sched2.SetCallbackFunc(Scheduler2Function);
-
-	// !!!!! Обработка функции SHR (шедулера)
-	if(m_conf.GetConfDialSH2()->bIsEnabled != 0)
-	{	// включаем шедулер (имитируя нажатие на кнопку)
+	if (m_conf.GetConfDialSH2()->bIsEnabled)
+	{
 		m_conf.GetConfDialSH2()->bIsEnabled = false;
 		OnBtnSched();
 	}
 
-	// Обработка функции VAS
-	CONF_DIAL_VAS* pConfig = m_conf.GetConfDialVAS();
-	if(pConfig->bEnable)
+	// Setting up Voice Activation System
+	if (m_conf.GetConfDialVAS()->bEnable)
+	{
 		OnBtnVas();
+	}
 
 	return 0;
 }
@@ -536,13 +638,12 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	if(m_conf.GetConfProg()->bEasyMove)
+	if (m_conf.GetConfProg()->bEasyMove)
 	{
 		CPoint scrPoint;
 		GetCursorPos(&scrPoint);
 		PostMessage(WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(scrPoint.x, scrPoint.y));
 	}
-
 	CFrameWnd::OnLButtonDown(nFlags, point);
 }
 
@@ -601,27 +702,21 @@ void CMainFrame::OnDestroy()
 {
 	CFrameWnd::OnDestroy();
 
-	// выключаем кнопку мониторинга (и останавл. его)
-	//m_conf.GetConfProg()->bMonitoring = m_bMonitoringBtn;
-	if(m_bMonitoringBtn)
-	{	// останавливаем мониторинг и сохраняем значение
+	OnFileClose();
+
+	if (m_bMonitoringBtn)
+	{
 		OnBtnMonitoring();
 		m_conf.GetConfProg()->bMonitoring = true;
 	}
-
-	// закрываем файл (все объекты)
-	OnFileClose();
-
-	// сохраняем позицию окна
-	if(!IsIconic())
+	if (!IsIconic())
 	{
 		CRect r; GetWindowRect(&r);
 		m_conf.GetConfProg()->nXcoord = r.left;
 		m_conf.GetConfProg()->nYcoord = r.top;
 	}
 
-	// сохраняем тип графиков
-	m_conf.GetConfProg()->nGraphType = m_GraphWnd.GetGraphType();
+	m_conf.GetConfProg()->nGraphType = m_GraphWnd.GetDisplayMode();
 	m_conf.GetConfProg()->bGraphMaxpeaks = (int)m_GraphWnd.GetMaxpeaks();
 
 	// сохр. громкость воспр. и восстанавливаем системную громкость
@@ -637,19 +732,29 @@ void CMainFrame::OnDestroy()
 void CMainFrame::OnFileClose() 
 {
 	OnBtnSTOP();
+	m_GraphWnd.StopUpdate();
 
-	if(m_pSndFile)
-		SAFE_DELETE(m_pSndFile);
+	BASS_Free();
+	BASS_RecordFree();
+	g_stream_handle = 0;
+	g_record_handle = 0;
+
+	if (m_bMonitoringBtn)
+	{
+		MonitoringStart();
+	}
+	if (m_record_file.m_hFile != CFile::hFileNull)
+	{
+		m_record_file.Close();
+	}
+	SAFE_DELETE(m_pEncoder);
+	SAFE_DELETE(m_pSndFile);
 
 	// Устанавливаем текст по умолчанию: <no file> - StepVoice Recorder
 	CString strTitle, strNoFile((LPCSTR)IDS_NOFILE);
 	AfxFormatString1(strTitle, IDS_FILETITLE, strNoFile);
 	m_title->SetTitleText(strTitle);
 
-	// обновляем визуализацию (показываем настройки записи)
-	// устанавливаем указатель на начало файла
-	//if(m_pSndFile)
-	//	m_pSndFile->Seek(0, SND_FILE_BEGIN);
 	m_SliderTime.SetCurPos(0);
 	//m_SliderTime.ShowThumb(false);	// убираем ползунок слайдера
 	m_TimeWnd.Reset();
@@ -660,33 +765,49 @@ void CMainFrame::OnFileClose()
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnFileClear() 
 {
-	if(!m_pSndFile)
+	if (!g_record_handle && !g_stream_handle &&
+		(m_record_file.m_hFile == CFile::hFileNull))
+	{
 		return;
+	}
+	CString& l_last_path = m_conf.GetConfProg()->strLastFilePath;
+	CString& l_last_name = m_conf.GetConfProg()->strLastFileName;
 
-	CString strRes, strName = m_pSndFile->GetFileName();
-	AfxFormatString1(strRes, IDS_CLEAR_ASK, strName);
-	if(AfxMessageBox(strRes, MB_YESNO|MB_ICONWARNING) == IDYES)
-	{	OnBtnSTOP();
-		m_pSndFile->Seek(0, SND_FILE_BEGIN);
-		m_pSndFile->Cut();
-		//m_SliderTime.ShowThumb(false);	// убираем ползунок слайдера
-		OpenFile(strName);
+	CString l_str_warning  = "";
+	CString l_str_filename = l_last_path + '\\' + l_last_name;
+
+	AfxFormatString1(l_str_warning, IDS_CLEAR_ASK, l_str_filename);
+	if (AfxMessageBox(l_str_warning, MB_YESNO|MB_ICONWARNING) == IDYES)
+	{
+		OnFileClose();
+		m_record_file.Open(l_str_filename, CFile::modeCreate, NULL);
+		m_record_file.Close();
+		OpenFile(l_str_filename);
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnFileDelete() 
 {
-	if(!m_pSndFile)
+	if (!g_record_handle && !g_stream_handle &&
+		(m_record_file.m_hFile == CFile::hFileNull))
+	{
 		return;
+	}
+	CString& l_last_path = m_conf.GetConfProg()->strLastFilePath;
+	CString& l_last_name = m_conf.GetConfProg()->strLastFileName;
 
-	CString strRes, strName = m_pSndFile->GetFileName();
-	AfxFormatString1(strRes, IDS_DEL_ASK, strName);
-	if(AfxMessageBox(strRes, MB_YESNO|MB_ICONWARNING) == IDYES)
-	{	OnFileClose();
-		if(!DeleteFile(strName))
-		{	AfxFormatString1(strRes, IDS_DEL_UNABLE, strName);
-			AfxMessageBox(strRes, MB_OK|MB_ICONWARNING);
+	CString l_str_warning  = "";
+	CString l_str_filename = l_last_path + '\\' + l_last_name;
+
+	AfxFormatString1(l_str_warning, IDS_DEL_ASK, l_str_filename);
+	if (AfxMessageBox(l_str_warning, MB_YESNO|MB_ICONWARNING) == IDYES)
+	{
+		OnFileClose();
+		if (!DeleteFile(l_str_filename))
+		{
+			AfxFormatString1(l_str_warning, IDS_DEL_UNABLE, l_str_filename);
+			AfxMessageBox(l_str_warning, MB_OK|MB_ICONWARNING);
 		}
 	}
 }
@@ -694,6 +815,60 @@ void CMainFrame::OnFileDelete()
 //=======не из меню, но полезная :)===========================================
 void CMainFrame::OpenFile(CString& str)
 {
+	OnFileClose();
+
+	// Storing last opened file name and path.
+	CString& l_last_path = m_conf.GetConfProg()->strLastFilePath;
+	CString& l_last_name = m_conf.GetConfProg()->strLastFileName;
+
+	int l_slash_pos = str.ReverseFind('\\');
+	if (l_slash_pos == -1)
+	{
+		l_last_name = str;
+	}
+	else
+	{	
+		l_last_path = str.Left(l_slash_pos);
+		l_last_name = str.Right(str.GetLength() - l_slash_pos - 1);
+	}
+
+	if (IsSuitableForRecording(str))
+	{
+		if (!m_record_file.Open(str, CFile::modeCreate|CFile::modeWrite|
+			CFile::typeBinary|CFile::shareDenyWrite, NULL))
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (!BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL))
+		{
+			return;
+		}
+		g_stream_handle = BASS_StreamCreateFile(false, str, 0, 0, 0);
+		if (!g_stream_handle)
+		{
+			BASS_Free();
+			return;
+		}
+	}
+
+	// Modifying window caption to "<FILE> - StepVoice Recorder".
+	CString l_filename = str;
+	if (l_filename.ReverseFind('\\') != -1)
+	{
+		l_filename = l_filename.Right(l_filename.GetLength() -
+			l_filename.ReverseFind('\\') - 1);
+	}
+	CString l_new_caption;
+	AfxFormatString1(l_new_caption, IDS_FILETITLE, l_filename);
+	m_title->SetTitleText(l_new_caption);
+	
+	UpdateStatWindow();
+	UpdateTrayText();
+
+	/*
 	if(m_pSndFile)
 		OnFileClose();
 
@@ -748,6 +923,7 @@ void CMainFrame::OpenFile(CString& str)
 	m_title->SetTitleText(strTitle);
 
 	UpdateTrayText();
+	*/
 }
 
 //===========================================================================
@@ -764,90 +940,128 @@ void CMainFrame::OnFileFindfile()
 //===========================================================================
 // Меню : Sound (перемещение по файлу)
 //===========================================================================
-void CMainFrame::OnSoundBegin() 
+void CMainFrame::OnSoundBegin()
 {
-	int	nAllSec = 0;
-	if (m_pSndFile)
+	double l_all_seconds = 0;
+
+	if (g_stream_handle)
 	{
-		m_pSndFile->Seek(0, SND_FILE_BEGIN);
+		l_all_seconds = BASS_ChannelBytes2Seconds(g_stream_handle,
+			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+
+		// Moving to the beginning on file
+		BOOL l_result = BASS_ChannelSetPosition(g_stream_handle,
+			BASS_ChannelSeconds2Bytes(g_stream_handle, 0), BASS_POS_BYTE);
+		ASSERT(l_result);
+
 		m_TimeWnd.SetTime(0);
 		m_SliderTime.SetCurPos(0);
-		nAllSec = m_pSndFile->GetFileSize(IN_SECONDS);
 	}
 
-	CString strRes;
-	char szAllSec[12];
-	Convert(nAllSec, szAllSec);
-	strRes.Format(IDS_SEEKTO, _T("0:00:00"), szAllSec, 0);
-	m_title->SetTitleText(strRes, 1200);
+	char l_str_alltime[20] = {0};
+	Convert((UINT)l_all_seconds, l_str_alltime, sizeof(l_str_alltime));
+
+	CString l_str_caption;
+	l_str_caption.Format(IDS_SEEKTO, _T("0:00:00"), l_str_alltime, 0);
+	m_title->SetTitleText(l_str_caption, 1200);
 }
 
 //===========================================================================
 void CMainFrame::OnSoundRew() 
 {
-	CString strRes;
-	char	szCurSec[12], szAllSec[12];
-	int		nCurSec = 0, nAllSec = 0;
+	double l_allsec = 0;
+	double l_cursec = 0;
 
-	if(m_pSndFile)
-	{	m_pSndFile->Seek(-5, SND_FILE_CURRENT);
-		// обновляем окно времени и слайдер позиции
-		nAllSec = m_pSndFile->GetFileSize(IN_SECONDS);
-		nCurSec = m_pSndFile->GetFilePos(IN_SECONDS);
-		m_TimeWnd.SetTime(nCurSec);
-		m_SliderTime.SetCurPos(int(float(nCurSec)/nAllSec * 1000));
+	if (g_stream_handle)
+	{
+		l_cursec = BASS_ChannelBytes2Seconds(g_stream_handle,
+			BASS_ChannelGetPosition(g_stream_handle, BASS_POS_BYTE));
+		l_allsec = BASS_ChannelBytes2Seconds(g_stream_handle,
+			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+
+		l_cursec = ((l_cursec - 5) > 0) ? l_cursec - 5 : 0;
+
+		BOOL l_result = BASS_ChannelSetPosition(
+			g_stream_handle,
+			BASS_ChannelSeconds2Bytes(g_stream_handle, l_cursec),
+			BASS_POS_BYTE);
+		ASSERT(l_result);
+
+		m_TimeWnd.SetTime((UINT)l_cursec);
+		m_SliderTime.SetCurPos(int(l_cursec/l_allsec*1000));
 	}
 
-	Convert(nCurSec, szCurSec);
-	Convert(nAllSec, szAllSec);
-	strRes.Format(IDS_SEEKTO, szCurSec, szAllSec, int((float)nCurSec*100/nAllSec));
+	char szCurSec[20] = {0};
+	char szAllSec[20] = {0};
+	Convert((UINT)l_cursec, szCurSec, sizeof(szCurSec));
+	Convert((UINT)l_allsec, szAllSec, sizeof(szAllSec));
+
+	CString strRes;
+	strRes.Format(IDS_SEEKTO, szCurSec, szAllSec, int(l_cursec/l_allsec*100));
 	m_title->SetTitleText(strRes, 1200);
 }
 
 //===========================================================================
 void CMainFrame::OnSoundFf() 
 {
-	CString strRes;
-	char	szCurSec[12], szAllSec[12];
-	int		nCurSec = 0, nAllSec = 0;
+	double l_allsec = 0;
+	double l_cursec = 0;
 
-	if(m_pSndFile)
+	if (g_stream_handle)
 	{
-		m_pSndFile->Seek(5, SND_FILE_CURRENT);
-		// обновляем окно времени и слайдер позиции
-		nAllSec = m_pSndFile->GetFileSize(IN_SECONDS);
-		nCurSec = m_pSndFile->GetFilePos(IN_SECONDS);
-		m_TimeWnd.SetTime(nCurSec);
-		m_SliderTime.SetCurPos(int(float(nCurSec)/nAllSec * 1000));
+		l_cursec = BASS_ChannelBytes2Seconds(g_stream_handle,
+			BASS_ChannelGetPosition(g_stream_handle, BASS_POS_BYTE));
+		l_allsec = BASS_ChannelBytes2Seconds(g_stream_handle,
+			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+
+		l_cursec = ((l_cursec + 5) < l_allsec) ? l_cursec + 5 : l_allsec;
+
+		BOOL l_result = BASS_ChannelSetPosition(
+			g_stream_handle,
+			BASS_ChannelSeconds2Bytes(g_stream_handle, l_cursec),
+			BASS_POS_BYTE);
+		ASSERT(l_result);
+
+		m_TimeWnd.SetTime((UINT)l_cursec);
+		m_SliderTime.SetCurPos(int(l_cursec/l_allsec*1000));
 	}
 
-	Convert(nCurSec, szCurSec);
-	Convert(nAllSec, szAllSec);
-	strRes.Format(IDS_SEEKTO, szCurSec, szAllSec, int((float)nCurSec*100/nAllSec));
+	char szCurSec[20] = {0};
+	char szAllSec[20] = {0};
+	Convert((UINT)l_cursec, szCurSec, sizeof(szCurSec));
+	Convert((UINT)l_allsec, szAllSec, sizeof(szAllSec));
+
+	CString strRes;
+	strRes.Format(IDS_SEEKTO, szCurSec, szAllSec, int(l_cursec/l_allsec*100));
 	m_title->SetTitleText(strRes, 1200);
 }
 
 //===========================================================================
 void CMainFrame::OnSoundEnd() 
 {
-	CString strRes;
-	char	szCurSec[12], szAllSec[12];
-	int		nCurSec = 0, nAllSec = 0;
+	double l_allsec = 0;
 
-	if(m_pSndFile)
+	if (g_stream_handle)
 	{
-		m_pSndFile->Seek(0, SND_FILE_END);
-		// обновляем окно времени и слайдер позиции
-		nAllSec = m_pSndFile->GetFileSize(IN_SECONDS);
-		nCurSec = m_pSndFile->GetFilePos(IN_SECONDS);
-		m_TimeWnd.SetTime(nAllSec);
-		m_SliderTime.SetCurPos(int(float(nCurSec)/nAllSec * 1000));
+		l_allsec = BASS_ChannelBytes2Seconds(g_stream_handle,
+			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+
+		BOOL l_result = BASS_ChannelSetPosition(
+			g_stream_handle,
+			BASS_ChannelSeconds2Bytes(g_stream_handle, l_allsec - 0.3),
+			BASS_POS_BYTE);
+		ASSERT(l_result);
+
+		m_TimeWnd.SetTime((UINT)l_allsec);
+		m_SliderTime.SetCurPos(1000);
 	}
 
-	Convert(nCurSec, szCurSec);
-	Convert(nAllSec, szAllSec);
-	strRes.Format(IDS_SEEKTO, szCurSec, szAllSec, int((float)nCurSec*100/nAllSec));
-	m_title->SetTitleText(strRes, 1200);
+	char l_str_alltime[20] = {0};
+	Convert((UINT)l_allsec, l_str_alltime, sizeof(l_str_alltime));
+
+	CString l_str_caption;
+	l_str_caption.Format(IDS_SEEKTO, l_str_alltime, l_str_alltime, 100);
+	m_title->SetTitleText(l_str_caption, 1200);
 }
 
 //===========================================================================
@@ -943,28 +1157,43 @@ void CMainFrame::OnOptEm()
 
 //===========================================================================
 void CMainFrame::OnOptTop() 
-{	// инвертируем текущий тип окна
-	int& top = m_conf.GetConfProg()->bAlwaysOnTop;
-	top = top ? 0 : 1;
+{
+	// Link to the window top option
+	int& l_top = m_conf.GetConfProg()->bAlwaysOnTop;
+	l_top = l_top ? 0 : 1;
 
-	const CWnd* pWndType = (top) ? &wndTopMost : &wndNoTopMost;
+	const CWnd* pWndType = (l_top) ? &wndTopMost : &wndNoTopMost;
 	SetWindowPos(pWndType, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOSIZE|SWP_NOMOVE);
 }
 
 //===========================================================================
 void CMainFrame::OnMixPlay() 
 {
-	CloseMixerWindows();
-	WinExec("sndvol32", SW_SHOW);
+	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
+	if (l_app->IsVistaOS())
+	{
+		WinExec("sndvol", SW_SHOW);
+	}
+	else
+	{
+		CloseMixerWindows();
+		WinExec("sndvol32", SW_SHOW);
+	}
 }
 
 //===========================================================================
 void CMainFrame::OnMixRec() 
 {
-	CloseMixerWindows();
-	WinExec("sndvol32 -r", SW_SHOW);
-
-	//AfxMessageBox(m_RecMixer.GetLineName(m_RecMixer.GetCurLine()), MB_OK);
+	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
+	if (l_app->IsVistaOS())
+	{
+		WinExec("control MMSYS.CPL,,1", SW_SHOW);
+	}
+	else
+	{
+		CloseMixerWindows();
+		WinExec("sndvol32 -r", SW_SHOW);
+	}
 }
 
 
@@ -975,32 +1204,81 @@ void CMainFrame::OnBtnOPEN()
 {
 	this->SetFocus(); // убираем фокус с кнопки
 
-	CString str, strName, strLastPath, strFullName;
+	CString strTemp;
+	strTemp.LoadString(IDS_FILEFILTER);			// фильтр - MPEG audio files
 
-	str.LoadString(IDS_FILEFILTER);			// фильтр - MPEG audio files
-	strName = GetAutoName(CString(""));		// Имя вида 08jun_05.mp3
-	strLastPath = m_conf.GetConfProg()->strLastFilePath;
+	CString strName = GetAutoName(CString(""));	// Имя вида 08jun_05.mp3
+	CString strLastPath = m_conf.GetConfProg()->strLastFilePath;
 
-	// создаем объект стандартного диалога
-	CFileDialog NewOpenFileDialog(true,
-		"mp3",
-		strName.GetBuffer(strName.GetLength()),
-		OFN_HIDEREADONLY | OFN_EXPLORER,
-		str);
-
-	// настраиваем параметры окна диалога
-	str.LoadString(IDS_FILENEWOPENTITLE);
-	NewOpenFileDialog.m_ofn.lpstrTitle = str.GetBuffer(str.GetLength());
-	
-	NewOpenFileDialog.m_ofn.lpstrInitialDir = "";
-	if(!strLastPath.IsEmpty())
+	if (!strLastPath.IsEmpty())
 	{	
 		strLastPath = strLastPath + "\\";
-		NewOpenFileDialog.m_ofn.lpstrInitialDir = strLastPath;	
 	}
 
-	if(NewOpenFileDialog.DoModal() == IDOK)
+	// Creating a standard file open dialog
+	CFileDialog NewOpenFileDialog(true, "mp3",
+		strName.GetBuffer(strName.GetLength()),
+		OFN_HIDEREADONLY | OFN_EXPLORER, strTemp);
+
+	strTemp.LoadString(IDS_FILENEWOPENTITLE);
+	NewOpenFileDialog.m_ofn.lpstrTitle= strTemp.GetBuffer(strTemp.GetLength());
+	NewOpenFileDialog.m_ofn.lpstrInitialDir = strLastPath;	
+
+	if (NewOpenFileDialog.DoModal() == IDOK)
+	{	
 		OpenFile(NewOpenFileDialog.GetPathName());
+		return;
+	}
+	/*
+	OnFileClose();
+
+	if (IsSuitableForRecording(NewOpenFileDialog.GetPathName()))
+	{
+		if (!BASS_RecordInit(-1))
+		{
+			return;
+		}
+		if (!m_record_file.Open(NewOpenFileDialog.GetPathName(),
+			CFile::modeCreate|CFile::modeWrite|CFile::typeBinary, NULL))
+		{
+			BASS_RecordFree();
+			return;
+		}
+	}
+	else
+	{
+		if (!BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL))
+		{
+			return;
+		}
+		g_stream_handle = BASS_StreamCreateFile(false,
+			NewOpenFileDialog.GetPathName(), 0, 0, 0);
+		if (!g_stream_handle)
+		{
+			BASS_Free();
+			return;
+		}
+	}
+
+
+	UpdateStatWindow();
+
+	// Modifying window caption to "<FILE> - StepVoice Recorder".
+	CString l_filename = NewOpenFileDialog.GetPathName();
+	if (l_filename.ReverseFind('\\') != -1)
+	{
+		l_filename = l_filename.Right(l_filename.GetLength() -
+			l_filename.ReverseFind('\\') - 1);
+	}
+	CString l_new_caption;
+	AfxFormatString1(l_new_caption, IDS_FILETITLE, l_filename);
+	m_title->SetTitleText(l_new_caption);
+	*/
+
+	/*if (NewOpenFileDialog.DoModal() == IDOK)
+	{
+		OpenFile(NewOpenFileDialog.GetPathName());
+	}*/
 
 	/*OPENFILENAME ofn;       // common dialog box structure
 	char szFile[260];       // buffer for file name
@@ -1043,6 +1321,50 @@ void CMainFrame::OnBtnOPEN()
 //===========================================================================
 void CMainFrame::OnBtnPLAY()
 {
+	SetFocus();
+
+	if (m_record_file.m_hFile != CFile::hFileNull)
+	{
+		return;
+	}
+	if (!g_stream_handle)
+	{
+		OnBtnOPEN();
+		if (!g_stream_handle)
+		{
+			return;
+		}
+	}
+
+	if (m_bMonitoringBtn)
+	{
+		MonitoringStop();
+	}
+	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_stream_handle);
+	switch (CHANNEL_STATE)
+	{
+	case BASS_ACTIVE_PLAYING:
+		m_GraphWnd.StopUpdate();
+		BASS_ChannelPause(g_stream_handle);
+		KillTimer(1);
+		m_BtnPLAY.SetIcon(IDI_PLAY);
+		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
+		break;
+
+	case BASS_ACTIVE_PAUSED:
+	case BASS_ACTIVE_STOPPED:
+		BASS_ChannelPlay(g_stream_handle, false);
+		SetTimer(1, 1000, NULL);
+		m_BtnPLAY.SetIcon(IDI_PAUSE);
+		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
+		m_GraphWnd.StartUpdate(g_stream_handle);
+	}
+	UpdateIcoWindow();
+	UpdateButtonState(IDB_BTNREC);
+	OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
+	return;
+	/*
+	/// @note Not going here!!
 	SOUND_INFO si;
 	int nRes;
 
@@ -1102,7 +1424,7 @@ void CMainFrame::OnBtnPLAY()
 		m_nState = PLAY_STATE;
 		SetTimer(1, 1000, NULL);
 		// обновляем вид окон
-		m_GraphWnd.SetConfig(&si);
+		//m_GraphWnd.SetConfig(&si);
 		m_BtnPLAY.SetIcon(IDI_PAUSE);
 		//m_BtnREC.ModifyStyle(0, WS_DISABLED);
 		//m_BtnREC.Invalidate(false);
@@ -1138,11 +1460,61 @@ void CMainFrame::OnBtnPLAY()
 
 	// меняем линию микшера
 	OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
+	*/
 }
 
 //===========================================================================
 void CMainFrame::OnBtnSTOP()
 {
+	this->SetFocus();
+
+	if (g_stream_handle)
+	{
+		m_GraphWnd.StopUpdate();
+
+		KillTimer(1);
+		BOOL l_result = BASS_ChannelStop(g_stream_handle);
+		ASSERT(l_result);
+
+		l_result = BASS_ChannelSetPosition(g_stream_handle,
+			BASS_ChannelSeconds2Bytes(g_stream_handle, 0), BASS_POS_BYTE);
+		ASSERT(l_result);
+	}
+	if (g_record_handle)
+	{
+		m_GraphWnd.StopUpdate();
+
+		KillTimer(2);
+		BOOL l_result = BASS_ChannelStop(g_record_handle);
+		ASSERT(l_result);
+
+		g_record_handle = 0;
+		BASS_RecordFree();
+		CString l_recorded_file = m_record_file.GetFilePath();
+		m_record_file.Close();
+		OpenFile(l_recorded_file);
+	}
+	PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
+		(LPARAM)m_pMainFrame->m_SliderTime.m_hWnd);
+	m_SliderTime.SetCurPos(0);
+	UpdateIcoWindow();
+	UpdateStatWindow();
+	//m_GraphWnd.StopUpdate();
+	m_GraphWnd.Clear();
+	m_BtnREC.SetIcon(IDI_REC);
+	m_BtnPLAY.SetIcon(IDI_PLAY);
+	m_TrayIcon.SetIcon(IDI_TRAY_STOP);
+
+	if (m_bMonitoringBtn)
+	{
+		MonitoringStart();
+	}
+	UpdateButtonState(IDB_BTNPLAY);
+	UpdateButtonState(IDB_BTNREC);
+	OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
+	return;
+	/*
+	///@note Not going here!
 	SetFocus();
 	switch(m_nState)
 	{
@@ -1184,11 +1556,11 @@ void CMainFrame::OnBtnSTOP()
 	//	m_pSndFile->Seek(0, SND_FILE_BEGIN);
 	//m_SliderTime.SetCurPos(0);
 
-	/*if(m_pSndFile)
-	{
-		if(m_pSndFile->GetFileSize(IN_SECONDS) > 0)
-			m_SliderTime.ShowThumb(true);
-	}*/
+	//if(m_pSndFile)
+	//{
+	//	if(m_pSndFile->GetFileSize(IN_SECONDS) > 0)
+	//		m_SliderTime.ShowThumb(true);
+	//}
 
 	// изменить окна визуализации и статистики
 	UpdateIcoWindow();
@@ -1206,12 +1578,107 @@ void CMainFrame::OnBtnSTOP()
 
 	// меняем линию микшера
 	OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
+	*/
 }
 
 
 //===========================================================================
 void CMainFrame::OnBtnREC()
 {
+	SetFocus();
+
+	// данные для старта шедулера
+	bool bIsSchedEnabled= m_conf.GetConfDialSH2()->bIsEnabled  != 0;
+	bool bSchedStart	= m_conf.GetConfDialSH2()->bSchedStart != 0;
+	SHR_TIME* ptRec		= &m_conf.GetConfDialSH2()->t_rec;
+	SHR_TIME* ptStop	= &m_conf.GetConfDialSH2()->t_stop;
+
+	if (m_record_file.m_hFile == CFile::hFileNull)
+	{
+		OnBtnOPEN();
+		if (m_record_file.m_hFile == CFile::hFileNull)
+		{
+			return;
+		}
+	}
+	if (m_bMonitoringBtn)
+	{
+		MonitoringStop();
+	}
+	if (!g_record_handle)
+	{
+		if (!BASS_RecordInit(-1))
+		{
+			return;
+		}
+		CONF_DIAL_MP3 l_conf_mp3;
+		memcpy(&l_conf_mp3, m_conf.GetConfDialMp3(), sizeof(CONF_DIAL_MP3));
+
+		SAFE_DELETE(m_pEncoder);
+		m_pEncoder = new CEncoder_MP3(m_strDir);
+
+		if (m_pEncoder->InitEncoder(&l_conf_mp3) != CEncoder::ENC_NOERROR)
+		{
+			SAFE_DELETE(m_pEncoder);
+			CString strRes;
+			AfxFormatString2(strRes, IDS_ENC_ERR_DLL, m_strDir, "lame_enc.dll");
+			AfxMessageBox(strRes, MB_OK|MB_ICONSTOP);
+			return;
+		}
+		g_record_handle = BASS_RecordStart(
+			l_conf_mp3.nFreq,
+			l_conf_mp3.nStereo+1,
+			BASS_RECORD_PAUSE,
+			(RECORDPROC *)&NewRecordProc,
+			this);
+		if (FALSE == g_record_handle)
+		{
+			SAFE_DELETE(m_pEncoder);
+			g_record_handle = 0;
+			return;
+		}
+	}
+
+	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_record_handle);
+	switch (CHANNEL_STATE)
+	{
+	case BASS_ACTIVE_PLAYING:
+		m_GraphWnd.StopUpdate();
+		m_BtnREC.SetIcon(IDI_REC);
+		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
+		BASS_ChannelPause(g_record_handle);
+		KillTimer(2);
+		break;
+
+	case BASS_ACTIVE_PAUSED:
+	case BASS_ACTIVE_STOPPED:
+		BASS_ChannelPlay(g_record_handle, false);
+		SetTimer(2, 1000, NULL);
+		m_GraphWnd.StartUpdate((HSTREAM)g_record_handle);
+		m_BtnREC.SetIcon(IDI_PAUSE);
+		m_TrayIcon.SetIcon(IDI_TRAY_REC);
+
+		// запускаем шедулер
+		if (bIsSchedEnabled && (!bSchedStart))
+		{
+			if (m_conf.GetConfDialSH2()->nStopByID == 1)
+			{
+				m_sched2.SetRecTime(ptRec, NULL);
+			}
+			else
+			{
+				m_sched2.SetStopTime(ptStop, NULL);
+			}
+			TRACE0("==> OnBtnREC: trying to run the scheduler ...\n");
+			m_sched2.Start();
+		}
+		break;
+	}
+	UpdateIcoWindow();
+	UpdateButtonState(IDB_BTNPLAY);
+	return;
+
+	/*
 	SOUND_INFO    si;
 	CONF_DIAL_MP3 confMp3;
 	int nResult;
@@ -1247,17 +1714,17 @@ void CMainFrame::OnBtnREC()
 		ASSERT(!m_pEncoder);
 		m_pEncoder = new CEncoder_MP3(m_strDir);
 		nResult = m_pEncoder->InitEncoder(&confMp3);
-		if(nResult != ENC_NOERROR)
+		if(nResult != CEncoder::ENC_NOERROR)
 		{
 			SAFE_DELETE(m_pEncoder);
 
 			CString strRes;
-			if(nResult == ENC_ERR_DLL || nResult == ENC_ERR_UNK)
+			if(nResult == CEncoder::ENC_ERR_DLL || nResult == CEncoder::ENC_ERR_UNK)
 			{	// критическая ошибка
 				AfxFormatString2(strRes, IDS_ENC_ERR_DLL, m_strDir, "lame_enc.dll");
 				AfxMessageBox(strRes, MB_OK|MB_ICONSTOP);
 			}
-			else if(nResult == ENC_ERR_INIT)
+			else if(nResult == CEncoder::ENC_ERR_INIT)
 			{
 				strRes.LoadString(IDS_ENC_ERR_INIT);
 				AfxMessageBox(strRes, MB_OK | MB_ICONWARNING);
@@ -1282,7 +1749,7 @@ void CMainFrame::OnBtnREC()
 		}
 
 		// решение проблемы краша программы при старте записи с вкл. VAS
-		m_GraphWnd.SetConfig(&si);
+		//m_GraphWnd.SetConfig(&si);
 
 		// запускаем запись
 		if(!m_pWaveIn->Start())
@@ -1345,6 +1812,7 @@ void CMainFrame::OnBtnREC()
 	m_nStartSec = m_pSndFile->GetFilePos(IN_SECONDS);
 	UpdateIcoWindow();
 	UpdateButtonState(IDB_BTNPLAY);
+	*/
 }
 
 //===========================================================================
@@ -1361,84 +1829,119 @@ void CMainFrame::OnBtnMIX_PLAY()
 	OnMixPlay();
 }
 
-//===========================================================================
-// Обработчики слайдеров громкости (уровня) и позиции
-//===========================================================================
+////////////////////////////////////////////////////////////////////////////////
+// Seek and volume slider handlers
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
 {
-	if(pScrollBar->m_hWnd == m_SliderTime.m_hWnd)
+	if (pScrollBar->m_hWnd == m_SliderTime.m_hWnd)
+	{
 		ProcessSliderTime(nSBCode, nPos);
-	else if(pScrollBar->m_hWnd == m_SliderVol.m_hWnd)
+	}
+	else if (pScrollBar->m_hWnd == m_SliderVol.m_hWnd)
+	{
 		ProcessSliderVol(nSBCode, nPos);
-
+	}
 	CFrameWnd::OnHScroll(nSBCode, nPos, pScrollBar);
 }
 
-//===========================================================================
+//------------------------------------------------------------------------------
 void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
 {
-	CString strSeekTo;
-	char	szCurTime[10], szAllTime[10];
+	double l_seconds_pos = 0;
+	double l_seconds_all = 0;
 
-	int nCurSec = 0;
-	int nAllSec = 0;
-	
-	// получаем временные позиции
-	if(m_pSndFile)
-	{	nAllSec = m_pSndFile->GetFileSize(IN_SECONDS);
-		nCurSec = int((float)nPos/1000 * nAllSec);
+	if (g_stream_handle)
+	{
+		l_seconds_all = BASS_ChannelBytes2Seconds(g_stream_handle,
+			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+		l_seconds_pos = l_seconds_all * nPos / 1000;
 	}
 
-	// преобразуем их в строки
-	Convert(nCurSec, szCurTime);
-	Convert(nAllSec, szAllTime);
-	strSeekTo.Format(IDS_SEEKTO, szCurTime, szAllTime, nPos/10);
-
-	// обрабатываем сообщения слайдера
-	switch (nSBCode)
+	if (SB_THUMBTRACK == nSBCode)
 	{
-	case SB_THUMBTRACK:
-		m_title->SetTitleText(strSeekTo, 10000);
-		break;
-	case SB_THUMBPOSITION:
+		// Converting seconds to HHMMSS format
+		char l_str_curtime[20] = {0};
+		char l_str_alltime[20] = {0};
+		Convert((UINT)l_seconds_pos, l_str_curtime, sizeof(l_str_curtime));
+		Convert((UINT)l_seconds_all, l_str_alltime, sizeof(l_str_alltime));
+
+		CString l_seek_msg;
+		l_seek_msg.Format(IDS_SEEKTO, l_str_curtime, l_str_alltime, nPos/10);
+		m_title->SetTitleText(l_seek_msg, 10000);
+	}
+	else if (SB_THUMBPOSITION == nSBCode)
+	{
 		m_title->Restore();
-		if(m_pSndFile)
-		{	nCurSec = int(float(nPos)/1000 * nAllSec);
-			m_pSndFile->Seek(nCurSec, SND_FILE_BEGIN);
-			m_TimeWnd.SetTime(nCurSec);
+		if (g_stream_handle)
+		{
+			if (l_seconds_pos >= l_seconds_all - 0.3)
+			{
+				l_seconds_pos = l_seconds_all - 0.3;
+			}
+			BOOL l_result = BASS_ChannelSetPosition(
+				g_stream_handle,
+				BASS_ChannelSeconds2Bytes(g_stream_handle, l_seconds_pos),
+				BASS_POS_BYTE);
+			ASSERT(l_result);
+			m_TimeWnd.SetTime((UINT)l_seconds_pos);
 		}
 		else
+		{
 			m_SliderTime.SetCurPos(0);
-		break;
+		}
 	}
 }
 
-//===========================================================================
-// Обработчик таймера
-//===========================================================================
+////////////////////////////////////////////////////////////////////////////////
+// WM_TIMER message handler
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnTimer(UINT nIDEvent) 
 {
-	if(m_pSndFile && (nIDEvent==1 || nIDEvent==2))
-	{
-		int nCurSec = m_pSndFile->GetFilePos(IN_SECONDS);
-		int nAllSec = m_pSndFile->GetFileSize(IN_SECONDS);
+	CFrameWnd::OnTimer(nIDEvent);
 
-		if(!m_SliderTime.IsDragging())
-		{	float fPos = (float)nCurSec/nAllSec * 1000;
-			m_SliderTime.SetCurPos(int(fPos));
-		}
-		m_TimeWnd.SetTime(nCurSec);
-		UpdateStatWindow();
+	HSTREAM l_handle = 0;
+	switch (nIDEvent)
+	{
+	case 1:
+		l_handle = g_stream_handle;
+		break;
+	case 2:
+		l_handle = (HSTREAM)g_record_handle;
+		break;
+	default:
+		return;
 	}
 
-	CFrameWnd::OnTimer(nIDEvent);
+	double l_seconds_all = BASS_ChannelBytes2Seconds(l_handle,
+		BASS_ChannelGetLength(l_handle, BASS_POS_BYTE));
+	double l_seconds_cur = BASS_ChannelBytes2Seconds(l_handle,
+		BASS_ChannelGetPosition(l_handle, BASS_POS_BYTE));
+
+	if (l_handle == g_record_handle)
+	{
+		int l_stream_rate = m_conf.GetConfDialMp3()->nBitrate;
+		QWORD l_size_bytes = (QWORD)m_record_file.GetLength();
+		l_seconds_cur = (double)l_size_bytes / (l_stream_rate * 125);
+	}
+	if (!m_SliderTime.IsDragging())
+	{
+		m_SliderTime.SetCurPos(int(l_seconds_cur / l_seconds_all * 1000));
+	}
+	m_TimeWnd.SetTime((UINT)l_seconds_cur);
+	UpdateStatWindow();
+
+	if (BASS_ACTIVE_STOPPED == BASS_ChannelIsActive(l_handle))
+	{
+		PostMessage(WM_COMMAND, IDB_BTNSTOP, LONG(this->m_BtnSTOP.m_hWnd));
+	}
 }
 
 
 //===========================================================================
 // Функия преобразования количества секунд в строку вида "Ч:ММ:СС"
 //===========================================================================
-void CMainFrame::Convert(UINT nCurSec, char *pszTime)
+void CMainFrame::Convert(UINT nCurSec, char *pszTime, int nStrSize)
 {
 	const char* szPattern[] = {"%d", "0%d"};
 	char szMin[3] = "", szSec[3] = "";
@@ -1448,9 +1951,9 @@ void CMainFrame::Convert(UINT nCurSec, char *pszTime)
 	iMin =(nCurSec - iHour*3600)/60;
 	iSec = nCurSec - iHour*3600 - iMin*60;
 
-	sprintf(szMin, szPattern[iMin<10], iMin);
-	sprintf(szSec, szPattern[iSec<10], iSec);
-	sprintf(pszTime, "%d:%s:%s", iHour, szMin, szSec);
+	sprintf_s(szMin, sizeof(szMin), szPattern[iMin<10], iMin);
+	sprintf_s(szSec, sizeof(szSec), szPattern[iSec<10], iSec);
+	sprintf_s(pszTime, nStrSize, "%d:%s:%s", iHour, szMin, szSec);
 }
 
 
@@ -1459,57 +1962,66 @@ void CMainFrame::Convert(UINT nCurSec, char *pszTime)
 //===========================================================================
 void CMainFrame::UpdateIcoWindow()
 {
-	int nIconID;
+	HSTREAM l_handle = (g_record_handle) ? g_record_handle : g_stream_handle;
+	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(l_handle);
 
-	// выбираем нужную иконку ...
-	switch(m_nState)
+	switch (CHANNEL_STATE)
 	{
-	case RECORD_STATE:
-		nIconID = ICON_REC;
+	case BASS_ACTIVE_PLAYING:
+		m_IcoWnd.SetNewIcon((g_record_handle) ? ICON_REC : ICON_PLAY);
 		break;
-	case PLAY_STATE:
-		nIconID = ICON_PLAY;
+	case BASS_ACTIVE_PAUSED:
+		m_IcoWnd.SetNewIcon((g_record_handle) ? ICON_PAUSER : ICON_PAUSEP);
 		break;
-	case PAUSEREC_STATE:
-		nIconID = ICON_PAUSER;
+	case BASS_ACTIVE_STOPPED:
+		m_IcoWnd.SetNewIcon(ICON_STOP);
 		break;
-	case PAUSEPLAY_STATE:
-		nIconID = ICON_PAUSEP;
-		break;
-	case STOP_STATE:
 	default:
-		nIconID = ICON_STOP;
+		ASSERT(false);
 		break;
 	}
-	// ... теперь устанавливаем ее
-	m_IcoWnd.SetNewIcon(nIconID);
 }
 
-//===========================================================================
+//------------------------------------------------------------------------------
 void CMainFrame::UpdateStatWindow()
 {
-	char szTime[10];
-	int  nAllSec = 0, nAllKb = 0;
+	int l_stream_rate = m_conf.GetConfDialMp3()->nBitrate;
+	int l_stream_freq = m_conf.GetConfDialMp3()->nFreq;
+	int l_stream_mode = m_conf.GetConfDialMp3()->nStereo;
 
-	// заполняем переменные значениями настроек
-	SOUND_INFO si;
-	si.nBitrate = m_conf.GetConfDialMp3()->nBitrate;
-	si.nFreq	= m_conf.GetConfDialMp3()->nFreq;
-	si.nStereo	= m_conf.GetConfDialMp3()->nStereo;
+	QWORD l_size_bytes = 0;
+	double l_size_seconds = 0;
 
-	if(m_pSndFile)
-	{	//m_pSndFile->SetSoundInfo(si);	// пытаемся изменить параметры файла
-		m_pSndFile->GetSoundInfo(si);
-		nAllSec = m_pSndFile->GetFileSize(IN_SECONDS);
-		nAllKb  = m_pSndFile->GetFileSize(IN_KBYTES);
+	if (g_stream_handle)
+	{
+		BASS_CHANNELINFO l_channel_info;
+		BASS_ChannelGetInfo(g_stream_handle, &l_channel_info);
+
+		l_size_bytes = BASS_StreamGetFilePosition(g_stream_handle,
+			BASS_FILEPOS_END);
+
+		l_size_seconds = BASS_ChannelBytes2Seconds(g_stream_handle,
+			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+
+		l_stream_rate = int(l_size_bytes / (125* l_size_seconds) + 0.5); //Kbps
+		l_stream_freq = l_channel_info.freq;
+		l_stream_mode = (l_channel_info.chans > 1) ? 1 : 0;
 	}
+	else if (g_record_handle)
+	{
+		l_size_bytes   = (QWORD)m_record_file.GetLength();
+		l_size_seconds = (double)l_size_bytes / (l_stream_rate * 125);
+		//l_size_seconds = BASS_ChannelBytes2Seconds(g_record_handle,
+		//	BASS_ChannelGetPosition(g_record_handle, BASS_POS_BYTE));
+	}
+	char l_time_str[20] = {0};	// Time string in Hours:Minutes:Seconds format
+	Convert((UINT)l_size_seconds, l_time_str, sizeof(l_time_str));
 
-	// устанавливаем переменные в окно статистики
-	Convert(nAllSec, szTime);
-	m_StatWnd.Set(si.nFreq, si.nBitrate, si.nStereo);
-	m_StatWnd.Set(nAllKb, szTime);
+	m_StatWnd.Set(l_stream_freq, l_stream_rate, l_stream_mode);
+	m_StatWnd.Set((UINT)l_size_bytes/1024, l_time_str);
 }
 
+//------------------------------------------------------------------------------
 void CMainFrame::UpdateTrayText()
 {
 	CString wndText;
@@ -1518,36 +2030,32 @@ void CMainFrame::UpdateTrayText()
 	m_TrayIcon.SetTooltipText(wndText);
 }
 
-//===========================================================================
-// Обновления элементов главного меню
-//===========================================================================
+////////////////////////////////////////////////////////////////////////////////
+// Main menu update handlers.
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnUpdateSoundRec(CCmdUI* pCmdUI) 
 {
-	// определяем доступность элемента меню "запись" (если не воспроизведение)
-	bool bEnable = !(m_nState==PLAY_STATE || m_nState== PAUSEPLAY_STATE);
-	pCmdUI->Enable(bEnable);
+	bool l_enabled = !g_stream_handle;
+	pCmdUI->Enable(l_enabled);
 }
 
-//===========================================================================
+//------------------------------------------------------------------------------
 void CMainFrame::OnUpdateSoundPlay(CCmdUI* pCmdUI)
 {
-	// определяем доступность элемента меню "воспр." (если не запись)
-	bool bEnable = !(m_nState==RECORD_STATE || m_nState== PAUSEREC_STATE);
-	pCmdUI->Enable(bEnable);
+	bool l_enabled = (m_record_file.m_hFile == CFile::hFileNull);
+	pCmdUI->Enable(l_enabled);
 }
 
-//===========================================================================
+//------------------------------------------------------------------------------
 void CMainFrame::OnUpdateOptTop(CCmdUI* pCmdUI) 
 {
-	// ставим/убираем галочку "пост. на вершине" в зависимости от настроек
 	int enable = m_conf.GetConfProg()->bAlwaysOnTop;
 	pCmdUI->SetCheck(enable);
 }
 
-//===========================================================================
+//------------------------------------------------------------------------------
 void CMainFrame::OnUpdateOptEm(CCmdUI* pCmdUI) 
 {
-	// ставим/убираем галочку "легкое премещ." в завис. от настроек
 	int enable = m_conf.GetConfProg()->bEasyMove;
 	pCmdUI->SetCheck(enable);
 }
@@ -1564,8 +2072,10 @@ void CMainFrame::OnFileCreateopenA()
 //===========================================================================
 void CMainFrame::OnSoundRecA() 
 {
-	if(m_nState==PLAY_STATE || m_nState==PAUSEPLAY_STATE)
+	if (BASS_ChannelIsActive(g_stream_handle) != BASS_ACTIVE_STOPPED)
+	{
 		return;
+	}
 	m_BtnREC.Press();
 	OnBtnREC();
 }
@@ -1580,8 +2090,10 @@ void CMainFrame::OnSoundStopA()
 //===========================================================================
 void CMainFrame::OnSoundPlayA() 
 {
-	if(m_nState==RECORD_STATE || m_nState==PAUSEREC_STATE)
+	if (m_record_file.m_hFile != CFile::hFileNull)
+	{
 		return;
+	}
 	m_BtnPLAY.Press();
 	OnBtnPLAY();
 }
@@ -1697,7 +2209,16 @@ void CMainFrame::OnOptSnddev()
 {
 	//WinExec("control mmsys.cpl,,0", SW_SHOW);
 	//WinExec("control desk.cpl,,1", SW_SHOW);
-	WinExec("rundll32.exe MMSYS.CPL,ShowAudioPropertySheet", SW_SHOW);
+
+	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
+	if (l_app->IsVistaOS())
+	{
+		WinExec("control MMSYS.CPL", SW_SHOW);
+	}
+	else
+	{
+		WinExec("rundll32.exe MMSYS.CPL,ShowAudioPropertySheet", SW_SHOW);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1806,9 +2327,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 			int nCmdShow = (wndStyle&WS_MINIMIZE || !(wndStyle&WS_VISIBLE))
 				? SW_RESTORE : SW_MINIMIZE;
 
-			if(nCmdShow == SW_MINIMIZE && m_conf.GetConfDialGen()->bTrayMin)
+			if (nCmdShow == SW_MINIMIZE && m_conf.GetConfDialGen()->bTrayMin)
+			{
 				nCmdShow = SW_HIDE;
-
+			}
 			::ShowWindow(this->GetSafeHwnd(), nCmdShow);
 		}
 		break;
@@ -1829,7 +2351,7 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		break;
 	case IDM_TRAY_EXIT:
 		// если открыт диалог настроек - нужно его закрыть до заверш. прогр.
-		if(m_pOptDialog)
+		if (m_pOptDialog)
 		{
 			m_pOptDialog->PostMessage(WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
 			m_pOptDialog = NULL;
@@ -1843,14 +2365,14 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnUpdateTrayPlay(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable(m_nState != RECORD_STATE &&
-		m_nState != PAUSEREC_STATE);
+	bool l_enabled = (m_record_file.m_hFile == CFile::hFileNull);
+	pCmdUI->Enable(l_enabled);
 }
 
 void CMainFrame::OnUpdateTrayRec(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable(m_nState != PLAY_STATE &&
-		m_nState != PAUSEPLAY_STATE);
+	bool l_enabled = BASS_ChannelIsActive(g_stream_handle)==BASS_ACTIVE_STOPPED;
+	pCmdUI->Enable(l_enabled);
 }
 
 /*
@@ -1886,63 +2408,105 @@ void CMainFrame::OnBtnMIX_INV()
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnMIX_SEL()
 {
-	static bool bShow = true;
-
 	this->SetFocus();
 
-	if(bShow)
+	static bool bShowMenu = true;
+	if (!bShowMenu)
 	{
-		// перезапускаем микшер
-		m_RecMixer.Open(WAVE_MAPPER, GetSafeHwnd());
-		m_PlayMixer.Open(WAVE_MAPPER, GetSafeHwnd());
-		if(m_nActiveMixerID == 1)
-			OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
-		else
-			OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
-
-		CRect r;
-		m_BtnMIX_SEL.GetWindowRect(&r);
-
-		CMenu mixMenu;
-		mixMenu.CreatePopupMenu();
-
-		//int j = 0;
-		for(int j = 0; j < m_PlayMixer.GetLinesNum(); j++)
-			mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_PLAY0 + j, m_PlayMixer.GetLineName(j));
-		//if (m_PlayMixer.GetLinesNum () > 0)
-		//	mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_PLAY0 + j, m_PlayMixer.GetLineName(j));
-		mixMenu.AppendMenu(MF_SEPARATOR);
-		for(int i = 0; i < m_RecMixer.GetLinesNum(); i++)
-			mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC0 + i, m_RecMixer.GetLineName(i));
-
-		if(m_nActiveMixerID == 1) // play_mixer
+		bShowMenu = true;
+		return;
+	}
+	/*
+	int l_input[] = {
+		BASS_INPUT_TYPE_DIGITAL,
+		BASS_INPUT_TYPE_LINE,
+		BASS_INPUT_TYPE_MIC,
+		BASS_INPUT_TYPE_SYNTH,
+		BASS_INPUT_TYPE_CD,
+		BASS_INPUT_TYPE_PHONE,
+		BASS_INPUT_TYPE_SPEAKER,
+		BASS_INPUT_TYPE_WAVE,
+		BASS_INPUT_TYPE_AUX,
+		BASS_INPUT_TYPE_ANALOG,
+		BASS_INPUT_TYPE_UNDEF
+	};
+	{
+		int count=0;
+		BASS_DEVICEINFO info;
+		for (int device_id=0; BASS_RecordGetDeviceInfo(device_id, &info); device_id++)
 		{
-			//mixMenu.CheckMenuItem(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine(),
-			//	MF_CHECKED | MF_BYCOMMAND);
-		}
-		else
-		{
-			mixMenu.CheckMenuItem(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(),
-				MF_CHECKED | MF_BYCOMMAND);
-		}
+			if (info.flags&BASS_DEVICE_ENABLED) // device is enabled
+			{
+				BASS_RecordInit(device_id);
+				const char *name;
+				for (int n=-1; name=BASS_RecordGetInputName(n); n++)
+				{
+					float vol;
+					int s=BASS_RecordGetInput(n, &vol);
+					printf("%s [%s : %g]\n", name, s&BASS_INPUT_OFF?"off":"on", vol);
 
-		//выводим меню на экран и устанавливаем флаг показа
-		int nItemID = mixMenu.TrackPopupMenu(TPM_VCENTERALIGN|TPM_LEFTBUTTON|
-			TPM_RETURNCMD, r.right, r.top+(r.bottom-r.top)/2, this);
-		if(!nItemID)
-		{
-			POINT p;
-			::GetCursorPos(&p);
-			RECT r;
-			m_BtnMIX_SEL.GetWindowRect(&r);
-			bShow = (PtInRect(&r, p)) ? false : true;
+					if ((s&BASS_INPUT_TYPE_MASK) == BASS_INPUT_TYPE_MIC)
+					{
+						bool l_found_mic = true;
+					}
+				}
+				BASS_RecordFree();
+				int l_error = BASS_ErrorGetCode();
+				count++; // count it 
+			}
 		}
-		else
-			this->PostMessage(WM_COMMAND, MAKEWPARAM(nItemID, 0), 0);
+		count += 0;
+	}
+	*/
+	// перезапускаем микшер
+	m_RecMixer.Open(WAVE_MAPPER, GetSafeHwnd());
+	m_PlayMixer.Open(WAVE_MAPPER, GetSafeHwnd());
+	if(m_nActiveMixerID == 1)
+		OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
+	else
+		OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
+
+	CRect r;
+	m_BtnMIX_SEL.GetWindowRect(&r);
+
+	CMenu mixMenu;
+	mixMenu.CreatePopupMenu();
+
+	for(int j = 0; j < m_PlayMixer.GetLinesNum(); j++)
+	{
+		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_PLAY0 + j, m_PlayMixer.GetLineName(j));
+	}
+	mixMenu.AppendMenu(MF_SEPARATOR);
+	for(int i = 0; i < m_RecMixer.GetLinesNum(); i++)
+	{
+		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC0 + i, m_RecMixer.GetLineName(i));
+	}
+
+	if(m_nActiveMixerID == 1) // play_mixer
+	{
+		//mixMenu.CheckMenuItem(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine(),
+		//	MF_CHECKED | MF_BYCOMMAND);
 	}
 	else
 	{
-		bShow = true;
+		mixMenu.CheckMenuItem(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(),
+			MF_CHECKED | MF_BYCOMMAND);
+	}
+
+	//выводим меню на экран и устанавливаем флаг показа
+	int nItemID = mixMenu.TrackPopupMenu(TPM_VCENTERALIGN|TPM_LEFTBUTTON|
+		TPM_RETURNCMD, r.right, r.top+(r.bottom-r.top)/2, this);
+	if(!nItemID)
+	{
+		POINT p;
+		::GetCursorPos(&p);
+		RECT r;
+		m_BtnMIX_SEL.GetWindowRect(&r);
+		bShowMenu = (PtInRect(&r, p)) ? false : true;
+	}
+	else
+	{
+		this->PostMessage(WM_COMMAND, MAKEWPARAM(nItemID, 0), 0);
 	}
 }
 
@@ -1958,6 +2522,14 @@ void CMainFrame::OnRecMixMenuSelect(UINT nID)
 	m_RecMixer.SetLine(nID - ID_MIXITEM_REC0);
 	m_SliderVol.SetPos(m_RecMixer.GetVol(m_RecMixer.GetCurLine()));
 	m_nActiveMixerID = 0;
+
+	// Force updating button image
+	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
+	if (l_app->IsVistaOS())
+	{
+		PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
+	}
+
 	//m_BtnMIX_INV.SetIcon(IDI_MIC);
 	//m_BtnMIX_SEL.SetIcon(IDI_MIC);
 
@@ -2117,126 +2689,134 @@ void CMainFrame::OnBtnSched()
 	SHR_TIME* ptRec		= &m_conf.GetConfDialSH2()->t_rec;
 	SHR_TIME* ptStop	= &m_conf.GetConfDialSH2()->t_stop;
 
-	if(!bIsEnabled) // если шедулер еще выключен, то включаем
+	if (!bIsEnabled)
 	{	// если время старта не задано, то включим шедулер при записи
-		if(bSchedStart) {
-			if(m_conf.GetConfDialSH2()->nStopByID == 1) {
+		if (bSchedStart)
+		{
+			if (m_conf.GetConfDialSH2()->nStopByID == 1)
+			{
 				m_sched2.SetRecTime(ptRec, ptStart);
 				TRACE("==> OnBtnSched: SetRecTime(%d:%d:%d, %d:%d:%d)\n",
 					ptRec->h, ptRec->m, ptRec->s, ptStart->h, ptStart->m, ptStart->s);
 			}
-			else {
+			else
+			{
 				m_sched2.SetStopTime(ptStop, ptStart);
 				TRACE("==> OnBtnSched: SetStopTime(%d:%d:%d, %d:%d:%d)\n",
 					ptStop->h, ptStop->m, ptStop->s, ptStart->h, ptStart->m, ptStart->s);
 			}
-			if(!m_sched2.Start())
+			if (!m_sched2.Start())
+			{
 				return;
+			}
 		}
 		// если состояние программы - запись, то вкл. шед
-		else if(m_nState == RECORD_STATE) {
-			if(m_conf.GetConfDialSH2()->nStopByID == 1)
+		else if (BASS_ACTIVE_PLAYING == BASS_ChannelIsActive(g_record_handle))
+		{
+			if (m_conf.GetConfDialSH2()->nStopByID == 1)
+			{
 				m_sched2.SetRecTime(ptRec, NULL);
+			}
 			else
+			{
 				m_sched2.SetStopTime(ptStop, NULL);
-			if(!m_sched2.Start())
+			}
+			if (!m_sched2.Start())
+			{
 				return;
+			}
 		}
-
-		/*if(bSchedStart)
-		{	// дизаблим кн. записи при старте по-расписанию
-			m_BtnREC.ModifyStyle(0, WS_DISABLED);
-			m_BtnREC.Invalidate(false);
-		}*/
 		m_StatWnd.m_btnSched.SetState(BTN_PRESSED);
 	}
 	else
-	{	// выключаем шедулер
+	{
 		m_sched2.Stop();
-
-		/*if(bSchedStart)
-		{	// возвращаем кнопку записи в нормальное состояние
-			m_BtnREC.ModifyStyle(WS_DISABLED, 0);
-			m_BtnREC.Invalidate(false);
-		}*/
 		m_StatWnd.m_btnSched.SetState(BTN_NORMAL);
 	}
 
-	// сохраняем состояние шедулера
 	m_conf.GetConfDialSH2()->bIsEnabled = !bIsEnabled;
-
 	// обновляем состояние кнопки "Запись" при автостарте шедулера
 	UpdateButtonState(IDB_BTNREC);
 
-	/*// обновляем окно времени
+	/*
+	// обновляем окно времени
 	int nRecTime = 0;
-	if(m_conf.GetConfDialSH2()->bIsEnabled)
+	if (m_conf.GetConfDialSH2()->bIsEnabled)
+	{
 		nRecTime = m_sched2.GetRecTimeInSec();
+	}
 	m_TimeWnd.SetTime(nRecTime);
 	*/
 }
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // IN: nAction - запланированное действие
 //		0 - старт записи
 //		1 - стоп записи
 void Scheduler2Function(int nAction)
 {
-	CMainFrame* pMainWnd = (CMainFrame *)AfxGetMainWnd();
+	//CMainFrame* pMainWnd = (CMainFrame *)AfxGetMainWnd();
+	CMainFrame* pMainWnd = CMainFrame::m_pMainFrame;
 
-	if(nAction == 0)		// обрабатываем СТАРТ записи
+	if (nAction == 0)		// обрабатываем СТАРТ записи
 	{
-		// если файл не открыт - сами создаем файл
-		if(!pMainWnd->m_pSndFile) {
+		if (pMainWnd->m_conf.GetConfDialSH2()->bRunExternal)
+		{
+			ShellExecute(0, NULL, pMainWnd->m_conf.GetConfDialSH2()->strFileName,
+				NULL, NULL, SW_SHOWNORMAL);
+		}
+
+		if (pMainWnd->m_record_file.m_hFile == CFile::hFileNull)
+		{
 			CString strName = pMainWnd->GetAutoName(CString(""));
 			CString strPath = pMainWnd->m_conf.GetConfProg()->strLastFilePath;
-			if(strPath.IsEmpty())
+			if (strPath.IsEmpty())
+			{
 				strPath = pMainWnd->m_strDir;
+			}
 			strName = strPath + "\\" + strName;
 			TRACE1("==> Scheduler2Function: trying to open file: %s\n", strName);
 			pMainWnd->OpenFile(strName);
 		}
 		
-		// запускаем внешний файл (если есть)
-		if(pMainWnd->m_conf.GetConfDialSH2()->bRunExternal)	{
-			ShellExecute(0, NULL, pMainWnd->m_conf.GetConfDialSH2()->strFileName,
-				NULL, NULL, SW_SHOWNORMAL);
-		}
-
-		// если состояние - не "запись", то начинаем записывать
-		if(pMainWnd->m_nState != RECORD_STATE) {
+		if (BASS_ChannelIsActive(g_record_handle) != BASS_ACTIVE_PLAYING)
+		{
 			TRACE0("==> Scheduler2Function: call OnBtnREC to start recording\n");
-			pMainWnd->OnBtnSTOP();
+			//pMainWnd->OnBtnSTOP();
 			pMainWnd->OnBtnREC();
+			pMainWnd->UpdateButtonState(IDB_BTNREC);
 		}
 	}
-	else if(nAction == 1)	// обрабатываем СТОП записи
+	else if (nAction == 1)	// обрабатываем СТОП записи
 	{
-		// останавливаем запись
+		TRACE0("==> Scheduler2Function: call OnBtnSTOP\n");
 		pMainWnd->OnBtnSTOP();
 
-		// нужно ли выключить компьютер?
-		if(pMainWnd->m_conf.GetConfDialSH2()->action.shutDown) {
+		if (pMainWnd->m_conf.GetConfDialSH2()->action.shutDown)
+		{
 			CTimerDlg dlg;
 			dlg.m_tdi.strDlgText = "Recording complete. Shutdown computer?";
-			if(dlg.DoModal() == IDOK)
+			if (dlg.DoModal() == IDOK)
+			{
 				ShutDownComputer();
+			}
 			return;
 		}
-
-		// нужно ли закрыть все программы?
-		if(pMainWnd->m_conf.GetConfDialSH2()->action.closeAll) {
+		else if (pMainWnd->m_conf.GetConfDialSH2()->action.closeAll)
+		{
 			CTimerDlg dlg;
 			dlg.m_tdi.strDlgText = "Recording complete. Close the program?";
-			if(dlg.DoModal() == IDOK)
+			if (dlg.DoModal() == IDOK)
+			{
 				CloseAllPrograms();
+			}
 		}
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// МОНИТОРИНГ УРОВНЯ ЗВУКА
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Processing sound level monitoring
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnMonitoring()
 {
 #ifndef _DEBUG
@@ -2245,15 +2825,19 @@ void CMainFrame::OnBtnMonitoring()
 		return;
 #endif
 
-	if(!m_bMonitoringBtn)
+	if (!m_bMonitoringBtn)
 	{
-		m_bMonitoringBtn = true;
-		if(!MonitoringStart() && (m_nState == STOP_STATE))
-		{	
-			AfxMessageBox("Monitoring error!", MB_OK);
-			m_bMonitoringBtn = false;
-			return;
+		// If not recording and not playing, then start monitoring.
+		if (!g_record_handle && (BASS_ChannelIsActive(g_stream_handle) ==
+			BASS_ACTIVE_STOPPED))
+		{
+			if (!MonitoringStart())
+			{
+				AfxMessageBox("Monitoring error!", MB_OK);
+				return;
+			}
 		}
+		m_bMonitoringBtn = true;
 		m_StatWnd.m_btnMon.SetState(BTN_PRESSED);
 	}
 	else
@@ -2262,59 +2846,49 @@ void CMainFrame::OnBtnMonitoring()
 		m_bMonitoringBtn = false;
 		m_StatWnd.m_btnMon.SetState(BTN_NORMAL);
 	}
-
-	//m_bMonitoringBtn = !m_bMonitoringBtn;
 	m_conf.GetConfProg()->bMonitoring = m_bMonitoringBtn;
 }
 
-/////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------
 bool CMainFrame::IsMonitoringOnly()
 {
 	return m_bMonitoringBtn && (m_nState == STOP_STATE);
 }
 
-/////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------
 bool CMainFrame::MonitoringStart()
 {
-	SOUND_INFO si;
-	int nResult;
-
-	// проверка на не "стоп" состояние
-	if(m_nState != STOP_STATE)
+	if (!BASS_RecordInit(-1))
+	{
 		return false;
-
-	si.nFreq	= m_conf.GetConfDialMp3()->nFreq;
-	si.nStereo	= m_conf.GetConfDialMp3()->nStereo;
-	si.nBitrate	= m_conf.GetConfDialMp3()->nBitrate;
-	si.nBits	= 16;
-	m_GraphWnd.SetConfig(&si);
-
-	// запускаем запись
-	if(m_pWaveIn)
-		SAFE_DELETE(m_pWaveIn);
-	m_pWaveIn = new CWaveIn(_RecordProc);
-	nResult = m_pWaveIn->Open(si.nFreq, si.nBits, si.nStereo) == 0;
-	nResult = m_pWaveIn->Start();
-	if(!nResult)
-		SAFE_DELETE(m_pWaveIn);
-
-	return (nResult != 0);
+	}
+	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
+	g_monitoring_handle = BASS_RecordStart(44100, 2, MAKELONG(0, 10), NULL, NULL);
+	if (!g_monitoring_handle)
+	{
+		return false;
+	}
+	m_GraphWnd.StartUpdate((HSTREAM)g_monitoring_handle);
+	return true;
 }
 
-/////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------
 void CMainFrame::MonitoringStop()
 {
-	// проверка на не "стоп" состояние
-	if(m_nState != STOP_STATE)
+	if (!g_monitoring_handle)
+	{
 		return;
-
-	SAFE_DELETE(m_pWaveIn);
+	}
+	m_GraphWnd.StopUpdate();
 	m_GraphWnd.Clear();
+	BASS_ChannelStop(g_monitoring_handle);
+	BASS_RecordFree();
+	g_monitoring_handle = 0;
 }
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // VAS 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnVas()
 {
 #ifndef _DEBUG
@@ -2340,17 +2914,16 @@ void CMainFrame::OnBtnVas()
 			m_TrayIcon.SetIcon(IDI_TRAY_REC);
 		m_GraphWnd.HideVASMark();
 	}
-
 	pConfig->bEnable = m_vas.IsRunning();
 }
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::ProcessVAS(bool bVASResult)
 {
 	static bool bOldVASResult = false;
 
-	if(bVASResult == true)
-	{	// обработка команд при срабатывании VAS
+	if (bVASResult == true)
+	{
 		switch (m_conf.GetConfDialVAS()->nAction)
 		{
 		case 0:
@@ -2363,7 +2936,7 @@ void CMainFrame::ProcessVAS(bool bVASResult)
 			break;
 		}
 	}
-	else if((bVASResult == false)&&(bOldVASResult == true))
+	else if ((bVASResult == false) && (bOldVASResult == true))
 	{	// выход из области VAS
 		m_IcoWnd.SetNewIcon(ICON_REC);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
@@ -2375,49 +2948,49 @@ void CMainFrame::ProcessVAS(bool bVASResult)
 /////////////////////////////////////////////////////////////////////////////
 BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) 
 {
-	// TODO: Add your message handler code here and/or call default
-	//AfxMessageBox("Mouse wheel!");
-	if(zDelta > 0)
+	if (zDelta > 0)
+	{
 		OnVolUpA();
-	if(zDelta < 0)
+	}
+	else if (zDelta < 0)
+	{
 		OnVolDownA();
-
+	}
 	return CFrameWnd::OnMouseWheel(nFlags, zDelta, pt);
 }
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::UpdateButtonState(UINT nID)
 {
-	bool bSchedStart   = m_conf.GetConfDialSH2()->bSchedStart != 0;
-	bool bSchedEnabled = m_conf.GetConfDialSH2()->bIsEnabled != 0;
-	CButton* pBtn = NULL;
-
-	// получаем указатель на дочернюю кнопку
-	pBtn = (CButton *)GetDlgItem(nID);
+	CButton* pBtn = (CButton *)GetDlgItem(nID);
 	ASSERT(pBtn);
 
-	pBtn->ModifyStyle(WS_DISABLED, 0);	// сбрасываем состояние кнопки
+	pBtn->ModifyStyle(WS_DISABLED, 0);	// Resetting button state
 
-	// обработка кнопки "запись"
-	if(nID == IDB_BTNREC)
+	if (IDB_BTNREC == nID)
 	{
-		// дизаблим кнопку "запись" в состоянии "стоп" и при вкл. старте шедулера
-		if(bSchedEnabled && bSchedStart && (m_nState == STOP_STATE))
-			pBtn->ModifyStyle(0, WS_DISABLED);
+		bool bSchedStart   = m_conf.GetConfDialSH2()->bSchedStart != 0;
+		bool bSchedEnabled = m_conf.GetConfDialSH2()->bIsEnabled != 0;
 
+		if (bSchedEnabled && bSchedStart &&
+			(BASS_ChannelIsActive(g_record_handle) == BASS_ACTIVE_STOPPED))
+		{
+			pBtn->ModifyStyle(0, WS_DISABLED);
+		}
 		// дизаблим кнопку "запись" при воспроизведении
-		if((m_nState == PLAY_STATE) || (m_nState == PAUSEPLAY_STATE))
+		if (BASS_ChannelIsActive(g_stream_handle) != BASS_ACTIVE_STOPPED)
+		{
 			pBtn->ModifyStyle(0, WS_DISABLED);
+		}
 	}
-
-	// обработка кнопки "воспроизведение"
-	if(nID == IDB_BTNPLAY)
+	else if (IDB_BTNPLAY == nID)
 	{
 		// дизаблим кнопку "воспроизведение" при записи
-		if((m_nState == RECORD_STATE) || (m_nState == PAUSEREC_STATE))
+		if (m_record_file.m_hFile != CFile::hFileNull)
+		{
 			pBtn->ModifyStyle(0, WS_DISABLED);
+		}
 	}
-
 	pBtn->Invalidate(false); // обновляем кнопку
 }
 

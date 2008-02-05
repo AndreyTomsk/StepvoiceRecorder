@@ -16,6 +16,7 @@ class CMixerPlay : public CMixer
 protected:
 	int m_nCurLine;
 	HWND m_hWnd;
+
 public:
 	int GetLineType(int nLineNum);
 	CMixerPlay();

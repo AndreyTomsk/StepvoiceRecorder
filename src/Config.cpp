@@ -33,7 +33,7 @@ void CConfig::RegisterRead()
 	CWinApp* App = AfxGetApp();
 
 	conf_prog.bAlwaysOnTop  = App->GetProfileInt( "General", "Always on Top", 0 );
-	conf_prog.bEasyMove		= App->GetProfileInt( "General", "Easy Move", 0 );
+	conf_prog.bEasyMove		= App->GetProfileInt( "General", "Easy Move", 1 );
 	conf_prog.nXcoord		= App->GetProfileInt( "General", "Xcoord", 300 );
 	conf_prog.nYcoord		= App->GetProfileInt( "General", "Ycoord", 200 );
 	conf_prog.nDialogIndex	= App->GetProfileInt( "General", "DialogIndex", 0 );

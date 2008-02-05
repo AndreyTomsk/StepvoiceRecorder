@@ -13,13 +13,13 @@ static char THIS_FILE[]=__FILE__;
 //  ŒÕ—“–” “Œ– / ƒ≈—“–” “Œ–
 //====================================================================
 CEncoder_WAV::CEncoder_WAV(CString& strDllPath)
-: CEncoder(strDllPath)
+//: CEncoder(strDllPath)
 {
 }
 
 //--------------------------------------------------------------------
 CEncoder_WAV::CEncoder_WAV(CString& strDllPath, void* pSettings)
-: CEncoder(strDllPath, pSettings)
+//: CEncoder(strDllPath, pSettings)
 {
 }
 
@@ -35,10 +35,10 @@ int CEncoder_WAV::InitEncoder(void* pSettings)
 {
 	bool bError = true;
 
-	if(CEncoder::InitEncoder(pSettings))
-	{
-		bError = false;
-	}
+	//if(CEncoder::InitEncoder(pSettings))
+	//{
+	//	bError = false;
+	//}
 
 	return bError;
 }
@@ -62,7 +62,7 @@ bool CEncoder_WAV::EncodeChunk(char* pBufIn,  int  nBufInSize,
 //--------------------------------------------------------------------
 void CEncoder_WAV::CloseEncoder()
 {
-	CEncoder::CloseEncoder();
+	//CEncoder::CloseEncoder();
 }
 
 //====================================================================

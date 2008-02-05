@@ -1,7 +1,55 @@
 
-20071209 (enh) - Saving files after the recording is complete
-20071209 (enh) - Change mp3 playing to bass.dll
-20071209 (nor) - Wave meter freezes while playing
-20071209 (cri) - Playback problem under Vista
+Milestone: "Version 1.6" Main goals:
+------------------------------------
+1. + Replace playback and recording with bass.dll
+2. + Change mixer code to support mixer in vista.
 
+Todo
+----
+
+20080301 (enh) - Recording all currently playing sounds in Vista.
+20080217 (enh) - If a user presses "Record", then save to a
+                 Untitled.mp3, and ask to save before close.
+
+20080209 (enh) - Offer a user to ask for a filename before or
+		 after recording.
+20071209 (enh) - Saving files AFTER the recording is complete
+
+20061208 (enh) - Add to file menu the "Save as..." item.
+???????? (enh) - Do not ask for a file name before recording,
+                 instead record in a default format (FLAC).
+
+20080203 (enh) - Add support for WAV and OGG files.
+20080203 (enh) - Migrate to wxWindows, it will make possible
+                 for us to reject MFC and even write version
+                 for MAC computers.
+
+???????? (enh) - ID3 tags def. parameters and editing.
+???????? (enh) - Wizard for optimal recording.
+???????? (enh) - Audio normalizer and compressor filters.
+???????? (enh) - Ability to convert audio while saving.
+
+???????? (enh) - skins.
+???????? (enh) - New window - list of recorded files.
+???????? (enh) - Working log.
+
+???????? (enh) - New design of the properties dialog.
+???????? (enh) - Non-modal properties dialog.
+???????? (enh) - New design: icons, logo, nagscreen.
+
+20061208 (enh) - In file menu instead of "Find..." write
+                 "Open containing forlder" (?)
+
+20061208 (enh) + In the scheduler instead of "close all programs"
+                 make "close recorder".
+???????? (nor) + Simpler recording system, without recording
+                 over an exist file, it is buggy and not very
+                 useful feature.
+20080203 (nor) + Change mp3 recording to bass.dll
+20080203 (nor) + Wave meter with bass, wrong grapth sometime
+                 (also bad update)
+???????? (nor) + Better positioning speed while playback.
+20071209 (nor) + Wave meter freezes while playing.
+20071209 (CRI) + Playback problem under Vista
+20071209 (enh) + Change mp3 playing to bass.dll
 20071209 (nor) + Compile under Visual C++ 2005.

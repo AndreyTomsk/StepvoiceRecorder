@@ -10,7 +10,8 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 //////////////////////////////////////////////////////////////////////
-CMixer::CMixer() : m_hMixer(NULL)//, m_volArray(NULL)
+CMixer::CMixer()
+	: m_hMixer(NULL)//, m_volArray(NULL)
 {
 	CAfList<int> l;
 	l.Push(NULL);

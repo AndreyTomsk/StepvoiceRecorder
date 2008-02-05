@@ -17,7 +17,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\..\bin"
-			IntermediateDirectory=".\..\obj\Debug"
+			IntermediateDirectory=".\..\obj\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="1"
@@ -48,17 +48,17 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\HtmlHelp\include,..\..\lame\Dll"
+				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\..\obj\Debug/mp3_recorder_vc8.pch"
-				AssemblerListingLocation=".\..\obj\Debug/"
-				ObjectFile=".\..\obj\Debug/"
-				ProgramDataBaseFileName=".\..\obj\Debug/"
+				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -77,15 +77,16 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib htmlhelp.lib"
-				OutputFile="..\bin\SvRec_d.exe"
+				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib"
+				OutputFile="$(OutDir)\SvRec_d.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\HtmlHelp\lib"
+				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c"
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\bin/SvRec_d.pdb"
+				ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
 				SubSystem="2"
+				ImportLibrary="$(IntDir)\$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -100,7 +101,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\bin/mp3_recorder_vc8.bsc"
+				OutputFile="$(IntDir)\$(TargetName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -118,7 +119,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\..\bin"
-			IntermediateDirectory=".\..\obj\Release"
+			IntermediateDirectory=".\..\obj\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="1"
@@ -149,18 +150,21 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\HtmlHelp\include,..\..\lame\Dll"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="true"
+				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\..\obj\Release/mp3_recorder_vc8.pch"
-				AssemblerListingLocation=".\..\obj\Release/"
-				ObjectFile=".\..\obj\Release/"
-				ProgramDataBaseFileName=".\..\obj\Release/"
+				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="1"
@@ -178,18 +182,19 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/mapinfo:lines"
-				AdditionalDependencies="winmm.lib htmlhelp.lib"
-				OutputFile="..\bin\SvRec.exe"
+				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib"
+				OutputFile="$(OutDir)\SvRec.exe"
 				Version="1.5"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\HtmlHelp\lib"
-				ProgramDatabaseFile=".\..\bin/SvRec.pdb"
+				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c"
+				GenerateManifest="false"
+				ProgramDatabaseFile="$(IntDir)\SvRec.pdb"
 				GenerateMapFile="true"
-				MapFileName=".\..\obj\Release/SvRec.map"
+				MapFileName="$(IntDir)\SvRec.map"
 				SubSystem="2"
 				OptimizeReferences="2"
+				ImportLibrary="$(IntDir)\$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -204,7 +209,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\bin/mp3_recorder_vc8.bsc"
+				OutputFile="$(IntDir)\$(TargetName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -362,28 +367,6 @@
 			</File>
 			<File
 				RelativePath="Decoder_MP3.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Encoder.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

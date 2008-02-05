@@ -24,7 +24,6 @@ CMySheet::CMySheet(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
 	//m_pr.m_psp.dwFlags |= PSP_HASHELP;
 	AddPage(&m_pc);
 	AddPage(&m_pr);
-	//AddPage(&m_ps);
 	AddPage(&m_ps2);
 	AddPage(&m_pv);
 	AddPage(&m_pa);
@@ -37,7 +36,6 @@ CMySheet::CMySheet(LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
 	//m_pr.m_psp.dwFlags |= PSP_HASHELP;
 	AddPage(&m_pc);
 	AddPage(&m_pr);
-	//AddPage(&m_ps);
 	AddPage(&m_ps2);
 	AddPage(&m_pv);
 	AddPage(&m_pa);	

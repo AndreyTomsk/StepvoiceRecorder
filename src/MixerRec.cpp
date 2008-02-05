@@ -82,37 +82,26 @@ BOOL CMixerRec::Open(int nDeviceID, HWND hWnd)
 		return false;
 	}
 
-	if (mLine.cConnections > 1) // (!) Случай нескольких линий
-	{
-		// инициализируем переключатель линий ...
-		if(!m_RecMux.Init(m_hMixer, mLine.dwDestination, 0, INIT_BYPOSITION))
+	if (mLine.cConnections > 1)
+	{	// инициализируем переключатель линий ...
+		if (!m_RecMux.Init(m_hMixer, mLine.dwDestination, 0, INIT_BYPOSITION))
 		{
 			Close();
 			return false;
 		}
-
-		// добавляем линии в список ...
-		for(int i=0; i < mLine.cConnections; i++)
-		{
-			CControlVolume *pCV = new CControlVolume;
-			if(pCV->Init(m_hMixer, mLine.dwDestination, i, INIT_BYPOSITION))
-				//m_volVector.push_back(*pCV);
-				m_volList.Push(pCV);
-			else
-				SAFE_DELETE(pCV);
-		}
 	}
-	else  // (!) Случай одной линии
+	for (int i=0; i < (int)mLine.cConnections; i++)
 	{
 		CControlVolume *pCV = new CControlVolume;
-		if (pCV->Init (m_hMixer, MIXERLINE_COMPONENTTYPE_DST_WAVEIN, NO_SOURCE,
-			INIT_BYTYPE))
-			//m_volVector.push_back(*pCV);
-			m_volList.Push (pCV);
+		if (pCV->Init(m_hMixer, mLine.dwDestination, i, INIT_BYPOSITION))
+		{
+			m_volList.Push(pCV);
+		}
 		else
-			SAFE_DELETE (pCV);
+		{
+			SAFE_DELETE(pCV);
+		}
 	}
-
 	return true;
 }
 

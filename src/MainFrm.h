@@ -44,6 +44,8 @@
 #include "vas.h"
 #include "TimerDlg.h"
 
+#include <bass.h>
+
 /////////////////////////////////////////////////////////////////////////////
 enum {STOP_STATE, PLAY_STATE, RECORD_STATE, PAUSEREC_STATE, PAUSEPLAY_STATE};
 
@@ -59,12 +61,17 @@ class CMainFrame : public CFrameWnd
 	static void _RecordProc(char* pBuf, int dwBufSize);
 	static bool _PlaybkProc(char* pBuf, int& dwBufSize, int nBytesToShow);
 
+	/// Callback function to process sample data
+	static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer,
+		DWORD a_length, void* a_user);
+
 	CWaveIn*		m_pWaveIn;
 	CWaveOut*		m_pWaveOut;
 	CEncoder*		m_pEncoder;
 	CDecoder*		m_pDecoder;
 	CSndFile*		m_pSndFile;
 	CTitleText*		m_title;
+	CFile			m_record_file;
 
 protected:
 	// program state
@@ -143,7 +150,7 @@ public:
 protected:
 	void ProcessSliderTime(UINT nSBCode, UINT nPos);
 	void ProcessSliderVol(UINT nSBCode, UINT nPos);
-	void Convert(UINT nCurSec, char* pszTime);
+	void Convert(UINT nCurSec, char* pszTime, int nStrSize);
 	void OpenFile(CString& strFileName);
 	// функции обновления окон визуализации и статистики
 	void UpdateIcoWindow();

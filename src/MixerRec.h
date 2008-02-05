@@ -16,6 +16,7 @@ class CMixerRec : public CMixer
 {
 protected:
 	CControlMux	m_RecMux;
+
 public:
 	int GetLineType(int nLineNum);
 	CMixerRec();

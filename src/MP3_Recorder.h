@@ -24,21 +24,16 @@ class CMP3_RecorderApp : public CWinApp
 public:
 	CMP3_RecorderApp();
 	CString GetProgramDir();
+	CString GetMyFileVersion();
+	bool    IsVistaOS() {return m_is_vista;}
 
-// Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMP3_RecorderApp)
-	public:
+public:
 	virtual BOOL InitInstance();
 	//}}AFX_VIRTUAL
 
-// Implementation
-protected:
-	bool IsNeedOneInstance();
-	bool IsAlreadyRunning();
-	static BOOL CALLBACK searcher(HWND hWnd, LPARAM lParam);
 public:
-	CString GetMyFileVersion();
 	//{{AFX_MSG(CMP3_RecorderApp)
 	afx_msg void OnAppAbout();
 	afx_msg void OnHelpWww();
@@ -51,6 +46,14 @@ public:
 	afx_msg void OnHelpOrderOnline();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
+protected:
+	bool IsNeedOneInstance();
+	bool IsAlreadyRunning();
+	static BOOL CALLBACK searcher(HWND hWnd, LPARAM lParam);
+
+private:
+	bool m_is_vista;
 };
 
 

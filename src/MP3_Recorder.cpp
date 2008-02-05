@@ -15,9 +15,10 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+// Exe-file size optimizations - almost all of it doesn't work in VC2005.
 #pragma comment(linker,"/MERGE:.rdata=.text")
 //#pragma comment(linker,"/FILEALIGN:512 /SECTION:.text,EWRX /IGNORE:4078")
-#pragma comment(linker,"/FILEALIGN:512")
+//#pragma comment(linker,"/FILEALIGN:512")
 
 #define SPECIAL_VERSION
 
@@ -46,13 +47,15 @@ CMP3_RecorderApp theApp;
 
 /////////////////////////////////////////////////////////////////////////////
 CMP3_RecorderApp::CMP3_RecorderApp()
+	:m_is_vista(false)
 {
 }
 
 #pragma optimize ("", off)
 
 /////////////////////////////////////////////////////////////////////////////
-static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(_T("UWM_ARE_YOU_ME-{B87861B4-8BE0-4dc7-A952-E8FFEEF48FD3}"));
+static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(
+	_T("UWM_ARE_YOU_ME-{B87861B4-8BE0-4dc7-A952-E8FFEEF48FD3}"));
 
 BOOL CALLBACK CMP3_RecorderApp::searcher(HWND hWnd, LPARAM lParam)
 {
@@ -112,13 +115,16 @@ BOOL CMP3_RecorderApp::InitInstance()
 	}
 #endif
 
-	bool bNeedOneInstance = false;
+	// Checking if running in Vista.
+	OSVERSIONINFO OSVersion;
+	OSVersion.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	::GetVersionEx(&OSVersion);
+	m_is_vista = OSVersion.dwMajorVersion > 5;
 
 	// метка в реестре
 	SetRegistryKey(_T("StepVoice Software"));
 
-	//if(this->IsAlreadyRunning() && bNeedOneInstance)
-	if(this->IsAlreadyRunning() && this->IsNeedOneInstance())
+	if (this->IsAlreadyRunning() && this->IsNeedOneInstance())
     { /* активизируем окно работающего экземпл€ра */
         HWND hOther = NULL;
         EnumWindows(searcher, (LPARAM)&hOther);
@@ -254,7 +260,8 @@ void CMP3_RecorderApp::OnHelpEmail()
 {
 	CString strVersion = GetMyFileVersion();
 
-	ShellExecute(0, NULL, "mailto:support@stepvoice.com?subject=SV%20Recorder,%20version%201.5",
+	ShellExecute(0, NULL,
+		"mailto:support@stepvoice.com?subject=SV%20Recorder,%20version%201.5",
 		NULL, NULL, SW_SHOWNORMAL);
 }
 
@@ -351,9 +358,8 @@ BOOL CAboutDlg::OnInitDialog()
 	CString	strWndText;//("Our thanks to: \r\n");
 	CEdit*	pThanksEdit = (CEdit *)GetDlgItem(IDC_THANKSTO);
 	char*	szThanks[] = {
-
 		"MPEG Layer-3 Audio Codec Lame 3.96\r\n(http://www.mp3dev.org/mp3)",
-		"MPEG decoder library (mpglib.dll) by Michael Hipp\r\n(http://www.mpg123.de)",
+		"BASS library (bass.dll) by Ian Luck\r\n(http://www.un4seen.com)",
 		""};
 
 	CDialog::OnInitDialog();
@@ -422,7 +428,7 @@ CString CMP3_RecorderApp::GetMyFileVersion()
 		delete [] pBuffer;
 	}
 */
-	CString strFileVersion("1.5");
+	CString strFileVersion("1.6");
 	return strFileVersion;
 }
 

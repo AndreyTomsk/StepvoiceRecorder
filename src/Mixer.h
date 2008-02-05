@@ -32,14 +32,15 @@ public:
 	virtual void Close();						// закрыть микшер
 
 	int GetLinesNum()  const;					// получить количество SRC линий
-	virtual CString GetLineName(int nLineNum) = 0; // получить название линии по номеру
+	virtual int GetCurLine() = 0;				// получить номер текущей линии
 
 	virtual void SetLine(int nLineNum) = 0;		// установить линию по номеру
-	virtual void SetVol(int nPercent) = 0;		// установить громкость линии
 
-	virtual int GetCurLine() = 0;				// получить номер текущей линии
+	virtual CString GetLineName(int nLineNum) = 0; // получить название линии по номеру
 	virtual int GetLineType(int nLineNum) = 0;	// получить тип
-	virtual int GetVol(int nLineNum) = 0;		// получить громкость текущ. линии в процентах
+
+	virtual void SetVol(int nPercent) = 0;		// установить громкость линии
+	virtual int  GetVol(int nLineNum) = 0;		// получить громкость текущ. линии в процентах
 };
 
 //////////////////////////////////////////////////////////////////////
