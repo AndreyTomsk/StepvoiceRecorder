@@ -9,6 +9,8 @@ Milestone: "Version 1.7". Main goals:
 Todo
 ----
 
+20080315 (enh) - Aplly a Multilingual interface.
+
 20080309 (enh) - (?) Simple timer selection in the main menu.
 20080309 (enh) - Make a portable build.
 20080309 (enh) - Split long recording into peices.
@@ -45,7 +47,7 @@ Todo
 ???????? (enh) - New window: List of recorded files.
 ???????? (enh) - New window: ID3 tags autofilling and editing.
 
-???????? (enh) - Working log.
+???????? (enh) - Working log (also for users: errors, info, ...).
 ???????? (enh) - Non-modal properties dialog.
 20080309 (enh) - In the recorded files list make a row with levels preview.
 
@@ -56,7 +58,10 @@ Todo
 20061208 (enh) * (?) In file menu instead of "Find..."
                  write "Open containing forlder"
 
-20080312 (nor) + Program crashes when entering reg. key from nag-screen.
+20080318 (bug) + Unable to open file for playing then it is opened in another
+                 program.
+20080318 (bug) + Play btn is disabled after a file is closed (was 0 size).
+20080312 (bug) + Program crashes when entering reg. key from nag-screen.
                  (Updated project settings.)
 
 -----------------------------------------------------------------------------

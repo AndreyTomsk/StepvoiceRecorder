@@ -34,7 +34,8 @@ bool IsSuitableForRecording(CString a_filename)
 		NULL);
 	if (l_file_handle == INVALID_HANDLE_VALUE)
 	{
-		return true;
+		DWORD l_error = ::GetLastError();
+		return (l_error && l_error != ERROR_FILE_NOT_FOUND) ? false: true;
 	}
 	DWORD l_size = GetFileSize(l_file_handle, NULL);
 	CloseHandle(l_file_handle);
@@ -745,6 +746,7 @@ void CMainFrame::OnFileClose()
 	}
 	if (m_record_file.m_hFile != CFile::hFileNull)
 	{
+		m_record_file.Flush();
 		m_record_file.Close();
 	}
 	SAFE_DELETE(m_pEncoder);
@@ -760,6 +762,10 @@ void CMainFrame::OnFileClose()
 	m_TimeWnd.Reset();
 	UpdateStatWindow();
 	UpdateTrayText();
+
+	///@bug Copied from OnBtnSTOP - refactoring needed!
+	UpdateButtonState(IDB_BTNPLAY);
+	UpdateButtonState(IDB_BTNREC);
 }
 
 /////////////////////////////////////////////////////////////////////////////
