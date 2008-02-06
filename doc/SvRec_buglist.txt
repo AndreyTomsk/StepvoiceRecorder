@@ -1,13 +1,10 @@
-Milestone: "Version 1.7" Main goals:
-------------------------------------
+-----------------------------------------------------------------------------
+Milestone: "Version 1.7". Main goals:
+
 1. - Recording all currently playing sounds in Vista.
 2. - Add a command line switches support.
 
-
-Milestone: "Version 1.6" Main goals:
-------------------------------------
-1. + Replace playback and recording with bass.dll
-2. + Change mixer code to support mixer in vista.
+-----------------------------------------------------------------------------
 
 Todo
 ----
@@ -23,7 +20,9 @@ Todo
 20080309 (enh) - Automatic recording levels adjustment.
 ???????? (enh) - Audio normalizer and compressor filters.
 
+20080311 (enh) - In Vista mixing StereoMix with other streams.
 20080301 (enh) - Recording all currently playing sounds in Vista.
+
 20080217 (enh) - If a user presses "Record", then save to a
                  Untitled.mp3, and ask to save before close.
 
@@ -57,6 +56,17 @@ Todo
 20061208 (enh) * (?) In file menu instead of "Find..."
                  write "Open containing forlder"
 
+20080312 (nor) + Program crashes when entering reg. key from nag-screen.
+                 (Updated project settings.)
+
+-----------------------------------------------------------------------------
+Milestone: "Version 1.6". Main goals:
+
+1. + Replace playback and recording with bass.dll
+2. + Change mixer code to support mixer in vista.
+
+-----------------------------------------------------------------------------
+
 20061208 (enh) + In the scheduler instead of "close all programs"
                  make "close recorder".
 ???????? (nor) + Simpler recording system, without recording
@@ -70,3 +80,4 @@ Todo
 20071209 (CRI) + Playback problem under Vista
 20071209 (enh) + Change mp3 playing to bass.dll
 20071209 (nor) + Compile under Visual C++ 2005.
+-----------------------------------------------------------------------------

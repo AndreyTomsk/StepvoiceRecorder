@@ -110,9 +110,11 @@ HBRUSH CNagScreenDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void CNagScreenDlg::OnEntercode() 
 {
 	CEnterCodeDlg dlg;
-	if (dlg.DoModal() == IDOK) {
-		// exit code as IDOK - to make an error and quit current instance
+	if (dlg.DoModal() == IDOK)
+	{	
+		// Exit code as IDOK - to make an error and quit current instance.
 		PostMessage(WM_COMMAND, IDOK, (LPARAM)GetDlgItem(IDCANCEL)->m_hWnd);
+
 		char FileName[MAX_PATH];
 		GetModuleFileName(AfxGetInstanceHandle(), FileName, MAX_PATH);
 		ShellExecute(::GetDesktopWindow(), "open", FileName, NULL, NULL, SW_SHOW);

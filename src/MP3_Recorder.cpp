@@ -20,7 +20,7 @@ static char THIS_FILE[] = __FILE__;
 //#pragma comment(linker,"/FILEALIGN:512 /SECTION:.text,EWRX /IGNORE:4078")
 //#pragma comment(linker,"/FILEALIGN:512")
 
-#define SPECIAL_VERSION
+//#define SPECIAL_VERSION
 
 #ifdef SPECIAL_VERSION
 const char* SPECIAL_REGKEY="0CPUbXwmIwOuxi0KU4ojGBcLIYQ3GBO730WI+KqFVxQoPECrhKY8C9bgNN1qq4r1KWeoa53zG1LXP/dvOCGIOsCxtu6akX6NR3mlPqNdWJi7B/oELIkzfLBRirW8X5ZxRlT/2A6PC2LXchWOlIL5rIeEb5gJn85vYkBwDPAtQlG8=";
@@ -155,7 +155,10 @@ BOOL CMP3_RecorderApp::InitInstance()
 		UINT nIDRet = NagDlg.DoModal();
 		nIDRet = nIDRet/(nIDRet - IDOK);
 	}
-	catch(...) {return false;}
+	catch (...)
+	{
+		return FALSE;
+	}
 
 _lNoNag:
 	CMainFrame* pFrame = new CMainFrame;
