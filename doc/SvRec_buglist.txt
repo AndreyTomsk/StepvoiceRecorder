@@ -1,3 +1,8 @@
+Milestone: "Version 1.7" Main goals:
+------------------------------------
+1. - Recording all currently playing sounds in Vista.
+2. - Add a command line switches support.
+
 
 Milestone: "Version 1.6" Main goals:
 ------------------------------------
@@ -6,6 +11,17 @@ Milestone: "Version 1.6" Main goals:
 
 Todo
 ----
+
+20080309 (enh) - (?) Simple timer selection in the main menu.
+20080309 (enh) - Make a portable build.
+20080309 (enh) - Split long recording into peices.
+
+20080309 (enh) - Add a multi-language support.
+20080309 (enh) - Add a command line switches support (console "at" command).
+20080309 (enh) - Add a simple file editor.
+
+20080309 (enh) - Automatic recording levels adjustment.
+???????? (enh) - Audio normalizer and compressor filters.
 
 20080301 (enh) - Recording all currently playing sounds in Vista.
 20080217 (enh) - If a user presses "Record", then save to a
@@ -20,25 +36,26 @@ Todo
                  instead record in a default format (FLAC).
 
 20080203 (enh) - Add support for WAV and OGG files.
+???????? (enh) - Ability to convert audio while saving.
+
 20080203 (enh) - Migrate to wxWindows, it will make possible
                  for us to reject MFC and even write version
                  for MAC computers.
 
-???????? (enh) - ID3 tags def. parameters and editing.
-???????? (enh) - Wizard for optimal recording.
-???????? (enh) - Audio normalizer and compressor filters.
-???????? (enh) - Ability to convert audio while saving.
+???????? (enh) - New window: Wizard for optimal recording.
+???????? (enh) - New window: List of recorded files.
+???????? (enh) - New window: ID3 tags autofilling and editing.
 
-???????? (enh) - skins.
-???????? (enh) - New window - list of recorded files.
 ???????? (enh) - Working log.
-
-???????? (enh) - New design of the properties dialog.
 ???????? (enh) - Non-modal properties dialog.
+20080309 (enh) - In the recorded files list make a row with levels preview.
+
+???????? (enh) - New design: Properties dialog.
+???????? (enh) - New design: skins.
 ???????? (enh) - New design: icons, logo, nagscreen.
 
-20061208 (enh) - In file menu instead of "Find..." write
-                 "Open containing forlder" (?)
+20061208 (enh) * (?) In file menu instead of "Find..."
+                 write "Open containing forlder"
 
 20061208 (enh) + In the scheduler instead of "close all programs"
                  make "close recorder".
