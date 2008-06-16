@@ -3,8 +3,7 @@
 ; ===========================================
 
 #define AppName "StepVoice Recorder"
-;#define AppVersion GetFileVersion(AddBackslash(SourcePath) + "Source\SvRec.exe")
-#define AppVersion GetStringFileInfo(AddBackslash(SourcePath) + "..\..\bin\SvRec.exe", FILE_VERSION)
+#define AppVersion GetStringFileInfo(AddBackslash(SourcePath) + "..\bin\SvRec.exe", FILE_VERSION)
 
 [Setup]
 AppName={#AppName}
@@ -33,15 +32,16 @@ Root: HKCU; Subkey: "Software\StepVoice Software\SvRec\General"; ValueType: stri
 
 
 [Files]
-Source: ..\..\bin\SvRec.exe;    DestDir: {app}; Flags: ignoreversion
-Source: ..\..\bin\lame_enc.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\..\..\bass\bass.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\HtmlHelp\SvRec.chm;  DestDir: {app}; Flags: ignoreversion
-Source: .\history.txt;          DestDir: {app}; Flags: ignoreversion
-Source: .\license.txt;          DestDir: {app}; Flags: ignoreversion
-Source: .\file_id.diz;          DestDir: {app}; Flags: ignoreversion
-Source: .\home.url;             DestDir: {app}; Flags: ignoreversion
-Source: .\order.url;            DestDir: {app}; Flags: ignoreversion
+Source: history.txt;          DestDir: {app}; Flags: ignoreversion
+Source: license.txt;          DestDir: {app}; Flags: ignoreversion
+Source: file_id.diz;          DestDir: {app}; Flags: ignoreversion
+Source: home.url;             DestDir: {app}; Flags: ignoreversion
+Source: order.url;            DestDir: {app}; Flags: ignoreversion
+
+Source: ..\bin\SvRec.exe;     DestDir: {app}; Flags: ignoreversion
+Source: ..\bin\lame_enc.dll;  DestDir: {app}; Flags: ignoreversion
+Source: ..\doc\HtmlHelp\SvRec.chm;  DestDir: {app}; Flags: ignoreversion
+Source: ..\..\bass\bass.dll;  DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 ;Name: {group}\Order Online; Filename: {app}\order.url; WorkingDir: {app}
