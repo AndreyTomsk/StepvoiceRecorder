@@ -9,7 +9,8 @@ Milestone: "Version 1.7". Main goals:
 Todo
 ----
 
-20080315 (enh) - Aplly a Multilingual interface.
+20080616 (bug) - Handle the "lame_end.dll not found" error.
+20080327 (bug) - Adjust the tab-stop order in properties dialog.
 
 20080309 (enh) - (?) Simple timer selection in the main menu.
 20080309 (enh) - Make a portable build.

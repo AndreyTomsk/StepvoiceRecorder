@@ -21,7 +21,7 @@ RBREGKEYS=1
 CBWRAP=1
 CBKEYAUTOSAVE=1
 CBKEYEXPIRATIONDATE=0
-DTKEYEXPIRATIONDATE=39537,6583856944
+DTKEYEXPIRATIONDATE=39602,6583856944
 RBTRIAL=1
 CBDAYS=1
 CBEXECUTIONS=0
@@ -37,8 +37,8 @@ KEYFILENAME=D:\Мои документы\svr_user_keys\SvRec.key
 EKEYFILENAME=D:\Мои документы\svr_user_keys\SvRec.key
 CBREGISTRYPATH=0
 EREGISTRYKEY=StepVoice Software\svrec
-PAGEINDEX=0
-MUSERINFO={CRLF}{CRLF}M J Nelson{CRLF}- single-user license - 
+PAGEINDEX=4
+MUSERINFO={CRLF}{CRLF}Patrick  Perry{CRLF}- single-user license - 
 CBLIBRARY=0
 ELIBRARYNAME=
 CBEMULATESYSFUNC=0
@@ -51,6 +51,10 @@ E=e9vHtuj7atvywhHkNJ03AjmAZZjrRcj+kIEAhsee4N04g7rNOPKtrVr3VOvQKCQhssJAWnXKU4U9cX
 D=3+Mfxm1UdkDCNVjrhnLS3zwFJCasEMAKTR4vtm3Xuy2cCJHNFQallN0ZbO5McABOOtRIC1UkFwB2/r3DdRSdFuTo0dHAgcIXbnIv5S8vp/uBJEM+Q9gCfNLNNeEO1dXJE6u+ZQKz+onY0FceNwT2yb9FFczqHG3Aj2nDF8icD5A=
 N=9eMf1r3G1pNLjmcucaeIrYSehER1XFA51kNBnzLwWHxmCKe8CP4Yn+CQhpDhiGnnh5VytxGt88Uj7WuF3u+cIQneAtClse1KQGTs7zT141eRHDuDkoeyVV37FEnV90xFkehxk530q0AVJxryjZFyFr/1QzmHibjqwvua0D3X55E=
 [Black List]
-Count=1
-0=Dieter Allerheiligen - single-user license -
-#0=0wTQwhIxcPESb3tTs1j+D/tRLt7gKndS0ZzkipbZMN2iW0ilJDGSYry+6QXfSdA+uBJqBoh8nWoaF1wLQA32flFLgjsUPDBptEErkswKCUTfJye74sM2EztSkFyN3M8wenZhYezOsHds1IQ3WAeud1Qx/8J+Mhc/Zx2DmqeJc6n0=
+Count=3
+0=Bernard D Kempf - multi-user license (2 computers) -
+#0=0D0oXrWuUIvTVKHO46KpT3tJxO/kzhWQgnfith0Ho3KuvObL+6FXdQJwAiiuohFjGmpJK2LaxARxzF8mg/g9gnjxLY13BFaLAv6zXQ/JzilZFXz9NVcry5b7YHnLxgL98h/8KUAXxoMulb4mdNI8TkgYyJ4Hn7S5CkwWtkYnG5CM=
+1=Dieter Allerheiligen - single-user license -
+#1=0wTQwhIxcPESb3tTs1j+D/tRLt7gKndS0ZzkipbZMN2iW0ilJDGSYry+6QXfSdA+uBJqBoh8nWoaF1wLQA32flFLgjsUPDBptEErkswKCUTfJye74sM2EztSkFyN3M8wenZhYezOsHds1IQ3WAeud1Qx/8J+Mhc/Zx2DmqeJc6n0=
+2=giuseppe muratori
+#2=08n06ZS4+CTDTphP6bz7QWb6xy8kbFJEjhcAw6nSiV/KUQdxBm+MqNqHBEoCcnVc/dmcyeu6/abs58pfR7SjzYLsCcHsFeUKFLOSlHpWqyyi3iJe8RniIWYj2jeD7D0ESOZrxRkDXS8Z/RBOs/LE/BUbUL6TMxLy/3w+oMA4r84Y=

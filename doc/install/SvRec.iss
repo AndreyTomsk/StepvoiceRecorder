@@ -57,6 +57,8 @@ Name: desktopicon; Description: Create a &desktop icon; GroupDescription: Additi
 Name: quicklaunchicon; Description: Create a &Quick Launch icon; GroupDescription: Additional icons:; Flags: unchecked
 
 [Run]
+; The line below is used only for special versions.
+Filename: {app}\SvRec.exe; Parameters: "/register"
 FileName: {app}\SvRec.exe; Description: Launch StepVoice Recorder; Flags: postinstall nowait skipifsilent unchecked
 
 [_ISTool]

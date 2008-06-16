@@ -20,10 +20,9 @@ static char THIS_FILE[] = __FILE__;
 //#pragma comment(linker,"/FILEALIGN:512 /SECTION:.text,EWRX /IGNORE:4078")
 //#pragma comment(linker,"/FILEALIGN:512")
 
-//#define SPECIAL_VERSION
-
+//#define SPECIAL_VERSION 1
 #ifdef SPECIAL_VERSION
-const char* SPECIAL_REGKEY="0CPUbXwmIwOuxi0KU4ojGBcLIYQ3GBO730WI+KqFVxQoPECrhKY8C9bgNN1qq4r1KWeoa53zG1LXP/dvOCGIOsCxtu6akX6NR3mlPqNdWJi7B/oELIkzfLBRirW8X5ZxRlT/2A6PC2LXchWOlIL5rIeEb5gJn85vYkBwDPAtQlG8=";
+const char* SPECIAL_REGKEY="0fg9MGxmN3+1B46SMgjrRm5T3tFanemtTard6ZO31ipijmp+eYPaogsN4UXvxkwdp8m0fZaeqXwjHKLVwuFRjtsDWlAp8bBkGw7MpzlU1sCycustD4XvaqFnv6KINGlF+nunUmhkr57WwEfEB2W0mSBEDfm4JDWh+R9JZNkpMi2o=";
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -105,15 +104,15 @@ bool CMP3_RecorderApp::IsAlreadyRunning()
 /////////////////////////////////////////////////////////////////////////////
 BOOL CMP3_RecorderApp::InitInstance()
 {
-#ifdef SPECIAL_VERSION
 	if (m_lpCmdLine[0] != '\0' && strcmp(m_lpCmdLine, "/register") == 0)
 	{
+#ifdef SPECIAL_VERSION
 			// Adding a registration key into the system registry
 			CEnterCodeDlg ecDlg;
 			ecDlg.RegisterKey( SPECIAL_REGKEY );
+#endif
 			return true;
 	}
-#endif
 
 	// Checking if running in Vista.
 	OSVERSIONINFO OSVersion;
