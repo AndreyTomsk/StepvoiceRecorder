@@ -6,4 +6,4 @@ rem echo %BUILD_DATE:~2,6%
 
 rem Creating version.h containing version information based on svn rev. number
 set PATH=%PATH%;%PROGRAMFILES%\TortoiseSVN\bin\
-SubWCRev.exe .. version.in version.h
+SubWCRev.exe ..\ version.in version.h

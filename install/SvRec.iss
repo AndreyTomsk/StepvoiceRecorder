@@ -2,24 +2,28 @@
 ; StepVoice Recorder installation script
 ; ===========================================
 
-#define AppName "StepVoice Recorder"
-#define AppVersion GetStringFileInfo(AddBackslash(SourcePath) + "..\bin\SvRec.exe", FILE_VERSION)
+#define User_AppName    "StepVoice Recorder"
+#define User_AppExeName "SvRec.exe"
+
+#define User_AppVersion GetFileVersion(AddBackslash(SourcePath) + "..\bin\" + User_AppExeName)
+#define User_OutputFile "svrec" + Copy(User_AppVersion, 1, 1) + Copy(User_AppVersion, 3, 1)
 
 [Setup]
-AppName={#AppName}
-AppID={#AppName}
-AppVerName={#AppName} {#AppVersion}
-DefaultDirName={pf}\{#AppName}
-DefaultGroupName={#AppName}
+AppName={#User_AppName}
+AppID={#User_AppName}
+AppVerName={#User_AppName} {#User_AppVersion}
+DefaultDirName={pf}\{#User_AppName}
+DefaultGroupName={#User_AppName}
 UninstallDisplayIcon={app}\SvRec.exe
 DirExistsWarning=no
 WizardImageFile=WizModernImage-IS.bmp
 WizardSmallImageFile=WizModernSmallImage-IS.bmp
-OutputBaseFilename=svrec16
 LicenseFile=.\license.txt
 Compression=lzma/max
 SolidCompression=yes
 PrivilegesRequired=none
+
+OutputBaseFilename={#User_OutputFile}
 
 
 [Registry]
@@ -32,25 +36,25 @@ Root: HKCU; Subkey: "Software\StepVoice Software\SvRec\General"; ValueType: stri
 
 
 [Files]
-Source: history.txt;          DestDir: {app}; Flags: ignoreversion
-Source: license.txt;          DestDir: {app}; Flags: ignoreversion
-Source: file_id.diz;          DestDir: {app}; Flags: ignoreversion
-Source: home.url;             DestDir: {app}; Flags: ignoreversion
-Source: order.url;            DestDir: {app}; Flags: ignoreversion
+Source: history.txt;               DestDir: {app}; Flags: ignoreversion
+Source: license.txt;               DestDir: {app}; Flags: ignoreversion
+Source: file_id.diz;               DestDir: {app}; Flags: ignoreversion
+Source: home.url;                  DestDir: {app}; Flags: ignoreversion
+Source: order.url;                 DestDir: {app}; Flags: ignoreversion
 
-Source: ..\bin\SvRec.exe;     DestDir: {app}; Flags: ignoreversion
-Source: ..\bin\lame_enc.dll;  DestDir: {app}; Flags: ignoreversion
-Source: ..\doc\HtmlHelp\SvRec.chm;  DestDir: {app}; Flags: ignoreversion
-Source: ..\..\bass\bass.dll;  DestDir: {app}; Flags: ignoreversion
+Source: ..\bin\{#User_AppExeName}; DestDir: {app}; Flags: ignoreversion
+Source: ..\bin\lame_enc.dll;       DestDir: {app}; Flags: ignoreversion
+Source: ..\doc\Help\SvRec.chm;     DestDir: {app}; Flags: ignoreversion
+Source: ..\..\bass\bass.dll;       DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 ;Name: {group}\Order Online; Filename: {app}\order.url; WorkingDir: {app}
 Name: {group}\StepVoice Home Page;            Filename: {app}\home.url; WorkingDir: {app}
 Name: {group}\StepVoice Recorder Help;        FileName: {app}\SvRec.chm; WorkingDir: {app}
-Name: {group}\StepVoice Recorder;             FileName: {app}\SvRec.exe; WorkingDir: {app}
 Name: {group}\Uninstall;                      FileName: {uninstallexe}
-Name: {userdesktop}\StepVoice Recorder;       FileName: {app}\SvRec.exe; WorkingDir: {app}; Tasks: desktopicon
-Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\StepVoice Recorder; FileName: {app}\SvRec.exe; WorkingDir: {app}; Tasks: quicklaunchicon
+Name: {group}\StepVoice Recorder;             FileName: {app}\{#User_AppExeName}; WorkingDir: {app}
+Name: {userdesktop}\StepVoice Recorder;       FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: desktopicon
+Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\StepVoice Recorder; FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: quicklaunchicon
 
 [Tasks]
 Name: desktopicon; Description: Create a &desktop icon; GroupDescription: Additional icons:
@@ -58,8 +62,8 @@ Name: quicklaunchicon; Description: Create a &Quick Launch icon; GroupDescriptio
 
 [Run]
 ; The line below is used only for special versions.
-Filename: {app}\SvRec.exe; Parameters: "/register"
-FileName: {app}\SvRec.exe; Description: Launch StepVoice Recorder; Flags: postinstall nowait skipifsilent unchecked
+Filename: {app}\{#User_AppExeName}; Parameters: "/register"
+FileName: {app}\{#User_AppExeName}; Description: Launch StepVoice Recorder; Flags: postinstall nowait skipifsilent unchecked
 
 [_ISTool]
 Use7zip=false
@@ -67,10 +71,16 @@ Use7zip=false
 [Code]
 var
   regInfo: String; // will contain a user registration key
+  g_version_short: String;
   
 // Before INSTALL check if the program already running
 function InitializeSetup(): Boolean;
 begin
+  // Exctracting two version numbers
+  g_version_short := '{#User_AppVersion}';
+  g_version_short := Copy(g_version_short, 0, 4);
+  StringChangeEx(g_version_short, '.', '', True);
+  
   if CheckForMutexes('SVREC-169A0B91-77B7-4533-9C25-59FCB08FCD614') then
   begin
     MsgBox('StepVoice Recorder is running, please close it and run again setup.',
@@ -79,6 +89,11 @@ begin
   end
   else
     Result := true;
+end;
+
+function GetVersionShort(Param: String): String;
+begin
+  Result := g_version_short;
 end;
 
 //
