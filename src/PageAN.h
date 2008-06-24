@@ -45,6 +45,9 @@ public:
 
 // Implementation
 protected:
+	/// This function removes invalid characters from a template
+	CString FilterTemplate(CString a_template);
+
 	// Generated message map functions
 	//{{AFX_MSG(CPageAN)
 	afx_msg void OnChangeNametemplate();

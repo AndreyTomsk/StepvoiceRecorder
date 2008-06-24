@@ -60,34 +60,60 @@ void CPageAN::SetConfig(CONF_DIAL_AN *pconfig)
 
 void CPageAN::OnChangeNametemplate() 
 {
-	CEdit* pETemplate = (CEdit *)GetDlgItem(IDE_NAMETEMPLATE);
-	//CEdit* pEResult = (CEdit *)GetDlgItem(IDE_NAMERESULT);
-	CStatic* pEResult = (CStatic *) GetDlgItem( IDC_AN_EXTEXT );
+	CWnd* l_wnd_template = (CWnd *)GetDlgItem(IDE_NAMETEMPLATE);
+	CWnd* l_wnd_result = (CWnd *)GetDlgItem(IDC_AN_EXTEXT);
 
-	CString s;
-	pETemplate->GetWindowText(s);
+	CString l_format_string;
+	l_wnd_template->GetWindowText(l_format_string);
+	l_format_string = FilterTemplate(l_format_string);
 
-	// Убираем все знаки "%" в конце строки.
-	if( s.Right(1) == "%")
-		s.TrimRight('%');
+	CTime l_time = CTime::GetCurrentTime();
+	CString l_result_string = l_time.Format(l_format_string);
 
-	CTime t = CTime::GetCurrentTime();
-	s = t.Format(s);
-
-	s += ".mp3";
-
-	if( s == ".mp3")
+	if (l_result_string.IsEmpty())
 	{
-		s = "Empty.mp3";
+		l_result_string = _T("Empty");
 	}
-	pEResult->SetWindowText(s);
+
+	l_result_string += _T(".mp3");
+	l_wnd_result->SetWindowText(l_result_string);
+}
+
+CString CPageAN::FilterTemplate(CString a_template)
+{
+	const CString ALLOWED_CHARS(_T("BbdHjMmSYy%"));
+	CString l_template = a_template;
+	CString l_char_str;
+
+	l_template.TrimRight('%'); // important! the algorithm below using this
+
+	int l_pos = 0;
+	while (l_pos < l_template.GetLength())
+	{
+		if (l_template.Mid(l_pos, 1) != _T("%"))
+		{
+			l_pos++;	// ordinary char, jump to next symbol
+			continue;
+		}
+		
+		l_char_str = l_template.Mid(l_pos + 1, 1);
+		if (ALLOWED_CHARS.Find(l_char_str) == -1)
+		{
+			l_template.Delete(l_pos, 2);
+			continue;	// checking the updated string from same position
+		}
+
+		l_pos += 2;		// char is correct, jump over 2 symbols
+	}
+
+	return l_template;
 }
 
 void CPageAN::OnOK() 
 {
 	if(m_pconfig)
 	{
-		m_pconfig->strAutoName = m_strTemplate;
+		m_pconfig->strAutoName = FilterTemplate(m_strTemplate);
 	}
 	
 	CPropertyPage::OnOK();
