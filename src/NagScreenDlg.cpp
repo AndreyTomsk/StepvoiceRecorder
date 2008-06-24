@@ -99,7 +99,7 @@ HBRUSH CNagScreenDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		pDC->SetTextColor(RGB(150, 0, 0));
 	}
 	else if (pWnd->m_hWnd == GetDlgItem(IDC_ONLINEREGISTER)->m_hWnd) {
-		pDC->SelectObject(&m_BoldFont);
+		//pDC->SelectObject(&m_BoldFont);
 		pDC->SetTextColor(RGB(0, 0, 230));
 	}
 	

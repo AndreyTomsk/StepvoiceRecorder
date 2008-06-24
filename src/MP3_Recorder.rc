@@ -150,60 +150,60 @@ IDI_MIXLINE10           ICON                    "res\\ico00005.ico"
 // Menu
 //
 
-IDR_MAINFRAME MENU 
+IDR_MAINFRAME MENUEX 
 BEGIN
-    POPUP "&File"
+    POPUP "&File",                          65535,MFT_STRING,MFS_ENABLED
     BEGIN
-        MENUITEM "Create/&Open... \aCtrl - O",  IDM_FILE_CREATEOPEN
-        MENUITEM "&Close",                      IDM_FILE_CLOSE
-        MENUITEM SEPARATOR
-        MENUITEM "Cle&ar\aCtrl - A",            IDM_FILE_CLEAR
-        MENUITEM "&Delete",                     IDM_FILE_DELETE
-        MENUITEM SEPARATOR
-        MENUITEM "&Find...\aCtrl - F",          IDM_FILE_FINDFILE
-        MENUITEM SEPARATOR
-        MENUITEM "E&xit\aAlt - F4",             ID_APP_EXIT
+        MENUITEM "Create/&Open... \aCtrl - O",  IDM_FILE_CREATEOPEN,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Close",                      IDM_FILE_CLOSE,MFT_STRING,MFS_ENABLED
+        MENUITEM MFT_SEPARATOR
+        MENUITEM "Cle&ar\aCtrl - A",            IDM_FILE_CLEAR,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Delete",                     IDM_FILE_DELETE,MFT_STRING,MFS_ENABLED
+        MENUITEM MFT_SEPARATOR
+        MENUITEM "&Find...\aCtrl - F",          IDM_FILE_FINDFILE,MFT_STRING,MFS_ENABLED
+        MENUITEM MFT_SEPARATOR
+        MENUITEM "E&xit\aAlt - F4",             ID_APP_EXIT,MFT_STRING,MFS_ENABLED
     END
-    POPUP "&Sound"
+    POPUP "&Sound",                         65535,MFT_STRING,MFS_ENABLED
     BEGIN
-        MENUITEM "&Rec./Pause\aEnter",          IDM_SOUND_REC
-        MENUITEM "&Stop\aShift - Space",        IDM_SOUND_STOP
-        MENUITEM "&Play/Pause\aSpace",          IDM_SOUND_PLAY
-        MENUITEM SEPARATOR
-        MENUITEM "&Jump to begin\aHome",        IDM_SOUND_BEGIN
-        MENUITEM "&Back 5 seconds\aLeft",       IDM_SOUND_REW
-        MENUITEM "&Fwd 5 seconds\aRight",       IDM_SOUND_FF
-        MENUITEM "Jump to &end\aEnd",           IDM_SOUND_END
+        MENUITEM "&Rec./Pause\aEnter",          IDM_SOUND_REC,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Stop\aShift - Space",        IDM_SOUND_STOP,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Play/Pause\aSpace",          IDM_SOUND_PLAY,MFT_STRING,MFS_ENABLED
+        MENUITEM MFT_SEPARATOR
+        MENUITEM "&Jump to begin\aHome",        IDM_SOUND_BEGIN,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Back 5 seconds\aLeft",       IDM_SOUND_REW,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Fwd 5 seconds\aRight",       IDM_SOUND_FF,MFT_STRING,MFS_ENABLED
+        MENUITEM "Jump to &end\aEnd",           IDM_SOUND_END,MFT_STRING,MFS_ENABLED
     END
-    POPUP "&Options"
+    POPUP "&Options",                       65535,MFT_STRING,MFS_ENABLED
     BEGIN
-        MENUITEM "&Preferences...\aCtrl - P",   IDM_OPT_COM
-        MENUITEM "Always on &Top\aCtrl - T",    IDM_OPT_TOP
-        MENUITEM SEPARATOR
-        POPUP "&System Mixer"
+        MENUITEM "&Preferences...\aCtrl - P",   IDM_OPT_COM,MFT_STRING,MFS_ENABLED
+        MENUITEM "Always on &Top\aCtrl - T",    IDM_OPT_TOP,MFT_STRING,MFS_ENABLED
+        MENUITEM MFT_SEPARATOR
+        POPUP "&System Mixer",                  65535,MFT_STRING,MFS_ENABLED
         BEGIN
-            MENUITEM "&Recording control...\aCtrl - R", IDM_MIX_REC
-            MENUITEM "&Play control...\aCtrl - V",  IDM_MIX_PLAY
+            MENUITEM "&Recording control...\aCtrl - R", IDM_MIX_REC,MFT_STRING,MFS_ENABLED
+            MENUITEM "&Play control...\aCtrl - V",  IDM_MIX_PLAY,MFT_STRING,MFS_ENABLED
         END
-        MENUITEM "Sound &Devices...",           IDM_OPT_SNDDEV
+        MENUITEM "Sound &Devices...",           IDM_OPT_SNDDEV,MFT_STRING,MFS_ENABLED
     END
-    POPUP "&Help"
+    POPUP "&Help",                          65535,MFT_STRING,MFS_ENABLED
     BEGIN
-        MENUITEM "&Help contents\aF1",          IDM_HELP_DOC
-        MENUITEM SEPARATOR
-        MENUITEM "&Web-site",                   IDM_HELP_WWW
-        MENUITEM "&Send e-mail to support",     IDM_HELP_EMAIL
-        MENUITEM SEPARATOR
-        POPUP "&Program Registration"
+        MENUITEM "&Help contents\aF1",          IDM_HELP_DOC,MFT_STRING,MFS_ENABLED
+        MENUITEM MFT_SEPARATOR
+        MENUITEM "&Web-site",                   IDM_HELP_WWW,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Send e-mail to support",     IDM_HELP_EMAIL,MFT_STRING,MFS_ENABLED
+        MENUITEM MFT_SEPARATOR
+        POPUP "&Program Registration",          65535,MFT_STRING,MFS_ENABLED
         BEGIN
-            MENUITEM "How To &Register",            ID_HELP_HOWTO
-            MENUITEM "&Order online",               ID_HELP_ORDERONLINE
-            MENUITEM "&Enter registration key...",  ID_HELP_ENTERCODE
+            MENUITEM "How To &Register",            ID_HELP_HOWTO,MFT_STRING,MFS_ENABLED
+            MENUITEM "&Order online",               ID_HELP_ORDERONLINE,MFT_STRING,MFS_ENABLED
+            MENUITEM "&Enter registration key...",  ID_HELP_ENTERCODE,MFT_STRING,MFS_ENABLED
         END
-        MENUITEM SEPARATOR
-        MENUITEM "&About ...",                  ID_APP_ABOUT
+        MENUITEM MFT_SEPARATOR
+        MENUITEM "&About ...",                  ID_APP_ABOUT,MFT_STRING,MFS_ENABLED
     END
-    MENUITEM "&Register",                   ID_HELP_HOWTO, HELP
+    MENUITEM "&Register",                   ID_HELP_ORDERONLINE,MFT_STRING | MFT_RIGHTJUSTIFY,MFS_ENABLED
 END
 
 IDR_GRAPHMENU MENU 
