@@ -1,0 +1,13 @@
+
+#ifndef _VERSION_NEW_H
+#define _VERSION_NEW_H
+
+#define FILEVER       1,6,1,$WCREV$
+#define PRODUCTVER    1,6,1,$WCREV$
+#define STRFILEVER    "1, 6, 1, $WCREV$\0"
+#define STRPRODUCTVER "1, 6, 1, $WCREV$\0"
+
+#define WMS_VERBUILD  "$WCREV$"
+#define WMS_VERDATE   "$WCNOW$"
+
+#endif //_VERSION_NEW_H

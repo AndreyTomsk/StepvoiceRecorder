@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by MP3_Recorder.rc
 //
 #define IDC_ENTERCODE                   3
@@ -108,7 +108,6 @@
 #define IDB_GRAPH_WND                   191
 #define IDR_STATMENU                    192
 #define IDD_ENTERCODE                   193
-//#define IDC_HAND                        194
 #define IDC_HAND2                       194
 #define IDR_MAINFRAME2                  195
 #define IDD_NAGSCREEN                   198
@@ -267,6 +266,7 @@
 #define IDC_AN_TDEFAULT                 1161
 #define IDC_DLG_TRIALNOTE               1164
 #define IDC_GEN_MINSTANCES              1165
+#define IDC_STATIC_VERSION              1166
 #define ID_MIXITEM_REC0                 3700
 #define ID_MIXITEM_REC50                3750
 #define ID_MIXITEM_PLAY0                3751
@@ -353,7 +353,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        247
 #define _APS_NEXT_COMMAND_VALUE         32918
-#define _APS_NEXT_CONTROL_VALUE         1166
+#define _APS_NEXT_CONTROL_VALUE         1167
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
 #endif

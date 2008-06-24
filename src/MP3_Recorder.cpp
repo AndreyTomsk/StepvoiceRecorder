@@ -7,6 +7,7 @@
 #include "NagScreenDlg.h"
 
 #include "UrlWnd.h"
+#include "version.h"
 #include <htmlhelp.h>
 
 #ifdef _DEBUG
@@ -387,7 +388,19 @@ BOOL CAboutDlg::OnInitDialog()
 	m_wndOrder.ShowWindow(SW_HIDE);
 	#endif
 	REG_CRYPT_END;
-	
+
+	// Preparing the version string.
+	int	nd1 = 0;
+	int nd2 = 0;
+	int nd3 = 0;
+	int nd4 = 0;
+	sscanf(STRFILEVER, "%d, %d, %d, %d\0", &nd1, &nd2, &nd3, &nd4);
+
+	CString l_version_string;
+	CString l_format_string;
+	GetDlgItemText(IDC_STATIC_VERSION, l_format_string);
+	l_version_string.Format(l_format_string, nd1, nd2, nd3, nd4);
+	SetDlgItemText(IDC_STATIC_VERSION, l_version_string);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
