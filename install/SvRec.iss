@@ -45,11 +45,11 @@ Source: ..\..\bass\bass.dll;  DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 ;Name: {group}\Order Online; Filename: {app}\order.url; WorkingDir: {app}
-Name: {group}\StepVoice Home Page; Filename: {app}\home.url; WorkingDir: {app}
-Name: {group}\StepVoice Recorder Help; FileName: {app}\SvRec.chm; WorkingDir: {app}
-Name: {group}\StepVoice Recorder; FileName: {app}\SvRec.exe; WorkingDir: {app}
-Name: {group}\Uninstall; FileName: {uninstallexe}
-Name: {userdesktop}\SvRec; FileName: {app}\SvRec.exe; WorkingDir: {app}; Tasks: desktopicon
+Name: {group}\StepVoice Home Page;            Filename: {app}\home.url; WorkingDir: {app}
+Name: {group}\StepVoice Recorder Help;        FileName: {app}\SvRec.chm; WorkingDir: {app}
+Name: {group}\StepVoice Recorder;             FileName: {app}\SvRec.exe; WorkingDir: {app}
+Name: {group}\Uninstall;                      FileName: {uninstallexe}
+Name: {userdesktop}\StepVoice Recorder;       FileName: {app}\SvRec.exe; WorkingDir: {app}; Tasks: desktopicon
 Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\StepVoice Recorder; FileName: {app}\SvRec.exe; WorkingDir: {app}; Tasks: quicklaunchicon
 
 [Tasks]

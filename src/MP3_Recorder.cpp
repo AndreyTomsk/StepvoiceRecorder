@@ -22,7 +22,7 @@ static char THIS_FILE[] = __FILE__;
 
 //#define SPECIAL_VERSION 1
 #ifdef SPECIAL_VERSION
-const char* SPECIAL_REGKEY="0fg9MGxmN3+1B46SMgjrRm5T3tFanemtTard6ZO31ipijmp+eYPaogsN4UXvxkwdp8m0fZaeqXwjHKLVwuFRjtsDWlAp8bBkGw7MpzlU1sCycustD4XvaqFnv6KINGlF+nunUmhkr57WwEfEB2W0mSBEDfm4JDWh+R9JZNkpMi2o=";
+const char* SPECIAL_REGKEY="0HlMLgHT2exYquGBYsxnK7H8f5rU/wEozG8+8PsdFN/YFtUJzLbQ0MUE9B8iDJ+Jlj0ztxEZt6cbxUzmsOXb57oBicMyrJnNXrY2xJ7hDepokDsgOh/feRQ8CWE59EQzocXsTpk1YqYvpAbBo3niF8Z9CvCtL/gT6VP+vOk211i4=";
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
