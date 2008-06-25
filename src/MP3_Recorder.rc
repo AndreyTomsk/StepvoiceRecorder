@@ -608,7 +608,7 @@ BEGIN
     IDS_DEC_INIT            """%1\\%2""\nUnable fo find decoder library or it is damaged.\nPlease reinstall the recorder."
     IDS_WAVEOUT_OPEN        "Unable to open the sound card for playback.\nPlease stop recording in other program(s)."
     IDS_WAVEOUT_START       "Unable to start playing.\nPlease stop recording in other program(s)."
-    IDS_ENC_ERR_DLL         """%1\\%2""\nUnable to find encoder library or it is damaged.\nPlease reinstall the recorder."
+    IDS_ENC_ERR_DLL         """%s\\%s""\nUnable to initialize the encoder library (error code: %d)."
     IDS_WAVEIN_OPEN         "Unable to open the sound card for recording.\nPlease stop recording (playback) in other program(s)."
     IDS_WAVEIN_START        "Unable to start recording.\nPlease stop recording (playback) in other program(s)."
     IDS_CLEAR_ASK           "Using this command will remove PERMANENTLY all sounds from file.\nClear this file:\n""%1"""

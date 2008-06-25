@@ -9,8 +9,6 @@ Milestone: "Version 1.7". Main goals:
 Todo
 ----
 
-20080616 (bug) - Handle the "lame_end.dll not found" error.
-
 20080309 (enh) - (?) Simple timer selection in the main menu.
 20080309 (enh) - Make a portable build.
 20080309 (enh) - Split long recording into peices.
@@ -58,6 +56,8 @@ Todo
 20061208 (enh) * (?) In file menu instead of "Find..."
                  write "Open containing forlder"
 
+20080616 (bug) + Handle the "lame_end.dll not found" error.
+                 (Modified message to include an error code).
 20080624 (bug) + Program crashes when entering incorrect symbols in Autoname
 20080327 (bug) + Adjust the tab-stop order in properties dialog.
 20080318 (bug) + Unable to open file for playing then it is opened in another

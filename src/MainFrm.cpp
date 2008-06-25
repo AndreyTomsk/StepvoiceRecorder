@@ -1623,12 +1623,16 @@ void CMainFrame::OnBtnREC()
 		SAFE_DELETE(m_pEncoder);
 		m_pEncoder = new CEncoder_MP3(m_strDir);
 
-		if (m_pEncoder->InitEncoder(&l_conf_mp3) != CEncoder::ENC_NOERROR)
+		int l_error_code = m_pEncoder->InitEncoder(&l_conf_mp3);
+		if (l_error_code != CEncoder::ENC_NOERROR)
 		{
 			SAFE_DELETE(m_pEncoder);
-			CString strRes;
-			AfxFormatString2(strRes, IDS_ENC_ERR_DLL, m_strDir, "lame_enc.dll");
-			AfxMessageBox(strRes, MB_OK|MB_ICONSTOP);
+			CString l_message;
+			CString l_format_string;
+
+			l_format_string.LoadString(IDS_ENC_ERR_DLL);
+			l_message.Format(l_format_string, m_strDir, _T("lame_enc.dll"), l_error_code);
+			AfxMessageBox(l_message, MB_OK | MB_ICONSTOP);
 			return;
 		}
 		g_record_handle = BASS_RecordStart(

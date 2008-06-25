@@ -50,8 +50,7 @@ CEncoder_MP3::~CEncoder_MP3()
 ///////////////////////////////////////////////////////////////////////////////
 void CEncoder_MP3::LoadLibrary(CString& strDllPath)
 {
-	CString strDllName("\\lame_enc.dll");
-	strDllName = strDllPath + strDllName;
+	CString strDllName = strDllPath + _T("\\lame_enc.dll");
 
 	m_hDll = ::LoadLibrary(strDllName.GetBuffer(strDllName.GetLength()));
 	if (m_hDll != NULL)

@@ -21,8 +21,8 @@ BEGIN_MESSAGE_MAP(CPageRec, CPropertyPage)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-int BITRATE[11] = {8, 16, 24, 32, 48, 64, 96, 128, 160, 192, 256};
-int FREQ[4]		= {8000, 11025, 22050, 44100};
+const int BITRATE[] = {8, 16, 24, 32, 48, 64, 96, 128, 160, 192, 256};
+const int FREQ[] = {8000, 11025, 22050, 44100};
 
 //===========================================================================
 CPageRec::CPageRec() : CPropertyPage(CPageRec::IDD)
@@ -127,17 +127,25 @@ void CPageRec::EnableFreqSel(int nBitBITRATE)
 			break;
 	}
 
+	((CWnd*)GetDlgItem(IDC_22KHZ))->EnableWindow(TRUE);
 	if (nBitBITRATE < 32)
 	{
 		EnableFreqSel(true, false);	// Enable MPEG2 bitBITRATEs
 		if (i > 1)
 			SetFreq(24);
 	}
-	else
+	else if (nBitBITRATE < 160)
 	{
 		EnableFreqSel(false, true);	// Enable MPEG1 bitBITRATEs
 		if (i < 2)
 			SetFreq(64);
+	}
+	else
+	{	// When a bitrate is 160 kbps and more, then disable the IDC_22KHZ
+		EnableFreqSel(false, true);	// Enable MPEG1 bitBITRATEs
+		((CWnd*)GetDlgItem(IDC_22KHZ))->EnableWindow(FALSE);
+		if (i < 3)
+			SetFreq(128);
 	}
 }
 
