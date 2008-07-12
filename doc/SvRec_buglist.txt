@@ -3,6 +3,7 @@ Milestone: "Version 1.7". Main goals:
 
 1. - Recording all currently playing sounds in Vista.
 2. - Add a command line switches support.
+?. - Wizard for optimal recording.
 
 -----------------------------------------------------------------------------
 

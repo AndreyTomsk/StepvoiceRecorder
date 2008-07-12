@@ -39,6 +39,7 @@ rem devenv LRCE/msvc/lrce.sln /Build Release
 
 rem 3. Building the recorder
 cd %~d0%~p0
+del /Q bin\*.exe
 devenv  mp3_recorder_vc8.sln /Build Release
 
 
