@@ -176,8 +176,6 @@ protected:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMixRec();
 	afx_msg void OnMixPlay();
-	afx_msg void OnMixRecA();
-	afx_msg void OnMixPlayA();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnMoving(UINT fwSide, LPRECT pRect);
 	afx_msg void OnNcLButtonDown(UINT nHitTest, CPoint point);
@@ -189,13 +187,7 @@ protected:
 	afx_msg void OnUpdateOptTop(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateOptEm(CCmdUI* pCmdUI);
 	afx_msg void OnSoundRecA();
-	afx_msg void OnSoundStopA();
 	afx_msg void OnSoundPlayA();
-	afx_msg void OnSoundBeginA();
-	afx_msg void OnSoundRewA();
-	afx_msg void OnSoundFfA();
-	afx_msg void OnSoundEndA();
-	afx_msg void OnFileCreateopenA();
 	afx_msg void OnSoundBegin();
 	afx_msg void OnSoundRew();
 	afx_msg void OnSoundFf();

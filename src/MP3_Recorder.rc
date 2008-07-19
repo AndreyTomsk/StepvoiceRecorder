@@ -542,25 +542,25 @@ END
 
 IDR_MAINFRAME ACCELERATORS 
 BEGIN
-    "A",            IDA_FILE_CLEAR,         VIRTKEY, CONTROL, NOINVERT
-    "E",            IDA_OPT_EM,             VIRTKEY, CONTROL, NOINVERT
-    "F",            IDA_FILE_FINDFILE,      VIRTKEY, CONTROL, NOINVERT
-    "O",            IDA_FILE_CREATEOPEN,    VIRTKEY, CONTROL, NOINVERT
-    "P",            IDA_OPT_COM,            VIRTKEY, CONTROL, NOINVERT
-    "R",            IDA_MIX_REC,            VIRTKEY, CONTROL, NOINVERT
-    "T",            IDA_OPT_TOP,            VIRTKEY, CONTROL, NOINVERT
-    "V",            IDA_MIX_PLAY,           VIRTKEY, CONTROL, NOINVERT
-    VK_DOWN,        IDA_VOL_DOWN,           VIRTKEY, NOINVERT
-    VK_END,         IDA_SOUND_END,          VIRTKEY, NOINVERT
-    VK_ESCAPE,      IDA_SOUND_STOP2,        VIRTKEY, NOINVERT
     VK_F1,          IDA_HELP_DOC,           VIRTKEY, NOINVERT
-    VK_HOME,        IDA_SOUND_BEGIN,        VIRTKEY, NOINVERT
-    VK_LEFT,        IDA_SOUND_REW,          VIRTKEY, NOINVERT
-    VK_RETURN,      IDA_SOUND_REC,          VIRTKEY, NOINVERT
-    VK_RIGHT,       IDA_SOUND_FF,           VIRTKEY, NOINVERT
     VK_SPACE,       IDA_SOUND_PLAY,         VIRTKEY, NOINVERT
-    VK_SPACE,       IDA_SOUND_STOP,         VIRTKEY, SHIFT, NOINVERT
+    VK_RETURN,      IDA_SOUND_REC,          VIRTKEY, NOINVERT
+    VK_DOWN,        IDA_VOL_DOWN,           VIRTKEY, NOINVERT
     VK_UP,          IDA_VOL_UP,             VIRTKEY, NOINVERT
+    "A",            IDM_FILE_CLEAR,         VIRTKEY, CONTROL, NOINVERT
+    "O",            IDM_FILE_CREATEOPEN,    VIRTKEY, CONTROL, NOINVERT
+    "F",            IDM_FILE_FINDFILE,      VIRTKEY, CONTROL, NOINVERT
+    "V",            IDM_MIX_PLAY,           VIRTKEY, CONTROL, NOINVERT
+    "R",            IDM_MIX_REC,            VIRTKEY, CONTROL, NOINVERT
+    "P",            IDM_OPT_COM,            VIRTKEY, CONTROL, NOINVERT
+    "E",            IDM_OPT_EM,             VIRTKEY, CONTROL, NOINVERT
+    "T",            IDM_OPT_TOP,            VIRTKEY, CONTROL, NOINVERT
+    VK_HOME,        IDM_SOUND_BEGIN,        VIRTKEY, NOINVERT
+    VK_END,         IDM_SOUND_END,          VIRTKEY, NOINVERT
+    VK_RIGHT,       IDM_SOUND_FF,           VIRTKEY, NOINVERT
+    VK_LEFT,        IDM_SOUND_REW,          VIRTKEY, NOINVERT
+    VK_ESCAPE,      IDM_SOUND_STOP,         VIRTKEY, NOINVERT
+    VK_SPACE,       IDM_SOUND_STOP,         VIRTKEY, SHIFT, NOINVERT
 END
 
 

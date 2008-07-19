@@ -72,8 +72,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_LBUTTONDOWN()
 	ON_COMMAND(IDM_MIX_REC, OnMixRec)
 	ON_COMMAND(IDM_MIX_PLAY, OnMixPlay)
-	ON_COMMAND(IDA_MIX_REC, OnMixRecA)
-	ON_COMMAND(IDA_MIX_PLAY, OnMixPlayA)
 	ON_WM_HSCROLL()
 	ON_WM_MOVING()
 	ON_WM_NCLBUTTONDOWN()
@@ -85,14 +83,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_UPDATE_COMMAND_UI(IDM_OPT_TOP, OnUpdateOptTop)
 	ON_UPDATE_COMMAND_UI(IDM_OPT_EM, OnUpdateOptEm)
 	ON_COMMAND(IDA_SOUND_REC, OnSoundRecA)
-	ON_COMMAND(IDA_SOUND_STOP, OnSoundStopA)
-	ON_COMMAND(IDA_SOUND_STOP2, OnSoundStopA)
 	ON_COMMAND(IDA_SOUND_PLAY, OnSoundPlayA)
-	ON_COMMAND(IDA_SOUND_BEGIN, OnSoundBeginA)
-	ON_COMMAND(IDA_SOUND_REW, OnSoundRewA)
-	ON_COMMAND(IDA_SOUND_FF, OnSoundFfA)
-	ON_COMMAND(IDA_SOUND_END, OnSoundEndA)
-	ON_COMMAND(IDA_FILE_CREATEOPEN, OnFileCreateopenA)
 	ON_COMMAND(IDM_SOUND_BEGIN, OnSoundBegin)
 	ON_COMMAND(IDM_SOUND_REW, OnSoundRew)
 	ON_COMMAND(IDM_SOUND_FF, OnSoundFf)
@@ -110,14 +101,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(IDA_VOL_UP, OnVolUpA)
 	ON_COMMAND(IDA_VOL_DOWN, OnVolDownA)
 	ON_COMMAND(IDM_FILE_CREATEOPEN, OnBtnOPEN)
-	ON_COMMAND(IDA_FILE_FINDFILE, OnFileFindfile)
-	ON_COMMAND(IDA_OPT_COM, OnOptCom)
-	ON_COMMAND(IDA_OPT_EM, OnOptEm)
-	ON_COMMAND(IDA_OPT_TOP, OnOptTop)
 	ON_COMMAND(IDM_SOUND_REC, OnBtnREC)
 	ON_COMMAND(IDM_SOUND_STOP, OnBtnSTOP)
 	ON_COMMAND(IDM_SOUND_PLAY, OnBtnPLAY)
-	ON_COMMAND(IDA_FILE_CLEAR, OnFileClear)
 	ON_WM_MOUSEWHEEL()
 	//}}AFX_MSG_MAP
 	ON_REGISTERED_MESSAGE(UWM_ARE_YOU_ME, OnAreYouMe)
@@ -1465,13 +1451,6 @@ void CMainFrame::OnUpdateOptEm(CCmdUI* pCmdUI)
 //===========================================================================
 // Акселераторы
 //===========================================================================
-void CMainFrame::OnFileCreateopenA() 
-{
-	m_BtnOPEN.Press();
-	OnBtnOPEN();
-}
-
-//===========================================================================
 void CMainFrame::OnSoundRecA() 
 {
 	if (BASS_ChannelIsActive(g_stream_handle) != BASS_ACTIVE_STOPPED)
@@ -1483,13 +1462,6 @@ void CMainFrame::OnSoundRecA()
 }
 
 //===========================================================================
-void CMainFrame::OnSoundStopA() 
-{
-	m_BtnSTOP.Press();
-	OnBtnSTOP();
-}
-
-//===========================================================================
 void CMainFrame::OnSoundPlayA() 
 {
 	if (m_record_file.m_hFile != CFile::hFileNull)
@@ -1498,41 +1470,6 @@ void CMainFrame::OnSoundPlayA()
 	}
 	m_BtnPLAY.Press();
 	OnBtnPLAY();
-}
-
-//===========================================================================
-void CMainFrame::OnSoundBeginA() 
-{
-	OnSoundBegin();
-}
-
-void CMainFrame::OnSoundRewA() 
-{
-	OnSoundRew();
-}
-
-void CMainFrame::OnSoundFfA() 
-{
-	OnSoundFf();
-}
-
-void CMainFrame::OnSoundEndA() 
-{
-	OnSoundEnd();
-}
-
-//===========================================================================
-void CMainFrame::OnMixRecA()
-{
-	m_BtnMIX_REC.Press();
-	OnMixRec();
-}
-
-//---------------------------------------------------------------------
-void CMainFrame::OnMixPlayA()
-{
-	m_BtnMIX_PLAY.Press();
-	OnMixPlay();
 }
 
 //===========================================================================

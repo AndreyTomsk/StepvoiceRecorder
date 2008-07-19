@@ -277,20 +277,9 @@
 #define IDM_HELP_WWW                    32776
 #define IDM_HELP_EMAIL                  32777
 #define IDM_OPT_COM                     32779
-#define IDA_FILE_NEW                    32812
-#define IDA_FILE_OPEN                   32813
-#define IDA_FILE_CREATEOPEN             32813
 #define IDA_SOUND_REC                   32815
 #define IDA_SOUND_PLAY                  32816
-#define IDA_SOUND_BEGIN                 32817
-#define IDA_SOUND_END                   32818
-#define IDA_SOUND_REW                   32819
-#define IDA_SOUND_FF                    32820
-#define IDA_OPT_COM                     32821
 #define IDM_OPT_TOP                     32827
-#define IDA_OPT_TOP                     32828
-#define IDA_MIX_REC                     32830
-#define IDA_MIX_PLAY                    32831
 #define IDM_MIX_PLAY                    32834
 #define IDM_MIX_REC                     32835
 #define ID_HELP_CONTENTS                32836
@@ -299,7 +288,6 @@
 #define IDM_FILE_FINDTARGET             32840
 #define IDM_FILE_FINDFILE               32840
 #define IDM_OPT_EM                      32842
-#define IDA_OPT_EM                      32843
 #define IDM_HELP_DOC                    32845
 #define IDM_HELP_GETFULL                32846
 #define ID_TEST1_MICROPHONE             32852
@@ -307,15 +295,12 @@
 #define ID_TEST1_STEREOMIX              32854
 #define ID_TEST1_VOLUME                 32855
 #define ID_TEST1_OTHER                  32857
-#define IDA_FILE_FINDFILE               32863
-#define IDA_SOUND_STOP                  32865
 #define ID_GRAPH_PEAKMETER              32866
 #define ID_GRAPH_PEAKMETERDB            32867
 #define ID_GRAPH_OSCILLOSCOPE           32868
 #define IDM_FILE_DELETE                 32869
 #define ID_GRAPH_NONE                   32869
 #define IDM_FILE_CLEAR                  32871
-#define IDA_FILE_CLEAR                  32872
 #define ID_STAT_PREF                    32873
 #define IDM_OPT_SNDDEV                  32874
 #define ID_HELP_HOWTO                   32875
@@ -343,7 +328,6 @@
 #define IDT_BTNMIXPLAY                  32907
 #define IDA_VOL_UP                      32908
 #define IDA_VOL_DOWN                    32909
-#define IDA_SOUND_STOP2                 32916
 #define ID_GRAPH_MAXPEAKS               32917
 
 // Next default values for new objects
