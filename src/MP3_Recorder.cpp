@@ -440,4 +440,21 @@ void CMP3_RecorderApp::OnUpdateHelpEntercode(CCmdUI* pCmdUI)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+BOOL CMP3_RecorderApp::OnIdle(LONG lCount)
+{
+	// Letting the base class make all needed work
+	if (CWinApp::OnIdle(lCount))
+	{
+		return TRUE;
+	}
+
+	// Updating the main window interface
+	CMainFrame* l_main_wnd = (CMainFrame*)AfxGetMainWnd();
+	ASSERT(l_main_wnd);
+	l_main_wnd->UpdateInterface();
+
+	return FALSE;	// No more idle time needed
+}
+
+////////////////////////////////////////////////////////////////////////////////
 #pragma optimize ("", on)

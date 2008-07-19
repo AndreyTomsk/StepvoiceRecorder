@@ -55,9 +55,10 @@ extern void Scheduler2Function(int nAction);
 
 class CMainFrame : public CFrameWnd
 {
+	static CMainFrame* m_pMainFrame;
+
 	friend DWORD WINAPI SchedProc( LPVOID lpParam );
 	friend void Scheduler2Function(int nAction);
-	static CMainFrame* m_pMainFrame;
 	
 	///Callback function to process sample data
 	static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer,
@@ -71,7 +72,8 @@ class CMainFrame : public CFrameWnd
 	CTitleText*		m_title;
 	CFile			m_record_file;
 
-protected:
+	CString m_strDir;
+	int m_bMonitoringBtn;
 	// program state
 	int				m_nState;
 	// program configuration
@@ -120,15 +122,17 @@ public:
 	CVAS			m_vas;		// поддержка голосовой активации
 
 public:
+	CMainFrame();
+	virtual ~CMainFrame();
+
+	void UpdateInterface();
 	bool IsMonitoringOnly();
 	void OnBtnSched();
 	void OnBtnMonitoring();
 	void OnBtnVas();
-	CMainFrame();
-	virtual ~CMainFrame();
 	BOOL ShowWindow();
-	CString GetProgramDir();
-	CString			m_strDir;
+	CString GetProgramDir() { return m_strDir; }
+	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
 
 protected:
 	void ProcessSliderTime(UINT nSBCode, UINT nPos);
@@ -136,9 +140,8 @@ protected:
 	void Convert(UINT nCurSec, char* pszTime, int nStrSize);
 	void OpenFile(CString& strFileName);
 
-	// функции обновления окон визуализации и статистики
-	void UpdateIcoWindow();
 	void UpdateStatWindow();
+	void UpdateButtonState(UINT nID);
 	CString GetAutoName(CString& strPattern);
 
 protected:
@@ -155,8 +158,6 @@ protected:
 	void ProcessVAS(bool bVASResult);
 	void MonitoringStop();
 	bool MonitoringStart();
-	int m_bMonitoringBtn;
-	//BOOL ShowTaskBarButton(BOOL bVisible);
 	void UpdateTrayText();
 	void CloseMixerWindows();
 	//{{AFX_MSG(CMainFrame)
@@ -217,10 +218,8 @@ protected:
 	afx_msg void OnUpdateSoundPlay(CCmdUI* pCmdUI);
 	afx_msg void OnRecMixMenuSelect(UINT nID);
 	afx_msg void OnPlayMixMenuSelect(UINT nID);
-public:
-	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
+
 protected:
-	void UpdateButtonState(UINT nID);
 	LRESULT OnTrayNotification(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 };

@@ -219,11 +219,11 @@ CMainFrame::CMainFrame()
 	m_title		= NULL;
 
 	m_nState	= STOP_STATE;
-	m_strDir	= "";
+
+	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
+	m_strDir = l_app->GetProgramDir();
 
 	m_pOptDialog = NULL;
-
-	//m_bOwnerCreated = false;
 
 	m_pMainFrame = this;
 	m_bAutoMenuEnable = false;
@@ -649,15 +649,11 @@ void CMainFrame::OnFileClose()
 	AfxFormatString1(strTitle, IDS_FILETITLE, strNoFile);
 	m_title->SetTitleText(strTitle);
 
-	m_SliderTime.SetCurPos(0);
+	//m_SliderTime.SetCurPos(0);
 	//m_SliderTime.ShowThumb(false);	// убираем ползунок слайдера
 	m_TimeWnd.Reset();
 	UpdateStatWindow();
 	UpdateTrayText();
-
-	///@bug Copied from OnBtnSTOP - refactoring needed!
-	UpdateButtonState(IDB_BTNPLAY);
-	UpdateButtonState(IDB_BTNREC);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -992,7 +988,8 @@ void CMainFrame::OnOptCom()
 
 //===========================================================================
 void CMainFrame::OnOptEm() 
-{	// состояние "быстрое перемещение"
+{
+	//Reverting the state of dragging window from any point
 	m_conf.GetConfProg()->bEasyMove = m_conf.GetConfProg()->bEasyMove ? 0 : 1;
 }
 
@@ -1098,23 +1095,18 @@ void CMainFrame::OnBtnPLAY()
 	switch (CHANNEL_STATE)
 	{
 	case BASS_ACTIVE_PLAYING:
-		m_GraphWnd.StopUpdate();
 		BASS_ChannelPause(g_stream_handle);
 		KillTimer(1);
-		m_BtnPLAY.SetIcon(IDI_PLAY);
-		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
+		m_nState = PAUSEPLAY_STATE;
 		break;
 
 	case BASS_ACTIVE_PAUSED:
 	case BASS_ACTIVE_STOPPED:
 		BASS_ChannelPlay(g_stream_handle, false);
 		SetTimer(1, 1000, NULL);
-		m_BtnPLAY.SetIcon(IDI_PAUSE);
-		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
-		m_GraphWnd.StartUpdate(g_stream_handle);
+		m_nState = PLAY_STATE;
+		break;
 	}
-	UpdateIcoWindow();
-	UpdateButtonState(IDB_BTNREC);
 	OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
 }
 
@@ -1123,10 +1115,9 @@ void CMainFrame::OnBtnSTOP()
 {
 	this->SetFocus();
 
+	m_nState = STOP_STATE;
 	if (g_stream_handle)
 	{
-		m_GraphWnd.StopUpdate();
-
 		KillTimer(1);
 		BOOL l_result = BASS_ChannelStop(g_stream_handle);
 		ASSERT(l_result);
@@ -1137,8 +1128,6 @@ void CMainFrame::OnBtnSTOP()
 	}
 	if (g_record_handle)
 	{
-		m_GraphWnd.StopUpdate();
-
 		KillTimer(2);
 		BOOL l_result = BASS_ChannelStop(g_record_handle);
 		ASSERT(l_result);
@@ -1149,23 +1138,14 @@ void CMainFrame::OnBtnSTOP()
 		m_record_file.Close();
 		OpenFile(l_recorded_file);
 	}
+
 	PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
 		(LPARAM)m_pMainFrame->m_SliderTime.m_hWnd);
-	m_SliderTime.SetCurPos(0);
-	UpdateIcoWindow();
-	UpdateStatWindow();
-	//m_GraphWnd.StopUpdate();
-	m_GraphWnd.Clear();
-	m_BtnREC.SetIcon(IDI_REC);
-	m_BtnPLAY.SetIcon(IDI_PLAY);
-	m_TrayIcon.SetIcon(IDI_TRAY_STOP);
 
 	if (m_bMonitoringBtn)
 	{
 		MonitoringStart();
 	}
-	UpdateButtonState(IDB_BTNPLAY);
-	UpdateButtonState(IDB_BTNREC);
 	OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
 }
 
@@ -1235,20 +1215,15 @@ void CMainFrame::OnBtnREC()
 	switch (CHANNEL_STATE)
 	{
 	case BASS_ACTIVE_PLAYING:
-		m_GraphWnd.StopUpdate();
-		m_BtnREC.SetIcon(IDI_REC);
-		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
 		BASS_ChannelPause(g_record_handle);
 		KillTimer(2);
+		m_nState = PAUSEREC_STATE;
 		break;
 
 	case BASS_ACTIVE_PAUSED:
 	case BASS_ACTIVE_STOPPED:
 		BASS_ChannelPlay(g_record_handle, false);
 		SetTimer(2, 1000, NULL);
-		m_GraphWnd.StartUpdate((HSTREAM)g_record_handle);
-		m_BtnREC.SetIcon(IDI_PAUSE);
-		m_TrayIcon.SetIcon(IDI_TRAY_REC);
 
 		// запускаем шедулер
 		if (bIsSchedEnabled && (!bSchedStart))
@@ -1264,10 +1239,9 @@ void CMainFrame::OnBtnREC()
 			TRACE0("==> OnBtnREC: trying to run the scheduler ...\n");
 			m_sched2.Start();
 		}
+		m_nState = RECORD_STATE;
 		break;
 	}
-	UpdateIcoWindow();
-	UpdateButtonState(IDB_BTNPLAY);
 }
 
 //===========================================================================
@@ -1412,32 +1386,7 @@ void CMainFrame::Convert(UINT nCurSec, char *pszTime, int nStrSize)
 }
 
 
-//===========================================================================
-// Функии обновления окон визуализации и статистики
-//===========================================================================
-void CMainFrame::UpdateIcoWindow()
-{
-	HSTREAM l_handle = (g_record_handle) ? g_record_handle : g_stream_handle;
-	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(l_handle);
-
-	switch (CHANNEL_STATE)
-	{
-	case BASS_ACTIVE_PLAYING:
-		m_IcoWnd.SetNewIcon((g_record_handle) ? ICON_REC : ICON_PLAY);
-		break;
-	case BASS_ACTIVE_PAUSED:
-		m_IcoWnd.SetNewIcon((g_record_handle) ? ICON_PAUSER : ICON_PAUSEP);
-		break;
-	case BASS_ACTIVE_STOPPED:
-		m_IcoWnd.SetNewIcon(ICON_STOP);
-		break;
-	default:
-		ASSERT(false);
-		break;
-	}
-}
-
-//------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::UpdateStatWindow()
 {
 	int l_stream_rate = m_conf.GetConfDialMp3()->nBitrate;
@@ -1466,8 +1415,6 @@ void CMainFrame::UpdateStatWindow()
 	{
 		l_size_bytes   = (QWORD)m_record_file.GetLength();
 		l_size_seconds = (double)l_size_bytes / (l_stream_rate * 125);
-		//l_size_seconds = BASS_ChannelBytes2Seconds(g_record_handle,
-		//	BASS_ChannelGetPosition(g_record_handle, BASS_POS_BYTE));
 	}
 	char l_time_str[20] = {0};	// Time string in Hours:Minutes:Seconds format
 	Convert((UINT)l_size_seconds, l_time_str, sizeof(l_time_str));
@@ -1607,20 +1554,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	::DragFinish(hDropInfo);
 }
 
-/////////////////////////////////////////////////////////////////////////////
-CString CMainFrame::GetProgramDir()
-{
-	CString RtnVal;
-    char    FileName[1000];
-
-    GetModuleFileName(AfxGetInstanceHandle(), FileName, 1000);
-    RtnVal = FileName;
-    RtnVal = RtnVal.Left(RtnVal.ReverseFind('\\'));
-
-    return RtnVal;
-}
-
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 CString CMainFrame::GetAutoName( CString& strPattern )
 {
 	// Убираем все знаки "%" в конце строки.
@@ -1647,7 +1581,6 @@ void CMainFrame::OnLButtonDblClk(UINT nFlags, CPoint point)
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnRButtonUp(UINT nFlags, CPoint point) 
 {
-	CRect r;
 	CMenu StatMenu, *pStatMenu;
 
 	ClientToScreen(&point);
@@ -1730,12 +1663,11 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::CloseMixerWindows()
 {
-	// закрываем все окна микшера
-	HWND hMixWnd = ::FindWindow("Volume Control", NULL);
-	while(hMixWnd)
+	HWND hMixWnd = ::FindWindow(_T("Volume Control"), NULL);
+	while (hMixWnd)
 	{
 		::SendMessage(hMixWnd, WM_CLOSE, 0, 0);
-		hMixWnd = ::FindWindow("Volume Control", NULL);
+		hMixWnd = ::FindWindow(_T("Volume Control"), NULL);
 	}
 }
 
@@ -2120,7 +2052,7 @@ void CMainFrame::OnBtnSched()
 
 	m_conf.GetConfDialSH2()->bIsEnabled = !bIsEnabled;
 	// обновляем состояние кнопки "Запись" при автостарте шедулера
-	UpdateButtonState(IDB_BTNREC);
+	//UpdateButtonState(IDB_BTNREC);
 
 	/*
 	// обновляем окно времени
@@ -2168,7 +2100,7 @@ void Scheduler2Function(int nAction)
 			TRACE0("==> Scheduler2Function: call OnBtnREC to start recording\n");
 			//pMainWnd->OnBtnSTOP();
 			pMainWnd->OnBtnREC();
-			pMainWnd->UpdateButtonState(IDB_BTNREC);
+			//pMainWnd->UpdateButtonState(IDB_BTNREC);
 		}
 	}
 	else if (nAction == 1)	// обрабатываем СТОП записи
@@ -2293,7 +2225,6 @@ void CMainFrame::OnBtnVas()
 	{
 		m_vas.StopVAS();
 		m_StatWnd.m_btnVas.SetState(BTN_NORMAL);
-		UpdateIcoWindow();
 		if(m_nState == RECORD_STATE)
 			m_TrayIcon.SetIcon(IDI_TRAY_REC);
 		m_GraphWnd.HideVASMark();
@@ -2348,7 +2279,6 @@ void CMainFrame::UpdateButtonState(UINT nID)
 {
 	CButton* pBtn = (CButton *)GetDlgItem(nID);
 	ASSERT(pBtn);
-
 	pBtn->ModifyStyle(WS_DISABLED, 0);	// Resetting button state
 
 	if (IDB_BTNREC == nID)
@@ -2378,4 +2308,62 @@ void CMainFrame::UpdateButtonState(UINT nID)
 	pBtn->Invalidate(false); // обновляем кнопку
 }
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+void CMainFrame::UpdateInterface()
+{
+	static int l_current_state = -1;
+	if (l_current_state == m_nState)
+	{
+		return;
+	}
+
+	switch (m_nState)
+	{
+	case PLAY_STATE:
+		m_GraphWnd.StartUpdate(g_stream_handle);
+		m_BtnPLAY.SetIcon(IDI_PAUSE);
+		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
+		m_IcoWnd.SetNewIcon(ICON_PLAY);
+		break;
+
+	case PAUSEPLAY_STATE:
+		m_GraphWnd.StopUpdate();
+		m_BtnPLAY.SetIcon(IDI_PLAY);
+		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
+		m_IcoWnd.SetNewIcon(ICON_PAUSEP);
+		break;
+
+	case RECORD_STATE:
+		m_GraphWnd.StartUpdate((HSTREAM)g_record_handle);
+		m_BtnREC.SetIcon(IDI_PAUSE);
+		m_TrayIcon.SetIcon(IDI_TRAY_REC);
+		m_IcoWnd.SetNewIcon(ICON_REC);
+		break;
+
+	case PAUSEREC_STATE:
+		m_GraphWnd.StopUpdate();
+		m_BtnREC.SetIcon(IDI_REC);
+		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
+		m_IcoWnd.SetNewIcon(ICON_PAUSER);
+		break;
+
+	case STOP_STATE:
+	default:
+		m_GraphWnd.StopUpdate();
+		m_SliderTime.SetCurPos(0);
+		m_GraphWnd.Clear();
+		m_BtnREC.SetIcon(IDI_REC);
+		m_BtnPLAY.SetIcon(IDI_PLAY);
+		m_TrayIcon.SetIcon(IDI_TRAY_STOP);
+		m_IcoWnd.SetNewIcon(ICON_STOP);
+		UpdateStatWindow();
+		break;
+	}
+
+	UpdateButtonState(IDB_BTNPLAY);
+	UpdateButtonState(IDB_BTNREC);
+	l_current_state = m_nState;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
