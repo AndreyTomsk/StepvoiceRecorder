@@ -47,6 +47,11 @@ bool IsSuitableForRecording(CString a_filename)
 static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(
 	_T("UWM_ARE_YOU_ME-{B87861B4-8BE0-4dc7-A952-E8FFEEF48FD3}"));
 
+LRESULT CMainFrame::OnAreYouMe(WPARAM, LPARAM)
+{
+	return UWM_ARE_YOU_ME;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 IMPLEMENT_DYNAMIC(CMainFrame, CFrameWnd)
 
@@ -124,12 +129,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND_RANGE(ID_MIXITEM_REC0, ID_MIXITEM_REC0+50, OnRecMixMenuSelect)
 	ON_COMMAND_RANGE(ID_MIXITEM_PLAY0, ID_MIXITEM_PLAY0+3, OnPlayMixMenuSelect)
 END_MESSAGE_MAP()
-
-//====================================================================
-LRESULT CMainFrame::OnAreYouMe(WPARAM, LPARAM)
-{
-    return UWM_ARE_YOU_ME;
-} // CMainFrame::OnAreYouMe
 
 ////////////////////////////////////////////////////////////////////////////////
 double GetMaxPeakDB(HRECORD a_handle)
@@ -209,114 +208,7 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 ////////////////////////////////////////////////////////////////////////////////
 CMainFrame* CMainFrame::m_pMainFrame = NULL;
 
-void CMainFrame::_RecordProc(char* pBuf, int dwBufSize)
-{
-	static char pBufOut[10000];
-	char* pBufIn     = pBuf;
-	int	  nBufInSize = dwBufSize, nBufOutSize = 0;
-	DWORD dwBytesWritten;
-
-	// рисуем график
-	if(!m_pMainFrame->IsIconic())
-		m_pMainFrame->m_GraphWnd.Update(pBuf, dwBufSize);
-
-	// выходим если работает мониторинг (без записи)
-	if(m_pMainFrame->IsMonitoringOnly())
-		return;
-
-	// проверяем блок на VAS
-	if(m_pMainFrame->m_vas.IsRunning())
-	{
-		double dParam1, dParam2, dResult;
-		dParam1 = m_pMainFrame->m_GraphWnd.GetMaxPeakdB(pBuf, dwBufSize, 0);
-		dParam2 = m_pMainFrame->m_GraphWnd.GetMaxPeakdB(pBuf, dwBufSize, 1);
-		dResult = (dParam1 > dParam2) ? dParam1 : dParam2;
-
-		m_pMainFrame->m_vas.ProcessThreshold(dResult);
-		if(m_pMainFrame->m_vas.CheckVAS()) 
-		{
-			m_pMainFrame->ProcessVAS(true);
-			return;
-		}
-		else
-			m_pMainFrame->ProcessVAS(false);
-	}
-
-	// кодирование буфера и запись на диск
-	while(m_pMainFrame->m_pEncoder->EncodeChunk(pBufIn, nBufInSize,
-		pBufOut, nBufOutSize))
-	{
-		dwBytesWritten = m_pMainFrame->m_pSndFile->Write(pBufOut,
-			nBufOutSize);
-		// проверяем на конец диска
-		if((int)dwBytesWritten < nBufOutSize)
-		{
-			AfxMessageBox(IDS_REC_NOSPACE, MB_OK|MB_ICONSTOP);
-			m_pMainFrame->PostMessage(WM_COMMAND, IDB_BTNSTOP,
-				LONG(m_pMainFrame->m_BtnSTOP.m_hWnd));
-			break;
-		}
-		// зануляем указатель и размер для проведения итераций
-		if(pBufIn)
-		{
-			pBufIn     = NULL;
-			nBufInSize = 0;
-		}
-	}
-
-}
-
-//====================================================================
-bool CMainFrame::_PlaybkProc(char* pBuf, int& nBufSize, int nBytesToShow)
-{
-	static char  cMp3Buffer[8192], *pMp3Buffer = NULL;
-	static int   nMp3BufSize = 0;
-	static bool  bNeedToRead = true;
-
-	// рисуем график
-	if(!m_pMainFrame->IsIconic())
-		m_pMainFrame->m_GraphWnd.Update(pBuf, nBytesToShow);
-
-read_again:
-	if(bNeedToRead)
-	{
-		DWORD dwBytesRead = m_pMainFrame->m_pSndFile->Read(cMp3Buffer, 8192);
-		// проверяем на конец файла
-		if(dwBytesRead == 0)
-		{
-			m_pMainFrame->PostMessage(WM_COMMAND, IDB_BTNSTOP,
-				LONG(m_pMainFrame->m_BtnSTOP.m_hWnd));
-			// устанавливаем указатель на начало файла
-			//m_pMainFrame->PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
-			//	(LPARAM)m_pMainFrame->m_SliderTime.m_hWnd);
-			//m_pMainFrame->m_SliderTime.SetCurPos(0);
-			return false;			
-		}
-		// успешное чтение - инициализируем буфер
-		pMp3Buffer  = cMp3Buffer;
-		nMp3BufSize = dwBytesRead;
-	}
-	// декодируем
-	int nTemp = nBufSize;
-	bNeedToRead = !m_pMainFrame->m_pDecoder->DecodeChunk(pMp3Buffer,
-		nMp3BufSize, pBuf, nBufSize);
-	if(!bNeedToRead)
-	{
-		pMp3Buffer  = NULL;
-		nMp3BufSize = 0;
-	}
-	else
-	{
-		nBufSize = nTemp;
-		goto read_again; // необходимо считать новые данные
-	}
-
-	return true;
-}
-
-//====================================================================
-// КОНСТРУКТОР / ДЕСТРУКТОР
-//====================================================================
+////////////////////////////////////////////////////////////////////////////////
 CMainFrame::CMainFrame()
 {	// файлы
 	m_pWaveIn	= NULL;
@@ -873,63 +765,6 @@ void CMainFrame::OpenFile(CString& str)
 	
 	UpdateStatWindow();
 	UpdateTrayText();
-
-	/*
-	if(m_pSndFile)
-		OnFileClose();
-
-	// показываем сообщение о загрузке файла
-	CString strLoad((LPCSTR)IDS_LOADING);
-	m_title->SetTitleText(strLoad);
-	this->BeginWaitCursor();
-
-	SOUND_INFO si;
-	si.nBitrate	= m_conf.GetConfDialMp3()->nBitrate;
-	si.nFreq	= m_conf.GetConfDialMp3()->nFreq;
-	si.nStereo	= m_conf.GetConfDialMp3()->nStereo;
-	si.nBits	= 16;
-
-	m_pSndFile = new CSndFile_MP3;
-	bool bRes = m_pSndFile->Open(str, &si);
-
-	this->EndWaitCursor();
-	if(bRes == false)
-	{
-		SAFE_DELETE(m_pSndFile);
-		OnFileClose();
-		// выдаем ошибку
-		CString strRes;
-		AfxFormatString1(strRes, IDS_OPEN_ERR, str);
-		AfxMessageBox(strRes, MB_OK|MB_ICONWARNING);
-		return;
-	}
-
-	// запоминаем имя и полный путь файла
-	CString& strPath = m_conf.GetConfProg()->strLastFilePath;
-	CString& strName = m_conf.GetConfProg()->strLastFileName;
-	int nSlash = str.ReverseFind('\\');
-	if(nSlash == -1)
-		strName = str;
-	else
-	{	// !!!!!!
-		strPath = str.Left(nSlash);	// запомнить путь, если в др. папке
-		strName = str.Right(str.GetLength() - nSlash - 1);
-	}
-
-	// обновляем окно статистики
-	m_SliderTime.SetCurPos(0);
-	//if(m_pSndFile->GetFileSize(IN_SECONDS) > 0)
-	//	m_SliderTime.ShowThumb(true);
-	m_TimeWnd.Reset();
-	UpdateStatWindow();
-
-	// Устанавливаем заголовок: "<FILE> - StepVoice Recorder"
-	CString strTitle;
-	AfxFormatString1(strTitle, IDS_FILETITLE, strName);
-	m_title->SetTitleText(strTitle);
-
-	UpdateTrayText();
-	*/
 }
 
 //===========================================================================
@@ -1235,93 +1070,6 @@ void CMainFrame::OnBtnOPEN()
 		OpenFile(NewOpenFileDialog.GetPathName());
 		return;
 	}
-	/*
-	OnFileClose();
-
-	if (IsSuitableForRecording(NewOpenFileDialog.GetPathName()))
-	{
-		if (!BASS_RecordInit(-1))
-		{
-			return;
-		}
-		if (!m_record_file.Open(NewOpenFileDialog.GetPathName(),
-			CFile::modeCreate|CFile::modeWrite|CFile::typeBinary, NULL))
-		{
-			BASS_RecordFree();
-			return;
-		}
-	}
-	else
-	{
-		if (!BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL))
-		{
-			return;
-		}
-		g_stream_handle = BASS_StreamCreateFile(false,
-			NewOpenFileDialog.GetPathName(), 0, 0, 0);
-		if (!g_stream_handle)
-		{
-			BASS_Free();
-			return;
-		}
-	}
-
-
-	UpdateStatWindow();
-
-	// Modifying window caption to "<FILE> - StepVoice Recorder".
-	CString l_filename = NewOpenFileDialog.GetPathName();
-	if (l_filename.ReverseFind('\\') != -1)
-	{
-		l_filename = l_filename.Right(l_filename.GetLength() -
-			l_filename.ReverseFind('\\') - 1);
-	}
-	CString l_new_caption;
-	AfxFormatString1(l_new_caption, IDS_FILETITLE, l_filename);
-	m_title->SetTitleText(l_new_caption);
-	*/
-
-	/*if (NewOpenFileDialog.DoModal() == IDOK)
-	{
-		OpenFile(NewOpenFileDialog.GetPathName());
-	}*/
-
-	/*OPENFILENAME ofn;       // common dialog box structure
-	char szFile[260];       // buffer for file name
-	CString strFilter, strTitle, strName, strLastPath;
-
-	strFilter.LoadString(IDS_FILEFILTER);	// фильтр - MPEG audio files
-	strTitle.LoadString(IDS_FILENEWOPENTITLE);
-	strName = GetAutoName(CString(""));		// Имя вида 08jun_05.mp3
-	strLastPath = m_conf.GetConfProg()->strLastFilePath;
-
-	strcpy(szFile, strName.GetBuffer(strName.GetLength()));
-
-	// Initialize OPENFILENAME
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	//ofn.hwndOwner = this->GetSafeHwnd();
-	ofn.hwndOwner = AfxGetMainWnd()->GetSafeHwnd();
-	ofn.lpstrFile = szFile;
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrDefExt = "mp3";
-	ofn.lpstrFilter = "MPEG audio files (*.MP3)\0*.mp3\0All files (*.*)\0*.*\0";
-	ofn.nFilterIndex = 1;
-	ofn.lpstrTitle = strTitle;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.Flags = OFN_HIDEREADONLY | OFN_EXPLORER;
-	ofn.lpstrInitialDir = NULL;
-	if(!strLastPath.IsEmpty()) {	
-		strLastPath = strLastPath + "\\";
-		ofn.lpstrInitialDir = strLastPath;	
-	}
-
-	// Display the Open dialog box. 
-	if (GetOpenFileName(&ofn) == TRUE) {
-		strName = ofn.lpstrFile;
-		OpenFile(strName);
-	}*/
 }
 
 //===========================================================================
@@ -1368,105 +1116,6 @@ void CMainFrame::OnBtnPLAY()
 	UpdateIcoWindow();
 	UpdateButtonState(IDB_BTNREC);
 	OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
-	return;
-	/*
-	/// @note Not going here!!
-	SOUND_INFO si;
-	int nRes;
-
-	SetFocus();
-	switch(m_nState)
-	{
-	case STOP_STATE:
-		// проверяем, открыт ли файл
-		if(!m_pSndFile)
-		{	OnBtnOPEN();
-			if(!m_pSndFile)
-				return;
-		}
-		m_pSndFile->GetSoundInfo(si);
-
-		// инициализируем декодер
-		m_pDecoder = new CDecoder_MP3(m_strDir);
-		if(!m_pDecoder->InitDecoder(NULL))
-		{
-			SAFE_DELETE(m_pDecoder);
-			// выдаем сообщение об ошибке
-			CString strRes;
-			AfxFormatString2(strRes, IDS_DEC_INIT, m_strDir, "mpglib.dll");
-			AfxMessageBox(strRes, MB_OK|MB_ICONSTOP);
-			return;
-		}
-
-		// останавливаем мониторинг перед воспроизведением
-		if(m_bMonitoringBtn)
-		{
-			//MonitoringStop();
-			OnBtnMonitoring();
-		}
-
-		// инициализируем воспр.
-		m_pWaveOut = new CWaveOut(_PlaybkProc);
-		nRes = m_pWaveOut->Open(si.nFreq, si.nBits, si.nStereo);
-		if(nRes)
-		{	// произошла ошибка открытия
-			SAFE_DELETE(m_pWaveOut);
-			// выдаем сообщение об ошибке
-			if(nRes != ERR_BUFFER)
-				AfxMessageBox(IDS_WAVEOUT_OPEN, MB_OK|MB_ICONWARNING);
-			return;
-		}
-
-		// запускаем воспр.
-		if(!m_pWaveOut->Start())
-		{
-			SAFE_DELETE(m_pWaveOut);
-			// выдаем сообщение об ошибке
-			AfxMessageBox(IDS_WAVEOUT_START, MB_OK|MB_ICONWARNING);
-			return;
-		}
-
-		// делаем. доп. действия
-		m_nState = PLAY_STATE;
-		SetTimer(1, 1000, NULL);
-		// обновляем вид окон
-		//m_GraphWnd.SetConfig(&si);
-		m_BtnPLAY.SetIcon(IDI_PAUSE);
-		//m_BtnREC.ModifyStyle(0, WS_DISABLED);
-		//m_BtnREC.Invalidate(false);
-		// обновляем иконку в трее
-		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
-		break;
-
-	case PLAY_STATE:
-		m_pWaveOut->Pause();
-		// делаем доп. действия
-		m_nState = PAUSEPLAY_STATE;
-		KillTimer(1);
-		m_BtnPLAY.SetIcon(IDI_PLAY);
-		m_TimeWnd.Blink(true);
-		// обновляем иконку в трее
-		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
-		break;
-
-	case PAUSEPLAY_STATE:
-		m_pWaveOut->Start();
-		// делаем доп. действия
-		m_nState = PLAY_STATE;
-		SetTimer(1, 1000, NULL);
-		m_BtnPLAY.SetIcon(IDI_PAUSE);
-		m_TimeWnd.Blink(false);
-		// обновляем иконку в трее
-		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
-		break;
-	}
-
-	UpdateIcoWindow();
-	UpdateButtonState(IDB_BTNREC);
-
-	// меняем линию микшера
-	OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
-	*/
 }
 
 //===========================================================================
@@ -1518,73 +1167,6 @@ void CMainFrame::OnBtnSTOP()
 	UpdateButtonState(IDB_BTNPLAY);
 	UpdateButtonState(IDB_BTNREC);
 	OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
-	return;
-	/*
-	///@note Not going here!
-	SetFocus();
-	switch(m_nState)
-	{
-	case RECORD_STATE:
-	case PAUSEREC_STATE:
-
-		SAFE_DELETE(m_pWaveIn);
-		SAFE_DELETE(m_pEncoder);
-		// дополнительные действия
-		KillTimer(2);
-		m_BtnREC.SetIcon(IDI_REC);
-		//m_BtnPLAY.ModifyStyle(WS_DISABLED, 0);
-		//m_BtnPLAY.Invalidate(false);
-		break;
-
-	case PLAY_STATE:
-	case PAUSEPLAY_STATE:
-
-		SAFE_DELETE(m_pWaveOut);
-		SAFE_DELETE(m_pDecoder);
-		// дополнительные действия
-		KillTimer(1);
-		m_BtnPLAY.SetIcon(IDI_PLAY);
-		//m_BtnREC.ModifyStyle(WS_DISABLED, 0);
-		//m_BtnREC.Invalidate(false);
-		break;
-	}
-
-	m_nState = STOP_STATE;
-	// запускаем мониторинг
-	if(m_bMonitoringBtn)
-		MonitoringStart();
-
-	// устанавливаем указатель на начало файла
-	PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
-		(LPARAM)m_pMainFrame->m_SliderTime.m_hWnd);
-	m_SliderTime.SetCurPos(0);
-	//if(m_pSndFile)
-	//	m_pSndFile->Seek(0, SND_FILE_BEGIN);
-	//m_SliderTime.SetCurPos(0);
-
-	//if(m_pSndFile)
-	//{
-	//	if(m_pSndFile->GetFileSize(IN_SECONDS) > 0)
-	//		m_SliderTime.ShowThumb(true);
-	//}
-
-	// изменить окна визуализации и статистики
-	UpdateIcoWindow();
-	UpdateStatWindow();
-	ProcessSliderTime(SB_THUMBPOSITION, 1000);
-	m_TimeWnd.Blink(false);
-	//m_TimeWnd.Reset();
-	m_GraphWnd.Clear();
-
-	UpdateButtonState(IDB_BTNPLAY);
-	UpdateButtonState(IDB_BTNREC);
-
-	// обновляем иконку в трее
-	m_TrayIcon.SetIcon(IDI_TRAY_STOP);
-
-	// меняем линию микшера
-	OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
-	*/
 }
 
 
@@ -1686,143 +1268,6 @@ void CMainFrame::OnBtnREC()
 	}
 	UpdateIcoWindow();
 	UpdateButtonState(IDB_BTNPLAY);
-	return;
-
-	/*
-	SOUND_INFO    si;
-	CONF_DIAL_MP3 confMp3;
-	int nResult;
-
-	CString strTest;
-
-	// данные для старта шедулера
-	bool bIsSchedEnabled= m_conf.GetConfDialSH2()->bIsEnabled  != 0;
-	bool bSchedStart	= m_conf.GetConfDialSH2()->bSchedStart != 0;
-	SHR_TIME* ptRec		= &m_conf.GetConfDialSH2()->t_rec;
-	SHR_TIME* ptStop	= &m_conf.GetConfDialSH2()->t_stop;
-
-	SetFocus();
-	switch(m_nState)
-	{
-	case STOP_STATE:
-		// если файл не открыт - вызываем диалог открытия
-		if(!m_pSndFile)
-		{	
-			TRACE0("==> OnBtnREC: trying to create/open a file ... \n");
-			OnBtnOPEN();
-			if(!m_pSndFile)
-				return;
-			TRACE0("==> OnBtnREC: file created/opened!\n");
-		}
-
-		// инициализируем кодер
-		m_pSndFile->GetSoundInfo(si);
-		confMp3.nBitrate = si.nBitrate;
-		confMp3.nFreq	 = si.nFreq;
-		confMp3.nStereo  = si.nStereo;
-
-		ASSERT(!m_pEncoder);
-		m_pEncoder = new CEncoder_MP3(m_strDir);
-		nResult = m_pEncoder->InitEncoder(&confMp3);
-		if(nResult != CEncoder::ENC_NOERROR)
-		{
-			SAFE_DELETE(m_pEncoder);
-
-			CString strRes;
-			if(nResult == CEncoder::ENC_ERR_DLL || nResult == CEncoder::ENC_ERR_UNK)
-			{	// критическая ошибка
-				AfxFormatString2(strRes, IDS_ENC_ERR_DLL, m_strDir, "lame_enc.dll");
-				AfxMessageBox(strRes, MB_OK|MB_ICONSTOP);
-			}
-			else if(nResult == CEncoder::ENC_ERR_INIT)
-			{
-				strRes.LoadString(IDS_ENC_ERR_INIT);
-				AfxMessageBox(strRes, MB_OK | MB_ICONWARNING);
-			}
-			return;
-		}
-
-		// останавливаем мониторинг перед записью
-		if(m_bMonitoringBtn)
-		{
-			//MonitoringStop();
-			OnBtnMonitoring();
-		}
-
-		// инициализируем запись
-		m_pWaveIn = new CWaveIn(_RecordProc);
-		if(m_pWaveIn->Open(si.nFreq, si.nBits, si.nStereo))
-		{
-			SAFE_DELETE(m_pWaveIn);
-			AfxMessageBox(IDS_WAVEIN_OPEN, MB_OK|MB_ICONWARNING);
-			return;
-		}
-
-		// решение проблемы краша программы при старте записи с вкл. VAS
-		//m_GraphWnd.SetConfig(&si);
-
-		// запускаем запись
-		if(!m_pWaveIn->Start())
-		{
-			SAFE_DELETE(m_pWaveIn);
-			AfxMessageBox(IDS_WAVEIN_START, MB_OK|MB_ICONWARNING);
-			return;
-		}
-
-		// дополнительные действия
-		m_nState = RECORD_STATE;
-		SetTimer(2, 1000, NULL);
-		// обновляем окна
-		m_BtnREC.SetIcon(IDI_PAUSE);
-		//m_BtnPLAY.ModifyStyle(0, WS_DISABLED);
-		//m_BtnPLAY.Invalidate(false);
-		// обновляем иконку в трее
-		m_TrayIcon.SetIcon(IDI_TRAY_REC);
-		
-		// запускаем шедулер
-		if(bIsSchedEnabled && (!bSchedStart)) {
-			if(m_conf.GetConfDialSH2()->nStopByID == 1)
-				m_sched2.SetRecTime(ptRec, NULL);
-			else
-				m_sched2.SetStopTime(ptStop, NULL);
-			TRACE0("==> OnBtnREC: trying to run the scheduler ...\n");
-			m_sched2.Start();
-		}
-
-		// перезапускаем VAS
-		if(m_vas.IsRunning())
-			m_vas.ResetVAS();
-		break;
-
-	case RECORD_STATE:
-		m_pWaveIn->Pause();
-		// дополнительные действия
-		m_nState = PAUSEREC_STATE;
-		KillTimer(2);
-		m_BtnREC.SetIcon(IDI_REC);
-		m_TimeWnd.Blink(true);
-		// обновляем иконку в трее
-		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
-		break;
-
-	case PAUSEREC_STATE:
-		m_pWaveIn->Start();
-		// дополнительные действия
-		m_nState = RECORD_STATE;
-		SetTimer(2, 1000, NULL);
-		m_BtnREC.SetIcon(IDI_PAUSE);
-		m_TimeWnd.Blink(false);
-		// обновляем иконку в трее
-		m_TrayIcon.SetIcon(IDI_TRAY_REC);
-		// перезапускаем VAS
-		if(m_vas.IsRunning())
-			m_vas.ResetVAS();
-		break;
-	}
-	m_nStartSec = m_pSndFile->GetFilePos(IN_SECONDS);
-	UpdateIcoWindow();
-	UpdateButtonState(IDB_BTNPLAY);
-	*/
 }
 
 //===========================================================================
@@ -2217,18 +1662,11 @@ void CMainFrame::OnRButtonUp(UINT nFlags, CPoint point)
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnOptSnddev() 
 {
-	//WinExec("control mmsys.cpl,,0", SW_SHOW);
-	//WinExec("control desk.cpl,,1", SW_SHOW);
+	LPCSTR l_old_exec = "rundll32.exe MMSYS.CPL,ShowAudioPropertySheet";
+	LPCSTR l_new_exec = "control MMSYS.CPL";
 
 	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
-	if (l_app->IsVistaOS())
-	{
-		WinExec("control MMSYS.CPL", SW_SHOW);
-	}
-	else
-	{
-		WinExec("rundll32.exe MMSYS.CPL,ShowAudioPropertySheet", SW_SHOW);
-	}
+	WinExec(l_app->IsVistaOS() ? l_new_exec : l_old_exec, SW_SHOW);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2385,24 +1823,6 @@ void CMainFrame::OnUpdateTrayRec(CCmdUI* pCmdUI)
 	pCmdUI->Enable(l_enabled);
 }
 
-/*
-BOOL CMainFrame::ShowTaskBarButton(BOOL bVisible)
-{
-	if (!m_bOwnerCreated) return FALSE; 
-
-	::ShowWindow(GetSafeHwnd(), SW_HIDE);
-
-	if (bVisible) 
-		ModifyStyleEx(0, WS_EX_APPWINDOW); 
-	else 
-		ModifyStyleEx(WS_EX_APPWINDOW, 0);
-
-	::ShowWindow(GetSafeHwnd(), SW_SHOW);
-
-	return TRUE; 
-}
-*/
-
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnMIX_INV()
 {
@@ -2539,17 +1959,6 @@ void CMainFrame::OnRecMixMenuSelect(UINT nID)
 	{
 		PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
 	}
-
-	//m_BtnMIX_INV.SetIcon(IDI_MIC);
-	//m_BtnMIX_SEL.SetIcon(IDI_MIC);
-
-	// меняем иконку в зависимости от типа линии
-	/*const int ICON_ID[] = { IDI_MIXLINE00, IDI_MIXLINE01, IDI_MIXLINE02,
-							IDI_MIXLINE03, IDI_MIXLINE04, IDI_MIXLINE05,
-							IDI_MIXLINE06, IDI_MIXLINE07, IDI_MIXLINE08,
-							IDI_MIXLINE09, IDI_MIXLINE10 };
-	int i = m_RecMixer.GetLineType(m_RecMixer.GetCurLine());
-	m_BtnMIX_SEL.SetIcon(ICON_ID[i]);*/
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2576,41 +1985,6 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
    m_SliderVol.GetRange(minpos, maxpos);
    curpos = m_SliderVol.GetPos();
 
-/*   // Determine the new position of scroll box.
-   switch (nSBCode)
-   {
-   case SB_LEFT:
-      curpos = minpos;
-      break;
-   case SB_RIGHT:
-      curpos = maxpos;
-      break;
-   case SB_LINELEFT:
-      if (curpos < minpos)
-         curpos--;
-      break;
-   case SB_LINERIGHT:
-      if (curpos > maxpos)
-         curpos++;
-      break;
-   case SB_PAGELEFT:
-	  if (curpos > minpos)
-		curpos = max(minpos, curpos - m_SliderVol.GetPageSize());
-	  break;
-   case SB_PAGERIGHT:
-      if (curpos < maxpos)
-         curpos = min(maxpos, curpos + m_SliderVol.GetPageSize());
-      break;
-   case SB_THUMBTRACK:
-   case SB_THUMBPOSITION:
-      curpos = nPos;
-      break;
-   default:
-	   return;
-   }
-   // Set the new position of the thumb (scroll box).
-   m_SliderVol.SetPos(curpos);
-*/
 	// информируем пользователя
 	int nPercent = int(100.0 * curpos / (maxpos - minpos));
 

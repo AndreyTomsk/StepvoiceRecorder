@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 #if !defined(AFX_MAINFRM_H__837D6DC8_C6B3_11D7_BC33_444553540000__INCLUDED_)
 #define AFX_MAINFRM_H__837D6DC8_C6B3_11D7_BC33_444553540000__INCLUDED_
 
@@ -46,10 +46,10 @@
 
 #include <bass.h>
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 enum {STOP_STATE, PLAY_STATE, RECORD_STATE, PAUSEREC_STATE, PAUSEPLAY_STATE};
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 extern DWORD WINAPI SchedProc( LPVOID lpParam );
 extern void Scheduler2Function(int nAction);
 
@@ -58,10 +58,8 @@ class CMainFrame : public CFrameWnd
 	friend DWORD WINAPI SchedProc( LPVOID lpParam );
 	friend void Scheduler2Function(int nAction);
 	static CMainFrame* m_pMainFrame;
-	static void _RecordProc(char* pBuf, int dwBufSize);
-	static bool _PlaybkProc(char* pBuf, int& dwBufSize, int nBytesToShow);
-
-	/// Callback function to process sample data
+	
+	///Callback function to process sample data
 	static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer,
 		DWORD a_length, void* a_user);
 
@@ -83,8 +81,8 @@ protected:
 	CTimeWnd		m_TimeWnd;
 	CStatWnd		m_StatWnd;
 	CGraphWnd		m_GraphWnd;
+
 	// Buttons
-	//CButton			m_BtnFrame;
 	CWnd			m_BtnFrame;
 	CControlButton	m_BtnOPEN;
 	CControlButton	m_BtnPLAY;
@@ -108,14 +106,7 @@ protected:
 	SIZE			m_szMoveOffset;
 
 	CSystemTray		m_TrayIcon;
-	//CDialog			m_MainFrameOwner;
-	//BOOL			m_bOwnerCreated;
 
-	// смещение в начале записи
-	int				m_nStartSec;
-
-	//CMixer			m_PlayMixer;
-	//CMixer			m_RecMixer;
 	CMixerRec		m_RecMixer;
 	CMixerPlay		m_PlayMixer;
 	int				m_nActiveMixerID;
@@ -125,16 +116,8 @@ protected:
 	int				m_nSysVolume;
 
 public:
-	// планировщик
-	//CScheduler		m_sched;
-	CScheduler2		m_sched2;
-
-	CVAS			m_vas;	// поддержка голосовой активации
-
-	//CToolBar		m_MainBar;
-	//CToolBar		m_MixBar;
-	//CToolBarCtrl	m_MainBar;
-	//CImageList		m_MainBarList;
+	CScheduler2		m_sched2;	// планировщик
+	CVAS			m_vas;		// поддержка голосовой активации
 
 public:
 	bool IsMonitoringOnly();
@@ -152,6 +135,7 @@ protected:
 	void ProcessSliderVol(UINT nSBCode, UINT nPos);
 	void Convert(UINT nCurSec, char* pszTime, int nStrSize);
 	void OpenFile(CString& strFileName);
+
 	// функции обновления окон визуализации и статистики
 	void UpdateIcoWindow();
 	void UpdateStatWindow();
@@ -241,6 +225,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //{{AFX_INSERT_LOCATION}}
-#endif // !defined(AFX_MAINFRM_H__837D6DC8_C6B3_11D7_BC33_444553540000__INCLUDED_)
+#endif // AFX_MAINFRM_H__837D6DC8_C6B3_11D7_BC33_444553540000__INCLUDED_
