@@ -29,18 +29,18 @@ CUrlWnd::~CUrlWnd()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+/*
 void CUrlWnd::Init()
 {
 	SetClassLong(m_hWnd, GCL_HCURSOR, (LONG)LoadCursor (AfxGetInstanceHandle (), MAKEINTRESOURCE (IDC_HAND)));
 	GetWindowText(m_strUrl);
 }
+*/
 
-
-void CUrlWnd::SetUrl(LPCSTR pszUrl)
+void CUrlWnd::SetUrl(CString pszUrl)
 {
 	m_strUrl = pszUrl;
 }
-
 
 int CUrlWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) 
 {
@@ -48,6 +48,8 @@ int CUrlWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	
 	//Init();
+	SetClassLong(m_hWnd, GCL_HCURSOR, (LONG)LoadCursor (AfxGetInstanceHandle (),
+		MAKEINTRESOURCE(IDC_HAND)));
 	
 	return 0;
 }
@@ -55,7 +57,6 @@ int CUrlWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CUrlWnd::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	ShellExecute(::GetDesktopWindow(), "open", m_strUrl, NULL,
-		NULL, SW_SHOW);
+	ShellExecute(::GetDesktopWindow(), "open", m_strUrl, NULL, NULL, SW_SHOW);
 	CStatic::OnLButtonDown(nFlags, point);
 }

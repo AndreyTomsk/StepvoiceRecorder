@@ -29,8 +29,8 @@ public:
 
 // Implementation
 public:
-	void Init();
-	void SetUrl(LPCSTR pszUrl);
+	//void Init();
+	void SetUrl(CString pszUrl);
 	virtual ~CUrlWnd();
 
 	// Generated message map functions

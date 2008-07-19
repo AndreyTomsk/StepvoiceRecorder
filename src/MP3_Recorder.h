@@ -1,6 +1,6 @@
+////////////////////////////////////////////////////////////////////////////////
 // MP3_Recorder.h : main header file for the MP3_RECORDER application
 //
-
 #if !defined(AFX_MP3_RECORDER_H__837D6DC4_C6B3_11D7_BC33_444553540000__INCLUDED_)
 #define AFX_MP3_RECORDER_H__837D6DC4_C6B3_11D7_BC33_444553540000__INCLUDED_
 
@@ -14,18 +14,13 @@
 
 #include "resource.h"       // main symbols
 
-/////////////////////////////////////////////////////////////////////////////
-// CMP3_RecorderApp:
-// See MP3_Recorder.cpp for the implementation of this class
-//
-
+////////////////////////////////////////////////////////////////////////////////
 class CMP3_RecorderApp : public CWinApp
 {
 public:
 	CMP3_RecorderApp();
 	CString GetProgramDir();
-	CString GetMyFileVersion();
-	bool    IsVistaOS() {return m_is_vista;}
+	bool IsVistaOS() { return m_is_vista; }
 
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMP3_RecorderApp)
@@ -47,7 +42,7 @@ public:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
-protected:
+private:
 	bool IsNeedOneInstance();
 	bool IsAlreadyRunning();
 	static BOOL CALLBACK searcher(HWND hWnd, LPARAM lParam);
@@ -56,10 +51,7 @@ private:
 	bool m_is_vista;
 };
 
-
-/////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////////////
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MP3_RECORDER_H__837D6DC4_C6B3_11D7_BC33_444553540000__INCLUDED_)
+// Microsoft Visual C++ will insert add. declarations before the previous line.
+#endif //AFX_MP3_RECORDER_H__837D6DC4_C6B3_11D7_BC33_444553540000__INCLUDED_)

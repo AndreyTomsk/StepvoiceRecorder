@@ -4,17 +4,12 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-// NagScreenDlg.h : header file
-//
 
 #include "UrlWnd.h"
 
 /////////////////////////////////////////////////////////////////////////////
-// CNagScreenDlg dialog
-
 class CNagScreenDlg : public CDialog
 {
-// Construction
 public:
 	CNagScreenDlg(CWnd* pParent = NULL);   // standard constructor
 

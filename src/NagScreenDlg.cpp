@@ -53,7 +53,7 @@ BOOL CNagScreenDlg::OnInitDialog()
 	SetIcon(LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME)), TRUE); 
 
 	m_wndOrder.SubclassDlgItem(IDC_ONLINEREGISTER, this);
-	m_wndOrder.Init();
+	//m_wndOrder.Init();
 	m_wndOrder.SetUrl(ORDER_URL);
 
 	CString unregText;
