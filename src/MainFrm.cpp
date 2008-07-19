@@ -5,10 +5,10 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-#include <winuser.h>
+//#include <winuser.h>
 #include "stdafx.h"
 #include "Interface\Buttons\BitmapBtn.h"
-
+ 
 #include "MP3_Recorder.h"
 #include "MainFrm.h"
 #include "common.h"
@@ -312,9 +312,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_BtnSTOP.Create(CRect(iX, iY, iX+idx, iY+idy), this, IDB_BTNSTOP); iX += idx + 1;
 	m_BtnPLAY.Create(CRect(iX, iY, iX+idx, iY+idy), this, IDB_BTNPLAY); iX = 226; idx = 25;
 
-	//iX = 243; idx = 25;
-	//m_BtnMIX_INV.Create(CRect(iX, iY, iX+idx, iY+idy), this, IDB_MIX_INV);
-	//iX += idx+0; idx = 10;
 	iX = 251; idx = 27;
 	m_BtnMIX_SEL.Create(CRect(iX, iY, iX+idx, iY+idy), this, IDB_MIX_SEL);
 
@@ -422,7 +419,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 	if( !CFrameWnd::PreCreateWindow(cs) )
 		return FALSE;
 
-	cs.cx = 290;//285;//318;//255;
+	cs.cx = 290;
 	cs.cy = 120 + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYMENU);
 	
 	// устанавливаем положение окна
@@ -430,19 +427,15 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 	int nScreenCY = GetSystemMetrics(SM_CYSCREEN);
 	cs.x  = m_conf.GetConfProg()->nXcoord;
 	cs.y  = m_conf.GetConfProg()->nYcoord;
-	if(cs.x >= (nScreenCX-40) || cs.y >= (nScreenCY-40))
+	if (cs.x >= (nScreenCX-40) || cs.y >= (nScreenCY-40))
 	{
 		cs.x  = (nScreenCX - cs.cx)/2;
 		cs.y  = (nScreenCY - cs.cy)/2;
 	}
 
 	cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
+	cs.lpszClass = "SvRec";
 
-	//cs.lpszClass = AfxRegisterWndClass(CS_HREDRAW|CS_VREDRAW|CS_DBLCLKS,
-	//	::LoadCursor(NULL, IDC_ARROW), (HBRUSH)16/*(HBRUSH)COLOR_BACKGROUND+1*/,
-	//	AfxGetApp()->LoadIcon(IDR_MAINFRAME));
-
-	cs.lpszClass	= "SvRec";
 	WNDCLASS wc;
 	ZeroMemory(&wc, sizeof(wc));
 	wc.hInstance	= AfxGetInstanceHandle();
@@ -460,10 +453,10 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 /////////////////////////////////////////////////////////////////////////////
 BOOL CMainFrame::ShowWindow()
 {	
-	// process show window, called by MP3_RecorderApp
-	int nCmdShow = (m_conf.GetConfDialGen()->bMinimized) ? SW_MINIMIZE : SW_SHOW;
+	///@note Called by MP3_RecorderApp
 
-	if(nCmdShow == SW_MINIMIZE && m_conf.GetConfDialGen()->bTrayMin)
+	int nCmdShow = (m_conf.GetConfDialGen()->bMinimized) ? SW_MINIMIZE : SW_SHOW;
+	if (nCmdShow == SW_MINIMIZE && m_conf.GetConfDialGen()->bTrayMin)
 	{
 		nCmdShow = SW_HIDE;
 		m_TrayIcon.ShowIcon();
@@ -487,12 +480,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 	case MM_MIXM_CONTROL_CHANGE:
 	case MM_MIXM_LINE_CHANGE:
 		{
-			//if(m_nActiveMixerID == 1)
-			//	OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
-			//else
-			//	OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
-
-			if(m_nActiveMixerID == 1)
+			if (m_nActiveMixerID == 1)
 			{
 				m_SliderVol.SetPos(m_PlayMixer.GetVol(m_PlayMixer.GetCurLine()));
 			}
@@ -611,7 +599,6 @@ void CMainFrame::OnDestroy()
 void CMainFrame::OnFileClose() 
 {
 	OnBtnSTOP();
-	m_GraphWnd.StopUpdate();
 
 	BASS_Free();
 	BASS_RecordFree();
@@ -635,7 +622,6 @@ void CMainFrame::OnFileClose()
 	AfxFormatString1(strTitle, IDS_FILETITLE, strNoFile);
 	m_title->SetTitleText(strTitle);
 
-	//m_SliderTime.SetCurPos(0);
 	//m_SliderTime.ShowThumb(false);	// убираем ползунок слайдера
 	m_TimeWnd.Reset();
 	UpdateStatWindow();
@@ -752,7 +738,7 @@ void CMainFrame::OpenFile(CString& str)
 //===========================================================================
 void CMainFrame::OnFileFindfile() 
 {
-	CString filePath = m_conf.GetConfProg()->strLastFilePath + "\\" +
+	CString filePath = m_conf.GetConfProg()->strLastFilePath + _T("\\") +
 		m_conf.GetConfProg()->strLastFileName;
 	
 	ShellExecute(NULL, "open", "explorer", "/select, """+filePath+"""",
@@ -898,42 +884,33 @@ void CMainFrame::OnStatPref()
 
 void CMainFrame::OnOptCom()
 {
-	// открытыми могут быть вкладки "General" или "Record" :)
 	int nDialogIndex = m_conf.GetConfProg()->nDialogIndex;
-	//nDialogIndex = (nDialogIndex == -1) ? 1 : 0;
-
-	//CMySheet optDlg("Preferences", this, m_conf.GetConfProg()->nDialogIndex);
 	CMySheet optDlg("Preferences", this, nDialogIndex);
-	// настраиваем вид диалога и состояние его элементов
-	optDlg.m_psh.dwFlags |= PSH_NOAPPLYNOW;
-	//optDlg.m_psh.dwFlags |= PSH_HASHELP;
 
+	optDlg.m_psh.dwFlags |= PSH_NOAPPLYNOW;
 	optDlg.SetConfig( m_conf.GetConfDialGen() );
 	optDlg.SetConfig( m_conf.GetConfDialMp3() );
-	optDlg.SetConfig( m_conf.GetConfDialSH2()  );
+	optDlg.SetConfig( m_conf.GetConfDialSH2() );
 	optDlg.SetConfig( m_conf.GetConfDialVAS() );
 	optDlg.SetConfig( m_conf.GetConfDialAN()  );
-	// !!!
-	m_pOptDialog = &optDlg;
+
+	m_pOptDialog = &optDlg;		// Saving dialog pointer for tray exit process
 
 	// сохраним состояние шедулера
 	bool bOldSchedState = m_conf.GetConfDialSH2()->bIsEnabled != 0;
 	bool bNewSchedState = bOldSchedState;
 
-	if(optDlg.DoModal() == IDOK)
+	if (optDlg.DoModal() == IDOK)
 	{
 		m_conf.saveConfig();		
-		//m_conf.RegisterWrite(); // сохраняем состояние настроек
-
-		if(m_pSndFile)
+		if (m_pSndFile)
 		{
 			SOUND_INFO si;
 			si.nBitrate	= m_conf.GetConfDialMp3()->nBitrate;
 			si.nFreq	= m_conf.GetConfDialMp3()->nFreq;
 			si.nStereo	= m_conf.GetConfDialMp3()->nStereo;
 			si.nBits	= 16;
-			// пытаемся изменить параметры файла (для пустого сработает)
-			m_pSndFile->ChangeSoundInfo(si);
+			m_pSndFile->ChangeSoundInfo(si); // Will work for a blank file
 		}
 		UpdateStatWindow();
 
@@ -968,8 +945,7 @@ void CMainFrame::OnOptCom()
 
 	m_conf.GetConfProg()->nDialogIndex = optDlg.m_nPageIndex;
 
-	// !!!
-	m_pOptDialog = NULL;
+	m_pOptDialog = NULL;	// No dialog is open (pointer is for tray)
 }
 
 //===========================================================================
@@ -1026,7 +1002,7 @@ void CMainFrame::OnMixRec()
 //===========================================================================
 void CMainFrame::OnBtnOPEN()
 {
-	this->SetFocus(); // убираем фокус с кнопки
+	SetFocus();
 
 	CString strTemp;
 	strTemp.LoadString(IDS_FILEFILTER);			// фильтр - MPEG audio files
@@ -1099,7 +1075,7 @@ void CMainFrame::OnBtnPLAY()
 //===========================================================================
 void CMainFrame::OnBtnSTOP()
 {
-	this->SetFocus();
+	SetFocus();
 
 	m_nState = STOP_STATE;
 	if (g_stream_handle)
@@ -1809,11 +1785,12 @@ void CMainFrame::OnBtnMIX_SEL()
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnRecMixMenuSelect(UINT nID)
 {
-	if(m_RecMixer.GetLinesNum() == 0)
-	{	m_SliderVol.EnableWindow(false);
+	if (m_RecMixer.GetLinesNum() == 0)
+	{
+		m_SliderVol.EnableWindow(false);
 		return;
 	}
 
@@ -1830,11 +1807,11 @@ void CMainFrame::OnRecMixMenuSelect(UINT nID)
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnPlayMixMenuSelect(UINT nID)
 {
-	if(m_PlayMixer.GetLinesNum() == 0)
-	{	m_SliderVol.EnableWindow(false);
+	if (m_PlayMixer.GetLinesNum() == 0)
+	{
+		m_SliderVol.EnableWindow(false);
 		return;
 	}
 
@@ -1842,11 +1819,10 @@ void CMainFrame::OnPlayMixMenuSelect(UINT nID)
 	m_PlayMixer.SetLine(nID - ID_MIXITEM_PLAY0);
 	m_SliderVol.SetPos(m_PlayMixer.GetVol(m_PlayMixer.GetCurLine()));
 	m_nActiveMixerID = 1;
-	//m_BtnMIX_INV.SetIcon(IDI_DIN);
 	m_BtnMIX_SEL.SetIcon(IDI_MIXLINE);
 }
 
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 {
    // Get the minimum and maximum scroll-bar positions.
@@ -1892,6 +1868,21 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		break;
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
+BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) 
+{
+	if (zDelta > 0)
+	{
+		OnVolUpA();
+	}
+	else if (zDelta < 0)
+	{
+		OnVolDownA();
+	}
+	return CFrameWnd::OnMouseWheel(nFlags, zDelta, pt);
+}
+
 void CMainFrame::OnVolUpA() 
 {
 	// проверяем на доступность линий микшеров
@@ -1924,10 +1915,9 @@ void CMainFrame::OnVolDownA()
 		(LPARAM)m_SliderVol.GetSafeHwnd());
 }
 
-
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // ШЕДУЛЕР
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnSched()
 {
 #ifndef _DEBUG
@@ -2197,20 +2187,6 @@ void CMainFrame::ProcessVAS(bool bVASResult)
 	bOldVASResult = bVASResult;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) 
-{
-	if (zDelta > 0)
-	{
-		OnVolUpA();
-	}
-	else if (zDelta < 0)
-	{
-		OnVolDownA();
-	}
-	return CFrameWnd::OnMouseWheel(nFlags, zDelta, pt);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::UpdateButtonState(UINT nID)
 {
@@ -2303,4 +2279,3 @@ void CMainFrame::UpdateInterface()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-

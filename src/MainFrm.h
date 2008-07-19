@@ -85,17 +85,14 @@ class CMainFrame : public CFrameWnd
 	CGraphWnd		m_GraphWnd;
 
 	// Buttons
-	CWnd			m_BtnFrame;
-	CControlButton	m_BtnOPEN;
-	CControlButton	m_BtnPLAY;
-	CControlButton	m_BtnSTOP;
-	CControlButton	m_BtnREC;
-	CControlButton	m_BtnMIX_REC;
-	CControlButton	m_BtnMIX_PLAY;
-
-	// кнопки выбора микшера
-	CControlButton	m_BtnMIX_INV;
-	CControlButton	m_BtnMIX_SEL;
+	CWnd m_BtnFrame;
+	CControlButton m_BtnOPEN;
+	CControlButton m_BtnPLAY;
+	CControlButton m_BtnSTOP;
+	CControlButton m_BtnREC;
+	CControlButton m_BtnMIX_SEL;
+	//CControlButton m_BtnMIX_REC;
+	//CControlButton m_BtnMIX_PLAY;
 
 	// Sliders
 	CWnd			m_SliderFrame;
@@ -114,8 +111,6 @@ class CMainFrame : public CFrameWnd
 	int				m_nActiveMixerID;
 
 	CMySheet*		m_pOptDialog;	// указатель на запущенный диалог
-
-	int				m_nSysVolume;
 
 public:
 	CScheduler2		m_sched2;	// планировщик
