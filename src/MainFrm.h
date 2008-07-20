@@ -139,6 +139,14 @@ protected:
 	void UpdateButtonState(UINT nID);
 	CString GetAutoName(CString& strPattern);
 
+	/**
+	 * Parses string, replacing patterns by real values. Currently supports:
+	 * {Desktop}		- user desktop dir;
+	 * {MyDocuments}	- user documents dir;
+	 * {Autoname}		- generated file name (see options dialog for changing).
+	 */
+	CString ParseFileName(CString a_file_name);
+
 protected:
 	DECLARE_DYNAMIC(CMainFrame)
 	//{{AFX_VIRTUAL(CMainFrame)
@@ -202,6 +210,7 @@ protected:
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	//}}AFX_MSG
 	afx_msg LRESULT OnAreYouMe(WPARAM, LPARAM);
+	afx_msg LRESULT OnParseLine(WPARAM, LPARAM);
 	afx_msg void OnUpdateSoundPlay(CCmdUI* pCmdUI);
 	afx_msg void OnRecMixMenuSelect(UINT nID);
 	afx_msg void OnPlayMixMenuSelect(UINT nID);

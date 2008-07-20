@@ -15,10 +15,22 @@ static char THIS_FILE[] = __FILE__;
 
 #include "system.h"
 #include <math.h>
+#include <map>
 
 HSTREAM g_stream_handle = 0;
 HRECORD g_record_handle = 0;
 HRECORD g_monitoring_handle = 0;
+
+////////////////////////////////////////////////////////////////////////////////
+// shared data
+#pragma data_seg(".SHARED")
+
+TCHAR g_command_line[MAX_PATH] = {0};
+
+#pragma data_seg()
+
+#pragma comment(linker, "/section:.SHARED,RWS")
+// end shared data
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Check if a file is suitable for recording (not exist or length = 0).
@@ -44,12 +56,78 @@ bool IsSuitableForRecording(CString a_filename)
 
 ////////////////////////////////////////////////////////////////////////////////
 #define WM_ICON_NOTIFY WM_USER+10
+
 static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(
 	_T("UWM_ARE_YOU_ME-{B87861B4-8BE0-4dc7-A952-E8FFEEF48FD3}"));
+
+static const UINT UWM_PARSE_LINE = ::RegisterWindowMessage(
+	_T("UWM_PARSE_LINE-{FE0907E6-B77E-46da-8D2B-15F41F32F440}"));
 
 LRESULT CMainFrame::OnAreYouMe(WPARAM, LPARAM)
 {
 	return UWM_ARE_YOU_ME;
+}
+
+LRESULT CMainFrame::OnParseLine(WPARAM, LPARAM)
+{
+	CString l_cmd_line = g_command_line;
+	CString l_file_cmd = _T("/file:\"");
+	CString l_file_name = _T("{Desktop}/{Autoname}.mp3");
+	bool l_cmd_record = false;
+
+	if (l_cmd_line.Find(_T("/close")) != -1)
+	{
+		// Using IDM_TRAY_EXIT to correctly close if options dialog is opened.
+		PostMessage(WM_COMMAND, MAKEWPARAM(IDM_TRAY_EXIT, 0), 0);
+		return UWM_PARSE_LINE;
+	}
+	if (l_cmd_line.Find(_T("/record")) != -1)
+	{
+		l_cmd_record = true;
+	}
+	if (l_cmd_line.Find(l_file_cmd) != -1)
+	{
+		// Getting last position of a file name
+		int l_start_pos = l_cmd_line.Find(l_file_cmd) + l_file_cmd.GetLength();
+		int l_end_pos = l_start_pos;
+		for (; l_end_pos < l_cmd_line.GetLength(); l_end_pos++)
+		{
+			if (_T("\"") == l_cmd_line.Mid(l_end_pos, 1))
+			{
+				break;
+			}
+		}
+		//Extracting file name
+		l_file_name = l_cmd_line.Mid(l_start_pos, l_end_pos - l_start_pos);
+	}
+
+	l_file_name = ParseFileName(l_file_name);
+	if (l_cmd_record)
+	{
+		// Change file name if it is currently exist
+		int l_number = 2;
+		while (!IsSuitableForRecording(l_file_name))
+		{
+			CString l_addition;
+
+			// Removing old addition.
+			l_addition.Format(_T("[%d]"), l_number - 1);
+			l_file_name.Replace(l_addition, _T(""));
+
+			// Adding new addition, [N] like.
+			l_addition.Format(_T("[%d]"), l_number++);
+			int l_dot_pos = l_file_name.ReverseFind(_T('.'));
+			l_dot_pos = (l_dot_pos != -1) ? l_dot_pos : l_file_name.GetLength();
+			l_file_name.Insert(l_dot_pos, l_addition);
+		}
+	}
+	
+	OpenFile(l_file_name);
+	if (l_cmd_record)
+	{
+		PostMessage(WM_COMMAND, MAKEWPARAM(IDM_SOUND_REC, 0), NULL);
+	}
+	return UWM_PARSE_LINE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,6 +185,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_MOUSEWHEEL()
 	//}}AFX_MSG_MAP
 	ON_REGISTERED_MESSAGE(UWM_ARE_YOU_ME, OnAreYouMe)
+	ON_REGISTERED_MESSAGE(UWM_PARSE_LINE, OnParseLine)
 	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTW, 0, 0xFFFF, OnToolTipNotify)
 	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTA, 0, 0xFFFF, OnToolTipNotify)
 	ON_UPDATE_COMMAND_UI_RANGE(IDM_SOUND_PLAY, IDM_SOUND_END,
@@ -1078,6 +1157,8 @@ void CMainFrame::OnBtnSTOP()
 	SetFocus();
 
 	m_nState = STOP_STATE;
+	m_GraphWnd.StopUpdate();
+
 	if (g_stream_handle)
 	{
 		KillTimer(1);
@@ -2262,7 +2343,6 @@ void CMainFrame::UpdateInterface()
 
 	case STOP_STATE:
 	default:
-		m_GraphWnd.StopUpdate();
 		m_SliderTime.SetCurPos(0);
 		m_GraphWnd.Clear();
 		m_BtnREC.SetIcon(IDI_REC);
@@ -2279,3 +2359,32 @@ void CMainFrame::UpdateInterface()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+CString CMainFrame::ParseFileName(CString a_file_name)
+{
+	// Writing real values instead of patterns
+
+	TCHAR l_path[2 * MAX_PATH] = {0};
+	std::map<CString, CString> l_patterns;
+
+	CString l_auto_name = GetAutoName(CString(_T("")));
+	l_auto_name.Replace(_T(".mp3"), _T(""));	// Removing extension from name
+	l_patterns[_T("{Autoname}")] = l_auto_name;
+
+	SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, SHGFP_TYPE_CURRENT, l_path);
+	l_patterns[_T("{Desktop}")] = l_path;
+	SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS , NULL, SHGFP_TYPE_CURRENT, l_path);
+	l_patterns[_T("{MyDocuments}")] = l_path;
+
+	std::map<CString, CString>::iterator i;
+	for (i = l_patterns.begin(); i != l_patterns.end(); i++)
+	{
+		std::pair<CString, CString> l_pair = *i;
+		if (a_file_name.Find(l_pair.first) != -1)
+		{
+			a_file_name.Replace(l_pair.first, l_pair.second);
+		}
+	}
+
+	a_file_name.Replace(_T('/'), _T('\\'));
+	return a_file_name;
+}

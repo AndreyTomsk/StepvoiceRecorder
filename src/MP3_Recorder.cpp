@@ -23,6 +23,9 @@ const char* SPECIAL_REGKEY="0HlMLgHT2exYquGBYsxnK7H8f5rU/wEozG8+8PsdFN/YFtUJzLbQ
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
+extern TCHAR g_command_line[MAX_PATH];
+
+////////////////////////////////////////////////////////////////////////////////
 // About dialog
 ////////////////////////////////////////////////////////////////////////////////
 class CAboutDlg : public CDialog
@@ -168,7 +171,7 @@ BOOL CAboutDlg::OnInitDialog()
 
 	// Preparing the version string.
 	int n[4] = {0, 0, 0, 0};
-	sscanf(STRFILEVER, _T("%d, %d, %d, %d\0"), &n[0], &n[1], &n[2], &n[3]);
+	sscanf_s(STRFILEVER, _T("%d, %d, %d, %d\0"), &n[0], &n[1], &n[2], &n[3]);
 
 	CString l_format_string;
 	GetDlgItemText(IDC_STATIC_VERSION, l_format_string);
@@ -230,6 +233,10 @@ CString CMP3_RecorderApp::GetProgramDir()
 static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(
 	_T("UWM_ARE_YOU_ME-{B87861B4-8BE0-4dc7-A952-E8FFEEF48FD3}"));
 
+static const UINT UWM_PARSE_LINE = ::RegisterWindowMessage(
+	_T("UWM_PARSE_LINE-{FE0907E6-B77E-46da-8D2B-15F41F32F440}"));
+
+////////////////////////////////////////////////////////////////////////////////
 BOOL CALLBACK CMP3_RecorderApp::searcher(HWND hWnd, LPARAM lParam)
 {
     DWORD result;
@@ -274,38 +281,6 @@ bool CMP3_RecorderApp::IsAlreadyRunning()
 ////////////////////////////////////////////////////////////////////////////////
 BOOL CMP3_RecorderApp::InitInstance()
 {
-	// Parsing command line parameters
-	CString l_cmd_line = m_lpCmdLine;
-	CString l_file_cmd = _T("/file:");
-	CString l_file_name = _T("{Desktop}/{Autoname}.mp3");
-	bool l_close_app = false;
-	bool l_start_rec = false;
-
-	if (l_cmd_line.Find(_T("/close")) != -1)
-	{
-		l_close_app = true;
-	}
-	if (l_cmd_line.Find(_T("/record")) != -1)
-	{
-		l_start_rec = true;
-	}
-	if (l_cmd_line.Find(l_file_cmd) != 1)
-	{
-		// Getting last position of a file name
-		int l_start_pos = l_cmd_line.Find(l_file_cmd) + l_file_cmd.GetLength();
-		int l_end_pos = l_start_pos;
-		for (; l_end_pos < l_cmd_line.GetLength(); l_end_pos++)
-		{
-			if (_T(" ") == l_cmd_line.Mid(l_end_pos, 1))
-			{
-				break;
-			}
-		}
-		//Extracting file name
-		l_file_name = l_cmd_line.Mid(l_start_pos, l_end_pos - l_start_pos);
-	}
-
-
 	if (m_lpCmdLine[0] != _T('\0') && strcmp(m_lpCmdLine, _T("/register")) == 0)
 	{
 #ifdef SPECIAL_VERSION
@@ -316,8 +291,9 @@ BOOL CMP3_RecorderApp::InitInstance()
 			return true;
 	}
 
-	// метка в реестре
-	SetRegistryKey(_T("StepVoice Software"));
+	// Variables for command line
+	CString l_cmd_line(m_lpCmdLine);
+	const int CMD_LENGTH = l_cmd_line.GetLength();
 
 	if (this->IsAlreadyRunning() && this->IsNeedOneInstance())
     {
@@ -325,14 +301,24 @@ BOOL CMP3_RecorderApp::InitInstance()
         EnumWindows(searcher, (LPARAM)&hOther);
         if ( hOther != NULL )
         {
-            ::SetForegroundWindow( hOther );
-			::ShowWindow( hOther, SW_RESTORE );
+			if (CMD_LENGTH > 0)
+			{
+				_tcsncpy_s(g_command_line, MAX_PATH,
+					l_cmd_line.GetBuffer(CMD_LENGTH), CMD_LENGTH);
+				::PostMessage(hOther, UWM_PARSE_LINE, 0, 0);
+			}
+			else
+			{
+				::SetForegroundWindow( hOther );
+				::ShowWindow( hOther, SW_RESTORE );
+			}
         }
 
-		return FALSE; // прекращаем запуск
+		return FALSE; // exiting this instance
     }
 
-	// ... продолжение InitInstance
+	// метка в реестре
+	SetRegistryKey(_T("StepVoice Software"));
 
 	// показываем наг-скрин
 	REG_CRYPT_BEGIN;
@@ -359,6 +345,12 @@ _lNoNag:
 	pFrame->DragAcceptFiles(TRUE);
 	pFrame->ShowWindow();
 	pFrame->UpdateWindow();
+	if (CMD_LENGTH > 0)
+	{
+		_tcsncpy_s(g_command_line, MAX_PATH,
+			l_cmd_line.GetBuffer(CMD_LENGTH), CMD_LENGTH);
+		pFrame->PostMessage(UWM_PARSE_LINE, 0, 0);
+	}
 
 	return TRUE;
 }
@@ -388,7 +380,7 @@ void CMP3_RecorderApp::OnHelpEmail()
 	int n[4] = {0, 0, 0, 0};
 	CString l_version_string(_T("%d.%d.%d.%d"));
 
-	sscanf(STRFILEVER, _T("%d, %d, %d, %d\0"), &n[0], &n[1], &n[2], &n[3]);
+	sscanf_s(STRFILEVER, _T("%d, %d, %d, %d\0"), &n[0], &n[1], &n[2], &n[3]);
 	l_version_string.Format(l_version_string, n[0], n[1], n[2], n[3]);
 
 	CString l_mail_string(
