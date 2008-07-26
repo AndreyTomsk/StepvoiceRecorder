@@ -281,6 +281,9 @@ bool CMP3_RecorderApp::IsAlreadyRunning()
 ////////////////////////////////////////////////////////////////////////////////
 BOOL CMP3_RecorderApp::InitInstance()
 {
+	// метка в реестре
+	SetRegistryKey(_T("StepVoice Software"));
+
 	if (m_lpCmdLine[0] != _T('\0') && strcmp(m_lpCmdLine, _T("/register")) == 0)
 	{
 #ifdef SPECIAL_VERSION
@@ -316,9 +319,6 @@ BOOL CMP3_RecorderApp::InitInstance()
 
 		return FALSE; // exiting this instance
     }
-
-	// метка в реестре
-	SetRegistryKey(_T("StepVoice Software"));
 
 	// показываем наг-скрин
 	REG_CRYPT_BEGIN;
