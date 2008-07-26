@@ -71,7 +71,7 @@ LRESULT CMainFrame::OnAreYouMe(WPARAM, LPARAM)
 LRESULT CMainFrame::OnParseLine(WPARAM, LPARAM)
 {
 	CString l_cmd_line = g_command_line;
-	CString l_file_cmd = _T("/file:\"");
+	CString l_file_cmd = _T("/file=\"");
 	CString l_file_name = _T("{Desktop}/{Autoname}.mp3");
 	bool l_cmd_record = false;
 

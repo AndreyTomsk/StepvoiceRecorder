@@ -47,6 +47,11 @@
 			<param name="Local" value="rec_mixer.html">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Command line parameters">
+			<param name="Local" value="command_line.html">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="How to...">
