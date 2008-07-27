@@ -9,6 +9,9 @@ Milestone: "Version 1.7". Main goals:
 Todo
 ----
 
+20080727 (bug) - Command line: hangs if a directory doesn't exist.
+20080727 (enh) - Keep information about a recording source in config.
+20080727 (enh) - Apply volume changing based on BASS functions.
 20080726 (enh) - Update help file design (InfraRecorder style).
 20080309 (enh) - (?) Simple timer selection in the main menu.
 20080309 (enh) - Make a portable build.
