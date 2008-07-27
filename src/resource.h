@@ -30,6 +30,7 @@
 #define IDB_MIX_INV                     128
 #define IDD_NEW                         129
 #define IDB_MIX_SEL                     129
+#define IDS_ERROR_DIRECTORY             129
 #define IDS_RECLEVEL                    130
 #define IDB_BTNMIX_EXCHANGE             130
 #define IDS_VOLUME                      131

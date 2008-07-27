@@ -586,6 +586,7 @@ END
 STRINGTABLE 
 BEGIN
     IDR_MAINFRAME           "MP3_Recorder"
+    IDS_ERROR_DIRECTORY     "Unable to start recording. The directory specified doesn't exist."
     IDS_RECLEVEL            "Recording level: %d%%"
     IDS_VOLUME              "Volume: %d%%"
     IDS_FILETITLE           "<%1> - StepVoice Recorder"

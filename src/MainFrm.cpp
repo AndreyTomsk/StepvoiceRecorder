@@ -34,7 +34,7 @@ TCHAR g_command_line[MAX_PATH] = {0};
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Check if a file is suitable for recording (not exist or length = 0).
-bool IsSuitableForRecording(CString a_filename)
+bool IsSuitableForRecording(CString a_filename, DWORD& a_error_code)
 {
 	HANDLE l_file_handle = CreateFile(
 		a_filename.GetBuffer(a_filename.GetLength()),
@@ -44,11 +44,11 @@ bool IsSuitableForRecording(CString a_filename)
 		OPEN_EXISTING,
 		0,
 		NULL);
-	if (l_file_handle == INVALID_HANDLE_VALUE)
-	{
-		DWORD l_error = ::GetLastError();
-		return (l_error && l_error != ERROR_FILE_NOT_FOUND) ? false: true;
-	}
+
+	a_error_code = ::GetLastError();
+	if (INVALID_HANDLE_VALUE == l_file_handle)
+		return (ERROR_FILE_NOT_FOUND == a_error_code) ? true : false;
+
 	DWORD l_size = GetFileSize(l_file_handle, NULL);
 	CloseHandle(l_file_handle);
 	return (l_size == 0);
@@ -106,8 +106,15 @@ LRESULT CMainFrame::OnParseLine(WPARAM, LPARAM)
 	{
 		// Change file name if it is currently exist
 		int l_number = 2;
-		while (!IsSuitableForRecording(l_file_name))
+		DWORD l_error_code = 0;
+		while (!IsSuitableForRecording(l_file_name, l_error_code))
 		{
+			if (ERROR_PATH_NOT_FOUND == l_error_code)
+			{
+				AfxMessageBox(IDS_ERROR_DIRECTORY, MB_OK|MB_ICONWARNING);
+				return UWM_PARSE_LINE;
+			}
+
 			CString l_addition;
 
 			// Removing old addition.
@@ -777,7 +784,8 @@ void CMainFrame::OpenFile(CString& str)
 		l_last_name = str.Right(str.GetLength() - l_slash_pos - 1);
 	}
 
-	if (IsSuitableForRecording(str))
+	DWORD l_error_code = 0;
+	if (IsSuitableForRecording(str, l_error_code))
 	{
 		if (!m_record_file.Open(str, CFile::modeCreate|CFile::modeWrite|
 			CFile::typeBinary|CFile::shareDenyWrite, NULL))
