@@ -39,7 +39,7 @@ Root: HKCU; Subkey: "Software\StepVoice Software\SvRec\General"; ValueType: stri
 Source: history.txt;               DestDir: {app}; Flags: ignoreversion
 Source: license.txt;               DestDir: {app}; Flags: ignoreversion
 Source: file_id.diz;               DestDir: {app}; Flags: ignoreversion
-Source: home.url;                  DestDir: {app}; Flags: ignoreversion
+Source: Stepvoice Recorder Home.url; DestDir: {app}; Flags: ignoreversion
 Source: order.url;                 DestDir: {app}; Flags: ignoreversion
 
 Source: ..\bin\{#User_AppExeName}; DestDir: {app}; Flags: ignoreversion
@@ -48,11 +48,12 @@ Source: ..\doc\Help\SvRec.chm;     DestDir: {app}; Flags: ignoreversion
 Source: ..\..\bass\bass.dll;       DestDir: {app}; Flags: ignoreversion
 
 [Icons]
-;Name: {group}\Order Online; Filename: {app}\order.url; WorkingDir: {app}
-Name: {group}\StepVoice Home Page;            Filename: {app}\home.url; WorkingDir: {app}
-Name: {group}\StepVoice Recorder Help;        FileName: {app}\SvRec.chm; WorkingDir: {app}
-Name: {group}\Uninstall;                      FileName: {uninstallexe}
+;Name: {group}\Order Online;                   Filename: {app}\order.url; WorkingDir: {app}
 Name: {group}\StepVoice Recorder;             FileName: {app}\{#User_AppExeName}; WorkingDir: {app}
+Name: {group}\StepVoice Recorder Help;        FileName: {app}\SvRec.chm; WorkingDir: {app}
+Name: {group}\StepVoice Recorder Home;        Filename: {app}\StepVoice Recorder Home.url;
+Name: {group}\Uninstall;                      FileName: {uninstallexe}
+
 Name: {userdesktop}\StepVoice Recorder;       FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: desktopicon
 Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\StepVoice Recorder; FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: quicklaunchicon
 
