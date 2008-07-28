@@ -1,6 +1,6 @@
 [Options]
 EPRODUCTNAME=StepVoice Recorder
-EPRODUCTVERSION=1, 6, 1, 96
+EPRODUCTVERSION=1, 6, 1, 108
 EFILETOPROTECT=..\bin\SvRec.exe
 EFILETOSAVE=..\bin\SvRec.exe
 CBGETVERSION=1
@@ -38,7 +38,7 @@ EKEYFILENAME=D:\Мои документы\svr_user_keys\SvRec.key
 CBREGISTRYPATH=0
 EREGISTRYKEY=StepVoice Software\svrec
 PAGEINDEX=4
-MUSERINFO={CRLF}{CRLF}Turgay Onan{CRLF}- single-user license - 
+MUSERINFO={CRLF}{CRLF}Adrian Laws{CRLF}- single-user license - 
 CBLIBRARY=0
 ELIBRARYNAME=
 CBEMULATESYSFUNC=0

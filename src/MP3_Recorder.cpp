@@ -387,6 +387,10 @@ void CMP3_RecorderApp::OnHelpEmail()
 		_T("mailto:support@stepvoice.com?subject=SV%20Recorder,%20version%20"));
 
 	l_mail_string = l_mail_string + l_version_string;
+
+	///@bug Add body message regarding common recording problems.
+	///see "mailto" in Windows SDK.
+
 	ShellExecute(0, NULL, l_mail_string, NULL, NULL, SW_SHOWNORMAL);
 }
 
