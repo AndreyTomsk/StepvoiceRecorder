@@ -2,13 +2,16 @@
 Milestone: "Version 1.7". Main goals:
 
 1. + Add a command line switches support.
-2. - Update help file design.
+2. - Recording all currently playing sounds in Vista.
+3. - Update help file design.
+4. - Apply volume changing based on BASS functions.
 
 -----------------------------------------------------------------------------
 
 Todo
 ----
 
+20080810 (enh) - Move program settings to a config (XML) file.
 20080727 (enh) - Keep information about a recording source in config.
 20080727 (enh) - Apply volume changing based on BASS functions.
 20080726 (enh) - Update help file design (InfraRecorder style).
