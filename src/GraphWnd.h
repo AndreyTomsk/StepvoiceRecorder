@@ -8,7 +8,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 class CGraphWnd : public CWnd
 {
-	void ClearWindow();
+public:
+	enum DisplayMode
+	{
+		E_DISPLAY_PEAKS,
+		E_DISPLAY_PEAKS_DB,
+		E_DISPLAY_LINES,
+		E_DISPLAY_NONE
+	};
 public:
 	CGraphWnd();
 	~CGraphWnd();
@@ -16,30 +23,17 @@ public:
 	void SetMaxpeaks(bool bEnabled);
 	bool GetMaxpeaks() const;
 
-	//void SetGraphType(int nGraphType);
-	//int  GetGraphType();
-
-	void Update(char* pSndBuf, int nBufSize);
-	void Clear();
-
-	double GetMaxPeakdB(char* pSndBuf, int nBufSize, int nChannel);
+	// Visualization type (wave, peak meter, etc.)
+	bool SetDisplayMode(DisplayMode a_new_mode);
+	int  GetDisplayMode() const;
 
 	void ShowVASMark(double fThreshold);
 	void HideVASMark();
 
-	/**
-	 *  Start visualization.
-	 *  @param a_stream_handle - handle to bass Stream;
-	 *  @param a_display_mode - display mode (-1 - keep current).
-	 */
+	// Start/stop visualization (a_stream_handle - handle to bass Stream)
 	bool StartUpdate(HSTREAM a_stream_handle);
-	/// Stop visualization
 	void StopUpdate();
-	/// Select visualization type
-	bool SetDisplayMode(int a_new_display_mode);
-	/// Get display mode (wave, peak meter, etc.)
-	const int GetDisplayMode() const;
-
+	
 public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CGraphWnd)
@@ -61,11 +55,17 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
+	double GetMaxPeakdB(char* pSndBuf, int nBufSize, int nChannel);
+	int    GetPeakLevel(int nChannel);
+
+	void Update(char* pSndBuf, int nBufSize);
+	void Clear();
+	void ClearWindow();
 	void ResetMaxpeakMarks();
 	void DrawVASMark();
-	void DrawPeaks(int nMode);
+	void DrawPeaks();
 	void DrawLines();
-	int  GetPeakLevel(int nChannel);
+
 	/// Max. possible peak value according to a sample type (8bit,16bit, float)
 	const int  GetMaxPeakValue() const;
 	
@@ -73,29 +73,27 @@ private:
 		DWORD_PTR a_user_ptr, DWORD_PTR a_dw1, DWORD_PTR a_dw2);
 
 private:
-	CSize		m_wndsize;
-	CPen		m_greenPen;
-	CBrush		m_bkbrush;
-	CRect		m_wndRect;
+	CSize   m_wndsize;
+	CPen    m_greenPen;
+	CBrush  m_bkbrush;
 
-	CDC			m_memDC;
-	CDC			m_peakDC;
-	CDC			m_skinDC;
+	CDC     m_memDC;
+	CDC     m_peakDC;
+	CDC     m_skinDC;
 
-	CBitmap		m_bmp;
-	CBitmap		m_bgbmp[4];	// битмапы фона окна
-	CBitmap		m_pmbmp[3];	// битмапы пикового индикатора
+	CBitmap m_bmp;
+	CBitmap m_bgbmp[4];	// background bitmaps
+	CBitmap m_pmbmp[3];	// peak bitmaps
 
-	bool m_bShowVASMark;	// флаг вывода индикатора VAS
+	bool m_bShowVASMark;	// VAS mark display flag
 	bool m_bMaxpeaks;
 
 	double m_max_peaks[2];
 	double m_old_peaks[2];
 	double m_vas_marks[2];
 
-private:
 	DWORD m_timer_id;
-	unsigned int m_display_mode;
+	DisplayMode m_display_mode;
 	HSTREAM m_stream_handle;
 	CRITICAL_SECTION m_sync_object;
 };

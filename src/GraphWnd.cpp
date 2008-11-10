@@ -39,8 +39,6 @@ const int PLAY_BUFFER_SIZE = 2048;
 float g_play_buffer[2 * PLAY_BUFFER_SIZE];
 
 enum Channels {LEFT_CHANNEL, RIGHT_CHANNEL};
-enum VisTypes {DRAW_PEAKS, DRAW_PEAKS_DB, DRAW_LINES, DRAW_NONE};
-enum PeakMode {LINEAR, LOGARITHMIC};
 
 ///////////////////////////////////////////////////////////////////////////////
 BEGIN_MESSAGE_MAP(CGraphWnd, CWnd)
@@ -61,7 +59,7 @@ CGraphWnd::CGraphWnd()
 	:m_bShowVASMark(false)
 	,m_bMaxpeaks(true)
 	,m_timer_id(0)
-	,m_display_mode(0)
+	,m_display_mode(E_DISPLAY_PEAKS)
 	,m_stream_handle(0)
 {
 	InitializeCriticalSection(&m_sync_object);
@@ -104,11 +102,6 @@ int CGraphWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_bkbrush.CreateStockObject(BLACK_BRUSH);
 
-	m_wndRect.left	= 0;
-	m_wndRect.top	= 0;
-	m_wndRect.right	= m_wndsize.cx;
-	m_wndRect.bottom= m_wndsize.cy;
-
 	ResetMaxpeakMarks();
 	Clear();
 	return 0;
@@ -136,10 +129,14 @@ BOOL CGraphWnd::PreTranslateMessage(MSG* pMsg)
 //-----------------------------------------------------------------------------
 void CGraphWnd::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	m_display_mode = (m_display_mode >= sizeof(VisTypes)-1) ? DRAW_PEAKS :
-		m_display_mode + 1;
-	SetDisplayMode(m_display_mode);
-
+	// Rotating display mode
+	DisplayMode l_new_mode = DisplayMode(m_display_mode + 1);
+	
+	if (l_new_mode > sizeof(DisplayMode) - 1)
+	{
+		l_new_mode = E_DISPLAY_PEAKS;
+	}
+	SetDisplayMode(l_new_mode);
 	CWnd::OnLButtonDown(nFlags, point);
 }
 
@@ -172,21 +169,18 @@ void CGraphWnd::OnGraphMenu(UINT nID)
 	switch (nID)
 	{
 	case ID_GRAPH_PEAKMETER:
-		m_display_mode = DRAW_PEAKS;
+		SetDisplayMode(E_DISPLAY_PEAKS);
 		break;
 	case ID_GRAPH_PEAKMETERDB:
-		m_display_mode = DRAW_PEAKS_DB;
+		SetDisplayMode(E_DISPLAY_PEAKS_DB);
 		break;
 	case ID_GRAPH_OSCILLOSCOPE:
-		m_display_mode = DRAW_LINES;
+		SetDisplayMode(E_DISPLAY_LINES);
 		break;
 	case ID_GRAPH_NONE:
-		m_display_mode = DRAW_NONE;
+		SetDisplayMode(E_DISPLAY_NONE);
 		break;
-	default:
-		return;
 	}
-	SetDisplayMode(m_display_mode);
 }
 
 //-----------------------------------------------------------------------------
@@ -215,13 +209,11 @@ void CGraphWnd::Update(char* pSndBuf, int nBufSize)
 	{
 		switch (m_display_mode)
 		{
-		case DRAW_PEAKS:
-			DrawPeaks(LINEAR);
+		case E_DISPLAY_PEAKS:
+		case E_DISPLAY_PEAKS_DB:
+			DrawPeaks();
 			break;
-		case DRAW_PEAKS_DB:
-			DrawPeaks(LOGARITHMIC);
-			break;
-		case DRAW_LINES:
+		case E_DISPLAY_LINES:
 			DrawLines();
 			break;
 		default:
@@ -236,8 +228,11 @@ void CGraphWnd::ClearWindow()
 {
 	CMyLock lock(&m_sync_object);
 
-	m_memDC.FillRect(&m_wndRect, &m_bkbrush);
-	m_memDC.BitBlt(0, 0, m_wndsize.cx, m_wndsize.cy, &m_skinDC, 0, 0, SRCCOPY);
+	CRect r;
+	this->GetClientRect(&r);
+
+	m_memDC.FillRect(&r, &m_bkbrush);
+	m_memDC.BitBlt(0, 0, r.Width(), r.Height(), &m_skinDC, 0, 0, SRCCOPY);
 	DrawVASMark();
 }
 
@@ -261,7 +256,7 @@ int CGraphWnd::GetPeakLevel(int nChannel)
 }
 
 //-----------------------------------------------------------------------------
-void CGraphWnd::DrawPeaks(int nMode)
+void CGraphWnd::DrawPeaks()
 {
 	const int START_Y[2] = {5, m_wndsize.cy/2 + 10};
 	const int END_Y[2] =  {13, m_wndsize.cy/2 + 18};
@@ -275,7 +270,7 @@ void CGraphWnd::DrawPeaks(int nMode)
 	for (UINT i = 0; i < 2; i++)
 	{
 		double l_cur_peak = GetPeakLevel(i);
-		if (nMode == LOGARITHMIC)
+		if (m_display_mode == E_DISPLAY_PEAKS_DB)
 		{
 			l_cur_peak = (l_cur_peak <= 0) ? 1 : l_cur_peak;
 			l_cur_peak = 20 * log10(l_cur_peak/MAXPEAK);			// is < 0
@@ -387,14 +382,14 @@ void CGraphWnd::DrawVASMark()
 {
 	CMyLock lock(&m_sync_object);
 
-	if ((m_display_mode != DRAW_PEAKS && m_display_mode != DRAW_PEAKS_DB)
-		|| !m_bShowVASMark)
+	if ((m_display_mode != E_DISPLAY_PEAKS &&
+		m_display_mode != E_DISPLAY_PEAKS_DB) || !m_bShowVASMark)
 	{
 		return;
 	}
 	const int START_X[] = {0, 0};
 	const int START_Y[] = {5, 36};
-	const int POS_OFFSET= (m_display_mode == DRAW_PEAKS) ?
+	const int POS_OFFSET= (m_display_mode == E_DISPLAY_PEAKS) ?
 		(int)m_vas_marks[0] : (int)m_vas_marks[1];
 	
 	CPen NewPen, *pOldPen;
@@ -457,32 +452,32 @@ bool CGraphWnd::StartUpdate(HSTREAM a_stream_handle)
 //-----------------------------------------------------------------------------
 void CGraphWnd::StopUpdate()
 {
-	if (!m_timer_id)
+	if (m_timer_id)
 	{
-		return;
+		timeKillEvent(m_timer_id);
+		m_timer_id = 0;
 	}
 	m_stream_handle = 0;
-	timeKillEvent(m_timer_id);
-	m_timer_id = 0;
+	Clear();
 }
 //-----------------------------------------------------------------------------
-bool CGraphWnd::SetDisplayMode(int a_new_display_mode)
+bool CGraphWnd::SetDisplayMode(DisplayMode a_new_mode)
 {
 	CMyLock lock(&m_sync_object);
 
-	if (a_new_display_mode > sizeof(VisTypes) - 1)
+	if (a_new_mode >= sizeof(DisplayMode))
 	{
 		return false;
 	}
-	m_skinDC.SelectObject(&m_bgbmp[a_new_display_mode]);
+	m_skinDC.SelectObject(&m_bgbmp[a_new_mode]);
 
 	// Checking peak bitmap changed.
-	if (a_new_display_mode == DRAW_PEAKS || a_new_display_mode == DRAW_PEAKS_DB)
+	if (a_new_mode == E_DISPLAY_PEAKS || a_new_mode == E_DISPLAY_PEAKS_DB)
 	{
-		m_peakDC.SelectObject((a_new_display_mode == DRAW_PEAKS) ?
-			&m_pmbmp[0] : &m_pmbmp[1]);
+		m_peakDC.SelectObject(
+			(a_new_mode == E_DISPLAY_PEAKS) ? &m_pmbmp[0] : &m_pmbmp[1]);
 	}
-	m_display_mode = a_new_display_mode;
+	m_display_mode = a_new_mode;
 	m_old_peaks[0] = 0;
 	m_old_peaks[1] = 0;
 	ResetMaxpeakMarks();
@@ -490,7 +485,7 @@ bool CGraphWnd::SetDisplayMode(int a_new_display_mode)
 	return true;
 }
 //-----------------------------------------------------------------------------
-const int CGraphWnd::GetDisplayMode() const
+int CGraphWnd::GetDisplayMode() const
 {
 	return m_display_mode;
 }
