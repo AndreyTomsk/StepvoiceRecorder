@@ -49,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c"
+				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c;..\..\bassmix\c"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -79,11 +79,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib"
+				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib bassmix.lib"
 				OutputFile="$(OutDir)\SvRec_d.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c"
+				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c;..\..\bassmix\c"
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
@@ -157,7 +157,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c"
+				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c;..\..\bassmix\c"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -186,12 +186,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib"
+				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib bassmix.lib"
 				OutputFile="$(OutDir)\SvRec.exe"
 				Version="1.5"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c"
+				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c;..\..\bassmix\c"
 				GenerateManifest="false"
 				ProgramDatabaseFile="$(IntDir)\SvRec.pdb"
 				GenerateMapFile="true"
@@ -237,6 +237,10 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
+			<File
+				RelativePath=".\BASS_VistaLoopback.cpp"
+				>
+			</File>
 			<File
 				RelativePath="Interface\Buttons\bitmapbtn.cpp"
 				>
@@ -1256,6 +1260,10 @@
 			>
 			<File
 				RelativePath="AfStack.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BASS_VistaLoopback.h"
 				>
 			</File>
 			<File

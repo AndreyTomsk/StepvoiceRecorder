@@ -296,11 +296,11 @@
 #define ID_TEST1_STEREOMIX              32854
 #define ID_TEST1_VOLUME                 32855
 #define ID_TEST1_OTHER                  32857
-#define ID_GRAPH_PEAKMETER              32866
-#define ID_GRAPH_PEAKMETERDB            32867
-#define ID_GRAPH_OSCILLOSCOPE           32868
-#define IDM_FILE_DELETE                 32869
-#define ID_GRAPH_NONE                   32869
+#define ID_GRAPH_PEAKMETER              32865
+#define ID_GRAPH_PEAKMETERDB            32866
+#define ID_GRAPH_OSCILLOSCOPE           32867
+#define ID_GRAPH_NONE                   32868
+#define IDM_FILE_DELETE                 32870
 #define IDM_FILE_CLEAR                  32871
 #define ID_STAT_PREF                    32873
 #define IDM_OPT_SNDDEV                  32874
