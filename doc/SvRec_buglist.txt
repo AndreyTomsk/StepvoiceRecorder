@@ -11,6 +11,8 @@ Milestone: "Version 1.7". Main goals:
 Todo
 ----
 
+20090201 (bug) - Getting assertion while creating file through Rec. button.
+20090125 (enh) - VAS option: create new file when recording resumes.
 20080810 (enh) - Move program settings to a config (XML) file.
 20080727 (enh) - Keep information about a recording source in config.
 20080727 (enh) - Apply volume changing based on BASS functions.
