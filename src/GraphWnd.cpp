@@ -61,6 +61,8 @@ CGraphWnd::CGraphWnd()
 	,m_timer_id(0)
 	,m_display_mode(E_DISPLAY_PEAKS)
 	,m_stream_handle(0)
+	,m_peaks_func(NULL)
+	,m_lines_func(NULL)
 {
 	InitializeCriticalSection(&m_sync_object);
 }
@@ -244,15 +246,18 @@ void CGraphWnd::Clear()
 }
 
 //-----------------------------------------------------------------------------
-int CGraphWnd::GetPeakLevel(int nChannel)
+float CGraphWnd::GetPeakLevel(int a_channel) const
 {
+	return m_peaks_func ? m_peaks_func(a_channel) : 0;
+	/*
 	DWORD l_ch_level = BASS_ChannelGetLevel(m_stream_handle);
-
+	
 	if (l_ch_level == -1)
 	{
 		l_ch_level = 0;
 	}
 	return (LEFT_CHANNEL==nChannel) ? LOWORD(l_ch_level) : HIWORD(l_ch_level);
+	*/
 }
 
 //-----------------------------------------------------------------------------
@@ -260,47 +265,52 @@ void CGraphWnd::DrawPeaks()
 {
 	const int START_Y[2] = {5, m_wndsize.cy/2 + 10};
 	const int END_Y[2] =  {13, m_wndsize.cy/2 + 18};
-	const int MAXPEAK = GetMaxPeakValue();
+	//const int MAXPEAK = GetMaxPeakValue();
+	//const int MAXPEAK = 32768;
+	const float MAXPEAK = 1;
 	const int GRAPH_MAXDB = 60;
 
 	BASS_CHANNELINFO l_ci;
 	BOOL l_result = BASS_ChannelGetInfo(m_stream_handle, &l_ci);
 	ASSERT(l_result);
 
-	for (UINT i = 0; i < 2; i++)
+	for (int channel = 0; channel < 2; channel++)
 	{
-		double l_cur_peak = GetPeakLevel(i);
+		double l_cur_peak = GetPeakLevel(channel);
+
 		if (m_display_mode == E_DISPLAY_PEAKS_DB)
 		{
-			l_cur_peak = (l_cur_peak <= 0) ? 1 : l_cur_peak;
-			l_cur_peak = 20 * log10(l_cur_peak/MAXPEAK);			// is < 0
-			l_cur_peak = m_wndsize.cx-6 + l_cur_peak/GRAPH_MAXDB * (m_wndsize.cx-6);
+			if (l_cur_peak > 0)
+			{
+				l_cur_peak = 20 * log10(l_cur_peak / MAXPEAK); //is < 0
+				l_cur_peak = m_wndsize.cx-6 + l_cur_peak/GRAPH_MAXDB * (m_wndsize.cx-6);
+			}
 		}
 		else // linear
 		{
-			l_cur_peak = int((float)l_cur_peak/MAXPEAK * (m_wndsize.cx-6));
+			l_cur_peak = l_cur_peak / MAXPEAK * (m_wndsize.cx - 6);
 		}
 
-		double& l_max_peak = m_max_peaks[i];
-		double& l_old_peak = m_old_peaks[i];
-
+		double& l_old_peak = m_old_peaks[channel];
 		if (l_cur_peak < l_old_peak)
 		{
 			l_cur_peak = (l_cur_peak >= 0) ? l_old_peak - 4 : 3;
 		}
 		l_old_peak = l_cur_peak;
-		m_memDC.BitBlt(3, START_Y[i], (int)l_cur_peak, END_Y[i], &m_peakDC, 0, 0, SRCCOPY);
+		m_memDC.BitBlt(3, START_Y[channel], (int)l_cur_peak, END_Y[channel],
+			&m_peakDC, 0, 0, SRCCOPY);
 
 		if (m_bMaxpeaks)
 		{
+			double& l_max_peak = m_max_peaks[channel];
 			if (l_cur_peak > l_max_peak)
 			{
 				l_max_peak = l_cur_peak;
 				KillTimer(MAXPEAK_TIMER_ID);
 				SetTimer(MAXPEAK_TIMER_ID, 3000, NULL);
 			}
-			m_memDC.BitBlt(int(3 + l_max_peak-2), START_Y[i], 2, END_Y[i],
-				&m_peakDC, int(l_max_peak-2), 0, SRCCOPY);
+			m_memDC.BitBlt(int(3 + l_max_peak-2), START_Y[channel], 2,
+				END_Y[channel], &m_peakDC, int(l_max_peak-2), 0, SRCCOPY);
 		}
 	} // for
 
@@ -316,6 +326,15 @@ void CGraphWnd::DrawLines()
 	BASS_CHANNELINFO l_ci;
 	BOOL l_result = BASS_ChannelGetInfo(m_stream_handle, &l_ci);
 	ASSERT(l_result);
+
+	/*
+	DWORD l_bytes_written = 0;
+	l_bytes_written = BASS_ChannelGetData(m_stream_handle, g_play_buffer,
+		(l_ci.chans * sizeof(float) * PLAY_BUFFER_SIZE) | BASS_DATA_FLOAT);
+
+	if (l_bytes_written == -1)
+		return;
+	*/
 
 	if (-1 == BASS_ChannelGetData(m_stream_handle, g_play_buffer,
 		(l_ci.chans * sizeof(float) * PLAY_BUFFER_SIZE) | BASS_DATA_FLOAT))
@@ -346,6 +365,7 @@ void CGraphWnd::DrawLines()
 	}
 }
 
+/*
 //-----------------------------------------------------------------------------
 double CGraphWnd::GetMaxPeakdB(char *pSndBuf, int nBufSize, int nChannel)
 {
@@ -354,7 +374,8 @@ double CGraphWnd::GetMaxPeakdB(char *pSndBuf, int nBufSize, int nChannel)
 
 	return 20 * log10(CURPEAK/MAXPEAK);
 }
-
+*/
+/*
 //-----------------------------------------------------------------------------
 void CGraphWnd::ShowVASMark(double fThreshold)
 {
@@ -375,6 +396,31 @@ void CGraphWnd::HideVASMark()
 {
 	m_bShowVASMark = false;
 	Clear();
+}
+*/
+//-----------------------------------------------------------------------------
+void CGraphWnd::SetVASMark(bool a_enabled, double a_threshold)
+{
+	if (a_threshold)
+	{
+		//const int MAXPEAK = GetMaxPeakValue();
+		const float MAXPEAK = 1;
+
+		m_vas_marks[0] = MAXPEAK * pow(10, a_threshold / 20);
+		m_vas_marks[0] = m_vas_marks[0] / MAXPEAK * (m_wndsize.cx - 6);
+		m_vas_marks[0] = 2 + (m_vas_marks[0] == 0) ? 1 : m_vas_marks[0];
+
+		m_vas_marks[1] = 2 + m_wndsize.cx-6 + a_threshold/60 * (m_wndsize.cx-6);
+	}
+
+	m_bShowVASMark = a_enabled;
+	Clear();
+}
+
+//-----------------------------------------------------------------------------
+bool CGraphWnd::GetVASMark() const
+{
+	return m_bShowVASMark;
 }
 
 //-----------------------------------------------------------------------------
@@ -450,6 +496,17 @@ bool CGraphWnd::StartUpdate(HSTREAM a_stream_handle)
 }
 
 //-----------------------------------------------------------------------------
+bool CGraphWnd::StartUpdate(PEAKS_CALLBACK a_peaks_func,
+							LINES_CALLBACK a_lines_func)
+{
+	// Not fully working currently
+
+	m_peaks_func = a_peaks_func;
+	m_lines_func = a_lines_func;	
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 void CGraphWnd::StopUpdate()
 {
 	if (m_timer_id)
@@ -489,10 +546,11 @@ int CGraphWnd::GetDisplayMode() const
 {
 	return m_display_mode;
 }
+/*
 //-----------------------------------------------------------------------------
-const int CGraphWnd::GetMaxPeakValue() const
+int CGraphWnd::GetMaxPeakValue() const
 {
-	int l_max_possible = 0xFFFF / 2; // 16-bit as default
+	int l_max_possible = 0xFFFF / 2; // default is 16-bit level
 
 	if (m_stream_handle)
 	{
@@ -515,12 +573,13 @@ const int CGraphWnd::GetMaxPeakValue() const
 	}
 	return l_max_possible;
 }
-
+*/
 //-----------------------------------------------------------------------------
 void CALLBACK CGraphWnd::UpdateVisualization(UINT a_timer_id, UINT a_msg,
 	DWORD_PTR a_user_ptr, DWORD_PTR a_dw1, DWORD_PTR a_dw2)
 {
 	CGraphWnd* l_graph_wnd = (CGraphWnd*)a_user_ptr;
+	ASSERT(l_graph_wnd);
 
 	CMyLock lock(&l_graph_wnd->m_sync_object);
 	l_graph_wnd->Update(NULL, 0);

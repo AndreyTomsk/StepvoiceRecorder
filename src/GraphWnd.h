@@ -6,32 +6,45 @@
 #include "struct.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+// The main idea here is to work only with float data. And having one format
+//   of data, we could simplify the work.
+// Peaks callback function returns peak value from [0, 1] interval.
+// Lines callback function asks to fill a float array of certain size with
+//   [0, 1] values. It returns the actual size filled (could be 0).
+
+typedef float (*PEAKS_CALLBACK)(int a_channel);
+typedef int   (*LINES_CALLBACK)(int a_channel, float* a_buffer, int a_size);
+
+///////////////////////////////////////////////////////////////////////////////
 class CGraphWnd : public CWnd
 {
 public:
 	enum DisplayMode
 	{
-		E_DISPLAY_PEAKS,
-		E_DISPLAY_PEAKS_DB,
-		E_DISPLAY_LINES,
+		E_DISPLAY_PEAKS,	// Linear peaks
+		E_DISPLAY_PEAKS_DB, // Logarithmic peaks
+		E_DISPLAY_LINES,    // Line meter
 		E_DISPLAY_NONE
 	};
 public:
 	CGraphWnd();
 	~CGraphWnd();
 
-	void SetMaxpeaks(bool bEnabled);
+	void SetMaxpeaks(bool a_enabled);
 	bool GetMaxpeaks() const;
 
-	// Visualization type (wave, peak meter, etc.)
+	//void ShowVASMark(double fThreshold);
+	//void HideVASMark();
+
+	void SetVASMark(bool a_enabled, double a_threshold = 0);
+	bool GetVASMark() const;
+
 	bool SetDisplayMode(DisplayMode a_new_mode);
 	int  GetDisplayMode() const;
 
-	void ShowVASMark(double fThreshold);
-	void HideVASMark();
-
 	// Start/stop visualization (a_stream_handle - handle to bass Stream)
 	bool StartUpdate(HSTREAM a_stream_handle);
+	bool StartUpdate(PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_func);
 	void StopUpdate();
 	
 public:
@@ -55,8 +68,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	double GetMaxPeakdB(char* pSndBuf, int nBufSize, int nChannel);
-	int    GetPeakLevel(int nChannel);
+	//double GetMaxPeakdB(char* pSndBuf, int nBufSize, int nChannel);
+	float GetPeakLevel(int a_channel) const;
 
 	void Update(char* pSndBuf, int nBufSize);
 	void Clear();
@@ -67,12 +80,15 @@ private:
 	void DrawLines();
 
 	/// Max. possible peak value according to a sample type (8bit,16bit, float)
-	const int  GetMaxPeakValue() const;
+	//int GetMaxPeakValue() const;
 	
 	static void CALLBACK UpdateVisualization(UINT a_timer_id, UINT a_msg,
 		DWORD_PTR a_user_ptr, DWORD_PTR a_dw1, DWORD_PTR a_dw2);
 
 private:
+	PEAKS_CALLBACK m_peaks_func;
+	LINES_CALLBACK m_lines_func;
+
 	CSize   m_wndsize;
 	CPen    m_greenPen;
 	CBrush  m_bkbrush;
@@ -82,11 +98,11 @@ private:
 	CDC     m_skinDC;
 
 	CBitmap m_bmp;
-	CBitmap m_bgbmp[4];	// background bitmaps
-	CBitmap m_pmbmp[3];	// peak bitmaps
+	CBitmap m_bgbmp[4];	 // background bitmaps
+	CBitmap m_pmbmp[3];  // peak bitmaps
 
-	bool m_bShowVASMark;	// VAS mark display flag
-	bool m_bMaxpeaks;
+	bool m_bShowVASMark; // VAS mark display flag
+	bool m_bMaxpeaks;    // Maximum peaks flag
 
 	double m_max_peaks[2];
 	double m_old_peaks[2];

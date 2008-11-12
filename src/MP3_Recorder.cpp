@@ -17,9 +17,9 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-//#define SPECIAL_VERSION 1
+#define SPECIAL_VERSION 1
 #ifdef SPECIAL_VERSION
-const char* SPECIAL_REGKEY="0HlMLgHT2exYquGBYsxnK7H8f5rU/wEozG8+8PsdFN/YFtUJzLbQ0MUE9B8iDJ+Jlj0ztxEZt6cbxUzmsOXb57oBicMyrJnNXrY2xJ7hDepokDsgOh/feRQ8CWE59EQzocXsTpk1YqYvpAbBo3niF8Z9CvCtL/gT6VP+vOk211i4=";
+const char* SPECIAL_REGKEY="0IuDod5iSkTIHhlC2++aUJF30QIYhSySsWM920dr8YLPwfLpsrHD/uehHgTUlsXc9hwI+C7RgQiqDw9XFneqyXLquU1N1mNn09n94sBJLEJiciHOwUBSDPaJd61tStzH1PkjyX1Tt9fGif9BcGjId1IrQzOJ2QiqiBx61Xc8wUjE=";
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

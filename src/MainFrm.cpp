@@ -5,20 +5,19 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-//#include <winuser.h>
 #include "stdafx.h"
-#include "Interface\Buttons\BitmapBtn.h"
- 
+#include <map>
+#include <math.h>
+
 #include "MP3_Recorder.h"
 #include "MainFrm.h"
+#include "Interface\Buttons\BitmapBtn.h" 
 #include "common.h"
-
 #include "system.h"
-#include <math.h>
-#include <map>
 
-HSTREAM g_stream_handle = 0;
-HRECORD g_record_handle = 0;
+HSTREAM g_stream_handle = 0;  // Playback
+HSTREAM g_update_handle = 0;  // Graph window update (used by callback func)
+HRECORD g_record_handle = 0; 
 HRECORD g_monitoring_handle = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -237,6 +236,7 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 	int   nBufOutSize= 0;
 
 	CMainFrame* l_main_window = (CMainFrame *)a_user;
+	ASSERT(l_main_window);
 
 	if (l_main_window->m_vas.IsRunning())
 	{
@@ -280,8 +280,27 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 ////////////////////////////////////////////////////////////////////////////////
 CMainFrame* CMainFrame::m_pMainFrame = NULL;
 
+//------------------------------------------------------------------------------
+float CMainFrame::PeaksCallback(int a_channel)
+{
+	DWORD l_level = BASS_ChannelGetLevel(g_update_handle);
+
+	if (l_level == -1 || a_channel < 0 || a_channel > 1)
+		return 0;
+
+	l_level = (a_channel == 0) ? LOWORD(l_level) : HIWORD(l_level);
+	return float(l_level) / 32768;
+}
+
+//------------------------------------------------------------------------------
+int CMainFrame::LinesCallback(int a_channel, float* a_buffer, int a_size)
+{
+	return 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 CMainFrame::CMainFrame()
+	:m_vista_loopback(NULL)
 {	// файлы
 	m_pWaveIn	= NULL;
 	m_pWaveOut	= NULL;
@@ -365,7 +384,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_StatWnd.ShowWindow(SW_SHOW);  m_StatWnd.UpdateWindow();
 
 	// устанавливаем тип графика
-	m_GraphWnd.SetDisplayMode(m_conf.GetConfProg()->nGraphType);
+	m_GraphWnd.SetDisplayMode(CGraphWnd::DisplayMode(m_conf.GetConfProg()->nGraphType));
 	m_GraphWnd.SetMaxpeaks(m_conf.GetConfProg()->bGraphMaxpeaks != 0);
 
 	// инициализируем слайдеры позиции и микшера
@@ -805,6 +824,13 @@ void CMainFrame::OpenFile(CString& str)
 			BASS_Free();
 			return;
 		}
+		BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
+		BASS_ChannelSetDSP(g_stream_handle, SilentPlaybackDSP, NULL, 0xFF);
+
+		// Changing stream volume
+		//int l_range = m_SliderVol.GetRangeMax() - m_SliderVol.GetRangeMin();
+		//BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL,
+		//	(float)m_SliderVol.GetPos() / l_range);
 	}
 
 	// Modifying window caption to "<FILE> - StepVoice Recorder".
@@ -1026,7 +1052,8 @@ void CMainFrame::OnOptCom()
 		if(m_vas.IsRunning())
 		{
 			m_vas.InitVAS(pConfig->nThreshold, pConfig->nWaitTime);
-			m_GraphWnd.ShowVASMark(pConfig->nThreshold);
+			//m_GraphWnd.ShowVASMark(pConfig->nThreshold);
+			m_GraphWnd.SetVASMark(true, pConfig->nThreshold);
 		}
 	}
 
@@ -1121,6 +1148,19 @@ void CMainFrame::OnBtnOPEN()
 //===========================================================================
 void CMainFrame::OnBtnPLAY()
 {
+	/*
+	BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
+
+	SAFE_DELETE(m_vista_loopback);
+	m_vista_loopback = new BassVistaLoopback();
+	g_stream_handle = m_vista_loopback->GetLoopbackStream();
+	BASS_ChannelPlay(g_stream_handle, false);
+
+	m_nState = PLAY_STATE;
+	SetTimer(1, 1000, NULL);
+	return;
+	*/
+
 	SetFocus();
 
 	if (m_record_file.m_hFile != CFile::hFileNull)
@@ -1149,8 +1189,8 @@ void CMainFrame::OnBtnPLAY()
 		m_nState = PAUSEPLAY_STATE;
 		break;
 
-	case BASS_ACTIVE_PAUSED:
 	case BASS_ACTIVE_STOPPED:
+	case BASS_ACTIVE_PAUSED:
 		BASS_ChannelPlay(g_stream_handle, false);
 		SetTimer(1, 1000, NULL);
 		m_nState = PLAY_STATE;
@@ -1162,6 +1202,16 @@ void CMainFrame::OnBtnPLAY()
 //===========================================================================
 void CMainFrame::OnBtnSTOP()
 {
+	/*
+	m_nState = STOP_STATE;
+	m_GraphWnd.StopUpdate();
+	KillTimer(1);
+
+	BASS_ChannelStop(g_stream_handle);
+	SAFE_DELETE(m_vista_loopback);
+	BASS_Free();
+	*/
+
 	SetFocus();
 
 	m_nState = STOP_STATE;
@@ -1232,6 +1282,7 @@ void CMainFrame::OnBtnREC()
 		}
 		CONF_DIAL_MP3 l_conf_mp3;
 		memcpy(&l_conf_mp3, m_conf.GetConfDialMp3(), sizeof(CONF_DIAL_MP3));
+		//l_conf_mp3.nFreq = 48000;
 
 		SAFE_DELETE(m_pEncoder);
 		m_pEncoder = new CEncoder_MP3(m_strDir);
@@ -1249,6 +1300,7 @@ void CMainFrame::OnBtnREC()
 			return;
 		}
 		g_record_handle = BASS_RecordStart(
+			//48000,
 			l_conf_mp3.nFreq,
 			l_conf_mp3.nStereo+1,
 			BASS_RECORD_PAUSE,
@@ -1260,6 +1312,21 @@ void CMainFrame::OnBtnREC()
 			g_record_handle = 0;
 			return;
 		}
+		/*
+		BASS_Init(-1, l_conf_mp3.nFreq, 0, GetSafeHwnd(), NULL);
+		SAFE_DELETE(m_vista_loopback);
+		m_vista_loopback = new BassVistaLoopback();
+		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
+
+		g_stream_handle = BASS_Mixer_StreamCreate(l_conf_mp3.nFreq,
+			l_conf_mp3.nStereo + 1, BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
+		ASSERT(g_stream_handle);
+		BASS_Mixer_StreamAddChannel(g_stream_handle, l_stream_handle,
+			BASS_MIXER_DOWNMIX | BASS_MIXER_FILTER);
+
+		BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
+		BASS_ChannelSetDSP(g_record_handle, LoopbackStreamDSP, &g_stream_handle, 0xFF);
+		*/
 	}
 
 	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_record_handle);
@@ -1930,6 +1997,9 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		strTitle.Format(IDS_VOLUME_TITLE, nPercent,
 			m_PlayMixer.GetLineName(m_PlayMixer.GetCurLine()));
 		m_PlayMixer.SetVol(nPercent);
+
+		//float l_volume = (float)curpos / (maxpos - minpos);
+		//BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, l_volume);
 	}
 	else
 	{
@@ -2200,6 +2270,11 @@ bool CMainFrame::MonitoringStart()
 	{
 		return false;
 	}
+
+	///@bug Testing new functionality
+	g_update_handle = g_monitoring_handle;
+	m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
+
 	m_GraphWnd.StartUpdate((HSTREAM)g_monitoring_handle);
 	return true;
 }
@@ -2212,7 +2287,7 @@ void CMainFrame::MonitoringStop()
 		return;
 	}
 	m_GraphWnd.StopUpdate();
-	m_GraphWnd.Clear();
+	//m_GraphWnd.Clear();
 	BASS_ChannelStop(g_monitoring_handle);
 	BASS_RecordFree();
 	g_monitoring_handle = 0;
@@ -2235,7 +2310,8 @@ void CMainFrame::OnBtnVas()
 	{
 		m_vas.InitVAS(pConfig->nThreshold, pConfig->nWaitTime);
 		m_StatWnd.m_btnVas.SetState(BTN_PRESSED);
-		m_GraphWnd.ShowVASMark(pConfig->nThreshold);
+		//m_GraphWnd.ShowVASMark(pConfig->nThreshold);
+		m_GraphWnd.SetVASMark(true, pConfig->nThreshold);
 	}
 	else
 	{
@@ -2243,7 +2319,9 @@ void CMainFrame::OnBtnVas()
 		m_StatWnd.m_btnVas.SetState(BTN_NORMAL);
 		if(m_nState == RECORD_STATE)
 			m_TrayIcon.SetIcon(IDI_TRAY_REC);
-		m_GraphWnd.HideVASMark();
+		
+		//m_GraphWnd.HideVASMark();
+		m_GraphWnd.SetVASMark(false);
 	}
 	pConfig->bEnable = m_vas.IsRunning();
 }
@@ -2294,7 +2372,8 @@ void CMainFrame::UpdateButtonState(UINT nID)
 			pBtn->ModifyStyle(0, WS_DISABLED);
 		}
 		// дизаблим кнопку "запись" при воспроизведении
-		if (BASS_ChannelIsActive(g_stream_handle) != BASS_ACTIVE_STOPPED)
+		if (BASS_ChannelIsActive(g_record_handle) == BASS_ACTIVE_STOPPED &&
+			BASS_ChannelIsActive(g_stream_handle) != BASS_ACTIVE_STOPPED)
 		{
 			pBtn->ModifyStyle(0, WS_DISABLED);
 		}
@@ -2322,6 +2401,10 @@ void CMainFrame::UpdateInterface()
 	switch (m_nState)
 	{
 	case PLAY_STATE:
+		///@bug Testing new functionality
+		g_update_handle = g_stream_handle;
+		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
+
 		m_GraphWnd.StartUpdate(g_stream_handle);
 		m_BtnPLAY.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
@@ -2336,6 +2419,10 @@ void CMainFrame::UpdateInterface()
 		break;
 
 	case RECORD_STATE:
+		///@bug Testing new functionality
+		g_update_handle = g_record_handle;
+		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
+
 		m_GraphWnd.StartUpdate((HSTREAM)g_record_handle);
 		m_BtnREC.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
@@ -2352,7 +2439,8 @@ void CMainFrame::UpdateInterface()
 	case STOP_STATE:
 	default:
 		m_SliderTime.SetCurPos(0);
-		m_GraphWnd.Clear();
+		//m_GraphWnd.Clear();
+		m_GraphWnd.StopUpdate();
 		m_BtnREC.SetIcon(IDI_REC);
 		m_BtnPLAY.SetIcon(IDI_PLAY);
 		m_TrayIcon.SetIcon(IDI_TRAY_STOP);
@@ -2395,4 +2483,32 @@ CString CMainFrame::ParseFileName(CString a_file_name)
 
 	a_file_name.Replace(_T('/'), _T('\\'));
 	return a_file_name;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
+	void *a_buffer, DWORD a_length, void *a_user)
+{
+	//1. Fill buffer with required length from Loopback stream (a_user)
+	const int BUFFER_LENGTH = 256 * 1024;
+	ASSERT(a_length <= BUFFER_LENGTH);
+	ASSERT(a_user);
+
+	static char l_src_buffer[BUFFER_LENGTH] = {0}; //256k buffer
+	HSTREAM l_src_stream = *((HSTREAM*)a_user);
+
+	DWORD l_length = BASS_ChannelGetData(l_src_stream, l_src_buffer, a_length);
+	ASSERT(l_length == a_length);
+
+	//2. Replace data in the recording buffer
+	char* l_dst_buffer = (char*)a_buffer;
+	for (DWORD i = 0; i < a_length; i++)
+		l_dst_buffer[i] = l_src_buffer[i];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void CALLBACK CMainFrame::SilentPlaybackDSP(HDSP a_handle, DWORD a_channel,
+	void *a_buffer, DWORD a_length, void *a_user)
+{
+	//ZeroMemory(a_buffer, a_length);
 }

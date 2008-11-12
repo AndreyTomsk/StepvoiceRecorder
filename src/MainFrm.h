@@ -45,9 +45,18 @@
 #include "TimerDlg.h"
 
 #include <bass.h>
+#include <bassmix.h>
+#include "BASS_VistaLoopback.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-enum {STOP_STATE, PLAY_STATE, RECORD_STATE, PAUSEREC_STATE, PAUSEPLAY_STATE};
+enum ProgramState
+{
+	STOP_STATE,
+	PLAY_STATE,
+	RECORD_STATE,
+	PAUSEREC_STATE,
+	PAUSEPLAY_STATE
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 extern DWORD WINAPI SchedProc( LPVOID lpParam );
@@ -55,7 +64,15 @@ extern void Scheduler2Function(int nAction);
 
 class CMainFrame : public CFrameWnd
 {
+	static void CALLBACK LoopbackStreamDSP(HDSP handle, DWORD channel,
+		void *buffer, DWORD length, void *user);
+	static void CALLBACK SilentPlaybackDSP(HDSP handle, DWORD channel,
+		void *buffer, DWORD length, void *user);
+
 	static CMainFrame* m_pMainFrame;
+
+	static float PeaksCallback(int a_channel);
+	static int   LinesCallback(int a_channel, float* a_buffer, int a_size);
 
 	friend DWORD WINAPI SchedProc( LPVOID lpParam );
 	friend void Scheduler2Function(int nAction);
@@ -64,6 +81,7 @@ class CMainFrame : public CFrameWnd
 	static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer,
 		DWORD a_length, void* a_user);
 
+	BassVistaLoopback* m_vista_loopback;
 	CWaveIn*		m_pWaveIn;
 	CWaveOut*		m_pWaveOut;
 	CEncoder*		m_pEncoder;
