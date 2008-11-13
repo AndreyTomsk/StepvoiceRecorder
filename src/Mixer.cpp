@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "Mixer.h"
 #include "common.h"
@@ -9,13 +9,10 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 CMixer::CMixer()
-	: m_hMixer(NULL)//, m_volArray(NULL)
+	:m_hMixer(NULL)
 {
-	CAfList<int> l;
-	l.Push(NULL);
-	l.Pop();
 }
 
 CMixer::~CMixer()
@@ -23,42 +20,31 @@ CMixer::~CMixer()
 	Close();
 }
 
-
-
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void CMixer::Close()
 {
-	if(!m_hMixer)
-		return;
-
-	mixerClose(m_hMixer);
-	m_hMixer = NULL;
-
-/*	while(!m_volVector.empty())
+	if (m_hMixer)
 	{
-		//!!!
-		CControlVolume *pLastVol = &m_volVector[m_volVector.size()-1];
-		SAFE_DELETE(pLastVol);
-		m_volVector.pop_back();
-	}
-*/
-	while(m_volList.Size() != 0)
-	{
-		CControlVolume *pLastVol = m_volList.GetTopItem();
-		SAFE_DELETE(pLastVol);
-		m_volList.Pop();
+		mixerClose(m_hMixer);
+		m_hMixer = NULL;
+
+		while (m_volList.Size() != 0)
+		{
+			CControlVolume *pLastVol = m_volList.GetTopItem();
+			SAFE_DELETE(pLastVol);
+			m_volList.Pop();
+		}
 	}
 }
 
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 int CMixer::GetLinesNum() const
 {
-	//return m_volVector.size();
 	return m_volList.Size();
 }
 
 /*
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 bool CMixer::Open(HWND hWnd, int nMixerID)
 {
 	MMRESULT Ret;

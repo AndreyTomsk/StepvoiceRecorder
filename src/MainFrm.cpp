@@ -627,22 +627,29 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			else
 			{
-				m_SliderVol.SetPos(m_RecMixer.GetVol(m_RecMixer.GetCurLine()));
-				// Changing icon according to rec. line
-				const int ICON_ID[] = { IDI_MIXLINE00, IDI_MIXLINE01, IDI_MIXLINE02,
-										IDI_MIXLINE03, IDI_MIXLINE04, IDI_MIXLINE05,
-										IDI_MIXLINE06, IDI_MIXLINE07, IDI_MIXLINE08,
-										IDI_MIXLINE09, IDI_MIXLINE10 };
-				int i = m_RecMixer.GetLineType(m_RecMixer.GetCurLine());
-				m_BtnMIX_SEL.SetIcon(ICON_ID[i]);
-
-				// Removing Loopback channel from stream
 				if (m_loopback_recording)
 				{
+					// Ignoring messages from our opened mixer device if in Loopback mode
+					if ((HMIXER)wParam == m_RecMixer.GetMixerHandle())
+						break;
+
 					m_loopback_recording = false;
 					m_SliderVol.EnableWindow(true);
 					BOOL res = BASS_ChannelRemoveDSP(g_record_handle, m_loopback_hdsp);
 				}
+
+				// Updating interface
+				int l_active_line = m_RecMixer.GetCurLine();
+				m_SliderVol.SetPos(m_RecMixer.GetVol(l_active_line));
+
+				const int ICON_ID[] = {
+					IDI_MIXLINE00, IDI_MIXLINE01, IDI_MIXLINE02, IDI_MIXLINE03,
+					IDI_MIXLINE04, IDI_MIXLINE05, IDI_MIXLINE06, IDI_MIXLINE07,
+					IDI_MIXLINE08, IDI_MIXLINE09, IDI_MIXLINE10
+				};
+				int l_line_type = m_RecMixer.GetLineType(l_active_line);
+				ASSERT(l_line_type < sizeof(ICON_ID)/sizeof(int));
+				m_BtnMIX_SEL.SetIcon(ICON_ID[l_line_type]);
 			}
 		}
 		break;
@@ -2556,7 +2563,7 @@ void CMainFrame::OnRecLoopbackSelect()
 
 	if (!m_loopback_recording || m_nActiveMixerID == 1) // Playback mixer selected case
 	{
-		//m_PlayMixer.SetVol(99); - commented as it sends line changed messages
+		//m_PlayMixer.SetVol(99);// - commented as it sends line changed messages
 		m_loopback_recording = true;
 
 		m_BtnMIX_SEL.SetIcon(IDI_MIXLINE04);
