@@ -647,9 +647,9 @@ void CMainFrame::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if (m_conf.GetConfProg()->bEasyMove)
 	{
-		CPoint scrPoint;
-		GetCursorPos(&scrPoint);
-		PostMessage(WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(scrPoint.x, scrPoint.y));
+		CPoint pt;
+		GetCursorPos(&pt);
+		PostMessage(WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(pt.x, pt.y));
 	}
 	CFrameWnd::OnLButtonDown(nFlags, point);
 }
@@ -1642,8 +1642,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	TCHAR szFileName[_MAX_PATH];
 	::DragQueryFile(hDropInfo, 0, szFileName, _MAX_PATH);
 
-	CString str(szFileName);
-	OpenFile(str);
+	OpenFile(CString(szFileName));
 
 	::DragFinish(hDropInfo);
 }
@@ -1788,7 +1787,6 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 	{
 		m_TrayIcon.HideIcon();
 	}
-
 }
 
 BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam) 
@@ -2408,9 +2406,7 @@ void CMainFrame::UpdateInterface()
 {
 	static int l_current_state = -1;
 	if (l_current_state == m_nState)
-	{
 		return;
-	}
 
 	switch (m_nState)
 	{
