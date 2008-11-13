@@ -11,7 +11,6 @@ Milestone: "Version 1.7". Main goals:
 Todo
 ----
 
-20090201 (bug) - Getting assertion while creating file through Rec. button.
 20090125 (enh) - VAS option: create new file when recording resumes.
 20080810 (enh) - Move program settings to a config (XML) file.
 20080727 (enh) - Keep information about a recording source in config.
@@ -63,6 +62,7 @@ Todo
 20061208 (enh) * (?) In file menu instead of "Find..."
                  write "Open containing forlder"
 
+20090201 (bug) + Getting assertion while creating file through Rec. button.
 20080727 (bug) + Command line: hangs if a directory doesn't exist.
 20080309 (enh) + Add a command line switches support (console "at" command).
 20080616 (bug) + Handle the "lame_end.dll not found" error.

@@ -203,6 +203,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_MESSAGE(WM_ICON_NOTIFY, OnTrayNotification)
 	ON_COMMAND_RANGE(ID_MIXITEM_REC0, ID_MIXITEM_REC0+50, OnRecMixMenuSelect)
 	ON_COMMAND_RANGE(ID_MIXITEM_PLAY0, ID_MIXITEM_PLAY0+3, OnPlayMixMenuSelect)
+	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK, OnRecLoopbackSelect)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,6 +338,8 @@ int CMainFrame::LinesCallback(int a_channel, float* a_buffer, int a_size)
 ////////////////////////////////////////////////////////////////////////////////
 CMainFrame::CMainFrame()
 	:m_vista_loopback(NULL)
+	,m_loopback_recording(false)
+	,m_loopback_hdsp(0)
 {
 	m_pWaveIn	= NULL;
 	m_pWaveOut	= NULL;
@@ -482,12 +485,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	else
 		m_SliderVol.EnableWindow(false);
 
-	// Force updating button image
-	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
-	if (l_app->IsVistaOS())
-	{
+	// Force updating button image for Vista
+	if (((CMP3_RecorderApp*)AfxGetApp())->IsVistaOS())
 		PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
-	}
+
 	// Keeping the system volume level
 	//m_nSysVolume = 0;
 	//m_nSysVolume = m_PlayMixer.GetVol (m_PlayMixer.GetCurLine());
@@ -634,6 +635,14 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 										IDI_MIXLINE09, IDI_MIXLINE10 };
 				int i = m_RecMixer.GetLineType(m_RecMixer.GetCurLine());
 				m_BtnMIX_SEL.SetIcon(ICON_ID[i]);
+
+				// Removing Loopback channel from stream
+				if (m_loopback_recording)
+				{
+					m_loopback_recording = false;
+					m_SliderVol.EnableWindow(true);
+					BOOL res = BASS_ChannelRemoveDSP(g_record_handle, m_loopback_hdsp);
+				}
 			}
 		}
 		break;
@@ -1263,8 +1272,15 @@ void CMainFrame::OnBtnSTOP()
 		KillTimer(2);
 		BOOL l_result = BASS_ChannelStop(g_record_handle);
 		ASSERT(l_result);
+		l_result = BASS_ChannelStop(g_stream_handle);
+		ASSERT(l_result);
 
+		SAFE_DELETE(m_vista_loopback);
+		g_stream_handle = 0;
 		g_record_handle = 0;
+		m_loopback_hdsp = 0;
+
+		BASS_Free();
 		BASS_RecordFree();
 		CString l_recorded_file = m_record_file.GetFilePath();
 		m_record_file.Close();
@@ -1341,7 +1357,8 @@ void CMainFrame::OnBtnREC()
 			g_record_handle = 0;
 			return;
 		}
-		/*
+
+		// Creating the Loopback stream
 		BASS_Init(-1, l_conf_mp3.nFreq, 0, GetSafeHwnd(), NULL);
 		SAFE_DELETE(m_vista_loopback);
 		m_vista_loopback = new BassVistaLoopback();
@@ -1353,8 +1370,11 @@ void CMainFrame::OnBtnREC()
 		BASS_Mixer_StreamAddChannel(g_stream_handle, l_stream_handle,
 			BASS_MIXER_DOWNMIX);
 
-		BASS_ChannelSetDSP(g_record_handle, LoopbackStreamDSP, &g_stream_handle, 0xFF);
-		*/
+		if (m_vista_loopback)
+		{
+			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
+				LoopbackStreamDSP, &g_stream_handle, 0xFF);
+		}
 	}
 
 	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_record_handle);
@@ -1914,10 +1934,14 @@ void CMainFrame::OnBtnMIX_SEL()
 	// Restarting the mixer
 	m_RecMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	m_PlayMixer.Open(WAVE_MAPPER, GetSafeHwnd());
-	if(m_nActiveMixerID == 1)
-		OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
-	else
-		OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
+
+	if (!m_loopback_recording)
+	{
+		if(m_nActiveMixerID == 1)
+			OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
+		else
+			OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
+	}
 
 	CRect r;
 	m_BtnMIX_SEL.GetWindowRect(&r);
@@ -1935,6 +1959,12 @@ void CMainFrame::OnBtnMIX_SEL()
 		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC0 + i, m_RecMixer.GetLineName(i));
 	}
 
+	if (((CMP3_RecorderApp* )AfxGetApp())->IsVistaOS())
+		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Stereo Mix (Software)"));
+
+	mixMenu.CheckMenuItem(m_loopback_recording ? ID_MIXITEM_REC_LOOPBACK :
+		ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(), MF_CHECKED | MF_BYCOMMAND);
+	/*
 	if(m_nActiveMixerID == 1) // play_mixer
 	{
 		//mixMenu.CheckMenuItem(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine(),
@@ -1945,7 +1975,7 @@ void CMainFrame::OnBtnMIX_SEL()
 		mixMenu.CheckMenuItem(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(),
 			MF_CHECKED | MF_BYCOMMAND);
 	}
-
+	*/
 	// Starting a context menu and setting the display flag
 	int nItemID = mixMenu.TrackPopupMenu(TPM_VCENTERALIGN|TPM_LEFTBUTTON|
 		TPM_RETURNCMD, r.right, r.top+(r.bottom-r.top)/2, this);
@@ -1977,12 +2007,9 @@ void CMainFrame::OnRecMixMenuSelect(UINT nID)
 	m_SliderVol.SetPos(m_RecMixer.GetVol(m_RecMixer.GetCurLine()));
 	m_nActiveMixerID = 0;
 
-	// Force updating button image
-	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
-	if (l_app->IsVistaOS())
-	{
+	// Force updating button image for Vista
+	if (((CMP3_RecorderApp* )AfxGetApp())->IsVistaOS())
 		PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
-	}
 }
 
 void CMainFrame::OnPlayMixMenuSelect(UINT nID)
@@ -2501,6 +2528,9 @@ CString CMainFrame::ParseFileName(CString a_file_name)
 void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
 	void *a_buffer, DWORD a_length, void *a_user)
 {
+	// Loopback is a decoding stream and have same parameters (freq, channels)
+	// as a main recording stream, for direct copying.
+
 	//1. Fill buffer with required length from Loopback stream (a_user)
 	const int BUFFER_LENGTH = 256 * 1024;
 	ASSERT(a_length <= BUFFER_LENGTH);
@@ -2512,8 +2542,35 @@ void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
 	DWORD l_length = BASS_ChannelGetData(l_src_stream, l_src_buffer, a_length);
 	ASSERT(l_length == a_length);
 
-	//2. Replace data in the recording buffer
+	//2. Replace data in the recording buffer.
 	char* l_dst_buffer = (char*)a_buffer;
 	for (DWORD i = 0; i < a_length; i++)
 		l_dst_buffer[i] = l_src_buffer[i];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void CMainFrame::OnRecLoopbackSelect()
+{
+	// If we are in recording state, when set or remove DSP function,
+	// otherwise just set the Loopback recording flag
+
+	if (!m_loopback_recording || m_nActiveMixerID == 1) // Playback mixer selected case
+	{
+		//m_PlayMixer.SetVol(99); - commented as it sends line changed messages
+		m_loopback_recording = true;
+
+		m_BtnMIX_SEL.SetIcon(IDI_MIXLINE04);
+		m_SliderVol.EnableWindow(false);
+		m_SliderVol.SetPos(m_SliderVol.GetRangeMax());
+
+		if (g_record_handle && !m_loopback_hdsp)
+		{
+			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
+				LoopbackStreamDSP, &g_stream_handle, 0xFF);
+		}
+	}
+	else
+	{
+		//m_SliderVol.EnableWindow(true);
+	}
 }

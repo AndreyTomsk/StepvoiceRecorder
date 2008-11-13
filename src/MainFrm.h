@@ -80,6 +80,9 @@ class CMainFrame : public CFrameWnd
 		DWORD a_length, void* a_user);
 
 	BassVistaLoopback* m_vista_loopback;
+	bool m_loopback_recording;
+	HDSP m_loopback_hdsp;
+
 	CWaveIn*		m_pWaveIn;
 	CWaveOut*		m_pWaveOut;
 	CEncoder*		m_pEncoder;
@@ -230,6 +233,7 @@ protected:
 	afx_msg void OnUpdateSoundPlay(CCmdUI* pCmdUI);
 	afx_msg void OnRecMixMenuSelect(UINT nID);
 	afx_msg void OnPlayMixMenuSelect(UINT nID);
+	afx_msg void OnRecLoopbackSelect();
 
 protected:
 	LRESULT OnTrayNotification(WPARAM wParam, LPARAM lParam);
