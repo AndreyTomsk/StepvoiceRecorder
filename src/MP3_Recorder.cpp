@@ -17,7 +17,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-#define SPECIAL_VERSION 1
+//#define SPECIAL_VERSION 1
 #ifdef SPECIAL_VERSION
 const char* SPECIAL_REGKEY="0IuDod5iSkTIHhlC2++aUJF30QIYhSySsWM920dr8YLPwfLpsrHD/uehHgTUlsXc9hwI+C7RgQiqDw9XFneqyXLquU1N1mNn09n94sBJLEJiciHOwUBSDPaJd61tStzH1PkjyX1Tt9fGif9BcGjId1IrQzOJ2QiqiBx61Xc8wUjE=";
 #endif

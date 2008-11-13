@@ -66,8 +66,6 @@ class CMainFrame : public CFrameWnd
 {
 	static void CALLBACK LoopbackStreamDSP(HDSP handle, DWORD channel,
 		void *buffer, DWORD length, void *user);
-	static void CALLBACK SilentPlaybackDSP(HDSP handle, DWORD channel,
-		void *buffer, DWORD length, void *user);
 
 	static CMainFrame* m_pMainFrame;
 

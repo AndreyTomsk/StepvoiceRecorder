@@ -20,6 +20,10 @@ HSTREAM g_update_handle = 0;  // Graph window update (used by callback func)
 HRECORD g_record_handle = 0; 
 HRECORD g_monitoring_handle = 0;
 
+char  g_rec_buffer[10240] = {0};
+DWORD g_rec_length = 0;
+DWORD g_rec_offset = 0;
+
 ////////////////////////////////////////////////////////////////////////////////
 // shared data
 #pragma data_seg(".SHARED")
@@ -235,6 +239,11 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 	int	  nBufInSize = a_length;
 	int   nBufOutSize= 0;
 
+	///@bug: Testing!
+	//memcpy(g_rec_buffer, a_buffer, a_length);
+	//g_rec_length = a_length;
+	//g_rec_offset = 0;
+
 	CMainFrame* l_main_window = (CMainFrame *)a_user;
 	ASSERT(l_main_window);
 
@@ -283,8 +292,35 @@ CMainFrame* CMainFrame::m_pMainFrame = NULL;
 //------------------------------------------------------------------------------
 float CMainFrame::PeaksCallback(int a_channel)
 {
-	DWORD l_level = BASS_ChannelGetLevel(g_update_handle);
+	/*
+	//if (m_pMainFrame->IsMonitoringOnly() ||
+	//	m_pMainFrame->m_nState == RECORD_STATE)
+	{
+		static short l_level_r = 0;
+		if (a_channel == 1)
+			return float(abs(l_level_r)) / 32767;
 
+		short* l_buffer_ptr = (short*)g_rec_buffer;
+		int l_check_length = min(882, g_rec_length / sizeof(short)); // 20ms for 44,1kHz
+		l_check_length = (l_check_length / 2) * 2;
+
+		short l_level_l = 0;
+
+		ASSERT(g_rec_offset + l_check_length < 10240);
+		for (int i = g_rec_offset; i < g_rec_offset + l_check_length; i += 2)
+		{
+			//l_level_l = (l_level_l + l_buffer_ptr[i]) / 2;
+			//l_level_r = (l_level_r + l_buffer_ptr[i + 1]) / 2;
+			l_level_l = max(l_level_l, l_buffer_ptr[i]);
+			l_level_r = max(l_level_r, l_buffer_ptr[i + 1]);
+		}
+		g_rec_offset += l_check_length;
+
+		short l_level = (a_channel == 0) ? l_level_l : l_level_r;
+		return float(abs(l_level)) / 32767;
+	}
+	*/
+	DWORD l_level = BASS_ChannelGetLevel(g_update_handle);
 	if (l_level == -1 || a_channel < 0 || a_channel > 1)
 		return 0;
 
@@ -301,7 +337,7 @@ int CMainFrame::LinesCallback(int a_channel, float* a_buffer, int a_size)
 ////////////////////////////////////////////////////////////////////////////////
 CMainFrame::CMainFrame()
 	:m_vista_loopback(NULL)
-{	// файлы
+{
 	m_pWaveIn	= NULL;
 	m_pWaveOut	= NULL;
 	m_pEncoder	= NULL;
@@ -328,6 +364,9 @@ CMainFrame::CMainFrame()
 	::SystemParametersInfo(SPI_GETWORKAREA, 0, &m_rDesktopRect, 0);
 
 	m_nActiveMixerID = 0;
+
+	BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
+	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
 }
 
 //====================================================================
@@ -347,7 +386,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_bMonitoringBtn = false;
 
-	// в зарегистрированной версии убираем меню "Зарегистрировать"
+	// Removing the "Register" menu in registered mode
 	REG_CRYPT_BEGIN;
 	#ifndef _DEBUG
 		CMenu* pMenu = this->GetMenu();
@@ -358,7 +397,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	#endif
 	REG_CRYPT_END;
 
-	// корректируем вертикальный размер окна
+	// Adusting the vertical window size
 	int nMenuHeight = GetSystemMetrics(SM_CYMENU);
 	int nCaptionHeight = GetSystemMetrics(SM_CYCAPTION);
 	RECT rW;
@@ -372,7 +411,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	this->SetWindowPos(&wndTop, rW.left, rW.top, rW.right-rW.left, rW.bottom-rW.top,
 		SWP_NOZORDER | SWP_NOMOVE);
 
-	// инициализируем окна состояний
+	// Creating interface windows
 	m_IcoWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(1, 0, 24, 25), this, IDW_ICO);
 	m_TimeWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(24, 0, 106, 25), this, IDW_TIME);
 	m_GraphWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(1, 24, 106, 77), this, IDW_GRAPH);
@@ -383,11 +422,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_GraphWnd.ShowWindow(SW_SHOW); m_GraphWnd.UpdateWindow();
 	m_StatWnd.ShowWindow(SW_SHOW);  m_StatWnd.UpdateWindow();
 
-	// устанавливаем тип графика
+	// Setting graphs display mode
 	m_GraphWnd.SetDisplayMode(CGraphWnd::DisplayMode(m_conf.GetConfProg()->nGraphType));
 	m_GraphWnd.SetMaxpeaks(m_conf.GetConfProg()->bGraphMaxpeaks != 0);
 
-	// инициализируем слайдеры позиции и микшера
+	// Adjusting the position and mixer sliders
 	CRect rT(106, 55, 286, 78);
 	CRgn rgnT;
 	rgnT.CreateRectRgn(0+6, 0, rT.right-rT.left-6, 26/*rT.bottom-rT.top*/);
@@ -395,7 +434,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		rT, this, IDS_SLIDERTIME);
 	m_SliderTime.SetWindowRgn(rgnT, false);
 	m_SliderTime.SetRange(0, 1000);
-	//m_SliderTime.ShowThumb(false);	// убираем ползунок слайдера
+	//m_SliderTime.ShowThumb(false);
 
 	m_SliderFrame.Create(_T("Static"), "", WS_CHILD|WS_VISIBLE|SS_ETCHEDFRAME,
 		CRect(109, 53, 283, 82), this, IDC_STATIC);
@@ -410,7 +449,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_SliderVol.SetPageSize(5);
 	m_SliderVol.SetLineSize(1);
 	
-	// инициализируем кнопки управления
+	// Creating the control buttons
 	int	iX = 6, iY = 85, idx = 45, idy = 23;
 	m_BtnOPEN.Create(CRect(iX, iY, iX+idx, iY+idy), this, IDB_BTNOPEN); iX += idx + 1;
 	m_BtnREC.Create(CRect(iX, iY, iX+idx, iY+idy), this, IDB_BTNREC);  iX += idx + 1;
@@ -430,13 +469,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_BtnFrame.Create(_T("Static"), "", WS_CHILD|WS_VISIBLE|SS_ETCHEDFRAME,
 		CRect(1, 80, 283, 113), this, IDC_STATIC);
 
-	// врубаем подсказки
 	EnableToolTips(true);
 
-	// применяем опцию "постоянно на вершине"
-	OnOptTop(); OnOptTop();	// состояние не изменяется
+	// "Always on Top" option
+	OnOptTop(); OnOptTop();	// state is not changing
 
-	// настраиваем микшер
+	// Adjusting the mixer
 	m_RecMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	m_PlayMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	if(m_RecMixer.GetLinesNum() != 0)
@@ -450,26 +488,24 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{
 		PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
 	}
-	// Запоминаем системное значение громкости
+	// Keeping the system volume level
 	//m_nSysVolume = 0;
 	//m_nSysVolume = m_PlayMixer.GetVol (m_PlayMixer.GetCurLine());
 	//m_PlayMixer.SetVol (m_conf.GetConfProg()->nPlayVolume);
 
-	// устанавливаем начальный вид окна
 	m_title = new CTitleText(this->GetSafeHwnd());
 
-	// получаем директорию екзешника
 	m_strDir = GetProgramDir();
 
-	// обрабатываем опции загрузчика
+	// Processing loader options
 	CString strName = "";
 	switch (m_conf.GetConfDialGen()->nLoader)
 	{
-		case 1:		// создание нового файла - автоимя
+		case 1:		// Create new file with autoname
 			//strName = GetAutoName(CString("")) + ".mp3";
 			strName = GetAutoName(CString(""));
 			break;
-		case 2:		// загрузка последнего файла
+		case 2:		// Loading last file used
 			strName = m_conf.GetConfProg()->strLastFileName;
 			break;
 	}
@@ -484,7 +520,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		OpenFile(strPath + "\\" + strName);
 	}
 
-	// создаем иконку в трее
+	// Creating icon for the system tray
 	m_TrayIcon.Create(this, WM_ICON_NOTIFY, "StepVoice Recorder",
 		LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_TRAY_STOP)), IDR_TRAY_MENU);
 	if(m_conf.GetConfDialGen()->bTrayIcon)
@@ -527,7 +563,6 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 	cs.cx = 290;
 	cs.cy = 120 + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYMENU);
 	
-	// устанавливаем положение окна
 	int nScreenCX = GetSystemMetrics(SM_CXSCREEN);
 	int nScreenCY = GetSystemMetrics(SM_CYSCREEN);
 	cs.x  = m_conf.GetConfProg()->nXcoord;
@@ -577,7 +612,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
 	{
-	// обрабатываем сообщ. изменения размеров экрана для snapping
+	// Processing a display resolution changed for snapping
 	case WM_DISPLAYCHANGE:
 		//::GetWindowRect(::GetDesktopWindow(),&m_rDesktopRect);
 		::SystemParametersInfo(SPI_GETWORKAREA, 0, &m_rDesktopRect, 0);
@@ -592,7 +627,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			else
 			{
 				m_SliderVol.SetPos(m_RecMixer.GetVol(m_RecMixer.GetCurLine()));
-				// меняем иконку в зависимости от типа линии
+				// Changing icon according to rec. line
 				const int ICON_ID[] = { IDI_MIXLINE00, IDI_MIXLINE01, IDI_MIXLINE02,
 										IDI_MIXLINE03, IDI_MIXLINE04, IDI_MIXLINE05,
 										IDI_MIXLINE06, IDI_MIXLINE07, IDI_MIXLINE08,
@@ -691,7 +726,7 @@ void CMainFrame::OnDestroy()
 	m_conf.GetConfProg()->nGraphType = m_GraphWnd.GetDisplayMode();
 	m_conf.GetConfProg()->bGraphMaxpeaks = (int)m_GraphWnd.GetMaxpeaks();
 
-	// сохр. громкость воспр. и восстанавливаем системную громкость
+	// Keeping our playback volume and restoring the system volume
 	//m_conf.GetConfProg()->nPlayVolume = m_PlayMixer.GetVol (
 	//	m_PlayMixer.GetCurLine ());
 	//m_PlayMixer.SetVol (m_nSysVolume);	
@@ -699,7 +734,7 @@ void CMainFrame::OnDestroy()
 
 
 //===========================================================================
-// Меню : File
+// MENU : File
 //===========================================================================
 void CMainFrame::OnFileClose() 
 {
@@ -722,12 +757,12 @@ void CMainFrame::OnFileClose()
 	SAFE_DELETE(m_pEncoder);
 	SAFE_DELETE(m_pSndFile);
 
-	// Устанавливаем текст по умолчанию: <no file> - StepVoice Recorder
+	// Setting the default window text: <no file> - StepVoice Recorder
 	CString strTitle, strNoFile((LPCSTR)IDS_NOFILE);
 	AfxFormatString1(strTitle, IDS_FILETITLE, strNoFile);
 	m_title->SetTitleText(strTitle);
 
-	//m_SliderTime.ShowThumb(false);	// убираем ползунок слайдера
+	//m_SliderTime.ShowThumb(false);
 	m_TimeWnd.Reset();
 	UpdateStatWindow();
 	UpdateTrayText();
@@ -783,7 +818,7 @@ void CMainFrame::OnFileDelete()
 	}
 }
 
-//=======не из меню, но полезная :)===========================================
+//=======not from menu, but useful one :)===========================================
 void CMainFrame::OpenFile(CString& str)
 {
 	OnFileClose();
@@ -824,8 +859,6 @@ void CMainFrame::OpenFile(CString& str)
 			BASS_Free();
 			return;
 		}
-		BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
-		BASS_ChannelSetDSP(g_stream_handle, SilentPlaybackDSP, NULL, 0xFF);
 
 		// Changing stream volume
 		//int l_range = m_SliderVol.GetRangeMax() - m_SliderVol.GetRangeMin();
@@ -860,7 +893,7 @@ void CMainFrame::OnFileFindfile()
 }
 
 //===========================================================================
-// Меню : Sound (перемещение по файлу)
+// MENU : Sound
 //===========================================================================
 void CMainFrame::OnSoundBegin()
 {
@@ -987,11 +1020,11 @@ void CMainFrame::OnSoundEnd()
 }
 
 //===========================================================================
-// Меню : Options
+// MENU : Options
 //===========================================================================
 void CMainFrame::OnStatPref() 
 {
-	//m_conf.GetConfProg()->nDialogIndex = -1; // влияем на выбор вкладки
+	//m_conf.GetConfProg()->nDialogIndex = -1; // Selecting tab sheet for display
 	OnOptCom();
 }
 
@@ -1009,7 +1042,7 @@ void CMainFrame::OnOptCom()
 
 	m_pOptDialog = &optDlg;		// Saving dialog pointer for tray exit process
 
-	// сохраним состояние шедулера
+	// Saving the scheduler state
 	bool bOldSchedState = m_conf.GetConfDialSH2()->bIsEnabled != 0;
 	bool bNewSchedState = bOldSchedState;
 
@@ -1027,25 +1060,25 @@ void CMainFrame::OnOptCom()
 		}
 		UpdateStatWindow();
 
-		// проверяем опции трея
+		// Checking tray options
 		if(m_conf.GetConfDialGen()->bTrayIcon) //Taskbar only
 			m_TrayIcon.ShowIcon();
 		else
 			m_TrayIcon.HideIcon();
 
-		// !!!!! Проверка изменения шедулера (проверка SHR)
+		// !!!!! Scheduler change check (SHR check)
 		bNewSchedState = m_conf.GetConfDialSH2()->bIsEnabled != 0;
 		if(bNewSchedState != bOldSchedState)
-		{	// инвертируем состояние шедулера (имитируя нажатие на кнопку)
+		{	// Inverting the scheduler state (by pressing the button)
 			m_conf.GetConfDialSH2()->bIsEnabled = !bNewSchedState;
 			OnBtnSched();
 		}
-		else if(bNewSchedState) {	// перезапускаем шедулер
-			OnBtnSched(); // выкл.
-			OnBtnSched(); // вкл.
+		else if(bNewSchedState) {	// Restarting the scheduler
+			OnBtnSched(); // Off.
+			OnBtnSched(); // On.
 		}
 
-		// Проверка VAS
+		// Checking VAS
 		CONF_DIAL_VAS* pConfig = m_conf.GetConfDialVAS();
 		if((pConfig->bEnable != 0) != m_vas.IsRunning())
 			OnBtnVas();
@@ -1112,16 +1145,16 @@ void CMainFrame::OnMixRec()
 
 
 //===========================================================================
-// Кнопки
+// BUTTONS
 //===========================================================================
 void CMainFrame::OnBtnOPEN()
 {
 	SetFocus();
 
 	CString strTemp;
-	strTemp.LoadString(IDS_FILEFILTER);			// фильтр - MPEG audio files
+	strTemp.LoadString(IDS_FILEFILTER);
 
-	CString strName = GetAutoName(CString(""));	// Имя вида 08jun_05.mp3
+	CString strName = GetAutoName(CString(""));	// Name like 08jun_05.mp3
 	CString strLastPath = m_conf.GetConfProg()->strLastFilePath;
 
 	if (!strLastPath.IsEmpty())
@@ -1215,8 +1248,6 @@ void CMainFrame::OnBtnSTOP()
 	SetFocus();
 
 	m_nState = STOP_STATE;
-	m_GraphWnd.StopUpdate();
-
 	if (g_stream_handle)
 	{
 		KillTimer(1);
@@ -1256,7 +1287,7 @@ void CMainFrame::OnBtnREC()
 {
 	SetFocus();
 
-	// данные для старта шедулера
+	// Data for the scheduler start
 	bool bIsSchedEnabled= m_conf.GetConfDialSH2()->bIsEnabled  != 0;
 	bool bSchedStart	= m_conf.GetConfDialSH2()->bSchedStart != 0;
 	SHR_TIME* ptRec		= &m_conf.GetConfDialSH2()->t_rec;
@@ -1282,7 +1313,6 @@ void CMainFrame::OnBtnREC()
 		}
 		CONF_DIAL_MP3 l_conf_mp3;
 		memcpy(&l_conf_mp3, m_conf.GetConfDialMp3(), sizeof(CONF_DIAL_MP3));
-		//l_conf_mp3.nFreq = 48000;
 
 		SAFE_DELETE(m_pEncoder);
 		m_pEncoder = new CEncoder_MP3(m_strDir);
@@ -1300,9 +1330,8 @@ void CMainFrame::OnBtnREC()
 			return;
 		}
 		g_record_handle = BASS_RecordStart(
-			//48000,
 			l_conf_mp3.nFreq,
-			l_conf_mp3.nStereo+1,
+			l_conf_mp3.nStereo + 1,
 			BASS_RECORD_PAUSE,
 			(RECORDPROC *)&NewRecordProc,
 			this);
@@ -1322,9 +1351,8 @@ void CMainFrame::OnBtnREC()
 			l_conf_mp3.nStereo + 1, BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
 		ASSERT(g_stream_handle);
 		BASS_Mixer_StreamAddChannel(g_stream_handle, l_stream_handle,
-			BASS_MIXER_DOWNMIX | BASS_MIXER_FILTER);
+			BASS_MIXER_DOWNMIX);
 
-		BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
 		BASS_ChannelSetDSP(g_record_handle, LoopbackStreamDSP, &g_stream_handle, 0xFF);
 		*/
 	}
@@ -1343,7 +1371,7 @@ void CMainFrame::OnBtnREC()
 		BASS_ChannelPlay(g_record_handle, false);
 		SetTimer(2, 1000, NULL);
 
-		// запускаем шедулер
+		// Running the scheduler
 		if (bIsSchedEnabled && (!bSchedStart))
 		{
 			if (m_conf.GetConfDialSH2()->nStopByID == 1)
@@ -1486,7 +1514,7 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 
 
 //===========================================================================
-// Функия преобразования количества секунд в строку вида "Ч:ММ:СС"
+// Function to transform seconds count into the "H:MM:SS" string
 //===========================================================================
 void CMainFrame::Convert(UINT nCurSec, char *pszTime, int nStrSize)
 {
@@ -1581,7 +1609,7 @@ void CMainFrame::OnUpdateOptEm(CCmdUI* pCmdUI)
 }
 
 //===========================================================================
-// Акселераторы
+// ACCELERATORS
 //===========================================================================
 void CMainFrame::OnSoundRecA() 
 {
@@ -1605,18 +1633,15 @@ void CMainFrame::OnSoundPlayA()
 }
 
 //===========================================================================
-// Поддержка Drag-and-Drop
+// Drag-and-Drop support
 //===========================================================================
 void CMainFrame::OnDropFiles(HDROP hDropInfo) 
 {
-	// делаем окно активным
 	this->SetForegroundWindow();
 
-	// получили имя файла
 	TCHAR szFileName[_MAX_PATH];
 	::DragQueryFile(hDropInfo, 0, szFileName, _MAX_PATH);
 
-	// передаем его функции открытия файла
 	CString str(szFileName);
 	OpenFile(str);
 
@@ -1626,7 +1651,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 ////////////////////////////////////////////////////////////////////////////////
 CString CMainFrame::GetAutoName( CString& strPattern )
 {
-	// Убираем все знаки "%" в конце строки.
+	// Removing all '%' symbols from the end of string
 	if( strPattern.Right(1) == "%")
 		strPattern.TrimRight('%');
 
@@ -1682,7 +1707,7 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 	TOOLTIPTEXTW* pTTTW = (TOOLTIPTEXTW*)pNMHDR;
 	CString strTipText;
 
-	// получаем идентификатор элемета и строку по нему
+	// Getting an element ID and a string from it
 	if(pNMHDR->code == TTN_NEEDTEXTA && (pTTTA->uFlags & TTF_IDISHWND) ||
 	   pNMHDR->code == TTN_NEEDTEXTW && (pTTTW->uFlags & TTF_IDISHWND))
 	{	// idFrom is actually the HWND of the tool
@@ -1719,7 +1744,7 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 		}
 	}
 
-	// копируем строку подсказок в структуру
+	// Copying hint string into the structure
 	if (pNMHDR->code == TTN_NEEDTEXTA)
 	  lstrcpyn(pTTTA->szText, strTipText, sizeof(pTTTA->szText));
 	else
@@ -1799,7 +1824,6 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case IDM_TRAY_EXIT:
-		// если открыт диалог настроек - нужно его закрыть до заверш. прогр.
 		if (m_pOptDialog)
 		{
 			m_pOptDialog->PostMessage(WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
@@ -1889,7 +1913,7 @@ void CMainFrame::OnBtnMIX_SEL()
 		count += 0;
 	}
 	*/
-	// перезапускаем микшер
+	// Restarting the mixer
 	m_RecMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	m_PlayMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	if(m_nActiveMixerID == 1)
@@ -1924,7 +1948,7 @@ void CMainFrame::OnBtnMIX_SEL()
 			MF_CHECKED | MF_BYCOMMAND);
 	}
 
-	//выводим меню на экран и устанавливаем флаг показа
+	// Starting a context menu and setting the display flag
 	int nItemID = mixMenu.TrackPopupMenu(TPM_VCENTERALIGN|TPM_LEFTBUTTON|
 		TPM_RETURNCMD, r.right, r.top+(r.bottom-r.top)/2, this);
 	if(!nItemID)
@@ -1986,7 +2010,7 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
    m_SliderVol.GetRange(minpos, maxpos);
    curpos = m_SliderVol.GetPos();
 
-	// информируем пользователя
+	// Informing user
 	int nPercent = int(100.0 * curpos / (maxpos - minpos));
 
 	CString strTitle;
@@ -2010,7 +2034,7 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		m_RecMixer.SetVol(nPercent);
 	}
 
-	// обрабатываем сообщения слайдера
+	// Processing slider messages
 	switch (nSBCode)
 	{
 	case SB_THUMBTRACK:
@@ -2044,7 +2068,7 @@ BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 
 void CMainFrame::OnVolUpA() 
 {
-	// проверяем на доступность линий микшеров
+	// Checking for mixer lines available
 	if(m_nActiveMixerID == 0 && m_RecMixer.GetLinesNum() == 0)
 		return;
 	if(m_nActiveMixerID == 1 && m_PlayMixer.GetLinesNum() == 0)
@@ -2060,7 +2084,7 @@ void CMainFrame::OnVolUpA()
 
 void CMainFrame::OnVolDownA() 
 {
-	// проверяем на доступность линий микшеров
+	// Checking for mixer lines available
 	if(m_nActiveMixerID == 0 && m_RecMixer.GetLinesNum() == 0)
 		return;
 	if(m_nActiveMixerID == 1 && m_PlayMixer.GetLinesNum() == 0)
@@ -2075,12 +2099,12 @@ void CMainFrame::OnVolDownA()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ШЕДУЛЕР
+// SCHEDULER
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnSched()
 {
 #ifndef _DEBUG
-	// кнопка задизаблена после завершения триального периода
+	// Button is disabled after the trial period is over
 	if(fsProtect_GetDaysLeft() <= 0)
 		return;
 #endif
@@ -2092,7 +2116,7 @@ void CMainFrame::OnBtnSched()
 	SHR_TIME* ptStop	= &m_conf.GetConfDialSH2()->t_stop;
 
 	if (!bIsEnabled)
-	{	// если время старта не задано, то включим шедулер при записи
+	{	// If the start time is not set, run the scheduler after recording started
 		if (bSchedStart)
 		{
 			if (m_conf.GetConfDialSH2()->nStopByID == 1)
@@ -2112,7 +2136,7 @@ void CMainFrame::OnBtnSched()
 				return;
 			}
 		}
-		// если состояние программы - запись, то вкл. шед
+		// If recording, when starting scheduler
 		else if (BASS_ACTIVE_PLAYING == BASS_ChannelIsActive(g_record_handle))
 		{
 			if (m_conf.GetConfDialSH2()->nStopByID == 1)
@@ -2137,11 +2161,11 @@ void CMainFrame::OnBtnSched()
 	}
 
 	m_conf.GetConfDialSH2()->bIsEnabled = !bIsEnabled;
-	// обновляем состояние кнопки "Запись" при автостарте шедулера
+	// Updating the "Record" button when scheduler started
 	//UpdateButtonState(IDB_BTNREC);
 
 	/*
-	// обновляем окно времени
+	// Updating time window
 	int nRecTime = 0;
 	if (m_conf.GetConfDialSH2()->bIsEnabled)
 	{
@@ -2152,15 +2176,15 @@ void CMainFrame::OnBtnSched()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// IN: nAction - запланированное действие
-//		0 - старт записи
-//		1 - стоп записи
+// IN: nAction - planned action
+//		0 - start recording
+//		1 - stop recording
 void Scheduler2Function(int nAction)
 {
 	//CMainFrame* pMainWnd = (CMainFrame *)AfxGetMainWnd();
 	CMainFrame* pMainWnd = CMainFrame::m_pMainFrame;
 
-	if (nAction == 0)		// обрабатываем СТАРТ записи
+	if (nAction == 0)
 	{
 		if (pMainWnd->m_conf.GetConfDialSH2()->bRunExternal)
 		{
@@ -2189,7 +2213,7 @@ void Scheduler2Function(int nAction)
 			//pMainWnd->UpdateButtonState(IDB_BTNREC);
 		}
 	}
-	else if (nAction == 1)	// обрабатываем СТОП записи
+	else if (nAction == 1)
 	{
 		TRACE0("==> Scheduler2Function: call OnBtnSTOP\n");
 		pMainWnd->OnBtnSTOP();
@@ -2222,22 +2246,17 @@ void Scheduler2Function(int nAction)
 void CMainFrame::OnBtnMonitoring()
 {
 #ifndef _DEBUG
-	// кнопка задизаблена после завершения триального периода
+	// Button is disabled after the trial period is over
 	if(fsProtect_GetDaysLeft() <= 0)
 		return;
 #endif
 
 	if (!m_bMonitoringBtn)
 	{
-		// If not recording and not playing, then start monitoring.
-		if (!g_record_handle && (BASS_ChannelIsActive(g_stream_handle) ==
-			BASS_ACTIVE_STOPPED))
+		if (m_nState == STOP_STATE && !MonitoringStart())
 		{
-			if (!MonitoringStart())
-			{
-				AfxMessageBox("Monitoring error!", MB_OK);
-				return;
-			}
+			AfxMessageBox("Monitoring error!", MB_OK);
+			return;
 		}
 		m_bMonitoringBtn = true;
 		m_StatWnd.m_btnMon.SetState(BTN_PRESSED);
@@ -2261,36 +2280,31 @@ bool CMainFrame::IsMonitoringOnly()
 bool CMainFrame::MonitoringStart()
 {
 	if (!BASS_RecordInit(-1))
-	{
 		return false;
-	}
+
 	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
 	g_monitoring_handle = BASS_RecordStart(44100, 2, MAKELONG(0, 10), NULL, NULL);
-	if (!g_monitoring_handle)
+	if (g_monitoring_handle)
 	{
-		return false;
+		///@bug Testing new functionality
+		g_update_handle = g_monitoring_handle;
+		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
+
+		m_GraphWnd.StartUpdate((HSTREAM)g_monitoring_handle);
 	}
-
-	///@bug Testing new functionality
-	g_update_handle = g_monitoring_handle;
-	m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
-
-	m_GraphWnd.StartUpdate((HSTREAM)g_monitoring_handle);
-	return true;
+	return g_monitoring_handle != 0;
 }
 
 //------------------------------------------------------------------------------
 void CMainFrame::MonitoringStop()
 {
-	if (!g_monitoring_handle)
+	if (g_monitoring_handle)
 	{
-		return;
+		m_GraphWnd.StopUpdate();
+		BASS_ChannelStop(g_monitoring_handle);
+		BASS_RecordFree();
+		g_monitoring_handle = 0;
 	}
-	m_GraphWnd.StopUpdate();
-	//m_GraphWnd.Clear();
-	BASS_ChannelStop(g_monitoring_handle);
-	BASS_RecordFree();
-	g_monitoring_handle = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2299,7 +2313,7 @@ void CMainFrame::MonitoringStop()
 void CMainFrame::OnBtnVas()
 {
 #ifndef _DEBUG
-	// кнопка задизаблена после завершения триального периода
+	// Button is disabled after the trial period is over
 	if(fsProtect_GetDaysLeft() <= 0)
 		return;
 #endif
@@ -2346,7 +2360,7 @@ void CMainFrame::ProcessVAS(bool bVASResult)
 		}
 	}
 	else if ((bVASResult == false) && (bOldVASResult == true))
-	{	// выход из области VAS
+	{	// Going out of VAS area ?
 		m_IcoWnd.SetNewIcon(ICON_REC);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
 	}
@@ -2371,7 +2385,7 @@ void CMainFrame::UpdateButtonState(UINT nID)
 		{
 			pBtn->ModifyStyle(0, WS_DISABLED);
 		}
-		// дизаблим кнопку "запись" при воспроизведении
+		// Disabling the Record button while playing
 		if (BASS_ChannelIsActive(g_record_handle) == BASS_ACTIVE_STOPPED &&
 			BASS_ChannelIsActive(g_stream_handle) != BASS_ACTIVE_STOPPED)
 		{
@@ -2380,13 +2394,13 @@ void CMainFrame::UpdateButtonState(UINT nID)
 	}
 	else if (IDB_BTNPLAY == nID)
 	{
-		// дизаблим кнопку "воспроизведение" при записи
+		// Disabling the Play button while recording
 		if (m_record_file.m_hFile != CFile::hFileNull)
 		{
 			pBtn->ModifyStyle(0, WS_DISABLED);
 		}
 	}
-	pBtn->Invalidate(false); // обновляем кнопку
+	pBtn->Invalidate(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2439,8 +2453,10 @@ void CMainFrame::UpdateInterface()
 	case STOP_STATE:
 	default:
 		m_SliderTime.SetCurPos(0);
-		//m_GraphWnd.Clear();
-		m_GraphWnd.StopUpdate();
+		if (!m_bMonitoringBtn)
+		{
+			m_GraphWnd.StopUpdate();
+		}
 		m_BtnREC.SetIcon(IDI_REC);
 		m_BtnPLAY.SetIcon(IDI_PLAY);
 		m_TrayIcon.SetIcon(IDI_TRAY_STOP);
@@ -2504,11 +2520,4 @@ void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
 	char* l_dst_buffer = (char*)a_buffer;
 	for (DWORD i = 0; i < a_length; i++)
 		l_dst_buffer[i] = l_src_buffer[i];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void CALLBACK CMainFrame::SilentPlaybackDSP(HDSP a_handle, DWORD a_channel,
-	void *a_buffer, DWORD a_length, void *a_user)
-{
-	//ZeroMemory(a_buffer, a_length);
 }

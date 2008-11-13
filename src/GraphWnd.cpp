@@ -272,7 +272,8 @@ void CGraphWnd::DrawPeaks()
 
 	BASS_CHANNELINFO l_ci;
 	BOOL l_result = BASS_ChannelGetInfo(m_stream_handle, &l_ci);
-	ASSERT(l_result);
+	if (!l_result)
+		return;
 
 	for (int channel = 0; channel < 2; channel++)
 	{
