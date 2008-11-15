@@ -20,9 +20,9 @@ HSTREAM g_update_handle = 0;  // Graph window update (used by callback func)
 HRECORD g_record_handle = 0; 
 HRECORD g_monitoring_handle = 0;
 
-char  g_rec_buffer[10240] = {0};
+char  g_rec_buffer[102400] = {0};
 DWORD g_rec_length = 0;
-DWORD g_rec_offset = 0;
+DWORD g_rec_msec_begin  = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // shared data
@@ -34,6 +34,27 @@ TCHAR g_command_line[MAX_PATH] = {0};
 
 #pragma comment(linker, "/section:.SHARED,RWS")
 // end shared data
+
+////////////////////////////////////////////////////////////////////////////////
+class CMyLock
+{
+public:
+	CMyLock(LPCRITICAL_SECTION a_sync_ptr)
+		:m_sync_ptr(a_sync_ptr)
+	{
+		EnterCriticalSection(m_sync_ptr);
+	}
+	~CMyLock()
+	{
+		LeaveCriticalSection(m_sync_ptr);
+	}
+private:
+	CMyLock(const CMyLock &);
+	const CMyLock& operator=(const CMyLock &);
+private:
+	LPCRITICAL_SECTION m_sync_ptr;
+};
+CRITICAL_SECTION g_rec_buffer_sync;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Check if a file is suitable for recording (not exist or length = 0).
@@ -241,9 +262,14 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 	int   nBufOutSize= 0;
 
 	///@bug: Testing!
-	//memcpy(g_rec_buffer, a_buffer, a_length);
-	//g_rec_length = a_length;
-	//g_rec_offset = 0;
+	{
+		CMyLock l_lock(&g_rec_buffer_sync);
+
+		ASSERT(a_length < 102400);
+		memcpy(g_rec_buffer, a_buffer, a_length);
+		g_rec_length = a_length;
+		g_rec_msec_begin  = ::GetTickCount();
+	}
 
 	CMainFrame* l_main_window = (CMainFrame *)a_user;
 	ASSERT(l_main_window);
@@ -284,6 +310,7 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 			nBufInSize = 0;
 		}
 	}
+
 	return TRUE;
 }
 
@@ -293,34 +320,38 @@ CMainFrame* CMainFrame::m_pMainFrame = NULL;
 //------------------------------------------------------------------------------
 float CMainFrame::PeaksCallback(int a_channel)
 {
-	/*
-	//if (m_pMainFrame->IsMonitoringOnly() ||
-	//	m_pMainFrame->m_nState == RECORD_STATE)
 	{
+		CMyLock l_lock(&g_rec_buffer_sync);
+		if (g_rec_msec_begin == 0)
+			return 0;
+
 		static short l_level_r = 0;
 		if (a_channel == 1)
-			return float(abs(l_level_r)) / 32767;
+			return float(abs(l_level_r)) / 32768;
 
-		short* l_buffer_ptr = (short*)g_rec_buffer;
-		int l_check_length = min(882, g_rec_length / sizeof(short)); // 20ms for 44,1kHz
+		int l_check_length = min(1764, g_rec_length / sizeof(short)); // 20ms for 44,1kHz
 		l_check_length = (l_check_length / 2) * 2;
 
 		short l_level_l = 0;
+		l_level_r = 0;
+		short* l_buffer_ptr = (short*)g_rec_buffer;
 
-		ASSERT(g_rec_offset + l_check_length < 10240);
-		for (int i = g_rec_offset; i < g_rec_offset + l_check_length; i += 2)
+		DWORD l_request_msec = ::GetTickCount();
+		DWORD l_rec_offset = (l_request_msec - g_rec_msec_begin) * 88; // precalculated bytes/msec rate
+		if (l_rec_offset + l_check_length >= g_rec_length)
 		{
-			//l_level_l = (l_level_l + l_buffer_ptr[i]) / 2;
-			//l_level_r = (l_level_r + l_buffer_ptr[i + 1]) / 2;
+			//::Beep(1000, 10);
+			return 0;
+		}
+
+		for (DWORD i = l_rec_offset; i < l_rec_offset + l_check_length; i += 2)
+		{
 			l_level_l = max(l_level_l, l_buffer_ptr[i]);
 			l_level_r = max(l_level_r, l_buffer_ptr[i + 1]);
 		}
-		g_rec_offset += l_check_length;
-
-		short l_level = (a_channel == 0) ? l_level_l : l_level_r;
-		return float(abs(l_level)) / 32767;
+		return float(abs(l_level_l)) / 32768;
 	}
-	*/
+
 	DWORD l_level = BASS_ChannelGetLevel(g_update_handle);
 	if (l_level == -1 || a_channel < 0 || a_channel > 1)
 		return 0;
@@ -370,6 +401,8 @@ CMainFrame::CMainFrame()
 
 	BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
 	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
+
+	InitializeCriticalSection(&g_rec_buffer_sync);
 }
 
 //====================================================================
@@ -378,6 +411,8 @@ CMainFrame::~CMainFrame()
 	SAFE_DELETE(m_title);
 
 	CloseMixerWindows();
+
+	DeleteCriticalSection(&g_rec_buffer_sync);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1355,7 +1390,7 @@ void CMainFrame::OnBtnREC()
 		g_record_handle = BASS_RecordStart(
 			l_conf_mp3.nFreq,
 			l_conf_mp3.nStereo + 1,
-			BASS_RECORD_PAUSE,
+			MAKELONG(BASS_RECORD_PAUSE, 40),
 			(RECORDPROC *)&NewRecordProc,
 			this);
 		if (FALSE == g_record_handle)
@@ -1479,7 +1514,7 @@ void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
 		{
 			if (l_seconds_pos >= l_seconds_all - 0.3)
 			{
-				l_seconds_pos = l_seconds_all - 0.3;
+				l_seconds_pos = max(l_seconds_all - 0.3, 0);
 			}
 			BOOL l_result = BASS_ChannelSetPosition(
 				g_stream_handle,
