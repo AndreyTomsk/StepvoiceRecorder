@@ -290,9 +290,8 @@ CMainFrame* CMainFrame::m_pMainFrame = NULL;
 //------------------------------------------------------------------------------
 float CMainFrame::PeaksCallback(int a_channel)
 {
-	if (m_pMainFrame->m_visualization_data)
+	if (m_pMainFrame->m_visualization_data && m_pMainFrame->m_loopback_recording)
 		return m_pMainFrame->m_visualization_data->GetPeaksLevel(a_channel);
-
 
 	DWORD l_level = BASS_ChannelGetLevel(g_update_handle);
 	if (l_level == -1 || a_channel < 0 || a_channel > 1)
@@ -305,7 +304,18 @@ float CMainFrame::PeaksCallback(int a_channel)
 //------------------------------------------------------------------------------
 int CMainFrame::LinesCallback(int a_channel, float* a_buffer, int a_size)
 {
-	return 0;
+	if (m_pMainFrame->m_visualization_data && m_pMainFrame->m_loopback_recording)
+	{
+		return m_pMainFrame->m_visualization_data->GetLinesLevel(
+			a_channel, a_buffer, a_size);
+	}
+
+	float* l_buffer_ptr = a_buffer + a_channel;
+	int l_bytes_2_copy = (a_size - a_channel) * sizeof(float);
+
+	int l_bytes_copied = BASS_ChannelGetData(g_update_handle, l_buffer_ptr,
+		(l_bytes_2_copy | BASS_DATA_FLOAT));
+	return (l_bytes_copied == -1) ? 0 : l_bytes_copied / sizeof(float);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1328,13 +1338,14 @@ void CMainFrame::OnBtnREC()
 			AfxMessageBox(l_message, MB_OK | MB_ICONSTOP);
 			return;
 		}
+
 		SAFE_DELETE(m_visualization_data);
 		m_visualization_data = new VisualizationData(l_conf_mp3.nFreq, l_conf_mp3.nStereo + 1);
 
 		g_record_handle = BASS_RecordStart(
 			l_conf_mp3.nFreq,
 			l_conf_mp3.nStereo + 1,
-			MAKELONG(BASS_RECORD_PAUSE, 40),
+			MAKELONG(BASS_RECORD_PAUSE, 25),
 			(RECORDPROC *)&NewRecordProc,
 			this);
 		if (FALSE == g_record_handle)
