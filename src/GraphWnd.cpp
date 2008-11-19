@@ -13,26 +13,6 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-class CMyLock
-{
-public:
-	CMyLock(LPCRITICAL_SECTION a_sync_ptr)
-		:m_sync_ptr(a_sync_ptr)
-	{
-		EnterCriticalSection(m_sync_ptr);
-	}
-	~CMyLock()
-	{
-		LeaveCriticalSection(m_sync_ptr);
-	}
-private:
-	CMyLock(const CMyLock &);
-	const CMyLock& operator=(const CMyLock &);
-private:
-	LPCRITICAL_SECTION m_sync_ptr;
-};
-
-///////////////////////////////////////////////////////////////////////////////
 const int MAXPEAK_TIMER_ID = 123;
 const int PLAY_BUFFER_SIZE = 2048;
 
@@ -64,13 +44,11 @@ CGraphWnd::CGraphWnd()
 	,m_peaks_func(NULL)
 	,m_lines_func(NULL)
 {
-	InitializeCriticalSection(&m_sync_object);
 }
 
 //-----------------------------------------------------------------------------
 CGraphWnd::~CGraphWnd()
 {
-	DeleteCriticalSection(&m_sync_object);
 }
 
 //-----------------------------------------------------------------------------
@@ -112,7 +90,7 @@ int CGraphWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //-----------------------------------------------------------------------------
 void CGraphWnd::OnPaint() 
 {
-	CMyLock lock(&m_sync_object);
+	CMyLock lock(m_sync_object);
 
 	CPaintDC dc(this); // device context for painting
 	dc.BitBlt(0, 0, m_wndsize.cx, m_wndsize.cy, &m_memDC, 0, 0, SRCCOPY);
@@ -228,7 +206,7 @@ void CGraphWnd::Update(char* pSndBuf, int nBufSize)
 //-----------------------------------------------------------------------------
 void CGraphWnd::ClearWindow()
 {
-	CMyLock lock(&m_sync_object);
+	CMyLock lock(m_sync_object);
 
 	CRect r;
 	this->GetClientRect(&r);
@@ -427,7 +405,7 @@ bool CGraphWnd::GetVASMark() const
 //-----------------------------------------------------------------------------
 void CGraphWnd::DrawVASMark()
 {
-	CMyLock lock(&m_sync_object);
+	CMyLock lock(m_sync_object);
 
 	if ((m_display_mode != E_DISPLAY_PEAKS &&
 		m_display_mode != E_DISPLAY_PEAKS_DB) || !m_bShowVASMark)
@@ -521,7 +499,7 @@ void CGraphWnd::StopUpdate()
 //-----------------------------------------------------------------------------
 bool CGraphWnd::SetDisplayMode(DisplayMode a_new_mode)
 {
-	CMyLock lock(&m_sync_object);
+	CMyLock lock(m_sync_object);
 
 	if (a_new_mode >= sizeof(DisplayMode))
 	{
@@ -582,6 +560,6 @@ void CALLBACK CGraphWnd::UpdateVisualization(UINT a_timer_id, UINT a_msg,
 	CGraphWnd* l_graph_wnd = (CGraphWnd*)a_user_ptr;
 	ASSERT(l_graph_wnd);
 
-	CMyLock lock(&l_graph_wnd->m_sync_object);
+	CMyLock lock(l_graph_wnd->m_sync_object);
 	l_graph_wnd->Update(NULL, 0);
 }

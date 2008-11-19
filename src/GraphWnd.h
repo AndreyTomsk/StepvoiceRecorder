@@ -4,6 +4,7 @@
 
 #include <bass.h>
 #include "struct.h"
+#include "SyncObjects.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // The main idea here is to work only with float data. And having one format
@@ -111,7 +112,7 @@ private:
 	DWORD m_timer_id;
 	DisplayMode m_display_mode;
 	HSTREAM m_stream_handle;
-	CRITICAL_SECTION m_sync_object;
+	CMyCriticalSection m_sync_object;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
