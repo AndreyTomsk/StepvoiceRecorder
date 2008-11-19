@@ -47,6 +47,7 @@
 #include <bass.h>
 #include <bassmix.h>
 #include "BASS_VistaLoopback.h"
+#include "VisualizationData.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 enum ProgramState
@@ -79,6 +80,7 @@ class CMainFrame : public CFrameWnd
 	static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer,
 		DWORD a_length, void* a_user);
 
+	VisualizationData* m_visualization_data;
 	BassVistaLoopback* m_vista_loopback;
 	bool m_loopback_recording;
 	HDSP m_loopback_hdsp;

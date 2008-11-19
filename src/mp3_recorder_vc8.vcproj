@@ -1188,6 +1188,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\VisualizationData.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Wave.cpp"
 				>
 				<FileConfiguration
@@ -1435,6 +1439,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SyncObjects.h"
+				>
+			</File>
+			<File
 				RelativePath="system.h"
 				>
 			</File>
@@ -1460,6 +1468,10 @@
 			</File>
 			<File
 				RelativePath="VAS.h"
+				>
+			</File>
+			<File
+				RelativePath=".\VisualizationData.h"
 				>
 			</File>
 			<File

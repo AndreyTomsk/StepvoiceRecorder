@@ -20,10 +20,6 @@ HSTREAM g_update_handle = 0;  // Graph window update (used by callback func)
 HRECORD g_record_handle = 0; 
 HRECORD g_monitoring_handle = 0;
 
-char  g_rec_buffer[102400] = {0};
-DWORD g_rec_length = 0;
-DWORD g_rec_msec_begin  = 0;
-
 ////////////////////////////////////////////////////////////////////////////////
 // shared data
 #pragma data_seg(".SHARED")
@@ -35,26 +31,6 @@ TCHAR g_command_line[MAX_PATH] = {0};
 #pragma comment(linker, "/section:.SHARED,RWS")
 // end shared data
 
-////////////////////////////////////////////////////////////////////////////////
-class CMyLock
-{
-public:
-	CMyLock(LPCRITICAL_SECTION a_sync_ptr)
-		:m_sync_ptr(a_sync_ptr)
-	{
-		EnterCriticalSection(m_sync_ptr);
-	}
-	~CMyLock()
-	{
-		LeaveCriticalSection(m_sync_ptr);
-	}
-private:
-	CMyLock(const CMyLock &);
-	const CMyLock& operator=(const CMyLock &);
-private:
-	LPCRITICAL_SECTION m_sync_ptr;
-};
-CRITICAL_SECTION g_rec_buffer_sync;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Check if a file is suitable for recording (not exist or length = 0).
@@ -261,18 +237,12 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 	int	  nBufInSize = a_length;
 	int   nBufOutSize= 0;
 
-	///@bug: Testing!
-	{
-		CMyLock l_lock(&g_rec_buffer_sync);
-
-		ASSERT(a_length < 102400);
-		memcpy(g_rec_buffer, a_buffer, a_length);
-		g_rec_length = a_length;
-		g_rec_msec_begin  = ::GetTickCount();
-	}
-
 	CMainFrame* l_main_window = (CMainFrame *)a_user;
 	ASSERT(l_main_window);
+	{
+		ASSERT(l_main_window->m_visualization_data);
+		l_main_window->m_visualization_data->SetSourceBuffer(a_buffer, a_length);
+	}
 
 	if (l_main_window->m_vas.IsRunning())
 	{
@@ -320,37 +290,9 @@ CMainFrame* CMainFrame::m_pMainFrame = NULL;
 //------------------------------------------------------------------------------
 float CMainFrame::PeaksCallback(int a_channel)
 {
-	{
-		CMyLock l_lock(&g_rec_buffer_sync);
-		if (g_rec_msec_begin == 0)
-			return 0;
+	if (m_pMainFrame->m_visualization_data)
+		return m_pMainFrame->m_visualization_data->GetPeaksLevel(a_channel);
 
-		static short l_level_r = 0;
-		if (a_channel == 1)
-			return float(abs(l_level_r)) / 32768;
-
-		int l_check_length = min(1764, g_rec_length / sizeof(short)); // 20ms for 44,1kHz
-		l_check_length = (l_check_length / 2) * 2;
-
-		short l_level_l = 0;
-		l_level_r = 0;
-		short* l_buffer_ptr = (short*)g_rec_buffer;
-
-		DWORD l_request_msec = ::GetTickCount();
-		DWORD l_rec_offset = (l_request_msec - g_rec_msec_begin) * 88; // precalculated bytes/msec rate
-		if (l_rec_offset + l_check_length >= g_rec_length)
-		{
-			//::Beep(1000, 10);
-			return 0;
-		}
-
-		for (DWORD i = l_rec_offset; i < l_rec_offset + l_check_length; i += 2)
-		{
-			l_level_l = max(l_level_l, l_buffer_ptr[i]);
-			l_level_r = max(l_level_r, l_buffer_ptr[i + 1]);
-		}
-		return float(abs(l_level_l)) / 32768;
-	}
 
 	DWORD l_level = BASS_ChannelGetLevel(g_update_handle);
 	if (l_level == -1 || a_channel < 0 || a_channel > 1)
@@ -369,6 +311,7 @@ int CMainFrame::LinesCallback(int a_channel, float* a_buffer, int a_size)
 ////////////////////////////////////////////////////////////////////////////////
 CMainFrame::CMainFrame()
 	:m_vista_loopback(NULL)
+	,m_visualization_data(NULL)
 	,m_loopback_recording(false)
 	,m_loopback_hdsp(0)
 {
@@ -401,18 +344,15 @@ CMainFrame::CMainFrame()
 
 	BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
 	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
-
-	InitializeCriticalSection(&g_rec_buffer_sync);
 }
 
 //====================================================================
 CMainFrame::~CMainFrame()
 {
 	SAFE_DELETE(m_title);
+	SAFE_DELETE(m_visualization_data);
 
 	CloseMixerWindows();
-
-	DeleteCriticalSection(&g_rec_buffer_sync);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1318,6 +1258,7 @@ void CMainFrame::OnBtnSTOP()
 		ASSERT(l_result);
 
 		SAFE_DELETE(m_vista_loopback);
+		SAFE_DELETE(m_visualization_data);
 		g_stream_handle = 0;
 		g_record_handle = 0;
 		m_loopback_hdsp = 0;
@@ -1387,6 +1328,9 @@ void CMainFrame::OnBtnREC()
 			AfxMessageBox(l_message, MB_OK | MB_ICONSTOP);
 			return;
 		}
+		SAFE_DELETE(m_visualization_data);
+		m_visualization_data = new VisualizationData(l_conf_mp3.nFreq, l_conf_mp3.nStereo + 1);
+
 		g_record_handle = BASS_RecordStart(
 			l_conf_mp3.nFreq,
 			l_conf_mp3.nStereo + 1,
