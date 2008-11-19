@@ -71,6 +71,7 @@ protected:
 private:
 	//double GetMaxPeakdB(char* pSndBuf, int nBufSize, int nChannel);
 	float GetPeakLevel(int a_channel) const;
+	int GetLinesLevel(int a_channel, float* a_buffer, int a_size);
 
 	void Update(char* pSndBuf, int nBufSize);
 	void Clear();

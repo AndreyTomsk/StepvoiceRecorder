@@ -16,7 +16,7 @@ static char THIS_FILE[] = __FILE__;
 const int MAXPEAK_TIMER_ID = 123;
 const int PLAY_BUFFER_SIZE = 2048;
 
-float g_play_buffer[2 * PLAY_BUFFER_SIZE];
+float g_play_buffer[PLAY_BUFFER_SIZE];
 
 enum Channels {LEFT_CHANNEL, RIGHT_CHANNEL};
 
@@ -227,15 +227,11 @@ void CGraphWnd::Clear()
 float CGraphWnd::GetPeakLevel(int a_channel) const
 {
 	return m_peaks_func ? m_peaks_func(a_channel) : 0;
-	/*
-	DWORD l_ch_level = BASS_ChannelGetLevel(m_stream_handle);
-	
-	if (l_ch_level == -1)
-	{
-		l_ch_level = 0;
-	}
-	return (LEFT_CHANNEL==nChannel) ? LOWORD(l_ch_level) : HIWORD(l_ch_level);
-	*/
+}
+
+int CGraphWnd::GetLinesLevel(int a_channel, float* a_buffer, int a_size)
+{
+	return m_lines_func ? m_lines_func(a_channel, a_buffer, a_size) : 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -243,8 +239,6 @@ void CGraphWnd::DrawPeaks()
 {
 	const int START_Y[2] = {5, m_wndsize.cy/2 + 10};
 	const int END_Y[2] =  {13, m_wndsize.cy/2 + 18};
-	//const int MAXPEAK = GetMaxPeakValue();
-	//const int MAXPEAK = 32768;
 	const float MAXPEAK = 1;
 	const int GRAPH_MAXDB = 60;
 
@@ -304,42 +298,31 @@ void CGraphWnd::DrawLines()
 {
 	BASS_CHANNELINFO l_ci;
 	BOOL l_result = BASS_ChannelGetInfo(m_stream_handle, &l_ci);
-	ASSERT(l_result);
-
-	/*
-	DWORD l_bytes_written = 0;
-	l_bytes_written = BASS_ChannelGetData(m_stream_handle, g_play_buffer,
-		(l_ci.chans * sizeof(float) * PLAY_BUFFER_SIZE) | BASS_DATA_FLOAT);
-
-	if (l_bytes_written == -1)
+	if (!l_result)
 		return;
-	*/
-
-	if (-1 == BASS_ChannelGetData(m_stream_handle, g_play_buffer,
-		(l_ci.chans * sizeof(float) * PLAY_BUFFER_SIZE) | BASS_DATA_FLOAT))
-	{
-		return;
-	}
 
 	for (UINT counter = 0; counter < 2; counter++)
 	{
 		// Handle mono playback.
 		int i = (l_ci.chans > 1) ? counter : 0;
 
+		ZeroMemory(g_play_buffer, PLAY_BUFFER_SIZE * sizeof(float));
+		int l_numbers = GetLinesLevel(i, g_play_buffer, PLAY_BUFFER_SIZE);
+		i = 0; // testing
+
 		const int CX_START = 3;
 		const int CX_END   = 3;
 		const int START_POS_Y = (1 + 2*counter) * m_wndsize.cy / 4;
-		const int DIVIDER = PLAY_BUFFER_SIZE / (m_wndsize.cx - CX_END);
+		const int DIVIDER = l_numbers / (m_wndsize.cx - CX_END);
 
 		int nDrawPosY = START_POS_Y + int(g_play_buffer[i] * m_wndsize.cy / 2);
 		m_memDC.MoveTo(CX_START, nDrawPosY);
 
 		for (int j = CX_START + 1; j < m_wndsize.cx - CX_END; j++)
 		{
-			//nDrawPosY = START_POS_Y + int(g_play_buffer[j*l_ci.chans + i] *
-			nDrawPosY = START_POS_Y + int(g_play_buffer[j*DIVIDER + i] *
-				m_wndsize.cy / 2);
-			m_memDC.LineTo(j++, nDrawPosY);	// j++ !!!
+			float l_level = g_play_buffer[j*DIVIDER + i];
+			nDrawPosY = START_POS_Y + int(l_level * m_wndsize.cy / 2);
+			m_memDC.LineTo(j, nDrawPosY);	// j++ !!!
 		}
 	}
 }
