@@ -79,6 +79,8 @@ class CMainFrame : public CFrameWnd
 	///Callback function to process sample data
 	static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer,
 		DWORD a_length, void* a_user);
+	static BOOL CALLBACK MonitoringProc(HRECORD a_handle, void* a_buffer,
+		DWORD a_length, void* a_user);
 
 	VisualizationData* m_visualization_data;
 	BassVistaLoopback* m_vista_loopback;

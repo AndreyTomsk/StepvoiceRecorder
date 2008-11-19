@@ -229,6 +229,21 @@ double GetMaxPeakDB(HRECORD a_handle)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD a_handle, void* a_buffer,
+										DWORD a_length, void* a_user)
+{
+	CMainFrame* l_main_window = (CMainFrame *)a_user;
+	ASSERT(l_main_window);
+
+	// Updating monitoring buffer for StereoMix levels in Vista (can't get it
+	// from bass lib, because it doesn't show sound after DSP).
+	if (l_main_window->m_visualization_data)
+		l_main_window->m_visualization_data->SetSourceBuffer(a_buffer, a_length);
+
+	return TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 										DWORD a_length, void* a_user)
 {
@@ -239,10 +254,9 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 
 	CMainFrame* l_main_window = (CMainFrame *)a_user;
 	ASSERT(l_main_window);
-	{
-		ASSERT(l_main_window->m_visualization_data);
+
+	if (l_main_window->m_visualization_data)
 		l_main_window->m_visualization_data->SetSourceBuffer(a_buffer, a_length);
-	}
 
 	if (l_main_window->m_vas.IsRunning())
 	{
@@ -620,7 +634,10 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 
 					m_loopback_recording = false;
 					m_SliderVol.EnableWindow(true);
-					BOOL res = BASS_ChannelRemoveDSP(g_record_handle, m_loopback_hdsp);
+					if (g_record_handle)
+						BASS_ChannelRemoveDSP(g_record_handle, m_loopback_hdsp);
+					else
+						BASS_ChannelRemoveDSP(g_monitoring_handle, m_loopback_hdsp);
 				}
 
 				// Updating interface
@@ -2304,10 +2321,28 @@ bool CMainFrame::MonitoringStart()
 	if (!BASS_RecordInit(-1))
 		return false;
 
-	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
-	g_monitoring_handle = BASS_RecordStart(44100, 2, MAKELONG(0, 10), NULL, NULL);
+	SAFE_DELETE(m_visualization_data);
+	m_visualization_data = new VisualizationData(44100, 2);
+
+	g_monitoring_handle = BASS_RecordStart(44100, 2, MAKELONG(0, 25), (RECORDPROC *)&MonitoringProc, this);
 	if (g_monitoring_handle)
 	{
+		// Creating the Loopback stream
+		BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
+		SAFE_DELETE(m_vista_loopback);
+		m_vista_loopback = new BassVistaLoopback();
+		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
+
+		g_stream_handle = BASS_Mixer_StreamCreate(44100, 2, BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
+		ASSERT(g_stream_handle);
+		BASS_Mixer_StreamAddChannel(g_stream_handle, l_stream_handle, BASS_MIXER_DOWNMIX);
+
+		if (m_vista_loopback)
+		{
+			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
+				LoopbackStreamDSP, &g_stream_handle, 0xFF);
+		}
+
 		///@bug Testing new functionality
 		g_update_handle = g_monitoring_handle;
 		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
@@ -2323,9 +2358,20 @@ void CMainFrame::MonitoringStop()
 	if (g_monitoring_handle)
 	{
 		m_GraphWnd.StopUpdate();
-		BASS_ChannelStop(g_monitoring_handle);
-		BASS_RecordFree();
+
+		BOOL l_result = BASS_ChannelStop(g_monitoring_handle);
+		ASSERT(l_result);
+		l_result = BASS_ChannelStop(g_stream_handle);
+		ASSERT(l_result);
+
+		SAFE_DELETE(m_vista_loopback);
+		SAFE_DELETE(m_visualization_data);
+		g_stream_handle = 0;
 		g_monitoring_handle = 0;
+		m_loopback_hdsp = 0;
+
+		BASS_Free();
+		BASS_RecordFree();
 	}
 }
 
@@ -2563,6 +2609,11 @@ void CMainFrame::OnRecLoopbackSelect()
 		if (g_record_handle && !m_loopback_hdsp)
 		{
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
+				LoopbackStreamDSP, &g_stream_handle, 0xFF);
+		}
+		else if (g_monitoring_handle && !m_loopback_hdsp)
+		{
+			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
 				LoopbackStreamDSP, &g_stream_handle, 0xFF);
 		}
 	}
