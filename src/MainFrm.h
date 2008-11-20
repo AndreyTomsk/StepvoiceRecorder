@@ -197,7 +197,6 @@ protected:
 	afx_msg void OnBtnREC();
 	afx_msg void OnBtnMIX_REC();
 	afx_msg void OnBtnMIX_PLAY();
-	afx_msg void OnBtnMIX_INV();
 	afx_msg void OnBtnMIX_SEL();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMixRec();

@@ -27,7 +27,6 @@
 #define IDB_MIX_REC                     126
 #define IDB_MIX_PLAY                    127
 #define IDR_MAINFRAME                   128
-#define IDB_MIX_INV                     128
 #define IDD_NEW                         129
 #define IDB_MIX_SEL                     129
 #define IDS_ERROR_DIRECTORY             129

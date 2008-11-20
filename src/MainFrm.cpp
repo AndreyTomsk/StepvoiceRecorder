@@ -152,7 +152,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_BN_CLICKED(IDB_BTNREC,  OnBtnREC)
 	ON_BN_CLICKED(IDB_MIX_REC,  OnBtnMIX_REC)
 	ON_BN_CLICKED(IDB_MIX_PLAY, OnBtnMIX_PLAY)
-	ON_BN_CLICKED(IDB_MIX_INV, OnBtnMIX_INV)
 	ON_BN_CLICKED(IDB_MIX_SEL, OnBtnMIX_SEL)
 	ON_WM_LBUTTONDOWN()
 	ON_COMMAND(IDM_MIX_REC, OnMixRec)
@@ -610,49 +609,51 @@ BOOL CMainFrame::ShowWindow()
 /////////////////////////////////////////////////////////////////////////////
 LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
 {
-	switch(message)
+	switch (message)
 	{
 	// Processing a display resolution changed for snapping
 	case WM_DISPLAYCHANGE:
-		//::GetWindowRect(::GetDesktopWindow(),&m_rDesktopRect);
 		::SystemParametersInfo(SPI_GETWORKAREA, 0, &m_rDesktopRect, 0);
 		break;
+
 	case MM_MIXM_CONTROL_CHANGE:
 	case MM_MIXM_LINE_CHANGE:
 		{
 			if (m_nActiveMixerID == 1)
 			{
 				m_SliderVol.SetPos(m_PlayMixer.GetVol(m_PlayMixer.GetCurLine()));
+				break;
 			}
-			else
+
+			if (m_loopback_recording)
 			{
-				if (m_loopback_recording)
-				{
-					// Ignoring messages from our opened mixer device if in Loopback mode
-					if ((HMIXER)wParam == m_RecMixer.GetMixerHandle())
-						break;
+				// Ignoring messages from our opened mixer device if in Loopback mode
+				if ((HMIXER)wParam == m_RecMixer.GetMixerHandle() ||
+					(HMIXER)wParam == m_PlayMixer.GetMixerHandle())
+					break;
 
-					m_loopback_recording = false;
-					m_SliderVol.EnableWindow(true);
-					if (g_record_handle)
-						BASS_ChannelRemoveDSP(g_record_handle, m_loopback_hdsp);
-					else
-						BASS_ChannelRemoveDSP(g_monitoring_handle, m_loopback_hdsp);
-				}
-
-				// Updating interface
-				int l_active_line = m_RecMixer.GetCurLine();
-				m_SliderVol.SetPos(m_RecMixer.GetVol(l_active_line));
-
-				const int ICON_ID[] = {
-					IDI_MIXLINE00, IDI_MIXLINE01, IDI_MIXLINE02, IDI_MIXLINE03,
-					IDI_MIXLINE04, IDI_MIXLINE05, IDI_MIXLINE06, IDI_MIXLINE07,
-					IDI_MIXLINE08, IDI_MIXLINE09, IDI_MIXLINE10
-				};
-				int l_line_type = m_RecMixer.GetLineType(l_active_line);
-				ASSERT(l_line_type < sizeof(ICON_ID)/sizeof(int));
-				m_BtnMIX_SEL.SetIcon(ICON_ID[l_line_type]);
+				m_loopback_recording = false;
+				m_SliderVol.EnableWindow(true);
+				if (g_record_handle)
+					BASS_ChannelRemoveDSP(g_record_handle, m_loopback_hdsp);
+				else
+					BASS_ChannelRemoveDSP(g_monitoring_handle, m_loopback_hdsp);
+				m_loopback_hdsp = 0;
 			}
+
+			// Updating interface
+			int l_line_index = m_RecMixer.GetCurLine();
+			int l_line_type = m_RecMixer.GetLineType(l_line_index);
+
+			m_SliderVol.SetPos(m_RecMixer.GetVol(l_line_index));
+
+			const int ICON_ID[] = {
+				IDI_MIXLINE00, IDI_MIXLINE01, IDI_MIXLINE02, IDI_MIXLINE03,
+				IDI_MIXLINE04, IDI_MIXLINE05, IDI_MIXLINE06, IDI_MIXLINE07,
+				IDI_MIXLINE08, IDI_MIXLINE09, IDI_MIXLINE10
+			};
+			ASSERT(l_line_type < sizeof(ICON_ID)/sizeof(int));
+			m_BtnMIX_SEL.SetIcon(ICON_ID[l_line_type]);
 		}
 		break;
 	}
@@ -803,6 +804,9 @@ void CMainFrame::OnFileClear()
 	AfxFormatString1(l_str_warning, IDS_CLEAR_ASK, l_str_filename);
 	if (AfxMessageBox(l_str_warning, MB_YESNO|MB_ICONWARNING) == IDYES)
 	{
+		//m_record_file.SetLength(0);
+		//UpdateStatWindow();
+		//UpdateTrayText();
 		OnFileClose();
 		m_record_file.Open(l_str_filename, CFile::modeCreate, NULL);
 		m_record_file.Close();
@@ -1253,16 +1257,6 @@ void CMainFrame::OnBtnPLAY()
 //===========================================================================
 void CMainFrame::OnBtnSTOP()
 {
-	/*
-	m_nState = STOP_STATE;
-	m_GraphWnd.StopUpdate();
-	KillTimer(1);
-
-	BASS_ChannelStop(g_stream_handle);
-	SAFE_DELETE(m_vista_loopback);
-	BASS_Free();
-	*/
-
 	SetFocus();
 
 	m_nState = STOP_STATE;
@@ -1301,10 +1295,10 @@ void CMainFrame::OnBtnSTOP()
 		(LPARAM)m_pMainFrame->m_SliderTime.m_hWnd);
 
 	if (m_bMonitoringBtn)
-	{
 		MonitoringStart();
-	}
-	OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
+
+	if (!m_loopback_recording)
+		OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
 }
 
 
@@ -1323,20 +1317,17 @@ void CMainFrame::OnBtnREC()
 	{
 		OnBtnOPEN();
 		if (m_record_file.m_hFile == CFile::hFileNull)
-		{
 			return;
-		}
 	}
+
 	if (m_bMonitoringBtn)
-	{
 		MonitoringStop();
-	}
+
 	if (!g_record_handle)
 	{
 		if (!BASS_RecordInit(-1))
-		{
 			return;
-		}
+
 		CONF_DIAL_MP3 l_conf_mp3;
 		memcpy(&l_conf_mp3, m_conf.GetConfDialMp3(), sizeof(CONF_DIAL_MP3));
 
@@ -1384,7 +1375,7 @@ void CMainFrame::OnBtnREC()
 		BASS_Mixer_StreamAddChannel(g_stream_handle, l_stream_handle,
 			BASS_MIXER_DOWNMIX);
 
-		if (m_vista_loopback)
+		if (m_loopback_recording)
 		{
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
 				LoopbackStreamDSP, &g_stream_handle, 0xFF);
@@ -1436,70 +1427,6 @@ void CMainFrame::OnBtnMIX_PLAY()
 {
 	SetFocus();
 	OnMixPlay();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Seek and volume slider handlers
-////////////////////////////////////////////////////////////////////////////////
-void CMainFrame::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
-{
-	if (pScrollBar->m_hWnd == m_SliderTime.m_hWnd)
-	{
-		ProcessSliderTime(nSBCode, nPos);
-	}
-	else if (pScrollBar->m_hWnd == m_SliderVol.m_hWnd)
-	{
-		ProcessSliderVol(nSBCode, nPos);
-	}
-	CFrameWnd::OnHScroll(nSBCode, nPos, pScrollBar);
-}
-
-//------------------------------------------------------------------------------
-void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
-{
-	double l_seconds_pos = 0;
-	double l_seconds_all = 0;
-
-	if (g_stream_handle)
-	{
-		l_seconds_all = BASS_ChannelBytes2Seconds(g_stream_handle,
-			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
-		l_seconds_pos = l_seconds_all * nPos / 1000;
-	}
-
-	if (SB_THUMBTRACK == nSBCode)
-	{
-		// Converting seconds to HHMMSS format
-		char l_str_curtime[20] = {0};
-		char l_str_alltime[20] = {0};
-		Convert((UINT)l_seconds_pos, l_str_curtime, sizeof(l_str_curtime));
-		Convert((UINT)l_seconds_all, l_str_alltime, sizeof(l_str_alltime));
-
-		CString l_seek_msg;
-		l_seek_msg.Format(IDS_SEEKTO, l_str_curtime, l_str_alltime, nPos/10);
-		m_title->SetTitleText(l_seek_msg, 10000);
-	}
-	else if (SB_THUMBPOSITION == nSBCode)
-	{
-		m_title->Restore();
-		if (g_stream_handle)
-		{
-			if (l_seconds_pos >= l_seconds_all - 0.3)
-			{
-				l_seconds_pos = max(l_seconds_all - 0.3, 0);
-			}
-			BOOL l_result = BASS_ChannelSetPosition(
-				g_stream_handle,
-				BASS_ChannelSeconds2Bytes(g_stream_handle, l_seconds_pos),
-				BASS_POS_BYTE);
-			ASSERT(l_result);
-			m_TimeWnd.SetTime((UINT)l_seconds_pos);
-		}
-		else
-		{
-			m_SliderTime.SetCurPos(0);
-		}
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1881,18 +1808,6 @@ void CMainFrame::OnUpdateTrayRec(CCmdUI* pCmdUI)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void CMainFrame::OnBtnMIX_INV()
-{
-	this->SetFocus();
-
-	m_nActiveMixerID = (m_nActiveMixerID == 1) ? 0 : 1;
-	if(m_nActiveMixerID == 1)
-		OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
-	else
-		OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
-}
-
-/////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnMIX_SEL()
 {
 	this->SetFocus();
@@ -1964,14 +1879,11 @@ void CMainFrame::OnBtnMIX_SEL()
 	mixMenu.CreatePopupMenu();
 
 	for(int j = 0; j < m_PlayMixer.GetLinesNum(); j++)
-	{
 		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_PLAY0 + j, m_PlayMixer.GetLineName(j));
-	}
+
 	mixMenu.AppendMenu(MF_SEPARATOR);
 	for(int i = 0; i < m_RecMixer.GetLinesNum(); i++)
-	{
 		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC0 + i, m_RecMixer.GetLineName(i));
-	}
 
 	if (((CMP3_RecorderApp* )AfxGetApp())->IsVistaOS())
 		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Stereo Mix (Software)"));
@@ -2042,6 +1954,70 @@ void CMainFrame::OnPlayMixMenuSelect(UINT nID)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Seek and volume slider handlers
+////////////////////////////////////////////////////////////////////////////////
+void CMainFrame::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
+{
+	if (pScrollBar->m_hWnd == m_SliderTime.m_hWnd)
+	{
+		ProcessSliderTime(nSBCode, nPos);
+	}
+	else if (pScrollBar->m_hWnd == m_SliderVol.m_hWnd)
+	{
+		ProcessSliderVol(nSBCode, nPos);
+	}
+	CFrameWnd::OnHScroll(nSBCode, nPos, pScrollBar);
+}
+
+//------------------------------------------------------------------------------
+void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
+{
+	double l_seconds_pos = 0;
+	double l_seconds_all = 0;
+
+	if (g_stream_handle)
+	{
+		l_seconds_all = BASS_ChannelBytes2Seconds(g_stream_handle,
+			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+		l_seconds_pos = l_seconds_all * nPos / 1000;
+	}
+
+	if (SB_THUMBTRACK == nSBCode)
+	{
+		// Converting seconds to HHMMSS format
+		char l_str_curtime[20] = {0};
+		char l_str_alltime[20] = {0};
+		Convert((UINT)l_seconds_pos, l_str_curtime, sizeof(l_str_curtime));
+		Convert((UINT)l_seconds_all, l_str_alltime, sizeof(l_str_alltime));
+
+		CString l_seek_msg;
+		l_seek_msg.Format(IDS_SEEKTO, l_str_curtime, l_str_alltime, nPos/10);
+		m_title->SetTitleText(l_seek_msg, 10000);
+	}
+	else if (SB_THUMBPOSITION == nSBCode)
+	{
+		m_title->Restore();
+		if (g_stream_handle)
+		{
+			if (l_seconds_pos >= l_seconds_all - 0.3)
+			{
+				l_seconds_pos = max(l_seconds_all - 0.3, 0);
+			}
+			BOOL l_result = BASS_ChannelSetPosition(
+				g_stream_handle,
+				BASS_ChannelSeconds2Bytes(g_stream_handle, l_seconds_pos),
+				BASS_POS_BYTE);
+			ASSERT(l_result);
+			m_TimeWnd.SetTime((UINT)l_seconds_pos);
+		}
+		else
+		{
+			m_SliderTime.SetCurPos(0);
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
 void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 {
    // Get the minimum and maximum scroll-bar positions.
@@ -2091,20 +2067,15 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------
 BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) 
 {
-	if (zDelta > 0)
-	{
-		OnVolUpA();
-	}
-	else if (zDelta < 0)
-	{
-		OnVolDownA();
-	}
+	(zDelta > 0) ?  OnVolUpA() : OnVolDownA();
+
 	return CFrameWnd::OnMouseWheel(nFlags, zDelta, pt);
 }
 
+//------------------------------------------------------------------------------
 void CMainFrame::OnVolUpA() 
 {
 	// Checking for mixer lines available
@@ -2121,7 +2092,8 @@ void CMainFrame::OnVolUpA()
 		(LPARAM)m_SliderVol.GetSafeHwnd());
 }
 
-void CMainFrame::OnVolDownA() 
+//------------------------------------------------------------------------------
+void CMainFrame::OnVolDownA()
 {
 	// Checking for mixer lines available
 	if(m_nActiveMixerID == 0 && m_RecMixer.GetLinesNum() == 0)
@@ -2337,7 +2309,7 @@ bool CMainFrame::MonitoringStart()
 		ASSERT(g_stream_handle);
 		BASS_Mixer_StreamAddChannel(g_stream_handle, l_stream_handle, BASS_MIXER_DOWNMIX);
 
-		if (m_vista_loopback)
+		if (m_loopback_recording)
 		{
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
 				LoopbackStreamDSP, &g_stream_handle, 0xFF);
@@ -2583,6 +2555,11 @@ void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
 	HSTREAM l_src_stream = *((HSTREAM*)a_user);
 
 	DWORD l_length = BASS_ChannelGetData(l_src_stream, l_src_buffer, a_length);
+	if (l_length == -1)
+	{
+		int l_error_code = BASS_ErrorGetCode();
+		return;
+	}
 	ASSERT(l_length == a_length);
 
 	//2. Replace data in the recording buffer.
@@ -2599,12 +2576,15 @@ void CMainFrame::OnRecLoopbackSelect()
 
 	if (!m_loopback_recording || m_nActiveMixerID == 1) // Playback mixer selected case
 	{
-		//m_PlayMixer.SetVol(99);// - commented as it sends line changed messages
 		m_loopback_recording = true;
 
-		m_BtnMIX_SEL.SetIcon(IDI_MIXLINE04);
+		// Making system playback volume for our recorder to maximum
+		m_PlayMixer.SetVol(99);
+
+		// NOTE: slider window will be enabled automatically after line changed
 		m_SliderVol.EnableWindow(false);
 		m_SliderVol.SetPos(m_SliderVol.GetRangeMax());
+		m_BtnMIX_SEL.SetIcon(IDI_MIXLINE04);
 
 		if (g_record_handle && !m_loopback_hdsp)
 		{
@@ -2616,9 +2596,5 @@ void CMainFrame::OnRecLoopbackSelect()
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
 				LoopbackStreamDSP, &g_stream_handle, 0xFF);
 		}
-	}
-	else
-	{
-		//m_SliderVol.EnableWindow(true);
 	}
 }
