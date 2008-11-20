@@ -31,14 +31,11 @@ public:
 	CGraphWnd();
 	~CGraphWnd();
 
-	void SetMaxpeaks(bool a_enabled);
-	bool GetMaxpeaks() const;
+	void ShowMaxpeaks(bool a_enabled);
+	bool MaxpeaksVisible() const;
 
-	//void ShowVASMark(double fThreshold);
-	//void HideVASMark();
-
-	void SetVASMark(bool a_enabled, double a_threshold = 0);
-	bool GetVASMark() const;
+	void ShowVASMark(bool a_enabled, double a_threshold = 0);
+	bool VASMarkVisible() const;
 
 	bool SetDisplayMode(DisplayMode a_new_mode);
 	int  GetDisplayMode() const;
@@ -69,7 +66,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	//double GetMaxPeakdB(char* pSndBuf, int nBufSize, int nChannel);
 	float GetPeakLevel(int a_channel) const;
 	int GetLinesLevel(int a_channel, float* a_buffer, int a_size);
 
@@ -81,9 +77,6 @@ private:
 	void DrawPeaks();
 	void DrawLines();
 
-	/// Max. possible peak value according to a sample type (8bit,16bit, float)
-	//int GetMaxPeakValue() const;
-	
 	static void CALLBACK UpdateVisualization(UINT a_timer_id, UINT a_msg,
 		DWORD_PTR a_user_ptr, DWORD_PTR a_dw1, DWORD_PTR a_dw2);
 

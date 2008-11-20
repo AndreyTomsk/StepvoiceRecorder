@@ -94,9 +94,7 @@ LRESULT CMainFrame::OnParseLine(WPARAM, LPARAM)
 		for (; l_end_pos < l_cmd_line.GetLength(); l_end_pos++)
 		{
 			if (_T("\"") == l_cmd_line.Mid(l_end_pos, 1))
-			{
 				break;
-			}
 		}
 		//Extracting file name
 		l_file_name = l_cmd_line.Mid(l_start_pos, l_end_pos - l_start_pos);
@@ -266,7 +264,7 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 
 		if (l_main_window->m_vas.CheckVAS()) 
 		{
-			l_main_window->ProcessVAS(true);
+			l_main_window->ProcessVAS(true); 
 			return TRUE;
 		}
 		else
@@ -359,7 +357,6 @@ CMainFrame::CMainFrame()
 	m_szMoveOffset.cx = 0;
 	m_szMoveOffset.cy = 0;
 	m_nSnapPixels = 7;
-	//::GetWindowRect(::GetDesktopWindow(), &m_rDesktopRect);
 	::SystemParametersInfo(SPI_GETWORKAREA, 0, &m_rDesktopRect, 0);
 
 	BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
@@ -422,7 +419,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// Setting graphs display mode
 	m_GraphWnd.SetDisplayMode(CGraphWnd::DisplayMode(m_conf.GetConfProg()->nGraphType));
-	m_GraphWnd.SetMaxpeaks(m_conf.GetConfProg()->bGraphMaxpeaks != 0);
+	m_GraphWnd.ShowMaxpeaks(m_conf.GetConfProg()->bGraphMaxpeaks != 0);
 
 	// Adjusting the position and mixer sliders
 	CRect rT(106, 55, 286, 78);
@@ -483,11 +480,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_PlayMixer.SetVol(99);
 	}
 
-	// Keeping the system volume level
-	//m_nSysVolume = 0;
-	//m_nSysVolume = m_PlayMixer.GetVol (m_PlayMixer.GetCurLine());
-	//m_PlayMixer.SetVol (m_conf.GetConfProg()->nPlayVolume);
-
 	m_title = new CTitleText(this->GetSafeHwnd());
 
 	m_strDir = GetProgramDir();
@@ -504,7 +496,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			strName = m_conf.GetConfProg()->strLastFileName;
 			break;
 	}
-	OnFileClose();
 	if (!strName.IsEmpty())
 	{
 		CString strPath = m_conf.GetConfProg()->strLastFilePath;
@@ -640,15 +631,10 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			if (m_recording_mixer == E_REC_LOOPBACK)
 			{
 				OutputDebugString(__FUNCTION__ " :: loopback mixer is active\n");
-				// Ignoring messages from our opened mixer device if in Loopback mode
-				//if ((HMIXER)wParam == m_RecMixer.GetMixerHandle() ||
-				//	(HMIXER)wParam == m_PlayMixer.GetMixerHandle())
-				//	break;
 
 				m_active_mixer = E_REC_MIXER;
 				m_recording_mixer = E_REC_MIXER;
 
-				//m_SliderVol.EnableWindow(true);
 				if (g_record_handle)
 					BASS_ChannelRemoveDSP(g_record_handle, m_loopback_hdsp);
 				else
@@ -656,17 +642,6 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 				m_loopback_hdsp = 0;
 			}
 			UpdateMixerState();
-			/*
-			// Updating interface
-			int l_line_type = m_RecMixer.GetLineType(m_RecMixer.GetCurLine());
-			const int ICON_ID[] = {
-				IDI_MIXLINE00, IDI_MIXLINE01, IDI_MIXLINE02, IDI_MIXLINE03,
-				IDI_MIXLINE04, IDI_MIXLINE05, IDI_MIXLINE06, IDI_MIXLINE07,
-				IDI_MIXLINE08, IDI_MIXLINE09, IDI_MIXLINE10
-			};
-			ASSERT(l_line_type < sizeof(ICON_ID)/sizeof(int));
-			m_BtnMIX_SEL.SetIcon(ICON_ID[l_line_type]);
-			*/
 		}
 		break;
 	}
@@ -756,12 +731,7 @@ void CMainFrame::OnDestroy()
 	}
 
 	m_conf.GetConfProg()->nGraphType = m_GraphWnd.GetDisplayMode();
-	m_conf.GetConfProg()->bGraphMaxpeaks = (int)m_GraphWnd.GetMaxpeaks();
-
-	// Keeping our playback volume and restoring the system volume
-	//m_conf.GetConfProg()->nPlayVolume = m_PlayMixer.GetVol (
-	//	m_PlayMixer.GetCurLine ());
-	//m_PlayMixer.SetVol (m_nSysVolume);	
+	m_conf.GetConfProg()->bGraphMaxpeaks = (int)m_GraphWnd.MaxpeaksVisible();
 }
 
 
@@ -770,7 +740,7 @@ void CMainFrame::OnDestroy()
 //===========================================================================
 void CMainFrame::OnFileClose() 
 {
-	///TODO: Make a check based on m_record_file
+	///@TODO: Make a check based on m_record_file
 	OnBtnSTOP();
 
 	BASS_Free();
@@ -793,7 +763,6 @@ void CMainFrame::OnFileClose()
 	AfxFormatString1(strTitle, IDS_FILETITLE, strNoFile);
 	m_title->SetTitleText(strTitle);
 
-	//m_SliderTime.ShowThumb(false);
 	m_TimeWnd.Reset();
 	UpdateStatWindow();
 	UpdateTrayText();
@@ -816,9 +785,6 @@ void CMainFrame::OnFileClear()
 	AfxFormatString1(l_str_warning, IDS_CLEAR_ASK, l_str_filename);
 	if (AfxMessageBox(l_str_warning, MB_YESNO|MB_ICONWARNING) == IDYES)
 	{
-		//m_record_file.SetLength(0);
-		//UpdateStatWindow();
-		//UpdateTrayText();
 		OnFileClose();
 		m_record_file.Open(l_str_filename, CFile::modeCreate, NULL);
 		m_record_file.Close();
@@ -893,11 +859,6 @@ void CMainFrame::OpenFile(const CString& str)
 			BASS_Free();
 			return;
 		}
-
-		// Changing stream volume
-		//int l_range = m_SliderVol.GetRangeMax() - m_SliderVol.GetRangeMin();
-		//BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL,
-		//	(float)m_SliderVol.GetPos() / l_range);
 	}
 
 	// Modifying window caption to "<FILE> - StepVoice Recorder".
@@ -925,7 +886,6 @@ void CMainFrame::OnFileFindfile()
 	
 	ShellExecute(NULL, "open", "explorer", "/select, """+filePath+"""",
 		NULL, SW_NORMAL);
-	//this->SetForegroundWindow();
 }
 
 //===========================================================================
@@ -1121,8 +1081,7 @@ void CMainFrame::OnOptCom()
 		if(m_vas.IsRunning())
 		{
 			m_vas.InitVAS(pConfig->nThreshold, pConfig->nWaitTime);
-			//m_GraphWnd.ShowVASMark(pConfig->nThreshold);
-			m_GraphWnd.SetVASMark(true, pConfig->nThreshold);
+			m_GraphWnd.ShowVASMark(true, pConfig->nThreshold);
 		}
 	}
 
@@ -1217,19 +1176,6 @@ void CMainFrame::OnBtnOPEN()
 //===========================================================================
 void CMainFrame::OnBtnPLAY()
 {
-	/*
-	BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
-
-	SAFE_DELETE(m_vista_loopback);
-	m_vista_loopback = new BassVistaLoopback();
-	g_stream_handle = m_vista_loopback->GetLoopbackStream();
-	BASS_ChannelPlay(g_stream_handle, false);
-
-	m_nState = PLAY_STATE;
-	SetTimer(1, 1000, NULL);
-	return;
-	*/
-
 	SetFocus();
 
 	if (m_record_file.m_hFile != CFile::hFileNull)
@@ -1885,7 +1831,7 @@ void CMainFrame::OnBtnMIX_SEL()
 	// Restarting the mixer
 	m_RecMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	m_PlayMixer.Open(WAVE_MAPPER, GetSafeHwnd());
-	/* TODO: Check this code
+	/* ///@TODO: Check this code
 	if (m_recording_mixer != E_REC_LOOPBACK)
 	{
 		if (m_active_mixer == E_REC_MIXER)
@@ -1917,18 +1863,7 @@ void CMainFrame::OnBtnMIX_SEL()
 
 	mixMenu.CheckMenuItem((m_recording_mixer == E_REC_LOOPBACK) ? ID_MIXITEM_REC_LOOPBACK :
 		ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(), MF_CHECKED | MF_BYCOMMAND);
-	/*
-	if(m_nActiveMixerID == 1) // play_mixer
-	{
-		//mixMenu.CheckMenuItem(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine(),
-		//	MF_CHECKED | MF_BYCOMMAND);
-	}
-	else
-	{
-		mixMenu.CheckMenuItem(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(),
-			MF_CHECKED | MF_BYCOMMAND);
-	}
-	*/
+
 	// Starting a context menu and setting the display flag
 	int nItemID = mixMenu.TrackPopupMenu(TPM_VCENTERALIGN|TPM_LEFTBUTTON|
 		TPM_RETURNCMD, r.right, r.top+(r.bottom-r.top)/2, this);
@@ -1955,18 +1890,13 @@ void CMainFrame::OnRecMixMenuSelect(UINT nID)
 	{
 		m_RecMixer.SetLine(nID - ID_MIXITEM_REC0);
 
-		// Pretending that change has come from outside, for interface updating.
-		// Will update it in WindowProc.
+		///@NOTE: Pretending that change has come from outside, for interface
+		///updating. Will update it in WindowProc.
 		PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
 	}
-	//NOTE: We get a MM_MIXM_LINE_CHANGE message after setting a line to mixer,
-	//not setting the m_recording_mixer variable here.
-	
-	//m_recording_mixer = E_REC_MIXER;
-	//m_active_mixer = E_REC_MIXER;
-	//UpdateMixerState();
 }
 
+//------------------------------------------------------------------------------
 void CMainFrame::OnPlayMixMenuSelect(UINT nID)
 {
 	OutputDebugString(__FUNCTION__"\n");
@@ -2062,9 +1992,6 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		strTitle.Format(IDS_VOLUME_TITLE, nPercent,
 			m_PlayMixer.GetLineName(m_PlayMixer.GetCurLine()));
 		m_PlayMixer.SetVol(nPercent);
-
-		//float l_volume = (float)curpos / (maxpos - minpos);
-		//BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, l_volume);
 	}
 	else if (m_active_mixer == E_REC_MIXER)
 	{
@@ -2398,8 +2325,7 @@ void CMainFrame::OnBtnVas()
 	{
 		m_vas.InitVAS(pConfig->nThreshold, pConfig->nWaitTime);
 		m_StatWnd.m_btnVas.SetState(BTN_PRESSED);
-		//m_GraphWnd.ShowVASMark(pConfig->nThreshold);
-		m_GraphWnd.SetVASMark(true, pConfig->nThreshold);
+		m_GraphWnd.ShowVASMark(true, pConfig->nThreshold);
 	}
 	else
 	{
@@ -2408,8 +2334,7 @@ void CMainFrame::OnBtnVas()
 		if(m_nState == RECORD_STATE)
 			m_TrayIcon.SetIcon(IDI_TRAY_REC);
 		
-		//m_GraphWnd.HideVASMark();
-		m_GraphWnd.SetVASMark(false);
+		m_GraphWnd.ShowVASMark(false);
 	}
 	pConfig->bEnable = m_vas.IsRunning();
 }
@@ -2569,9 +2494,6 @@ void CMainFrame::UpdateMixerState()
 			ASSERT(l_line_type < sizeof(ICON_ID)/sizeof(int));
 			m_BtnMIX_SEL.SetIcon(ICON_ID[l_line_type]);
 		}
-		// Force updating button image for Vista
-		//if (((CMP3_RecorderApp* )AfxGetApp())->IsVistaOS())
-		//	PostMessage(MM_MIXM_LINE_CHANGE, (WPARAM)m_RecMixer.GetMixerHandle(), (LPARAM)m_RecMixer.GetCurLine());
 		break;
 
 	case E_REC_LOOPBACK:
