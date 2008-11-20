@@ -16,8 +16,10 @@ static char THIS_FILE[] = __FILE__;
 #include "common.h"
 #include "system.h"
 
-HSTREAM g_stream_handle = 0;  // Playback (or Loopback stream)
-HSTREAM g_update_handle = 0;  // Graph window update (used by callback func)
+HSTREAM g_stream_handle = 0;   // Playback
+HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
+HSTREAM g_loopback_handle = 0; // Handle for Loopback stream in Vista
+
 HRECORD g_record_handle = 0; 
 HRECORD g_monitoring_handle = 0;
 
@@ -1243,10 +1245,10 @@ void CMainFrame::OnBtnSTOP()
 		KillTimer(2);
 		BOOL l_result = BASS_ChannelStop(g_record_handle);
 		ASSERT(l_result);
-		l_result = BASS_ChannelStop(g_stream_handle);
+		l_result = BASS_ChannelStop(g_loopback_handle);
 		ASSERT(l_result);
 
-		g_stream_handle = 0;
+		g_loopback_handle = 0;
 		g_record_handle = 0;
 		m_loopback_hdsp = 0;
 		BASS_Free();
@@ -1342,16 +1344,18 @@ void CMainFrame::OnBtnREC()
 		m_vista_loopback = new BassVistaLoopback();
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
-		g_stream_handle = BASS_Mixer_StreamCreate(l_conf_mp3.nFreq,
+		ASSERT(g_loopback_handle == 0);
+		g_loopback_handle = BASS_Mixer_StreamCreate(l_conf_mp3.nFreq,
 			l_conf_mp3.nStereo + 1, BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
-		ASSERT(g_stream_handle);
-		BASS_Mixer_StreamAddChannel(g_stream_handle, l_stream_handle,
+		ASSERT(g_loopback_handle);
+
+		BASS_Mixer_StreamAddChannel(g_loopback_handle, l_stream_handle,
 			BASS_MIXER_DOWNMIX);
 
 		if (m_recording_mixer == E_REC_LOOPBACK)
 		{
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
-				LoopbackStreamDSP, &g_stream_handle, 0xFF);
+				LoopbackStreamDSP, &g_loopback_handle, 0xFF);
 		}
 	}
 
@@ -1517,8 +1521,7 @@ void CMainFrame::UpdateTrayText()
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnUpdateSoundRec(CCmdUI* pCmdUI) 
 {
-	bool l_enabled = !g_stream_handle;
-	pCmdUI->Enable(l_enabled);
+	pCmdUI->Enable(this->CanRecord());
 }
 
 //------------------------------------------------------------------------------
@@ -2270,14 +2273,15 @@ bool CMainFrame::MonitoringStart()
 		m_vista_loopback = new BassVistaLoopback();
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
-		g_stream_handle = BASS_Mixer_StreamCreate(44100, 2, BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
-		ASSERT(g_stream_handle);
-		BASS_Mixer_StreamAddChannel(g_stream_handle, l_stream_handle, BASS_MIXER_DOWNMIX);
+		ASSERT(g_loopback_handle == 0);
+		g_loopback_handle = BASS_Mixer_StreamCreate(44100, 2, BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
+		ASSERT(g_loopback_handle);
+		BASS_Mixer_StreamAddChannel(g_loopback_handle, l_stream_handle, BASS_MIXER_DOWNMIX);
 
 		if (m_recording_mixer == E_REC_LOOPBACK)
 		{
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
-				LoopbackStreamDSP, &g_stream_handle, 0xFF);
+				LoopbackStreamDSP, &g_loopback_handle, 0xFF);
 		}
 
 		///@bug Testing new functionality
@@ -2298,12 +2302,12 @@ void CMainFrame::MonitoringStop()
 
 		BOOL l_result = BASS_ChannelStop(g_monitoring_handle);
 		ASSERT(l_result);
-		l_result = BASS_ChannelStop(g_stream_handle);
+		l_result = BASS_ChannelStop(g_loopback_handle);
 		ASSERT(l_result);
 
 		SAFE_DELETE(m_vista_loopback);
 		SAFE_DELETE(m_visualization_data);
-		g_stream_handle = 0;
+		g_loopback_handle = 0;
 		g_monitoring_handle = 0;
 		m_loopback_hdsp = 0;
 
@@ -2591,13 +2595,13 @@ void CMainFrame::OnRecLoopbackSelect()
 		{
 			OutputDebugString(__FUNCTION__ " :: setting DSP to rec. handle\n");
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
-				LoopbackStreamDSP, &g_stream_handle, 0xFF);
+				LoopbackStreamDSP, &g_loopback_handle, 0xFF);
 		}
 		else if (g_monitoring_handle && !m_loopback_hdsp)
 		{
 			OutputDebugString(__FUNCTION__ " :: setting DSP to mon. handle\n");
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
-				LoopbackStreamDSP, &g_stream_handle, 0xFF);
+				LoopbackStreamDSP, &g_loopback_handle, 0xFF);
 		}
 	}
 }
