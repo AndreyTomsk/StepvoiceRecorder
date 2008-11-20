@@ -1308,7 +1308,9 @@ void CMainFrame::OnBtnSTOP()
 	if (m_bMonitoringBtn)
 		MonitoringStart();
 
-	if (!m_loopback_recording)
+	if (m_loopback_recording)
+		OnRecLoopbackSelect();
+	else
 		OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
 }
 
@@ -2070,7 +2072,7 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		strTitle.Format(IDS_VOLUME_TITLE, nPercent, CString(_T("Playback volume")));
 		m_playback_volume = (float)nPercent / 100;
 
-		if (g_stream_handle && !m_loopback_recording)
+		if (m_nState == PLAY_STATE || m_nState == PAUSEPLAY_STATE)
 			BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, m_playback_volume);
 	}
 
