@@ -16,7 +16,7 @@ static char THIS_FILE[] = __FILE__;
 #include "common.h"
 #include "system.h"
 
-HSTREAM g_stream_handle = 0;  // Playback
+HSTREAM g_stream_handle = 0;  // Playback (or Loopback stream)
 HSTREAM g_update_handle = 0;  // Graph window update (used by callback func)
 HRECORD g_record_handle = 0; 
 HRECORD g_monitoring_handle = 0;
@@ -31,6 +31,18 @@ TCHAR g_command_line[MAX_PATH] = {0};
 
 #pragma comment(linker, "/section:.SHARED,RWS")
 // end shared data
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool IsPlaying(const ProgramState& a_state)
+{
+	return (a_state == PLAY_STATE || a_state == PAUSEPLAY_STATE);
+};
+
+bool IsRecording(const ProgramState& a_state)
+{
+	return (a_state == RECORD_STATE || a_state == PAUSEREC_STATE);
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -207,6 +219,7 @@ double GetMaxPeakDB(HRECORD a_handle)
 {
 	BASS_CHANNELINFO l_ci;
 	BOOL l_result = BASS_ChannelGetInfo(a_handle, &l_ci);
+	ASSERT(l_result);
 
 	int l_max_possible = 0xFFFF / 2; // 16-bit as default
 	if (l_ci.flags & BASS_SAMPLE_8BITS)
@@ -228,7 +241,7 @@ double GetMaxPeakDB(HRECORD a_handle)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD a_handle, void* a_buffer,
+BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD /*a_handle*/, void* a_buffer,
 										DWORD a_length, void* a_user)
 {
 	CMainFrame* l_main_window = (CMainFrame *)a_user;
@@ -626,14 +639,10 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			if (m_active_mixer == E_PLAY_MIXER || m_active_mixer == E_PLAY_STREAM)
 				break;
 
-
 			OutputDebugString(__FUNCTION__ " :: recording mixer is active\n");
 			if (m_recording_mixer == E_REC_LOOPBACK)
 			{
 				OutputDebugString(__FUNCTION__ " :: loopback mixer is active\n");
-
-				m_active_mixer = E_REC_MIXER;
-				m_recording_mixer = E_REC_MIXER;
 
 				if (g_record_handle)
 					BASS_ChannelRemoveDSP(g_record_handle, m_loopback_hdsp);
@@ -839,20 +848,19 @@ void CMainFrame::OpenFile(const CString& str)
 	}
 
 	DWORD l_error_code = 0;
+	UINT l_open_flags = CFile::modeReadWrite | CFile::typeBinary | CFile::shareDenyWrite;
+
 	if (IsSuitableForRecording(str, l_error_code))
 	{
-		if (!m_record_file.Open(str, CFile::modeCreate|CFile::modeWrite|
-			CFile::typeBinary|CFile::shareDenyWrite, NULL))
-		{
+		l_open_flags |= CFile::modeCreate;
+		if (!m_record_file.Open(str, l_open_flags, NULL))
 			return;
-		}
 	}
 	else
 	{
 		if (!BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL))
-		{
 			return;
-		}
+
 		g_stream_handle = BASS_StreamCreateFile(false, str, 0, 0, 0);
 		if (!g_stream_handle)
 		{
@@ -1178,10 +1186,9 @@ void CMainFrame::OnBtnPLAY()
 {
 	SetFocus();
 
-	if (m_record_file.m_hFile != CFile::hFileNull)
-	{
+	if (!this->CanPlay())
 		return;
-	}
+
 	if (!g_stream_handle)
 	{
 		OnBtnOPEN();
@@ -1517,8 +1524,7 @@ void CMainFrame::OnUpdateSoundRec(CCmdUI* pCmdUI)
 //------------------------------------------------------------------------------
 void CMainFrame::OnUpdateSoundPlay(CCmdUI* pCmdUI)
 {
-	bool l_enabled = (m_record_file.m_hFile == CFile::hFileNull);
-	pCmdUI->Enable(l_enabled);
+	pCmdUI->Enable(this->CanPlay());
 }
 
 //------------------------------------------------------------------------------
@@ -1540,23 +1546,21 @@ void CMainFrame::OnUpdateOptEm(CCmdUI* pCmdUI)
 //===========================================================================
 void CMainFrame::OnSoundRecA() 
 {
-	if (BASS_ChannelIsActive(g_stream_handle) != BASS_ACTIVE_STOPPED)
+	if (CanRecord())
 	{
-		return;
+		m_BtnREC.Press();
+		OnBtnREC();
 	}
-	m_BtnREC.Press();
-	OnBtnREC();
 }
 
 //===========================================================================
 void CMainFrame::OnSoundPlayA() 
 {
-	if (m_record_file.m_hFile != CFile::hFileNull)
+	if (CanPlay())
 	{
-		return;
+		m_BtnPLAY.Press();
+		OnBtnPLAY();
 	}
-	m_BtnPLAY.Press();
-	OnBtnPLAY();
 }
 
 //===========================================================================
@@ -1765,14 +1769,12 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnUpdateTrayPlay(CCmdUI* pCmdUI) 
 {
-	bool l_enabled = (m_record_file.m_hFile == CFile::hFileNull);
-	pCmdUI->Enable(l_enabled);
+	pCmdUI->Enable(this->CanPlay());
 }
 
 void CMainFrame::OnUpdateTrayRec(CCmdUI* pCmdUI) 
 {
-	bool l_enabled = BASS_ChannelIsActive(g_stream_handle)==BASS_ACTIVE_STOPPED;
-	pCmdUI->Enable(l_enabled);
+	pCmdUI->Enable(this->CanRecord());
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1889,11 +1891,13 @@ void CMainFrame::OnRecMixMenuSelect(UINT nID)
 	if (m_RecMixer.GetLinesNum() > 0)
 	{
 		m_RecMixer.SetLine(nID - ID_MIXITEM_REC0);
-
-		///@NOTE: Pretending that change has come from outside, for interface
-		///updating. Will update it in WindowProc.
-		PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
 	}
+	m_active_mixer = E_REC_MIXER;
+	m_recording_mixer = E_REC_MIXER;
+
+	///@NOTE: Pretending that change has come from outside, for interface
+	///updating. Will update it in WindowProc.
+	PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -2006,7 +2010,7 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		strTitle.Format(IDS_VOLUME_TITLE, nPercent, CString(_T("Playback volume")));
 		m_playback_volume = (float)nPercent / 100;
 
-		if (m_nState == PLAY_STATE || m_nState == PAUSEPLAY_STATE)
+		if (IsPlaying(m_nState))
 			BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, m_playback_volume);
 	}
 
@@ -2372,32 +2376,21 @@ void CMainFrame::UpdateButtonState(UINT nID)
 {
 	CButton* pBtn = (CButton *)GetDlgItem(nID);
 	ASSERT(pBtn);
-	pBtn->ModifyStyle(WS_DISABLED, 0);	// Resetting button state
 
+	pBtn->ModifyStyle(WS_DISABLED, 0);	// Resetting button state
 	if (IDB_BTNREC == nID)
 	{
 		bool bSchedStart   = m_conf.GetConfDialSH2()->bSchedStart != 0;
 		bool bSchedEnabled = m_conf.GetConfDialSH2()->bIsEnabled != 0;
+		bool l_reserved_4shr = bSchedEnabled && bSchedStart && CanRecord();
 
-		if (bSchedEnabled && bSchedStart &&
-			(BASS_ChannelIsActive(g_record_handle) == BASS_ACTIVE_STOPPED))
-		{
+		if (l_reserved_4shr || IsPlaying(m_nState))
 			pBtn->ModifyStyle(0, WS_DISABLED);
-		}
-		// Disabling the Record button while playing
-		if (BASS_ChannelIsActive(g_record_handle) == BASS_ACTIVE_STOPPED &&
-			BASS_ChannelIsActive(g_stream_handle) != BASS_ACTIVE_STOPPED)
-		{
-			pBtn->ModifyStyle(0, WS_DISABLED);
-		}
 	}
 	else if (IDB_BTNPLAY == nID)
 	{
-		// Disabling the Play button while recording
-		if (m_record_file.m_hFile != CFile::hFileNull)
-		{
+		if (IsRecording(m_nState))
 			pBtn->ModifyStyle(0, WS_DISABLED);
-		}
 	}
 	pBtn->Invalidate(false);
 }
@@ -2617,3 +2610,16 @@ void CMainFrame::OnPlayVolumeSelect()
 	m_active_mixer = E_PLAY_STREAM;
 	UpdateMixerState();
 }
+
+//------------------------------------------------------------------------------
+bool CMainFrame::CanPlay() const
+{
+	return (m_record_file.m_hFile == CFile::hFileNull);
+}
+
+//------------------------------------------------------------------------------
+bool CMainFrame::CanRecord() const
+{
+	return BASS_ChannelIsActive(g_stream_handle)==BASS_ACTIVE_STOPPED;
+}
+

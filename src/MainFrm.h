@@ -99,6 +99,8 @@ class CMainFrame : public CFrameWnd
 
 	ActiveSoundMixer m_active_mixer;
 	ActiveSoundMixer m_recording_mixer;
+	bool CanPlay() const;
+	bool CanRecord() const;
 
 	CMixerRec		m_RecMixer;
 	CMixerPlay		m_PlayMixer;
@@ -113,8 +115,9 @@ class CMainFrame : public CFrameWnd
 
 	CString m_strDir;
 	int m_bMonitoringBtn;
-	// program state
-	int				m_nState;
+
+	ProgramState	m_nState;
+
 	// program configuration
 	CConfig			m_conf;
 	// Display windows
