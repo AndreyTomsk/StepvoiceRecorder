@@ -267,6 +267,7 @@
 #define IDC_DLG_TRIALNOTE               1164
 #define IDC_GEN_MINSTANCES              1165
 #define IDC_STATIC_VERSION              1166
+#define ID_MIXITEM_PLAY_VOLUME			3698
 #define ID_MIXITEM_REC_LOOPBACK			3699
 #define ID_MIXITEM_REC0                 3700
 #define ID_MIXITEM_REC50                3750

@@ -8,6 +8,7 @@ static char THIS_FILE[] = __FILE__;
 #include "stdafx.h"
 #include <map>
 #include <math.h>
+#include <vector>
 
 #include "MP3_Recorder.h"
 #include "MainFrm.h"
@@ -200,6 +201,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND_RANGE(ID_MIXITEM_REC0, ID_MIXITEM_REC0+50, OnRecMixMenuSelect)
 	ON_COMMAND_RANGE(ID_MIXITEM_PLAY0, ID_MIXITEM_PLAY0+3, OnPlayMixMenuSelect)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK, OnRecLoopbackSelect)
+	ON_COMMAND(ID_MIXITEM_PLAY_VOLUME, OnPlayVolumeSelect)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,6 +339,7 @@ CMainFrame::CMainFrame()
 	,m_visualization_data(NULL)
 	,m_loopback_recording(false)
 	,m_loopback_hdsp(0)
+	,m_playback_volume(100.0)
 {
 	m_pWaveIn	= NULL;
 	m_pWaveOut	= NULL;
@@ -363,7 +366,7 @@ CMainFrame::CMainFrame()
 	//::GetWindowRect(::GetDesktopWindow(), &m_rDesktopRect);
 	::SystemParametersInfo(SPI_GETWORKAREA, 0, &m_rDesktopRect, 0);
 
-	m_nActiveMixerID = 0;
+	m_nActiveMixerID = 0; // rec. mixer
 
 	BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
 	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
@@ -483,9 +486,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	else
 		m_SliderVol.EnableWindow(false);
 
-	// Force updating button image for Vista
 	if (((CMP3_RecorderApp*)AfxGetApp())->IsVistaOS())
+	{
+		// Force updating button image for Vista
 		PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
+
+		// Making system playback volume for our recorder to maximum
+		m_PlayMixer.SetVol(99);
+	}
 
 	// Keeping the system volume level
 	//m_nSysVolume = 0;
@@ -619,9 +627,15 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 	case MM_MIXM_CONTROL_CHANGE:
 	case MM_MIXM_LINE_CHANGE:
 		{
-			if (m_nActiveMixerID == 1)
+			std::vector<int> l_mixer_volumes;
+			l_mixer_volumes.push_back(m_RecMixer.GetVol(m_RecMixer.GetCurLine()));
+			l_mixer_volumes.push_back(m_PlayMixer.GetVol(m_PlayMixer.GetCurLine()));
+			l_mixer_volumes.push_back(int(m_playback_volume * 100));
+
+			m_SliderVol.SetPos(l_mixer_volumes[m_nActiveMixerID]);
+			if (m_nActiveMixerID == 1 || m_nActiveMixerID == 2)
 			{
-				m_SliderVol.SetPos(m_PlayMixer.GetVol(m_PlayMixer.GetCurLine()));
+				// Do nothing for playback and "playback stream" mixers
 				break;
 			}
 
@@ -642,11 +656,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			}
 
 			// Updating interface
-			int l_line_index = m_RecMixer.GetCurLine();
-			int l_line_type = m_RecMixer.GetLineType(l_line_index);
-
-			m_SliderVol.SetPos(m_RecMixer.GetVol(l_line_index));
-
+			int l_line_type = m_RecMixer.GetLineType(m_RecMixer.GetCurLine());
 			const int ICON_ID[] = {
 				IDI_MIXLINE00, IDI_MIXLINE01, IDI_MIXLINE02, IDI_MIXLINE03,
 				IDI_MIXLINE04, IDI_MIXLINE05, IDI_MIXLINE06, IDI_MIXLINE07,
@@ -1235,6 +1245,7 @@ void CMainFrame::OnBtnPLAY()
 	{
 		MonitoringStop();
 	}
+	BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, m_playback_volume);
 	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_stream_handle);
 	switch (CHANNEL_STATE)
 	{
@@ -1251,7 +1262,7 @@ void CMainFrame::OnBtnPLAY()
 		m_nState = PLAY_STATE;
 		break;
 	}
-	OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
+	OnPlayVolumeSelect();
 }
 
 //===========================================================================
@@ -1695,12 +1706,13 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 		strTipText = CString((LPCSTR)nID);
 		if(nID == IDS_TT_VOLBAR)
 		{
-			CString strCurLine;
-			if(m_nActiveMixerID == 1)
-				strCurLine = m_PlayMixer.GetLineName(m_PlayMixer.GetCurLine());
-			else
-				strCurLine = m_RecMixer.GetLineName(m_RecMixer.GetCurLine());
-			strTipText = strTipText + strCurLine;
+			std::vector<CString> l_line_names;
+			l_line_names.push_back(m_RecMixer.GetLineName(m_RecMixer.GetCurLine()));
+			l_line_names.push_back(m_PlayMixer.GetLineName(m_PlayMixer.GetCurLine()));
+			l_line_names.push_back(CString(_T("Playback volume")));
+
+			ASSERT(m_nActiveMixerID < (int)l_line_names.size());
+			strTipText = strTipText + l_line_names[m_nActiveMixerID];
 		}
 	}
 
@@ -1866,10 +1878,12 @@ void CMainFrame::OnBtnMIX_SEL()
 
 	if (!m_loopback_recording)
 	{
-		if(m_nActiveMixerID == 1)
-			OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
-		else
+		if (m_nActiveMixerID == 0)
 			OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
+		else if (m_nActiveMixerID == 1)
+			OnPlayMixMenuSelect(ID_MIXITEM_PLAY0 + m_PlayMixer.GetCurLine());
+		else if (m_nActiveMixerID == 2)
+			OnPlayVolumeSelect();
 	}
 
 	CRect r;
@@ -1878,8 +1892,11 @@ void CMainFrame::OnBtnMIX_SEL()
 	CMenu mixMenu;
 	mixMenu.CreatePopupMenu();
 
-	for(int j = 0; j < m_PlayMixer.GetLinesNum(); j++)
-		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_PLAY0 + j, m_PlayMixer.GetLineName(j));
+	mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_PLAY_VOLUME, _T("Playback volume"));
+
+	// Not displaying system playback mixer lines
+	//for(int j = 0; j < m_PlayMixer.GetLinesNum(); j++)
+	//	mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_PLAY0 + j, m_PlayMixer.GetLineName(j));
 
 	mixMenu.AppendMenu(MF_SEPARATOR);
 	for(int i = 0; i < m_RecMixer.GetLinesNum(); i++)
@@ -2029,7 +2046,7 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 	int nPercent = int(100.0 * curpos / (maxpos - minpos));
 
 	CString strTitle;
-	if(m_nActiveMixerID == 1)
+	if (m_nActiveMixerID == 1)
 	{
 		if(m_PlayMixer.GetLinesNum() == 0)
 			return;
@@ -2040,13 +2057,21 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		//float l_volume = (float)curpos / (maxpos - minpos);
 		//BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, l_volume);
 	}
-	else
+	else if (m_nActiveMixerID == 0)
 	{
 		if(m_RecMixer.GetLinesNum() == 0)
 			return;
 		strTitle.Format(IDS_VOLUME_TITLE, nPercent,
 			m_RecMixer.GetLineName(m_RecMixer.GetCurLine()));
 		m_RecMixer.SetVol(nPercent);
+	}
+	else if (m_nActiveMixerID == 2)
+	{
+		strTitle.Format(IDS_VOLUME_TITLE, nPercent, CString(_T("Playback volume")));
+		m_playback_volume = (float)nPercent / 100;
+
+		if (g_stream_handle && !m_loopback_recording)
+			BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, m_playback_volume);
 	}
 
 	// Processing slider messages
@@ -2574,12 +2599,9 @@ void CMainFrame::OnRecLoopbackSelect()
 	// If we are in recording state, when set or remove DSP function,
 	// otherwise just set the Loopback recording flag
 
-	if (!m_loopback_recording || m_nActiveMixerID == 1) // Playback mixer selected case
+	if (!m_loopback_recording || m_nActiveMixerID == 1 || m_nActiveMixerID == 2) // Playback mixer selected case
 	{
 		m_loopback_recording = true;
-
-		// Making system playback volume for our recorder to maximum
-		m_PlayMixer.SetVol(99);
 
 		// NOTE: slider window will be enabled automatically after line changed
 		m_SliderVol.EnableWindow(false);
@@ -2597,4 +2619,14 @@ void CMainFrame::OnRecLoopbackSelect()
 				LoopbackStreamDSP, &g_stream_handle, 0xFF);
 		}
 	}
+}
+
+//------------------------------------------------------------------------------
+void CMainFrame::OnPlayVolumeSelect()
+{
+	m_nActiveMixerID = 2;
+	m_BtnMIX_SEL.SetIcon(IDI_MIXLINE);
+
+	m_SliderVol.EnableWindow(true);
+	m_SliderVol.SetPos(int(m_playback_volume * 100)); 
 }

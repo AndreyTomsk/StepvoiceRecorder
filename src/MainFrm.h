@@ -87,6 +87,12 @@ class CMainFrame : public CFrameWnd
 	bool m_loopback_recording;
 	HDSP m_loopback_hdsp;
 
+	float m_playback_volume;
+
+	CMixerRec		m_RecMixer;
+	CMixerPlay		m_PlayMixer;
+	int				m_nActiveMixerID; // 0 rec., 1 play, 2 play stream
+
 	CWaveIn*		m_pWaveIn;
 	CWaveOut*		m_pWaveOut;
 	CEncoder*		m_pEncoder;
@@ -128,10 +134,6 @@ class CMainFrame : public CFrameWnd
 	SIZE			m_szMoveOffset;
 
 	CSystemTray		m_TrayIcon;
-
-	CMixerRec		m_RecMixer;
-	CMixerPlay		m_PlayMixer;
-	int				m_nActiveMixerID;
 
 	CMySheet*		m_pOptDialog;	// указатель на запущенный диалог
 
@@ -237,6 +239,7 @@ protected:
 	afx_msg void OnRecMixMenuSelect(UINT nID);
 	afx_msg void OnPlayMixMenuSelect(UINT nID);
 	afx_msg void OnRecLoopbackSelect();
+	afx_msg void OnPlayVolumeSelect();
 
 protected:
 	LRESULT OnTrayNotification(WPARAM wParam, LPARAM lParam);
