@@ -60,6 +60,15 @@ enum ProgramState
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+enum ActiveSoundMixer
+{
+   E_REC_MIXER,
+   E_REC_LOOPBACK,
+   E_PLAY_MIXER,
+   E_PLAY_STREAM
+};
+
+////////////////////////////////////////////////////////////////////////////////
 extern DWORD WINAPI SchedProc( LPVOID lpParam );
 extern void Scheduler2Function(int nAction);
 
@@ -84,14 +93,15 @@ class CMainFrame : public CFrameWnd
 
 	VisualizationData* m_visualization_data;
 	BassVistaLoopback* m_vista_loopback;
-	bool m_loopback_recording;
 	HDSP m_loopback_hdsp;
 
 	float m_playback_volume;
 
+	ActiveSoundMixer m_active_mixer;
+	ActiveSoundMixer m_recording_mixer;
+
 	CMixerRec		m_RecMixer;
 	CMixerPlay		m_PlayMixer;
-	int				m_nActiveMixerID; // 0 rec., 1 play, 2 play stream
 
 	CWaveIn*		m_pWaveIn;
 	CWaveOut*		m_pWaveOut;
@@ -158,10 +168,11 @@ protected:
 	void ProcessSliderTime(UINT nSBCode, UINT nPos);
 	void ProcessSliderVol(UINT nSBCode, UINT nPos);
 	void Convert(UINT nCurSec, char* pszTime, int nStrSize);
-	void OpenFile(CString& strFileName);
+	void OpenFile(const CString& strFileName);
 
 	void UpdateStatWindow();
 	void UpdateButtonState(UINT nID);
+	void UpdateMixerState();
 	CString GetAutoName(CString& strPattern);
 
 	/**
