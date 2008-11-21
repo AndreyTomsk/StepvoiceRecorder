@@ -26,8 +26,6 @@
 #include "MappedMP3.h"
 
 #include "struct.h"
-#include "SndFile.h"
-#include "SndFile_MP3.h"
 
 #include "TitleText.h"
 
@@ -35,7 +33,6 @@
 
 #include "SystemTray.h"
 
-//#include "Mixer.h"
 #include "MixerRec.h"
 #include "MixerPlay.h"
 
@@ -109,7 +106,6 @@ class CMainFrame : public CFrameWnd
 	CWaveOut*		m_pWaveOut;
 	CEncoder*		m_pEncoder;
 	CDecoder*		m_pDecoder;
-	CSndFile*		m_pSndFile;
 	CTitleText*		m_title;
 	CFile			m_record_file;
 

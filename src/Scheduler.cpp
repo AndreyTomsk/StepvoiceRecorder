@@ -117,7 +117,7 @@ DWORD WINAPI SchedProc( LPVOID lpParam )
 					NULL );
 
 				// Проверка на отсутствие файла.
-				if( !pSched->m_pMyFrame->m_pSndFile )
+				if (!pSched->m_pMyFrame->CanPlay()) ///@BUG: fix this
 				{
 					CString strName = pSched->m_pMyFrame->GetAutoName( CString("") );
 					CString strPath = pSched->m_pMyFrame->m_conf.GetConfProg()->strLastFilePath;

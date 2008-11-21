@@ -356,7 +356,6 @@ CMainFrame::CMainFrame()
 	m_pWaveOut	= NULL;
 	m_pEncoder	= NULL;
 	m_pDecoder	= NULL;
-	m_pSndFile	= NULL;
 	m_title		= NULL;
 
 	m_nState    = STOP_STATE;
@@ -383,6 +382,9 @@ CMainFrame::~CMainFrame()
 {
 	SAFE_DELETE(m_title);
 	SAFE_DELETE(m_visualization_data);
+
+	if (BASS_GetDevice())
+		BASS_Free();
 
 	CloseMixerWindows();
 }
@@ -754,15 +756,10 @@ void CMainFrame::OnFileClose()
 	///@TODO: Make a check based on m_record_file
 	OnBtnSTOP();
 
-	BASS_Free();
-	BASS_RecordFree();
+	// We don't need a playback handle since file is closed
+	BASS_StreamFree(g_stream_handle);
 	g_stream_handle = 0;
-	g_record_handle = 0;
 
-	if (m_bMonitoringBtn)
-	{
-		MonitoringStart();
-	}
 	if (m_record_file.m_hFile != CFile::hFileNull)
 	{
 		m_record_file.Flush();
@@ -860,13 +857,14 @@ void CMainFrame::OpenFile(const CString& str)
 	}
 	else
 	{
-		if (!BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL))
-			return;
+		if (BASS_GetDevice() == -1)
+			BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
 
 		g_stream_handle = BASS_StreamCreateFile(false, str, 0, 0, 0);
 		if (!g_stream_handle)
 		{
-			BASS_Free();
+			// Not calling BASS_Free, because it can be used by monitoring
+			//BASS_Free();
 			return;
 		}
 	}
@@ -1055,15 +1053,6 @@ void CMainFrame::OnOptCom()
 	if (optDlg.DoModal() == IDOK)
 	{
 		m_conf.saveConfig();		
-		if (m_pSndFile)
-		{
-			SOUND_INFO si;
-			si.nBitrate	= m_conf.GetConfDialMp3()->nBitrate;
-			si.nFreq	= m_conf.GetConfDialMp3()->nFreq;
-			si.nStereo	= m_conf.GetConfDialMp3()->nStereo;
-			si.nBits	= 16;
-			m_pSndFile->ChangeSoundInfo(si); // Will work for a blank file
-		}
 		UpdateStatWindow();
 
 		// Checking tray options
@@ -1201,9 +1190,8 @@ void CMainFrame::OnBtnPLAY()
 	}
 
 	if (m_bMonitoringBtn)
-	{
 		MonitoringStop();
-	}
+
 	BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, m_playback_volume);
 	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_stream_handle);
 	switch (CHANNEL_STATE)
@@ -1257,7 +1245,6 @@ void CMainFrame::OnBtnSTOP()
 		SAFE_DELETE(m_vista_loopback);
 		SAFE_DELETE(m_visualization_data);
 		SAFE_DELETE(m_pEncoder);
-		SAFE_DELETE(m_pSndFile);
 
 		CString l_recorded_file = m_record_file.GetFilePath();
 		m_record_file.Close();
@@ -1521,13 +1508,13 @@ void CMainFrame::UpdateTrayText()
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnUpdateSoundRec(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable(this->CanRecord());
+	pCmdUI->Enable(!IsPlaying(m_nState));
 }
 
 //------------------------------------------------------------------------------
 void CMainFrame::OnUpdateSoundPlay(CCmdUI* pCmdUI)
 {
-	pCmdUI->Enable(this->CanPlay());
+	pCmdUI->Enable(!IsRecording(m_nState));
 }
 
 //------------------------------------------------------------------------------
@@ -1670,7 +1657,7 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 		{
 			std::map<ActiveSoundMixer, CString> l_line_names;
 			l_line_names[E_REC_MIXER] = m_RecMixer.GetLineName(m_RecMixer.GetCurLine());
-			l_line_names[E_REC_LOOPBACK]= CString(_T("StereoMix (Software)"));
+			l_line_names[E_REC_LOOPBACK]= CString(_T("What U Hear (Software)"));
 			l_line_names[E_PLAY_MIXER] = m_PlayMixer.GetLineName(m_PlayMixer.GetCurLine());
 			l_line_names[E_PLAY_STREAM] = CString(_T("Playback volume"));
 
@@ -1772,12 +1759,12 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnUpdateTrayPlay(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable(this->CanPlay());
+	pCmdUI->Enable(!IsRecording(m_nState));
 }
 
 void CMainFrame::OnUpdateTrayRec(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable(this->CanRecord());
+	pCmdUI->Enable(!IsPlaying(m_nState));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1864,7 +1851,7 @@ void CMainFrame::OnBtnMIX_SEL()
 		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC0 + i, m_RecMixer.GetLineName(i));
 
 	if (((CMP3_RecorderApp* )AfxGetApp())->IsVistaOS())
-		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Stereo Mix (Software)"));
+		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("What U Hear (Software)"));
 
 	mixMenu.CheckMenuItem((m_recording_mixer == E_REC_LOOPBACK) ? ID_MIXITEM_REC_LOOPBACK :
 		ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(), MF_CHECKED | MF_BYCOMMAND);
@@ -2267,8 +2254,9 @@ bool CMainFrame::MonitoringStart()
 	g_monitoring_handle = BASS_RecordStart(44100, 2, MAKELONG(0, 25), (RECORDPROC *)&MonitoringProc, this);
 	if (g_monitoring_handle)
 	{
-		// Creating the Loopback stream
-		BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
+		if (BASS_GetDevice() == -1)
+			BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
+
 		SAFE_DELETE(m_vista_loopback);
 		m_vista_loopback = new BassVistaLoopback();
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
@@ -2311,7 +2299,8 @@ void CMainFrame::MonitoringStop()
 		g_monitoring_handle = 0;
 		m_loopback_hdsp = 0;
 
-		BASS_Free();
+		if (!g_stream_handle && !g_loopback_handle)
+			BASS_Free();
 		BASS_RecordFree();
 	}
 }
