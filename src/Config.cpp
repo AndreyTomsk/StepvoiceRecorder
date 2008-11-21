@@ -43,19 +43,6 @@ void CConfig::RegisterRead()
 	conf_prog.bGraphMaxpeaks = App->GetProfileInt( "General", "Show max peaks", 1);
 	conf_prog.bMonitoring	= App->GetProfileInt( "General", "Sound Monitor", 0 );
 	conf_prog.nPlayVolume	= App->GetProfileInt( "General", "Playback Volume", 0 );
-	
-	// if zero, then get current playback volume
-	if( !conf_prog.nPlayVolume ) {
-		//
-		DWORD dwPlayVolume;
-		waveOutGetVolume ( (HWAVEOUT)WAVE_MAPPER, &dwPlayVolume );
-		conf_prog.nPlayVolume = int( (float)dwPlayVolume/0xFFFFFFFF * 100 );
-		//CMixerPlay playMixer;
-		//playMixer.Open(-1
-		//conf_prog.nPlayVolume = playMixer.GetVol (
-		//	playMixer.GetCurLine ());
-	}
-
 	conf_dial_gen.nLoader	= App->GetProfileInt( "General", "Loader", 0 );
 	conf_dial_gen.bMinimized= App->GetProfileInt( "General", "Minimized", 0 );
 	conf_dial_gen.bAutoRun	= App->GetProfileInt( "General", "AutoRun", 0 );

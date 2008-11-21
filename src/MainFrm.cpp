@@ -446,7 +446,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		rT, this, IDS_SLIDERTIME);
 	m_SliderTime.SetWindowRgn(rgnT, false);
 	m_SliderTime.SetRange(0, 1000);
-	//m_SliderTime.ShowThumb(false);
 
 	m_SliderFrame.Create(_T("Static"), "", WS_CHILD|WS_VISIBLE|SS_ETCHEDFRAME,
 		CRect(109, 53, 283, 82), this, IDC_STATIC);
@@ -487,6 +486,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	OnOptTop(); OnOptTop();	// state is not changing
 
 	// Adjusting the mixer
+	m_playback_volume = min(1, abs((float)m_conf.GetConfProg()->nPlayVolume / 10000));
 	m_RecMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	m_PlayMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	UpdateMixerState();
@@ -745,6 +745,7 @@ void CMainFrame::OnDestroy()
 
 	m_conf.GetConfProg()->nGraphType = m_GraphWnd.GetDisplayMode();
 	m_conf.GetConfProg()->bGraphMaxpeaks = (int)m_GraphWnd.MaxpeaksVisible();
+	m_conf.GetConfProg()->nPlayVolume = int(m_playback_volume * 10000);
 }
 
 
