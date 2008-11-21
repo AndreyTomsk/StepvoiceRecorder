@@ -382,11 +382,6 @@ CMainFrame::~CMainFrame()
 {
 	SAFE_DELETE(m_title);
 	SAFE_DELETE(m_visualization_data);
-
-	if (BASS_GetDevice())
-		BASS_Free();
-
-	CloseMixerWindows();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -513,6 +508,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			strName = m_conf.GetConfProg()->strLastFileName;
 			break;
 	}
+	OnFileClose();
 	if (!strName.IsEmpty())
 	{
 		CString strPath = m_conf.GetConfProg()->strLastFilePath;
@@ -729,20 +725,23 @@ void CMainFrame::OnDestroy()
 {
 	CFrameWnd::OnDestroy();
 
-	OnFileClose();
-
 	if (m_bMonitoringBtn)
 	{
 		OnBtnMonitoring();
 		m_conf.GetConfProg()->bMonitoring = true;
 	}
+	OnFileClose();
+	if (BASS_GetDevice())
+		BASS_Free();
+
+	CloseMixerWindows();
+
 	if (!IsIconic())
 	{
 		CRect r; GetWindowRect(&r);
 		m_conf.GetConfProg()->nXcoord = r.left;
 		m_conf.GetConfProg()->nYcoord = r.top;
 	}
-
 	m_conf.GetConfProg()->nGraphType = m_GraphWnd.GetDisplayMode();
 	m_conf.GetConfProg()->bGraphMaxpeaks = (int)m_GraphWnd.MaxpeaksVisible();
 	m_conf.GetConfProg()->nPlayVolume = int(m_playback_volume * 10000);
@@ -758,8 +757,11 @@ void CMainFrame::OnFileClose()
 	OnBtnSTOP();
 
 	// We don't need a playback handle since file is closed
-	BASS_StreamFree(g_stream_handle);
-	g_stream_handle = 0;
+	if (g_stream_handle)
+	{
+		BASS_StreamFree(g_stream_handle);
+		g_stream_handle = 0;
+	}
 
 	if (m_record_file.m_hFile != CFile::hFileNull)
 	{
@@ -883,8 +885,6 @@ void CMainFrame::OpenFile(const CString& str)
 	
 	UpdateStatWindow();
 	UpdateTrayText();
-	PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
-		(LPARAM)m_pMainFrame->m_SliderTime.m_hWnd);
 }
 
 //===========================================================================
