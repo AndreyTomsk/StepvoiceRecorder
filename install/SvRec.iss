@@ -46,6 +46,7 @@ Source: ..\bin\{#User_AppExeName}; DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\lame_enc.dll;       DestDir: {app}; Flags: ignoreversion
 Source: ..\doc\Help\SvRec.chm;     DestDir: {app}; Flags: ignoreversion
 Source: ..\..\bass\bass.dll;       DestDir: {app}; Flags: ignoreversion
+Source: ..\..\bassmix\bassmix.dll; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 ;Name: {group}\Order Online;                   Filename: {app}\order.url; WorkingDir: {app}
