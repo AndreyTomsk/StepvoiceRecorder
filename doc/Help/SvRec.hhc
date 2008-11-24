@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<OBJECT type="text/site properties">
+	<param name="Window Styles" value="0x800025">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Stepvoice Recorder">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Overview">
+			<param name="Local" value="stepvoice_recorder\overview.html">
+			<param name="ImageNumber" value="17">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="System Requirements">
+			<param name="Local" value="stepvoice_recorder\system_requirements.html">
+			<param name="ImageNumber" value="41">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="License Agreement">
+			<param name="Local" value="stepvoice_recorder\license_agreement.html">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="What's New?">
+			<param name="Local" value="stepvoice_recorder\whats_new.html">
+			<param name="ImageNumber" value="12">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="How to Register">
+			<param name="Local" value="stepvoice_recorder\how_to_register.html">
+			<param name="ImageNumber" value="27">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Users Support">
+			<param name="Local" value="stepvoice_recorder\user_support.html">
+			<param name="ImageNumber" value="25">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="How to Use?">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Recording Source">
+			<param name="Local" value="how_to_use\recording_source.html">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Recording Level">
+			<param name="Local" value="how_to_use\recording_level.html">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Voice Activation">
+			<param name="Local" value="how_to_use\voice_activation.html">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Encode Options">
+			<param name="Local" value="how_to_use\mp3_encoding.html">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Command Line Options">
+			<param name="Local" value="how_to_use\command_line.html">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Recorder Preferences">
+			<param name="Local" value="how_to_use\preferences.html">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+	</UL>
+</UL>
+</BODY></HTML>

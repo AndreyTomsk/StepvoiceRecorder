@@ -1,0 +1,29 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=SvRec.chm
+Contents file=SvRec.hhc
+Default topic=stepvoice_recorder\overview.html
+Display compile notes=No
+Display compile progress=No
+Full-text search=Yes
+Index file=SvRec.hhk
+Language=0x409 Английский (США)
+Title=Stepvoice Recorder Help
+
+
+[FILES]
+stepvoice_recorder\how_to_register.html
+stepvoice_recorder\license_agreement.html
+stepvoice_recorder\system_requirements.html
+stepvoice_recorder\user_support.html
+stepvoice_recorder\whats_new.html
+how_to_use\command_line.html
+how_to_use\mp3_encoding.html
+how_to_use\preferences.html
+how_to_use\recording_level.html
+how_to_use\recording_source.html
+how_to_use\voice_activation.html
+stepvoice_recorder\overview.html
+
+[INFOTYPES]
+
