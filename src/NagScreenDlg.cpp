@@ -7,6 +7,7 @@
 #include "NagScreenDlg.h"
 #include "EnterCodeDlg.h"
 #include "HtmlHelp.h"
+#include "version.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -66,6 +67,18 @@ BOOL CNagScreenDlg::OnInitDialog()
 
 	SetTimer(1, 1000, NULL);
 
+	{
+		// Setting a version number in window caption
+		int n[4] = {0, 0, 0, 0};
+		sscanf_s(STRFILEVER, _T("%d, %d, %d, %d\0"), &n[0], &n[1], &n[2], &n[3]);
+
+		CString l_format_string;
+		GetWindowText(l_format_string);
+
+		CString l_version_string;
+		l_version_string.Format(l_format_string, n[0], n[1], n[2], n[3]);
+		SetWindowText(l_version_string);
+	}
 	return TRUE;
 }
 

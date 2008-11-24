@@ -528,7 +528,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	// Creating icon for the system tray
-	m_TrayIcon.Create(this, WM_ICON_NOTIFY, "StepVoice Recorder",
+	m_TrayIcon.Create(this, WM_ICON_NOTIFY, "Stepvoice Recorder",
 		LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_TRAY_STOP)), IDR_TRAY_MENU);
 	if(m_conf.GetConfDialGen()->bTrayIcon)
 		m_TrayIcon.ShowIcon();
@@ -779,7 +779,7 @@ void CMainFrame::OnFileClose()
 		m_record_file.Close();
 	}
 
-	// Setting the default window text: <no file> - StepVoice Recorder
+	// Setting the default window text: <no file> - Stepvoice Recorder
 	CString strTitle, strNoFile((LPCSTR)IDS_NOFILE);
 	AfxFormatString1(strTitle, IDS_FILETITLE, strNoFile);
 	m_title->SetTitleText(strTitle);

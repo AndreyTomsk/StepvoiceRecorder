@@ -17,7 +17,7 @@ char szWindowTitle[255];
 #define _VOL_MESSAGE  "Volume: %d%%"
 #define _TIME_MESSAGE "Seek to: %s/%s (%d%%)"
 
-#define _WINDOW_TITLE "%s - StepVoice Recorder"
+#define _WINDOW_TITLE "%s - Stepvoice Recorder"
 
 /////////////////////////////////////////////////////////////////////////////
 #define TIMER_SLIDER	1

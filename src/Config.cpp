@@ -51,10 +51,10 @@ void CConfig::RegisterRead()
 	conf_dial_gen.bTrayMin	= App->GetProfileInt( "General", "Minimize to tray", 1 );
 	conf_dial_gen.bMInstances = App->GetProfileInt( "General", "Multiple instances", 0 );
 
-	conf_dial_mp3.nBitrate	= App->GetProfileInt( "File types\\MP3", "Bitrate",	48 );
-	conf_dial_mp3.nFreq		= App->GetProfileInt( "File types\\MP3", "Freq", 22050 );
-	conf_dial_mp3.nStereo	= App->GetProfileInt( "File types\\MP3", "Stereo", 0 );
-	conf_dial_mp3.bAutoFreq	= App->GetProfileInt( "File types\\MP3", "AutoFreq", 0 );
+	conf_dial_mp3.nBitrate	= App->GetProfileInt( "File types\\MP3", "Bitrate",	128 );
+	conf_dial_mp3.nFreq		= App->GetProfileInt( "File types\\MP3", "Freq", 44100 );
+	conf_dial_mp3.nStereo	= App->GetProfileInt( "File types\\MP3", "Stereo", 1 );
+	conf_dial_mp3.bAutoFreq	= App->GetProfileInt( "File types\\MP3", "AutoFreq", 1 );
 
 	conf_dial_sh2.bIsEnabled= App->GetProfileInt( "Tools\\Scheduler", "Enable",	0 );
 	conf_dial_sh2.t_start.h	= App->GetProfileInt( "Tools\\Scheduler", "StartH",	0 );
@@ -75,7 +75,7 @@ void CConfig::RegisterRead()
 
 	conf_dial_vas.bEnable	= App->GetProfileInt( "Tools\\VAS", "Enable", 0 );
 	conf_dial_vas.nThreshold= App->GetProfileInt( "Tools\\VAS", "Threshold", -30 );
-	conf_dial_vas.nWaitTime = App->GetProfileInt( "Tools\\VAS", "WaitTime", 1000 );
+	conf_dial_vas.nWaitTime = App->GetProfileInt( "Tools\\VAS", "WaitTime", 2000 );
 	conf_dial_vas.nAction	= App->GetProfileInt( "Tools\\VAS", "Action", 0 );
 
 	conf_dial_an.strAutoName = App->GetProfileString( "Autoname", "Current template", "%b%d_%H%M" );

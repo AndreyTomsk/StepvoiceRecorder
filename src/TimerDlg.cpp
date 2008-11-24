@@ -23,7 +23,7 @@ CTimerDlg::CTimerDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CTimerDlg)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
-	m_tdi.strCaption = "StepVoice Recorder";
+	m_tdi.strCaption = "Stepvoice Recorder";
 	m_tdi.strDlgText = "";
 	m_tdi.strBtnText = "&OK";
 	m_tdi.nCloseTime = 30;
