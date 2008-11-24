@@ -427,7 +427,7 @@ BOOL CPageSH2::OnCommand(WPARAM wParam, LPARAM lParam)
 		// отображаем "How To Order" страницу
 		CMainFrame* pFrame = (CMainFrame *)AfxGetMainWnd();
 		CString strFile = pFrame->GetProgramDir();
-		strFile += "\\svrec.chm::/order.html";
+		strFile += "\\svrec.chm::/stepvoice_recorder/how_to_register.html";
 		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 	}
 	

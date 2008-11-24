@@ -29,8 +29,6 @@
 
 #include "TitleText.h"
 
-#include "htmlhelp.h"
-
 #include "SystemTray.h"
 
 #include "MixerRec.h"

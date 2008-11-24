@@ -398,7 +398,7 @@ void CMP3_RecorderApp::OnHelpDoc()
 {
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
 
-	CString l_help_file = GetProgramDir() + _T("\\svrec.chm::/main_view.html");
+	CString l_help_file = GetProgramDir() + _T("\\svrec.chm::/stepvoice_recorder/overview.html");
 	::HtmlHelp(GetDesktopWindow(), l_help_file, HH_DISPLAY_TOPIC, NULL);
 }
 
@@ -406,7 +406,7 @@ void CMP3_RecorderApp::OnHelpHowto()
 {
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
 
-	CString l_help_file = GetProgramDir() + _T("\\svrec.chm::/order.html");
+	CString l_help_file = GetProgramDir() + _T("\\svrec.chm::/stepvoice_recorder/how_to_register.html");
 	::HtmlHelp(GetDesktopWindow(), l_help_file, HH_DISPLAY_TOPIC, NULL);
 }
 

@@ -4,7 +4,6 @@
 #include "MySheet.h"
 
 #include "MainFrm.h"
-#include "HtmlHelp.h"
 #include <htmlhelp.h>
 
 #ifdef _DEBUG
@@ -96,11 +95,9 @@ BOOL CMySheet::OnCommand(WPARAM wParam, LPARAM lParam)
 		m_nPageIndex = GetActiveIndex();
 	if(LOWORD(wParam == IDHELP))
 	{	// !!!!! 
-		char* szIndex[] = {"#A01", "#A02", "#A03", "#A04", "#A05", "", ""};
 		CMainFrame* pFrame = (CMainFrame *)GetParent();
 		CString strFile = pFrame->GetProgramDir();
-		strFile += "\\svrec.chm::/rec_pref.html";
-		strFile += szIndex[GetActiveIndex()];
+		strFile += "\\svrec.chm::/how_to_use/preferences.html";
 		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 	}
 
