@@ -269,14 +269,22 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 	CMainFrame* l_main_window = (CMainFrame *)a_user;
 	ASSERT(l_main_window);
 
-	if (l_main_window->m_visualization_data)
-		l_main_window->m_visualization_data->SetSourceBuffer(a_buffer, a_length);
+	VisualizationData* l_vis_data = l_main_window->m_visualization_data;
+	if (l_vis_data)
+		l_vis_data->SetSourceBuffer(a_buffer, a_length);
 
 	if (l_main_window->m_vas.IsRunning())
 	{
-		double l_peak_db = GetMaxPeakDB(a_handle);
-		l_main_window->m_vas.ProcessThreshold(l_peak_db);
-
+		if (l_vis_data)
+		{
+			double l_peak_float = max(l_vis_data->GetPeaksLevel(0),
+				l_vis_data->GetPeaksLevel(1));
+			l_main_window->m_vas.ProcessThreshold(20 * log10(l_peak_float));
+		}
+		else
+		{
+			l_main_window->m_vas.ProcessThreshold(GetMaxPeakDB(a_handle));
+		}
 		if (l_main_window->m_vas.CheckVAS()) 
 		{
 			l_main_window->ProcessVAS(true); 
@@ -621,7 +629,9 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			OutputDebugString(__FUNCTION__ " :: Mixer line/control changed\n");
 
-			// Ignoring messages from our opened mixer devices
+			// Ignoring messages from our opened mixer devices.
+			///@NOTE: if changing volume level from windows, it acts like we have
+			///changed it from out control and so the level is not synced.
 			if ((HMIXER)wParam == m_RecMixer.GetMixerHandle() ||
 				(HMIXER)wParam == m_PlayMixer.GetMixerHandle())
 				break;
