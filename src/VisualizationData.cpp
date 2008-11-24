@@ -45,19 +45,15 @@ float VisualizationData::GetPeaksLevel(int a_channel)
 	if (a_channel == 1)
 		return float(abs(l_level_r)) / MAX_SHORT;
 
-	int l_check_length = min(1764, m_rec_length / sizeof(short)); // 20ms for 44,1kHz
-	l_check_length = (l_check_length / 2) * 2;
-
 	short l_level_l = 0;
 	l_level_r = 0;
+
 	short* l_buffer_ptr = (short*)m_rec_buffer;
+	int    l_buffer_size = m_rec_length / sizeof(short);
 
-	int l_request_msec = ::GetTickCount();
-	int l_rec_offset = (l_request_msec - m_rec_msec_begin) * 88; // precalculated bytes/msec rate
-	if (l_rec_offset + l_check_length >= m_rec_length)
-		return 0;
+	// Making simplified count because we know that buffer is changed fast enough
 
-	for (int i = l_rec_offset; i < l_rec_offset + l_check_length; i += 2)
+	for (int i = 0; i < l_buffer_size; i += 8) // +8 instead of +2 is for speed
 	{
 		l_level_l = max(l_level_l, l_buffer_ptr[i]);
 		l_level_r = max(l_level_r, l_buffer_ptr[i + 1]);
@@ -72,16 +68,19 @@ int VisualizationData::GetLinesLevel(int a_channel, float* a_buffer, int a_size)
 	short* l_buffer_ptr = (short*)m_rec_buffer;
 	int    l_buffer_size = m_rec_length / sizeof(short);
 
-	///BUG: this is no good (where -1024)!
-	int l_numbers_2copy = min(l_buffer_size - a_channel, a_size - 1024);
-	int l_src_offset = a_channel;
-	int l_dst_offset = 0;
+	float l_proportion = (float)l_buffer_size / a_size;
 
-	while (l_dst_offset < l_numbers_2copy)
+	int l_dst_index = 0;
+	for (; l_dst_index < a_size; l_dst_index++)
 	{
-		a_buffer[l_dst_offset] = (float)l_buffer_ptr[l_src_offset] / MAX_SHORT;
-		l_src_offset += CHANNEL_COUNT;
-		l_dst_offset += 1;
+		int l_src_index = int(l_proportion * l_dst_index);
+		l_src_index = (l_src_index / CHANNEL_COUNT) * CHANNEL_COUNT + a_channel;
+
+		// Making check for a correct index (useful when l_proportion is < 1)
+		if (l_src_index >= l_buffer_size)
+			continue;
+
+		a_buffer[l_dst_index] = (float)l_buffer_ptr[l_src_index] / MAX_SHORT;
 	}
-	return l_numbers_2copy;
+	return l_dst_index;
 }
