@@ -16,13 +16,10 @@ function OnSize()
 		document.all.content.style.width = document.body.offsetWidth - 4;
 		document.all.content.style.top = document.all.header.offsetHeight;
 
+		document.all.content.style.height = 0;
 		if (document.body.offsetHeight > document.all.header.offsetHeight)
 		{
 			document.all.content.style.height = document.body.offsetHeight - document.all.header.offsetHeight - 3;
-		}
-		else 
-		{
-			document.all.content.style.height = 0;
 		}
 	}
 }
