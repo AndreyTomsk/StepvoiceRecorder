@@ -42,7 +42,7 @@ void CConfig::RegisterRead()
 	conf_prog.nGraphType	= App->GetProfileInt( "General", "Graph Type", ID_GRAPH_PEAKMETER );
 	conf_prog.bGraphMaxpeaks = App->GetProfileInt( "General", "Show max peaks", 1);
 	conf_prog.bMonitoring	= App->GetProfileInt( "General", "Sound Monitor", 0 );
-	conf_prog.nPlayVolume	= App->GetProfileInt( "General", "Playback Volume", 0 );
+	conf_prog.nPlayVolume	= App->GetProfileInt( "General", "Playback Volume", 10000);
 	conf_dial_gen.nLoader	= App->GetProfileInt( "General", "Loader", 0 );
 	conf_dial_gen.bMinimized= App->GetProfileInt( "General", "Minimized", 0 );
 	conf_dial_gen.bAutoRun	= App->GetProfileInt( "General", "AutoRun", 0 );

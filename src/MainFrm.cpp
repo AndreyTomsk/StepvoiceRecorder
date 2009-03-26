@@ -356,7 +356,7 @@ CMainFrame::CMainFrame()
 	:m_vista_loopback(NULL)
 	,m_visualization_data(NULL)
 	,m_loopback_hdsp(0)
-	,m_playback_volume(100.0)
+	,m_playback_volume(0)
 	,m_active_mixer(E_REC_MIXER)
 	,m_recording_mixer(E_REC_MIXER)
 {
