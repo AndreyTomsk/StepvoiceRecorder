@@ -3,11 +3,12 @@
 
 #include "stdafx.h"
 #include "BASS_VistaLoopback.h"
+//#include <functiondiscoverykeys.h>
 
 #define EIF(x) if (FAILED(hr=(x))) { goto Exit; }	// Exit If Failed.
 
 ////////////////////////////////////////////////////////////////////////////////
-DWORD CALLBACK BassVistaLoopback::LoopbackStreamProc(HSTREAM a_handle,
+DWORD CALLBACK BassVistaLoopback::LoopbackStreamProc(HSTREAM /*a_handle*/,
 	void* a_buffer, DWORD a_length, void* a_user)
 {
 	BassVistaLoopback* l_this = (BassVistaLoopback *)a_user;
@@ -74,7 +75,7 @@ BassVistaLoopback::BassVistaLoopback()
 
 	EIF(m_audio_client->Initialize(
 		AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK,
-		5000000 /*0.5 second in 100-ns*/, 0, m_wfx, NULL));
+		5000000, 0, m_wfx, NULL)); // 0.5 second in 100-ns units
 
 	EIF(m_audio_client->GetService(__uuidof(IAudioCaptureClient),
 		(void**)&m_capture_client));
@@ -97,9 +98,14 @@ Exit:
 ////////////////////////////////////////////////////////////////////////////////
 BassVistaLoopback::~BassVistaLoopback()
 {
-	HRESULT hr = m_audio_client->Stop();
-	BASS_StreamFree(m_loopback_stream);
-	CoTaskMemFree(m_wfx);
+	if (m_audio_client)
+	{
+		HRESULT hr = m_audio_client->Stop();
+		ASSERT(!FAILED(hr));
+
+		BASS_StreamFree(m_loopback_stream);
+		CoTaskMemFree(m_wfx);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,12 +119,25 @@ HRESULT BassVistaLoopback::GetDefaultDevice(EDataFlow a_flow, IAudioClient **a_c
 {
 	CComPtr<IMMDeviceEnumerator> l_enumerator;
 	CComPtr<IMMDevice> l_device;
+	//CComPtr<IPropertyStore> l_properties;
 
 	HRESULT hr;
 	EIF(l_enumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator)));
 	EIF(l_enumerator->GetDefaultAudioEndpoint(a_flow, eConsole, &l_device));
 	EIF(l_device->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER,
 		NULL, reinterpret_cast<void**>(a_client)));
+
+	/*
+	// Test code for getting device parameters 
+	l_device->OpenPropertyStore(STGM_READ, &l_properties);
+
+	PROPVARIANT varName;
+	PropVariantInit(&varName);
+	EIF(l_properties->GetValue(PKEY_DeviceInterface_FriendlyName, &varName));
+	EIF(l_properties->GetValue(PKEY_Device_DeviceDesc, &varName));
+	EIF(l_properties->GetValue(PKEY_Device_FriendlyName, &varName));
+	PropVariantClear(&varName);
+	*/
 Exit:
 	return hr;
 }
