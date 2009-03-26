@@ -32,6 +32,8 @@ public:
 
 	virtual int GetCurLine();				// получить номер текущей линии
 	virtual int GetVol(int nLineNum);		// получить громкость текущ. линии в процентах
+
+	CControlVolume* GetCurrentVolControl();
 };
 
 #endif // !defined(AFX_MIXERREC_H__3BD6C5EA_1479_4F4B_91FC_6DEE0F184AF2__INCLUDED_)

@@ -625,16 +625,29 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case MM_MIXM_CONTROL_CHANGE:
+		{
+			// Ignoring message when it has come from inactive recording line.
+			if ((HMIXER)wParam == m_RecMixer.GetMixerHandle())
+			{
+				CControlVolume* l_vol_control = m_RecMixer.GetCurrentVolControl();
+				if ((l_vol_control && l_vol_control->GetControlID() != (DWORD)lParam))
+					break;
+			}
+		}
 	case MM_MIXM_LINE_CHANGE:
 		{
 			OutputDebugString(__FUNCTION__ " :: Mixer line/control changed\n");
 
+			// Ignoring these messages when dragging or loopback mixer is active
+			if (m_SliderVol.IsDragging() || m_recording_mixer == E_REC_LOOPBACK)
+				break;
+
 			// Ignoring messages from our opened mixer devices.
 			///@NOTE: if changing volume level from windows, it acts like we have
 			///changed it from out control and so the level is not synced.
-			if ((HMIXER)wParam == m_RecMixer.GetMixerHandle() ||
-				(HMIXER)wParam == m_PlayMixer.GetMixerHandle())
-				break;
+			//if ((HMIXER)wParam == m_RecMixer.GetMixerHandle() ||
+			//	(HMIXER)wParam == m_PlayMixer.GetMixerHandle())
+			//	break;
 
 			OutputDebugString(__FUNCTION__ " :: changed not by our device (or from our message post :)\n");
 			std::map<ActiveSoundMixer, int> l_mixer_vol;
@@ -2467,9 +2480,10 @@ void CMainFrame::UpdateInterface()
 //------------------------------------------------------------------------------
 void CMainFrame::UpdateMixerState()
 {
-	static int l_current_mixer = -1;
-	if (l_current_mixer == m_active_mixer)
-		return;
+	// Current rec. mixer could have several lines, we need to update button
+	//static int l_current_mixer = -1;
+	//if (l_current_mixer == m_active_mixer)
+	//	return;
 
 	m_SliderVol.EnableWindow(false);
 	switch (m_active_mixer)
@@ -2513,7 +2527,7 @@ void CMainFrame::UpdateMixerState()
 		m_BtnMIX_SEL.SetIcon(IDI_MIXLINE);
 		break;
 	}
-	l_current_mixer = m_active_mixer;
+	//l_current_mixer = m_active_mixer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

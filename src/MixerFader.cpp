@@ -130,6 +130,11 @@ DWORD CControlVolume::GetLineID()
 	return m_mxl.dwLineID;
 }
 
+DWORD CControlVolume::GetControlID()
+{
+	return m_Control.dwControlID;
+}
+
 //////////////////////////////////////////////////////////////////////
 int CControlVolume::GetLineType()
 {

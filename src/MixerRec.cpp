@@ -145,6 +145,15 @@ void CMixerRec::SetLine(int nLineNum)
 }
 
 //////////////////////////////////////////////////////////////////////
+CControlVolume* CMixerRec::GetCurrentVolControl()
+{
+	int l_cur_index = GetCurLine();
+	if (l_cur_index == -1 || l_cur_index >= m_volList.Size())
+		return NULL;
+
+	return m_volList[l_cur_index];
+}
+
 int CMixerRec::GetCurLine()
 {
 	if(GetLinesNum() == 0)

@@ -39,6 +39,7 @@ class CControlVolume
 public:
 	int GetLineType();
 	DWORD GetLineID();
+	DWORD GetControlID();
 	CControlVolume();
 	virtual ~CControlVolume();
 
