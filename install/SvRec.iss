@@ -1,8 +1,8 @@
 ; -- SvRec.iss --
-; StepVoice Recorder installation script
+; Stepvoice Recorder installation script
 ; ===========================================
 
-#define User_AppName    "StepVoice Recorder"
+#define User_AppName    "Stepvoice Recorder"
 #define User_AppExeName "SvRec.exe"
 
 #define User_AppVersion GetFileVersion(AddBackslash(SourcePath) + "..\bin\" + User_AppExeName)
@@ -27,11 +27,11 @@ OutputBaseFilename={#User_OutputFile}
 
 
 [Registry]
-Root: HKLM; Subkey: "Software\StepVoice Software"; Flags: uninsdeletekeyifempty
-Root: HKLM; Subkey: "Software\StepVoice Software\SvRec"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\StepVoice Software"; Flags: uninsdeletekeyifempty
-Root: HKCU; Subkey: "Software\StepVoice Software\SvRec"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\StepVoice Software\SvRec\General"; ValueType: string; ValueName: "LastFilePath"; ValueData: "{userdesktop}"
+Root: HKLM; Subkey: "Software\Stepvoice Software"; Flags: uninsdeletekeyifempty
+Root: HKLM; Subkey: "Software\Stepvoice Software\SvRec"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Stepvoice Software"; Flags: uninsdeletekeyifempty
+Root: HKCU; Subkey: "Software\Stepvoice Software\SvRec"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Stepvoice Software\SvRec\General"; ValueType: string; ValueName: "LastFilePath"; ValueData: "{userdesktop}"
 ;Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
 
 
@@ -50,13 +50,13 @@ Source: ..\..\bassmix\bassmix.dll; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 ;Name: {group}\Order Online;                   Filename: {app}\order.url; WorkingDir: {app}
-Name: {group}\StepVoice Recorder;             FileName: {app}\{#User_AppExeName}; WorkingDir: {app}
-Name: {group}\StepVoice Recorder Help;        FileName: {app}\SvRec.chm; WorkingDir: {app}
-Name: {group}\StepVoice Recorder Home;        Filename: {app}\StepVoice Recorder Home.url;
+Name: {group}\Stepvoice Recorder;             FileName: {app}\{#User_AppExeName}; WorkingDir: {app}
+Name: {group}\Stepvoice Recorder Help;        FileName: {app}\SvRec.chm; WorkingDir: {app}
+Name: {group}\Stepvoice Recorder Home;        Filename: {app}\Stepvoice Recorder Home.url;
 Name: {group}\Uninstall;                      FileName: {uninstallexe}
 
-Name: {userdesktop}\StepVoice Recorder;       FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: desktopicon
-Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\StepVoice Recorder; FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: quicklaunchicon
+Name: {userdesktop}\Stepvoice Recorder;       FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: desktopicon
+Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\Stepvoice Recorder; FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: quicklaunchicon
 
 [Tasks]
 Name: desktopicon; Description: Create a &desktop icon; GroupDescription: Additional icons:
@@ -65,7 +65,7 @@ Name: quicklaunchicon; Description: Create a &Quick Launch icon; GroupDescriptio
 [Run]
 ; The line below is used only for special versions.
 Filename: {app}\{#User_AppExeName}; Parameters: "/register"
-FileName: {app}\{#User_AppExeName}; Description: Launch StepVoice Recorder; Flags: postinstall nowait skipifsilent unchecked
+FileName: {app}\{#User_AppExeName}; Description: Launch Stepvoice Recorder; Flags: postinstall nowait skipifsilent unchecked
 
 [_ISTool]
 Use7zip=false
@@ -85,7 +85,7 @@ begin
   
   if CheckForMutexes('SVREC-169A0B91-77B7-4533-9C25-59FCB08FCD614') then
   begin
-    MsgBox('StepVoice Recorder is running, please close it and run again setup.',
+    MsgBox('Stepvoice Recorder is running, please close it and run again setup.',
       mbError, MB_OK);
     Result := false;
   end
@@ -125,7 +125,7 @@ function InitializeUninstall(): Boolean;
 begin
   if CheckForMutexes('SVREC-169A0B91-77B7-4533-9C25-59FCB08FCD614') then
   begin
-    MsgBox('StepVoice Recorder is running, please close it and run again uninstall.',
+    MsgBox('Stepvoice Recorder is running, please close it and run again uninstall.',
       mbError, MB_OK);
     Result := false;
   end
@@ -142,18 +142,18 @@ begin
     usUninstall: // pre-uninstall tasks
       begin
         regInfo := '';
-        if RegValueExists(HKEY_CURRENT_USER, 'Software\StepVoice Software\SvRec', 'Key') then
+        if RegValueExists(HKEY_CURRENT_USER, 'Software\Stepvoice Software\SvRec', 'Key') then
         begin
           Beep();
           saveRegInfo := MsgBox('Would you like to keep your registration info?', mbConfirmation, MB_YESNO) = idYes;
           if saveRegInfo then
-            RegQueryStringValue(HKEY_CURRENT_USER, 'Software\StepVoice Software\SvRec', 'Key', regInfo);
+            RegQueryStringValue(HKEY_CURRENT_USER, 'Software\Stepvoice Software\SvRec', 'Key', regInfo);
         end
       end;
     usPostUninstall: // post-uninstall tasks
       begin
         if regInfo <> '' then
-          RegWriteStringValue(HKEY_CURRENT_USER, 'Software\StepVoice Software\SvRec', 'Key', regInfo);
+          RegWriteStringValue(HKEY_CURRENT_USER, 'Software\Stepvoice Software\SvRec', 'Key', regInfo);
       end;
   end;
 end;
