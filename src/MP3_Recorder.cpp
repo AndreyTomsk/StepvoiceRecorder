@@ -141,7 +141,7 @@ BOOL CAboutDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	CString l_thanks_to[] = {
-		_T("MPEG Layer-3 Audio Codec Lame 3.96\r\n(http://www.mp3dev.org/mp3)"),
+		_T("MPEG Layer-3 Audio Codec Lame 3.98.2\r\n(http://www.mp3dev.org/mp3)"),
 		_T("BASS library (bass.dll) by Ian Luck\r\n(http://www.un4seen.com)"),
 		_T("")
 	};
