@@ -95,7 +95,7 @@ void CAfList<T>::Pop()
 template <class T>
 T* CAfList<T>::operator [] (int num) const
 {
-	if(num < 0 && num >= m_nListSize)
+	if(num < 0 || num >= m_nListSize)
 		return NULL;
 
 	ListItem* pCurItem = m_begin;

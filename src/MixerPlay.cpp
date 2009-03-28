@@ -142,9 +142,11 @@ int CMixerPlay::GetCurLine()
 //////////////////////////////////////////////////////////////////////
 void CMixerPlay::SetVol(int nPercent)
 {
-	//CControlVolume *pCV = &m_volVector[GetCurLine()];
 	CControlVolume *pCV = m_volList[GetCurLine()];
-	pCV->SetVolume(nPercent);
+	if (pCV)
+	{
+		pCV->SetVolume(nPercent);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////
