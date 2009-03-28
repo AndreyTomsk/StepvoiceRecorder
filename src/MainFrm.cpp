@@ -2043,7 +2043,7 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 	case SB_PAGERIGHT:
 	case SB_LINELEFT:
 	case SB_LINERIGHT:
-		//m_title->SetTitleText(strTitle, 1200);
+		m_title->SetTitleText(strTitle, 1200);
 		break;
 	}
 }
@@ -2065,12 +2065,15 @@ void CMainFrame::OnVolUpA()
 	if (m_active_mixer == E_PLAY_MIXER && m_PlayMixer.GetLinesNum() == 0)
 		return;
 
-	int nPos = min(m_SliderVol.GetRangeMax(),
-		m_SliderVol.GetPos() + m_SliderVol.GetPageSize());
-	m_SliderVol.SetPos(nPos);
+	if (m_SliderVol.IsWindowEnabled())
+	{
+		int nPos = min(m_SliderVol.GetRangeMax(),
+			m_SliderVol.GetPos() + m_SliderVol.GetPageSize());
+		m_SliderVol.SetPos(nPos);
 
-	this->PostMessage(WM_HSCROLL, MAKEWPARAM(0, SB_PAGERIGHT),
-		(LPARAM)m_SliderVol.GetSafeHwnd());
+		this->PostMessage(WM_HSCROLL, MAKEWPARAM(0, SB_PAGERIGHT),
+			(LPARAM)m_SliderVol.GetSafeHwnd());
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -2082,12 +2085,15 @@ void CMainFrame::OnVolDownA()
 	if (m_active_mixer == E_PLAY_MIXER && m_PlayMixer.GetLinesNum() == 0)
 		return;
 
-	int nPos = max(m_SliderVol.GetRangeMin(),
-		m_SliderVol.GetPos() - m_SliderVol.GetPageSize());
-	m_SliderVol.SetPos(nPos);
+	if (m_SliderVol.IsWindowEnabled())
+	{
+		int nPos = max(m_SliderVol.GetRangeMin(),
+			m_SliderVol.GetPos() - m_SliderVol.GetPageSize());
+		m_SliderVol.SetPos(nPos);
 
-	this->PostMessage(WM_HSCROLL, MAKEWPARAM(0, SB_PAGELEFT),
-		(LPARAM)m_SliderVol.GetSafeHwnd());
+		this->PostMessage(WM_HSCROLL, MAKEWPARAM(0, SB_PAGELEFT),
+			(LPARAM)m_SliderVol.GetSafeHwnd());
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
