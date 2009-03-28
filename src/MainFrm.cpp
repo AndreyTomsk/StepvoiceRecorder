@@ -654,7 +654,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			l_mixer_vol[E_REC_MIXER] = m_RecMixer.GetVol(m_RecMixer.GetCurLine());
 			l_mixer_vol[E_REC_LOOPBACK] = m_SliderVol.GetRangeMax();
 			l_mixer_vol[E_PLAY_MIXER] = m_PlayMixer.GetVol(m_PlayMixer.GetCurLine());
-			l_mixer_vol[E_PLAY_STREAM] = m_PlayMixer.GetVol(m_PlayMixer.GetCurLine());
+			l_mixer_vol[E_PLAY_STREAM] = int(m_playback_volume * 100);
 
 			ASSERT(l_mixer_vol.find(m_active_mixer) != l_mixer_vol.end());
 			m_SliderVol.SetPos(l_mixer_vol[m_active_mixer]);
@@ -754,6 +754,8 @@ void CMainFrame::OnDestroy()
 		m_conf.GetConfProg()->bMonitoring = true;
 	}
 	OnFileClose();
+	m_GraphWnd.StopUpdate(); // Forcing stop to remove assertions in debug
+
 	if (BASS_GetDevice())
 		BASS_Free();
 
