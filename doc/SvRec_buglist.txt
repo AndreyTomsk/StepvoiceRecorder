@@ -1,10 +1,8 @@
 -----------------------------------------------------------------------------
-Milestone: "Version 1.7". Main goals:
+Milestone: "Version 1.8". Main goals:
 
-1. + Add a command line switches support.
-2. + Recording all currently playing sounds in Vista.
-3. - Update help file design.
-4. + Apply volume changing based on BASS functions.
+1.
+2.
 
 -----------------------------------------------------------------------------
 
@@ -58,6 +56,14 @@ Todo
 
 20061208 (enh) * (?) In file menu instead of "Find..."
                  write "Open containing forlder"
+
+-----------------------------------------------------------------------------
+Milestone: "Version 1.7". Main goals:
+
+1. + Add a command line switches support.
+2. + Recording all currently playing sounds in Vista.
+3. + Update help file design.
+4. + Apply volume changing based on BASS functions.
 
 20080727 (enh) + Apply volume changing based on BASS functions.
 20080301 (enh) + Recording all currently playing sounds in Vista.

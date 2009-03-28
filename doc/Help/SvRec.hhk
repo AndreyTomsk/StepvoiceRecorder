@@ -7,38 +7,103 @@
 <UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="About">
-		<param name="Name" value="StepVoice Recorder (SVR) Help">
-		<param name="Local" value="overview.html">
+		<param name="Name" value="Overview">
+		<param name="Local" value="stepvoice_recorder\overview.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Autoname">
-		<param name="Name" value="StepVoice Recorder (SVR) Help">
-		<param name="Local" value="rec_pref.html#A03">
+		<param name="Name" value="Autoname Options">
+		<param name="Name" value="Recorder Preferences">
+		<param name="Local" value="how_to_use\preferences.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Bitrate">
-		<param name="Name" value="StepVoice Recorder (SVR) Help">
-		<param name="Local" value="rec_pref.html#A02">
+		<param name="Name" value="Encode Options">
+		<param name="Local" value="how_to_use\mp3_encoding.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Preferences">
-		<param name="Name" value="StepVoice Recorder (SVR) Help">
-		<param name="Local" value="rec_pref.html">
+		<param name="Name" value="Command Line">
+		<param name="Name" value="Command Line Options">
+		<param name="Local" value="how_to_use\command_line.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Register">
-		<param name="Name" value="StepVoice Recorder (SVR) Help">
-		<param name="Local" value="order.html">
+		<param name="Name" value="Display Window">
+		<param name="Name" value="Recording Level">
+		<param name="Local" value="how_to_use\recording_level.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="User support">
-		<param name="Name" value="StepVoice Recorder (SVR) Help">
-		<param name="Local" value="user_support.html">
+		<param name="Name" value="Encode Options">
+		<param name="Name" value="Encode Options">
+		<param name="Local" value="how_to_use\mp3_encoding.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Web Site">
-		<param name="Name" value="StepVoice Recorder (SVR) Help">
-		<param name="Local" value="web_site.html">
+		<param name="Name" value="How to Register">
+		<param name="Name" value="How to Register">
+		<param name="Local" value="stepvoice_recorder\how_to_register.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="License Agreement">
+		<param name="Name" value="License Agreement">
+		<param name="Local" value="stepvoice_recorder\license_agreement.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Main Features">
+		<param name="Name" value="Overview">
+		<param name="Local" value="stepvoice_recorder\overview.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Peak Meter, dB">
+		<param name="Name" value="Recording Level">
+		<param name="Local" value="how_to_use\recording_level.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Recorder Preferences">
+		<param name="Name" value="Recorder Preferences">
+		<param name="Local" value="how_to_use\preferences.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Recording Level">
+		<param name="Name" value="Recording Level">
+		<param name="Local" value="how_to_use\recording_level.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Recording Source">
+		<param name="Name" value="Recording Source">
+		<param name="Local" value="how_to_use\recording_source.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Scheduler Options">
+		<param name="Name" value="Recorder Preferences">
+		<param name="Local" value="how_to_use\preferences.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="StereoMix">
+		<param name="Name" value="Recording Source">
+		<param name="Local" value="how_to_use\recording_source.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="System Requirements">
+		<param name="Name" value="System Requirements">
+		<param name="Local" value="stepvoice_recorder\system_requirements.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Threshold level">
+		<param name="Name" value="Voice Activation">
+		<param name="Local" value="how_to_use\voice_activation.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="User Support">
+		<param name="Name" value="User Support">
+		<param name="Local" value="stepvoice_recorder\user_support.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Voice Activation">
+		<param name="Name" value="Voice Activation">
+		<param name="Local" value="how_to_use\voice_activation.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="What's New">
+		<param name="Name" value="What's New">
+		<param name="Local" value="stepvoice_recorder\whats_new.html">
 		</OBJECT>
 </UL>
 </BODY></HTML>
