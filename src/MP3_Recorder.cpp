@@ -383,14 +383,14 @@ void CMP3_RecorderApp::OnHelpEmail()
 	sscanf_s(STRFILEVER, _T("%d, %d, %d, %d\0"), &n[0], &n[1], &n[2], &n[3]);
 	l_version_string.Format(l_version_string, n[0], n[1], n[2], n[3]);
 
-	CString l_mail_string(
-		_T("mailto:support@stepvoice.com?subject=SV%20Recorder,%20version%20"));
-
-	l_mail_string = l_mail_string + l_version_string;
+	CString l_mail_string;
+	l_mail_string.Format(_T("mailto:support@stepvoice.com?subject=[%s %s] "),
+		_T("svrec"), l_version_string);
 
 	///@bug Add body message regarding common recording problems.
 	///see "mailto" in Windows SDK.
 
+	l_mail_string.Replace(_T(" "), _T("%20"));
 	ShellExecute(0, NULL, l_mail_string, NULL, NULL, SW_SHOWNORMAL);
 }
 
