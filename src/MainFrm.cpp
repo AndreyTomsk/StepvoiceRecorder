@@ -2043,7 +2043,10 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 	case SB_PAGERIGHT:
 	case SB_LINELEFT:
 	case SB_LINERIGHT:
-		m_title->SetTitleText(strTitle, 1200);
+		if (m_active_mixer != E_PLAY_STREAM)
+		{
+			m_title->SetTitleText(strTitle, 1200);
+		}
 		break;
 	}
 }
