@@ -83,6 +83,22 @@ BOOL fsProtect_IsRegistered ()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+bool fsProtect_IsSingleUserLicense()
+{
+	const CString userName(_pszRegUser);
+	const char* singleSubstrs[] = {"single", "one", "personal", NULL};
+	
+	int i = 0;
+	while (singleSubstrs[i] != NULL)
+	{
+		if (userName.Find(singleSubstrs[i]) != -1)
+			return true;
+		i++;
+	}
+	return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////
 int fsProtect_GetDaysTotal ()
 {
 	return _DaysTotal;

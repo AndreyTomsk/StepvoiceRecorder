@@ -12,6 +12,7 @@ extern int fsProtect_GetDaysTotal ();
 extern int fsProtect_GetDaysLeft ();
 extern int fsProtect_GetDaysPassed ();
 extern LPCSTR fsProtect_GetHardwareID ();
+extern bool fsProtect_IsSingleUserLicense();
 
 /////////////////////////////////////////////////////////////////////////////
 inline void fsProtect_FillCrackedStr1 (LPSTR pszMsg)
