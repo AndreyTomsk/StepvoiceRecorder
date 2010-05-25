@@ -55,7 +55,7 @@ BOOL CEnterCodeDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-bool CEnterCodeDlg::RegisterKey(LPCSTR pszKey)
+bool CEnterCodeDlg::RegisterKey(LPCSTR pszKey, bool multiUserKey)
 {
 	HKEY hKey;
     DWORD dwDisposition;
@@ -85,7 +85,8 @@ bool CEnterCodeDlg::RegisterKey(LPCSTR pszKey)
 	}
 
 	// открываем ветку реестра
-	if (ERROR_SUCCESS != RegCreateKeyEx(HKEY_CURRENT_USER,
+	HKEY destHKEY = multiUserKey ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+	if (ERROR_SUCCESS != RegCreateKeyEx(destHKEY,
 		"Software\\StepVoice Software\\svrec", 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey,
 		&dwDisposition)) 

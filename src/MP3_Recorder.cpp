@@ -289,7 +289,7 @@ BOOL CMP3_RecorderApp::InitInstance()
 #ifdef SPECIAL_VERSION
 			// Adding a registration key into the system registry
 			CEnterCodeDlg ecDlg;
-			ecDlg.RegisterKey( SPECIAL_REGKEY );
+			ecDlg.RegisterKey(SPECIAL_REGKEY, true);
 #endif
 			return true;
 	}
