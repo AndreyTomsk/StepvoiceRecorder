@@ -32,17 +32,19 @@ void CConfig::RegisterRead()
 {
 	CWinApp* App = AfxGetApp();
 
-	conf_prog.bAlwaysOnTop  = App->GetProfileInt( "General", "Always on Top", 0 );
-	conf_prog.bEasyMove		= App->GetProfileInt( "General", "Easy Move", 1 );
-	conf_prog.nXcoord		= App->GetProfileInt( "General", "Xcoord", 300 );
-	conf_prog.nYcoord		= App->GetProfileInt( "General", "Ycoord", 200 );
-	conf_prog.nDialogIndex	= App->GetProfileInt( "General", "DialogIndex", 0 );
+	conf_prog.bAlwaysOnTop    = App->GetProfileInt( "General", "Always on Top", 0 );
+	conf_prog.bEasyMove       = App->GetProfileInt( "General", "Easy Move", 1 );
+	conf_prog.nXcoord         = App->GetProfileInt( "General", "Xcoord", 300 );
+	conf_prog.nYcoord         = App->GetProfileInt( "General", "Ycoord", 200 );
+	conf_prog.nDialogIndex    = App->GetProfileInt( "General", "DialogIndex", 0 );
 	conf_prog.strLastFileName = App->GetProfileString( "General","LastFileName", "" );
 	conf_prog.strLastFilePath = App->GetProfileString( "General","LastFilePath", "C:\\" );
-	conf_prog.nGraphType	= App->GetProfileInt( "General", "Graph Type", ID_GRAPH_PEAKMETER );
-	conf_prog.bGraphMaxpeaks = App->GetProfileInt( "General", "Show max peaks", 1);
-	conf_prog.bMonitoring	= App->GetProfileInt( "General", "Sound Monitor", 0 );
-	conf_prog.nPlayVolume	= App->GetProfileInt( "General", "Playback Volume", 10000);
+	conf_prog.nGraphType      = App->GetProfileInt( "General", "Graph Type", ID_GRAPH_PEAKMETER );
+	conf_prog.bGraphMaxpeaks  = App->GetProfileInt( "General", "Show max peaks", 1);
+	conf_prog.bMonitoring     = App->GetProfileInt( "General", "Sound Monitor", 0 );
+	conf_prog.nPlayVolume     = App->GetProfileInt( "General", "Playback Volume", 10000);
+	conf_prog.nLoopbackDevice = App->GetProfileInt( "General", "Loopback device", 0);
+
 	conf_dial_gen.nLoader	= App->GetProfileInt( "General", "Loader", 0 );
 	conf_dial_gen.bMinimized= App->GetProfileInt( "General", "Minimized", 0 );
 	conf_dial_gen.bAutoRun	= App->GetProfileInt( "General", "AutoRun", 0 );
@@ -98,6 +100,7 @@ bool CConfig::RegisterWrite()
 	App->WriteProfileInt( "General", "Show max peaks",	conf_prog.bGraphMaxpeaks);
 	App->WriteProfileInt( "General", "Sound Monitor",	conf_prog.bMonitoring );
 	App->WriteProfileInt( "General", "Playback Volume",	conf_prog.nPlayVolume );
+	App->WriteProfileInt( "General", "Loopback device",	conf_prog.nLoopbackDevice );
 
 	App->WriteProfileInt( "General", "Loader",			conf_dial_gen.nLoader );
 	App->WriteProfileInt( "General", "Minimized",		conf_dial_gen.bMinimized );

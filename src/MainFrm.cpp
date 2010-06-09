@@ -215,6 +215,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND_RANGE(ID_MIXITEM_PLAY0, ID_MIXITEM_PLAY0+3, OnPlayMixMenuSelect)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK, OnRecLoopbackSelect)
 	ON_COMMAND(ID_MIXITEM_PLAY_VOLUME, OnPlayVolumeSelect)
+
+	ON_COMMAND_RANGE(ID_MIXITEM_LOOPBACK_DEVICE, ID_MIXITEM_LOOPBACK_DEVICE+9, OnLoopbackDeviceSelect)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_MIXITEM_LOOPBACK_DEVICE, ID_MIXITEM_LOOPBACK_DEVICE+9, OnUpdateLoopbackDeviceSelect)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -385,6 +388,10 @@ CMainFrame::CMainFrame()
 
 	BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
 	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
+
+	m_loopback_device = m_conf.GetConfProg()->nLoopbackDevice;
+	if (m_loopback_device < 0)
+	  m_loopback_device = 0;
 }
 
 //====================================================================
@@ -558,6 +565,28 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{
 		OnBtnVas();
 	}
+
+	/*
+	// Adding device selection menu items. This feature is disabled, since
+	// planned to implement a separate control for device/line selection.
+
+	CMenu* pRecDeviceMenu = this->GetMenu()->GetSubMenu(2)->GetSubMenu(0);
+	ASSERT(pRecDeviceMenu);
+	pRecDeviceMenu->RemoveMenu(0, MF_BYPOSITION); // Removing separator
+
+	if (((CMP3_RecorderApp*)AfxGetApp())->IsVistaOS())
+	{
+		CStringArray playbackDevices;
+		BassVistaLoopback::GetPlaybackDevicesNames(playbackDevices);
+
+		for (int i = 0; i < playbackDevices.GetSize(); i++)
+			pRecDeviceMenu->AppendMenu(MF_STRING, ID_MIXITEM_LOOPBACK_DEVICE+i,
+			                           playbackDevices[i]);
+	}
+	*/
+	CMenu* pRecDeviceMenu = this->GetMenu()->GetSubMenu(2);
+	ASSERT(pRecDeviceMenu);
+	pRecDeviceMenu->RemoveMenu(0, MF_BYPOSITION); // Removing loopback device menu
 
 	return 0;
 }
@@ -772,6 +801,7 @@ void CMainFrame::OnDestroy()
 	m_conf.GetConfProg()->nGraphType = m_GraphWnd.GetDisplayMode();
 	m_conf.GetConfProg()->bGraphMaxpeaks = (int)m_GraphWnd.MaxpeaksVisible();
 	m_conf.GetConfProg()->nPlayVolume = int(m_playback_volume * 10000);
+	m_conf.GetConfProg()->nLoopbackDevice = m_loopback_device;
 }
 
 
@@ -1356,7 +1386,7 @@ void CMainFrame::OnBtnREC()
 		// Creating the Loopback stream
 		BASS_Init(-1, l_conf_mp3.nFreq, 0, GetSafeHwnd(), NULL);
 		SAFE_DELETE(m_vista_loopback);
-		m_vista_loopback = new BassVistaLoopback();
+		m_vista_loopback = new BassVistaLoopback(m_loopback_device);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
 		ASSERT(g_loopback_handle == 0);
@@ -1883,6 +1913,16 @@ void CMainFrame::OnBtnMIX_SEL()
 
 	mixMenu.CheckMenuItem((m_recording_mixer == E_REC_LOOPBACK) ? ID_MIXITEM_REC_LOOPBACK :
 		ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(), MF_CHECKED | MF_BYCOMMAND);
+	/*
+	//mixMenu.CheckMenuItem((m_recording_mixer == E_REC_LOOPBACK) ? ID_MIXITEM_REC_LOOPBACK :
+	//	ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(), MF_CHECKED | MF_BYCOMMAND);
+
+	mixMenu.CheckMenuItem(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(), MF_CHECKED | MF_BYCOMMAND);
+	//Now there is an additional checkbox, if mixing mic. with a loopback stream
+	//if (m_recording_mixer == E_REC_LOOPBACK)
+	if (m_loopback_hdsp != 0)
+		mixMenu.CheckMenuItem(ID_MIXITEM_REC_LOOPBACK, MF_CHECKED | MF_BYCOMMAND);
+	*/
 
 	// Starting a context menu and setting the display flag
 	int nItemID = mixMenu.TrackPopupMenu(TPM_VCENTERALIGN|TPM_LEFTBUTTON|
@@ -2295,7 +2335,7 @@ bool CMainFrame::MonitoringStart()
 			BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
 
 		SAFE_DELETE(m_vista_loopback);
-		m_vista_loopback = new BassVistaLoopback();
+		m_vista_loopback = new BassVistaLoopback(m_loopback_device);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
 		ASSERT(g_loopback_handle == 0);
@@ -2681,3 +2721,15 @@ bool CMainFrame::CanRecord() const
 	return BASS_ChannelIsActive(g_stream_handle)==BASS_ACTIVE_STOPPED;
 }
 
+//------------------------------------------------------------------------------
+void CMainFrame::OnLoopbackDeviceSelect(UINT nID)
+{
+	m_loopback_device = nID - ID_MIXITEM_LOOPBACK_DEVICE;
+	ASSERT(m_loopback_device >= 0);
+}
+
+//------------------------------------------------------------------------------
+void CMainFrame::OnUpdateLoopbackDeviceSelect(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(pCmdUI->m_nIndex == m_loopback_device);
+}

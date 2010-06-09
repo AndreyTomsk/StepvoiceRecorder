@@ -89,6 +89,7 @@ class CMainFrame : public CFrameWnd
 	VisualizationData* m_visualization_data;
 	BassVistaLoopback* m_vista_loopback;
 	HDSP m_loopback_hdsp;
+	int m_loopback_device;
 
 	float m_playback_volume;
 
@@ -248,6 +249,8 @@ protected:
 	afx_msg void OnPlayMixMenuSelect(UINT nID);
 	afx_msg void OnRecLoopbackSelect();
 	afx_msg void OnPlayVolumeSelect();
+	afx_msg void OnLoopbackDeviceSelect(UINT nID);
+	afx_msg void OnUpdateLoopbackDeviceSelect(CCmdUI* pCmdUI);
 
 protected:
 	LRESULT OnTrayNotification(WPARAM wParam, LPARAM lParam);

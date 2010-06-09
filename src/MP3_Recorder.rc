@@ -177,6 +177,10 @@ BEGIN
     END
     POPUP "&Options",                       65535,MFT_STRING,MFS_ENABLED
     BEGIN
+        POPUP "Recording Device",               65535,MFT_STRING,MFS_ENABLED
+        BEGIN
+            MENUITEM MFT_SEPARATOR
+        END
         MENUITEM "&Preferences...\aCtrl - P",   IDM_OPT_COM,MFT_STRING,MFS_ENABLED
         MENUITEM "Always on &Top\aCtrl - T",    IDM_OPT_TOP,MFT_STRING,MFS_ENABLED
         MENUITEM MFT_SEPARATOR

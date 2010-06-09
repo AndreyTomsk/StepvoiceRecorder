@@ -55,6 +55,7 @@ typedef struct
 	int bMonitoring;		// флаг мониторинга записи
 	//int bMInstances;		// возможность запуска нескольких копий программы
 	int nPlayVolume;
+	int nLoopbackDevice;
 } CONF_PROG;
 
 // Настройки микшера

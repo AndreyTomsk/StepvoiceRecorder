@@ -267,8 +267,9 @@
 #define IDC_DLG_TRIALNOTE               1164
 #define IDC_GEN_MINSTANCES              1165
 #define IDC_STATIC_VERSION              1166
-#define ID_MIXITEM_PLAY_VOLUME			3698
-#define ID_MIXITEM_REC_LOOPBACK			3699
+#define ID_MIXITEM_LOOPBACK_DEVICE      3688
+#define ID_MIXITEM_PLAY_VOLUME          3698
+#define ID_MIXITEM_REC_LOOPBACK         3699
 #define ID_MIXITEM_REC0                 3700
 #define ID_MIXITEM_REC50                3750
 #define ID_MIXITEM_PLAY0                3751
@@ -331,6 +332,9 @@
 #define IDA_VOL_UP                      32908
 #define IDA_VOL_DOWN                    32909
 #define ID_GRAPH_MAXPEAKS               32917
+#define ID_OPTIONS_RECORDINGDEVICE      32918
+#define IDM_RECORDINGDEVICE             32919
+#define ID_OPTIONS_RECORDINGDEVICE32920 32920
 
 // Next default values for new objects
 // 
@@ -338,7 +342,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        247
-#define _APS_NEXT_COMMAND_VALUE         32918
+#define _APS_NEXT_COMMAND_VALUE         32921
 #define _APS_NEXT_CONTROL_VALUE         1167
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
