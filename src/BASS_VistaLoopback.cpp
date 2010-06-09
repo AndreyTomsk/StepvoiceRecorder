@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "BASS_VistaLoopback.h"
-//#include <functiondiscoverykeys.h>
+#include <functiondiscoverykeys.h>
 
 #define EIF(x) if (FAILED(hr=(x))) { goto Exit; }	// Exit If Failed.
 
@@ -64,13 +64,16 @@ DWORD CALLBACK BassVistaLoopback::LoopbackStreamProc(HSTREAM /*a_handle*/,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-BassVistaLoopback::BassVistaLoopback()
+BassVistaLoopback::BassVistaLoopback(int a_device)
 	:m_wfx(NULL)
 	,m_loopback_stream(0)
 	,m_src_offset(0)
 {
+	ASSERT(a_device >= 0);
+
 	HRESULT hr;
-	EIF(GetDefaultDevice(eRender, &m_audio_client));
+	//EIF(GetDefaultDevice(eRender, &m_audio_client));
+	EIF(GetDevice(a_device, eRender, &m_audio_client));
 	EIF(m_audio_client->GetMixFormat(&m_wfx));
 
 	EIF(m_audio_client->Initialize(
@@ -119,7 +122,6 @@ HRESULT BassVistaLoopback::GetDefaultDevice(EDataFlow a_flow, IAudioClient **a_c
 {
 	CComPtr<IMMDeviceEnumerator> l_enumerator;
 	CComPtr<IMMDevice> l_device;
-	//CComPtr<IPropertyStore> l_properties;
 
 	HRESULT hr;
 	EIF(l_enumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator)));
@@ -129,6 +131,7 @@ HRESULT BassVistaLoopback::GetDefaultDevice(EDataFlow a_flow, IAudioClient **a_c
 
 	/*
 	// Test code for getting device parameters 
+	CComPtr<IPropertyStore> l_properties;
 	l_device->OpenPropertyStore(STGM_READ, &l_properties);
 
 	PROPVARIANT varName;
@@ -138,6 +141,59 @@ HRESULT BassVistaLoopback::GetDefaultDevice(EDataFlow a_flow, IAudioClient **a_c
 	EIF(l_properties->GetValue(PKEY_Device_FriendlyName, &varName));
 	PropVariantClear(&varName);
 	*/
+Exit:
+	return hr;
+}
+////////////////////////////////////////////////////////////////////////////////
+
+HRESULT BassVistaLoopback::GetDevice(int a_device_id, EDataFlow a_flow,
+									 IAudioClient **a_client)
+{
+	CComPtr<IMMDeviceEnumerator> l_enumerator;
+	CComPtr<IMMDeviceCollection> l_device_collection;
+	CComPtr<IMMDevice> l_device;
+
+	HRESULT hr;
+	EIF(l_enumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator)));
+	EIF(l_enumerator->EnumAudioEndpoints(a_flow, DEVICE_STATE_ACTIVE, &l_device_collection));
+
+	EIF(l_device_collection->Item(a_device_id, &l_device));
+	EIF(l_device->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER,
+		NULL, reinterpret_cast<void**>(a_client)));
+
+Exit:
+	return hr;
+}
+////////////////////////////////////////////////////////////////////////////////
+
+HRESULT BassVistaLoopback::GetPlaybackDevicesNames(CStringArray& arr)
+{
+	arr.RemoveAll();
+
+	CComPtr<IMMDeviceEnumerator> l_enumerator;
+	CComPtr<IMMDeviceCollection> l_device_collection;
+
+	HRESULT hr;
+	EIF(l_enumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator)));
+	EIF(l_enumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &l_device_collection));
+
+	UINT l_device_count;
+	EIF(l_device_collection->GetCount(&l_device_count));
+	for (int i = 0; i < l_device_count; i++)
+	{
+		CComPtr<IMMDevice> l_device;
+		EIF(l_device_collection->Item(i, &l_device));
+
+		CComPtr<IPropertyStore> l_properties;
+		l_device->OpenPropertyStore(STGM_READ, &l_properties);
+
+		PROPVARIANT varName;
+		PropVariantInit(&varName);
+		EIF(l_properties->GetValue(PKEY_Device_FriendlyName, &varName));
+		arr.Add(varName.pwszVal);
+		PropVariantClear(&varName);
+	}
+
 Exit:
 	return hr;
 }

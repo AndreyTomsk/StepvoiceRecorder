@@ -12,13 +12,15 @@
 class BassVistaLoopback
 {
 public:
-	BassVistaLoopback();
+	BassVistaLoopback(int a_device = 0);
 	virtual ~BassVistaLoopback();
 
+	static HRESULT GetPlaybackDevicesNames(CStringArray& arr);
 	HSTREAM GetLoopbackStream() const;
 
 private:
 	HRESULT GetDefaultDevice(EDataFlow a_flow, IAudioClient **a_client);
+	HRESULT GetDevice(int a_device_id, EDataFlow a_flow, IAudioClient **a_client);
 
 	static DWORD CALLBACK LoopbackStreamProc(HSTREAM a_handle,
 		void* a_buffer, DWORD a_length, void* a_user);
