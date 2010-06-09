@@ -1,8 +1,11 @@
 -----------------------------------------------------------------------------
 Milestone: "Version 1.8". Main goals:
 
-1.
-2.
+1. - Mix StereoMix with other streams (in vista);
+2. - Migrate to float buffers;
+3. - Add a special mp3 header after recording finished.
+4. - (?) If a user presses "Record", then save to a Untitled.mp3, and ask to save before close.
+5. - (?) Remember "What You Hear" checked in config.
 
 -----------------------------------------------------------------------------
 
