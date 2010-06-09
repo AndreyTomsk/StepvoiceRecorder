@@ -238,6 +238,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\Bass_Functions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\BASS_VistaLoopback.cpp"
 				>
 			</File>
@@ -1264,6 +1268,10 @@
 			>
 			<File
 				RelativePath="AfStack.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BASS_Functions.h"
 				>
 			</File>
 			<File

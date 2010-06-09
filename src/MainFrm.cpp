@@ -15,6 +15,7 @@ static char THIS_FILE[] = __FILE__;
 #include "Interface\Buttons\BitmapBtn.h" 
 #include "common.h"
 #include "system.h"
+#include "BASS_Functions.h"
 
 HSTREAM g_stream_handle = 0;   // Playback
 HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
@@ -217,6 +218,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
 double GetMaxPeakDB(HRECORD a_handle)
 {
 	BASS_CHANNELINFO l_ci;
@@ -241,7 +243,7 @@ double GetMaxPeakDB(HRECORD a_handle)
 	}
 	return 20 * log10(float(l_level)/l_max_possible);
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD /*a_handle*/, void* a_buffer,
 										DWORD a_length, void* a_user)
@@ -283,7 +285,7 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 		}
 		else
 		{
-			l_main_window->m_vas.ProcessThreshold(GetMaxPeakDB(a_handle));
+			l_main_window->m_vas.ProcessThreshold(Bass::GetMaxPeakDB(a_handle));
 		}
 		if (l_main_window->m_vas.CheckVAS()) 
 		{
@@ -1368,7 +1370,7 @@ void CMainFrame::OnBtnREC()
 		if (m_recording_mixer == E_REC_LOOPBACK)
 		{
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
-				LoopbackStreamDSP, &g_loopback_handle, 0xFF);
+				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFF);
 		}
 	}
 
@@ -2304,7 +2306,7 @@ bool CMainFrame::MonitoringStart()
 		if (m_recording_mixer == E_REC_LOOPBACK)
 		{
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
-				LoopbackStreamDSP, &g_loopback_handle, 0xFF);
+				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFF);
 		}
 
 		///@bug Testing new functionality
@@ -2573,6 +2575,7 @@ CString CMainFrame::ParseFileName(CString a_file_name)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
 void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
 	void *a_buffer, DWORD a_length, void *a_user)
 {
@@ -2595,15 +2598,41 @@ void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
 	}
 	ASSERT(l_length == a_length);
 
-	//2. Replace data in the recording buffer.
+	//2. Replace data in the recording buffer (assuming we have float samples).
+	float* l_dst_buffer = (float*)a_buffer;
+	float* l_src_buffer_float = (float*)l_src_buffer;
+	for (int i = 0; i < a_length / sizeof(float); i++)
+		l_dst_buffer[i] = max(-1.0, min((l_dst_buffer[i] + l_src_buffer_float[i]), 1.0));
+
+	/*
 	char* l_dst_buffer = (char*)a_buffer;
 	for (DWORD i = 0; i < a_length; i++)
 		l_dst_buffer[i] = l_src_buffer[i];
-}
+	*/
+//}
+//*/
 
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnRecLoopbackSelect()
 {
+	/*
+	//Reverting loopback DSP state.
+	if (m_loopback_hdsp != 0)
+	{
+		HRECORD destHandle = (g_record_handle) ? g_record_handle : g_monitoring_handle; 
+		BASS_ChannelRemoveDSP(destHandle, m_loopback_hdsp);
+		m_loopback_hdsp = 0;
+	}
+	else if (g_record_handle || g_monitoring_handle)
+	{
+		m_active_mixer = E_REC_LOOPBACK;
+		m_recording_mixer = E_REC_LOOPBACK;
+		HRECORD destHandle = (g_record_handle) ? g_record_handle : g_monitoring_handle; 
+		m_loopback_hdsp = BASS_ChannelSetDSP(destHandle,
+			Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFF);
+	}
+	*/
+
 	OutputDebugString(__FUNCTION__"\n");
 
 	// If we are in recording state, when set or remove DSP function,
@@ -2620,13 +2649,13 @@ void CMainFrame::OnRecLoopbackSelect()
 		{
 			OutputDebugString(__FUNCTION__ " :: setting DSP to rec. handle\n");
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
-				LoopbackStreamDSP, &g_loopback_handle, 0xFF);
+				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFF);
 		}
 		else if (g_monitoring_handle && !m_loopback_hdsp)
 		{
 			OutputDebugString(__FUNCTION__ " :: setting DSP to mon. handle\n");
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
-				LoopbackStreamDSP, &g_loopback_handle, 0xFF);
+				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFF);
 		}
 	}
 }
