@@ -378,7 +378,10 @@ CMainFrame::CMainFrame()
 
 	m_pMainFrame = this;
 	m_bAutoMenuEnable = false;
-	LoadFrame(IDR_MAINFRAME, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX);
+
+	m_loopback_device = m_conf.GetConfProg()->nLoopbackDevice;
+	if (m_loopback_device < 0)
+		m_loopback_device = 0;
 
 	// init window snapping
 	m_szMoveOffset.cx = 0;
@@ -389,9 +392,8 @@ CMainFrame::CMainFrame()
 	BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
 	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
 
-	m_loopback_device = m_conf.GetConfProg()->nLoopbackDevice;
-	if (m_loopback_device < 0)
-	  m_loopback_device = 0;
+	// Calls OnCreate handler.
+	LoadFrame(IDR_MAINFRAME, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX);
 }
 
 //====================================================================

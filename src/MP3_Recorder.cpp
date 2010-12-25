@@ -320,7 +320,9 @@ BOOL CMP3_RecorderApp::InitInstance()
 		return FALSE; // exiting this instance
     }
 
-	// показываем наг-скрин
+	// showing nag-screen. BUG: some customers reported, that SVR crashes after
+	// pasted reg. key and restart. Possible protector bug. Goto statement ok.
+
 	REG_CRYPT_BEGIN;
 	//#ifndef _DEBUG
 		goto _lNoNag;
