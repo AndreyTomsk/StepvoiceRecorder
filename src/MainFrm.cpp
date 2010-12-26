@@ -8,7 +8,6 @@ static char THIS_FILE[] = __FILE__;
 #include "stdafx.h"
 #include <map>
 #include <math.h>
-#include <vector>
 
 #include "MP3_Recorder.h"
 #include "MainFrm.h"
@@ -46,7 +45,6 @@ bool IsRecording(const ProgramState& a_state)
 {
 	return (a_state == RECORD_STATE || a_state == PAUSEREC_STATE);
 };
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Check if a file is suitable for recording (not exist or length = 0).
@@ -221,33 +219,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
-/*
-double GetMaxPeakDB(HRECORD a_handle)
-{
-	BASS_CHANNELINFO l_ci;
-	BOOL l_result = BASS_ChannelGetInfo(a_handle, &l_ci);
-	ASSERT(l_result);
-
-	int l_max_possible = 0xFFFF / 2; // 16-bit as default
-	if (l_ci.flags & BASS_SAMPLE_8BITS)
-	{
-		l_max_possible = 0xFF / 2;
-	}
-	else if (l_ci.flags & BASS_SAMPLE_FLOAT)
-	{
-		l_max_possible = 1;
-	}
-	DWORD l_ch_level = BASS_ChannelGetLevel(a_handle);
-	DWORD l_level = (LOWORD(l_ch_level) > HIWORD(l_ch_level)) ?
-		LOWORD(l_ch_level) : HIWORD(l_ch_level);
-	if (l_level < 1)
-	{
-		l_level = 1;
-	}
-	return 20 * log10(float(l_level)/l_max_possible);
-}
-*/
-////////////////////////////////////////////////////////////////////////////////
 BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD /*a_handle*/, void* a_buffer,
 										DWORD a_length, void* a_user)
 {
@@ -383,7 +354,7 @@ CMainFrame::CMainFrame()
 	if (m_loopback_device < 0)
 		m_loopback_device = 0;
 
-	// init window snapping
+	// Init window snapping
 	m_szMoveOffset.cx = 0;
 	m_szMoveOffset.cy = 0;
 	m_nSnapPixels = 7;
@@ -392,7 +363,7 @@ CMainFrame::CMainFrame()
 	BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
 	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
 
-	// Calls OnCreate handler.
+	// Note: calls OnCreate handler.
 	LoadFrame(IDR_MAINFRAME, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX);
 }
 
@@ -1350,34 +1321,28 @@ void CMainFrame::OnBtnREC()
 		if (!BASS_RecordInit(-1))
 			return;
 
-		CONF_DIAL_MP3 l_conf_mp3;
-		memcpy(&l_conf_mp3, m_conf.GetConfDialMp3(), sizeof(CONF_DIAL_MP3));
+		int l_bitrate = m_conf.GetConfDialMp3()->nBitrate;
+		int l_frequency = m_conf.GetConfDialMp3()->nFreq;
+		int l_channels = m_conf.GetConfDialMp3()->nStereo + 1;
 
-		SAFE_DELETE(m_pEncoder);
-		m_pEncoder = new CEncoder_MP3(m_strDir);
-
-		int l_error_code = m_pEncoder->InitEncoder(&l_conf_mp3);
-		if (l_error_code != CEncoder::ENC_NOERROR)
+		try
 		{
 			SAFE_DELETE(m_pEncoder);
-			CString l_message;
-			CString l_format_string;
-
-			l_format_string.LoadString(IDS_ENC_ERR_DLL);
-			l_message.Format(l_format_string, m_strDir, _T("lame_enc.dll"), l_error_code);
-			AfxMessageBox(l_message, MB_OK | MB_ICONSTOP);
+			m_pEncoder = new CEncoder_MP3(l_bitrate, l_frequency, l_channels);
+		}
+		catch (CString& e)
+		{
+			SAFE_DELETE(m_pEncoder);
+			BASS_RecordFree();
+			AfxMessageBox(e, MB_OK | MB_ICONSTOP);
 			return;
 		}
 
 		SAFE_DELETE(m_visualization_data);
-		m_visualization_data = new VisualizationData(l_conf_mp3.nFreq, l_conf_mp3.nStereo + 1);
+		m_visualization_data = new VisualizationData(l_frequency, l_channels);
 
-		g_record_handle = BASS_RecordStart(
-			l_conf_mp3.nFreq,
-			l_conf_mp3.nStereo + 1,
-			MAKELONG(BASS_RECORD_PAUSE, 25),
-			(RECORDPROC *)&NewRecordProc,
-			this);
+		g_record_handle = BASS_RecordStart(l_frequency, l_channels,
+			MAKELONG(BASS_RECORD_PAUSE, 25), (RECORDPROC *)&NewRecordProc, this);
 		if (FALSE == g_record_handle)
 		{
 			SAFE_DELETE(m_pEncoder);
@@ -1386,14 +1351,14 @@ void CMainFrame::OnBtnREC()
 		}
 
 		// Creating the Loopback stream
-		BASS_Init(-1, l_conf_mp3.nFreq, 0, GetSafeHwnd(), NULL);
+		BASS_Init(-1, l_frequency, 0, GetSafeHwnd(), NULL);
 		SAFE_DELETE(m_vista_loopback);
 		m_vista_loopback = new BassVistaLoopback(m_loopback_device);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
 		ASSERT(g_loopback_handle == 0);
-		g_loopback_handle = BASS_Mixer_StreamCreate(l_conf_mp3.nFreq,
-			l_conf_mp3.nStereo + 1, BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
+		g_loopback_handle = BASS_Mixer_StreamCreate(l_frequency, l_channels,
+			BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
 		ASSERT(g_loopback_handle);
 
 		BASS_Mixer_StreamAddChannel(g_loopback_handle, l_stream_handle,
@@ -1505,11 +1470,10 @@ void CMainFrame::Convert(UINT nCurSec, char *pszTime, int nStrSize)
 {
 	const char* szPattern[] = {"%d", "0%d"};
 	char szMin[3] = "", szSec[3] = "";
-	int  iHour, iMin, iSec;
 
-	iHour= nCurSec/3600;
-	iMin =(nCurSec - iHour*3600)/60;
-	iSec = nCurSec - iHour*3600 - iMin*60;
+	int iHour= nCurSec/3600;
+	int iMin =(nCurSec - iHour*3600)/60;
+	int iSec = nCurSec - iHour*3600 - iMin*60;
 
 	sprintf_s(szMin, sizeof(szMin), szPattern[iMin<10], iMin);
 	sprintf_s(szSec, sizeof(szSec), szPattern[iSec<10], iSec);

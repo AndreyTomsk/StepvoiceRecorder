@@ -103,7 +103,7 @@ class CMainFrame : public CFrameWnd
 
 	CWaveIn*		m_pWaveIn;
 	CWaveOut*		m_pWaveOut;
-	CEncoder*		m_pEncoder;
+	CEncoder_MP3*	m_pEncoder;
 	CDecoder*		m_pDecoder;
 	CTitleText*		m_title;
 	CFile			m_record_file;

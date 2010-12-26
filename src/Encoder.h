@@ -14,7 +14,7 @@ public:
 		ENC_ERR_UNK
 	};
 public:
-	virtual int  InitEncoder(void* pSettings) = 0;
+	virtual int  InitEncoder(int nBitrate, int nFrequency, int nChannels) = 0;
 	virtual bool EncodeChunk(char* pBufIn,  int  nBufInSize,
 		                     char* pBufOut, int &nBufOutSize) = 0;
 	virtual void CloseEncoder() = 0;

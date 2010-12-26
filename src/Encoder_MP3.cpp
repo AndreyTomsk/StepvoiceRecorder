@@ -12,32 +12,22 @@ static char THIS_FILE[]=__FILE__;
 
 BEINITSTREAM		beInitStream	 = NULL;
 BEENCODECHUNK		beEncodeChunk	 = NULL;
+BEENCODECHUNKFLOATS16NI beEncodeChunkFloatS16NI = NULL;
 BEDEINITSTREAM		beDeinitStream	 = NULL;
 BECLOSESTREAM		beCloseStream	 = NULL;
 BEVERSION			beVersion		 = NULL;
 BEWRITEVBRHEADER	beWriteVBRHeader = NULL;
+BEWRITEINFOTAG		beWriteInfoTag   = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
-CEncoder_MP3::CEncoder_MP3(CString& strDllPath)
-	//:CEncoder(strDllPath)
+CEncoder_MP3::CEncoder_MP3(int nBitrate, int nFrequency, int nChannels)
 	:m_pChunkBuf(NULL)
-	//,m_pMp3Buf(NULL)
 	,m_hbeStream(NULL)
 	,m_hDll(0)
 {
-	LoadLibrary(strDllPath);
-}
-
-//-----------------------------------------------------------------------------
-CEncoder_MP3::CEncoder_MP3(CString& strDllPath, void* pSettings)
-	//:CEncoder(strDllPath, pSettings)
-	:m_pChunkBuf(NULL)
-	//,m_pMp3Buf(NULL)
-	,m_hbeStream(NULL)
-	,m_hDll(0)
-{
-	LoadLibrary(strDllPath);
-	InitEncoder(pSettings);
+	CString l_app_dir = ((CMP3_RecorderApp*)AfxGetApp())->GetProgramDir();
+	LoadLibrary(l_app_dir);
+	InitEncoder(nBitrate, nFrequency, nChannels);
 }
 
 //-----------------------------------------------------------------------------
@@ -57,18 +47,23 @@ void CEncoder_MP3::LoadLibrary(CString& strDllPath)
 	{
 		beInitStream	= (BEINITSTREAM)    GetProcAddress(m_hDll, TEXT_BEINITSTREAM);
 		beEncodeChunk	= (BEENCODECHUNK)   GetProcAddress(m_hDll, TEXT_BEENCODECHUNK);
+		beEncodeChunkFloatS16NI = (BEENCODECHUNKFLOATS16NI) GetProcAddress(m_hDll, TEXT_BEENCODECHUNKFLOATS16NI);
 		beDeinitStream	= (BEDEINITSTREAM)  GetProcAddress(m_hDll, TEXT_BEDEINITSTREAM);
 		beCloseStream	= (BECLOSESTREAM)   GetProcAddress(m_hDll, TEXT_BECLOSESTREAM);
 		beVersion		= (BEVERSION)       GetProcAddress(m_hDll, TEXT_BEVERSION);
 		beWriteVBRHeader= (BEWRITEVBRHEADER)GetProcAddress(m_hDll, TEXT_BEWRITEVBRHEADER);
+		beWriteInfoTag  = (BEWRITEINFOTAG)  GetProcAddress(m_hDll, TEXT_BEWRITEINFOTAG);
 
 		bool l_all_functions = (beInitStream && beEncodeChunk && beDeinitStream
 			&& beCloseStream && beVersion && beWriteVBRHeader);
 		if (!l_all_functions)
 		{
 			FreeLibrary();
+			throw CString(_T("Invalid 'lame_enc.dll' library."));
 		}
 	}
+	else
+		throw CString(_T("Lame encoder library not found by path:\n") + strDllName);
 }
 
 //-----------------------------------------------------------------------------
@@ -82,51 +77,53 @@ void CEncoder_MP3::FreeLibrary()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-int CEncoder_MP3::InitEncoder(void* pSettings)
+void CEncoder_MP3::InitEncoder(int nBitrate, int nFrequency, int nChannels)
 {
 	CloseEncoder();
 
-	if (!m_hDll)
-	{
-		return ENC_ERR_DLL;
-	}
-
-	CONF_DIAL_MP3* pMp3Conf = (CONF_DIAL_MP3 *)pSettings;
-
 	// Adjusting encoder settings.
-	int nModeTbl[] = {BE_MP3_MODE_MONO, BE_MP3_MODE_STEREO};
 	m_beConfig.dwConfig						= BE_CONFIG_LAME;
 	m_beConfig.format.LHV1.dwStructVersion	= 1;
 	m_beConfig.format.LHV1.dwStructSize		= sizeof(m_beConfig);		
-	m_beConfig.format.LHV1.dwSampleRate		= pMp3Conf->nFreq;
-	m_beConfig.format.LHV1.dwReSampleRate	= pMp3Conf->nFreq;
-	m_beConfig.format.LHV1.dwBitrate		= pMp3Conf->nBitrate;
-	m_beConfig.format.LHV1.nMode			= nModeTbl[pMp3Conf->nStereo != 0];
+	m_beConfig.format.LHV1.dwSampleRate		= nFrequency;
+	m_beConfig.format.LHV1.dwReSampleRate	= nFrequency;
+	m_beConfig.format.LHV1.dwBitrate		= nBitrate;
+	m_beConfig.format.LHV1.nMode			= nChannels == 1 ? BE_MP3_MODE_MONO : BE_MP3_MODE_STEREO;
 	m_beConfig.format.LHV1.nPreset			= LQP_NOPRESET;
-	m_beConfig.format.LHV1.bNoRes			= TRUE;			// No Bit resorvoir
+	m_beConfig.format.LHV1.bNoRes			= TRUE;			// No Bit reservoir
 	
 	// mpeg version
-	bool bMpeg2 = ((pMp3Conf->nBitrate == 32) && (pMp3Conf->nFreq < 22050)) ||
-		(pMp3Conf->nBitrate < 32);
+	bool bMpeg2 = (nBitrate < 32) || (nBitrate == 32 && nFrequency < 22050);
 	m_beConfig.format.LHV1.dwMpegVersion = (bMpeg2) ? MPEG2 : MPEG1;
 
 	DWORD dwSamples = 0, dwBufOutMinSize = 0;
-	BE_ERR err = beInitStream(&m_beConfig, &dwSamples, &dwBufOutMinSize,
-		&m_hbeStream);
+	BE_ERR err = beInitStream(&m_beConfig, &dwSamples, &dwBufOutMinSize, &m_hbeStream);
 	if (err != BE_ERR_SUCCESSFUL)
-	{
-		CloseEncoder();
-		return ENC_ERR_INIT;
-	}
-
-	//m_pMp3Buf = new char[dwBufOutMinSize];
+		throw CString(_T("Failed to initialize lame encoder."));
 
 	// инициализируем внутренний буфер семплов, размером dwSamples
 	m_nChunkBufSamples = dwSamples;
 	m_nChunkBufSize	   = dwSamples * 2;
 	m_pChunkBuf		   = new char[m_nChunkBufSize];
+}
 
-	return ENC_NOERROR;
+//-----------------------------------------------------------------------------
+void CEncoder_MP3::CloseEncoder()
+{
+	if (m_hbeStream)
+	{
+		beCloseStream(m_hbeStream);		
+		m_hbeStream	= NULL;
+	}
+
+	ZeroMemory(&m_beConfig, sizeof(m_beConfig));
+	m_nChunkBufOffset	= 0;
+	m_nChunkBufSamples	= 0;
+	m_nChunkBufSize		= 0;
+	m_pBufIn			= NULL;
+	m_nBufInSize		= 0;
+
+	SAFE_DELETE_ARRAY(m_pChunkBuf);
 }
 
 //-----------------------------------------------------------------------------
@@ -166,25 +163,6 @@ bool CEncoder_MP3::EncodeChunk(char* pBufIn,  int  nBufInSize,
 	return (nBufOutSize) ? true : false;
 }
 
-//-----------------------------------------------------------------------------
-void CEncoder_MP3::CloseEncoder()
-{
-	if (m_hbeStream)
-	{
-		beCloseStream(m_hbeStream);		
-		m_hbeStream	= NULL;
-	}
-
-	ZeroMemory(&m_beConfig, sizeof(m_beConfig));
-	m_nChunkBufOffset	= 0;
-	m_nChunkBufSamples	= 0;
-	m_nChunkBufSize		= 0;
-	m_pBufIn			= NULL;
-	m_nBufInSize		= 0;
-
-	SAFE_DELETE_ARRAY(m_pChunkBuf);
-	//SAFE_DELETE_ARRAY(m_pMp3Buf);
-}
 /*
 ///////////////////////////////////////////////////////////////////////////////
 bool CEncoder_MP3::EncodeChunk(BYTE* pBufIn, int nBufInSize)
