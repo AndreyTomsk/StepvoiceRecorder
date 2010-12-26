@@ -20,6 +20,7 @@ BEWRITEVBRHEADER	beWriteVBRHeader = NULL;
 BEWRITEINFOTAG		beWriteInfoTag   = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
+
 CEncoder_MP3::CEncoder_MP3(int nBitrate, int nFrequency, int nChannels)
 	:m_pChunkBuf(NULL)
 	,m_hbeStream(NULL)
@@ -29,15 +30,15 @@ CEncoder_MP3::CEncoder_MP3(int nBitrate, int nFrequency, int nChannels)
 	LoadLibrary(l_app_dir);
 	InitEncoder(nBitrate, nFrequency, nChannels);
 }
-
 //-----------------------------------------------------------------------------
+
 CEncoder_MP3::~CEncoder_MP3()
 {
 	CloseEncoder();
 	FreeLibrary();
 }
+//-----------------------------------------------------------------------------
   
-///////////////////////////////////////////////////////////////////////////////
 void CEncoder_MP3::LoadLibrary(CString& strDllPath)
 {
 	CString strDllName = strDllPath + _T("\\lame_enc.dll");
@@ -65,8 +66,8 @@ void CEncoder_MP3::LoadLibrary(CString& strDllPath)
 	else
 		throw CString(_T("Lame encoder library not found by path:\n") + strDllName);
 }
-
 //-----------------------------------------------------------------------------
+
 void CEncoder_MP3::FreeLibrary()
 {
 	if (m_hDll)
@@ -75,8 +76,8 @@ void CEncoder_MP3::FreeLibrary()
 		m_hDll = 0;
 	}
 }
+//-----------------------------------------------------------------------------
 
-///////////////////////////////////////////////////////////////////////////////
 void CEncoder_MP3::InitEncoder(int nBitrate, int nFrequency, int nChannels)
 {
 	CloseEncoder();
@@ -101,13 +102,12 @@ void CEncoder_MP3::InitEncoder(int nBitrate, int nFrequency, int nChannels)
 	if (err != BE_ERR_SUCCESSFUL)
 		throw CString(_T("Failed to initialize lame encoder."));
 
-	// инициализируем внутренний буфер семплов, размером dwSamples
-	m_nChunkBufSamples = dwSamples;
-	m_nChunkBufSize	   = dwSamples * 2;
-	m_pChunkBuf		   = new char[m_nChunkBufSize];
+	// Creating internal dwSamples size buffer for source data.
+	m_nChunkBufSize = dwSamples * 2; // Samples has 'short' type.
+	m_pChunkBuf = new char[m_nChunkBufSize];
 }
-
 //-----------------------------------------------------------------------------
+
 void CEncoder_MP3::CloseEncoder()
 {
 	if (m_hbeStream)
@@ -117,91 +117,41 @@ void CEncoder_MP3::CloseEncoder()
 	}
 
 	ZeroMemory(&m_beConfig, sizeof(m_beConfig));
-	m_nChunkBufOffset	= 0;
-	m_nChunkBufSamples	= 0;
-	m_nChunkBufSize		= 0;
-	m_pBufIn			= NULL;
-	m_nBufInSize		= 0;
-
 	SAFE_DELETE_ARRAY(m_pChunkBuf);
+	m_nChunkBufSize = 0;
 }
-
 //-----------------------------------------------------------------------------
+
 bool CEncoder_MP3::EncodeChunk(char* pBufIn,  int  nBufInSize,
 							   char* pBufOut, int& nBufOutSize)
 {
-	// Getting pointer to input buffer for iterations.
-	if (pBufIn && nBufInSize)
+	int l_input_buffer_offset  = 0;
+	int l_output_buffer_offset = 0;
+
+	nBufOutSize = 0;
+
+	// Dividing source buffer into chunks and encoding each.
+	while (l_input_buffer_offset < nBufInSize)
 	{
-		m_pBufIn	 = pBufIn;
-		m_nBufInSize = nBufInSize;
+		// Taking current chunk.
+	    int l_available_count = nBufInSize - l_input_buffer_offset;
+		int l_copy_count = min(m_nChunkBufSize, l_available_count);
+
+		memcpy(m_pChunkBuf, pBufIn + l_input_buffer_offset, l_copy_count);
+		l_input_buffer_offset += l_copy_count;
+
+		// Encoding samples of type 'short'. Data saved in output buffer.
+		DWORD dwBytesEncoded = 0;
+		BE_ERR err = beEncodeChunk(m_hbeStream, l_copy_count / sizeof(short), (short *)m_pChunkBuf,
+			(BYTE *)(pBufOut + l_output_buffer_offset), &dwBytesEncoded);
+		
+		if (err != BE_ERR_SUCCESSFUL)
+			break;
+
+		l_output_buffer_offset += dwBytesEncoded;
+		nBufOutSize += dwBytesEncoded;
 	}
-	// Calculating how much bytes we need for filling internal chunk buffer.
-	int nFillBytes = m_nChunkBufSize - m_nChunkBufOffset;
-	nFillBytes = (nFillBytes < m_nBufInSize) ? nFillBytes : m_nBufInSize;
 
-	memcpy(m_pChunkBuf + m_nChunkBufOffset, m_pBufIn, nFillBytes);
-
-	m_pBufIn		  += nFillBytes;
-	m_nBufInSize	  -= nFillBytes;
-	m_nChunkBufOffset += nFillBytes;
-
-	if (m_nChunkBufOffset != m_nChunkBufSize)
-	{	
-		///@note Chunk buffer is not full, because nBufInSize doesn't have
-		///whole number of chunks. We copied all data from input buffer, now
-		///we return false and will wait for a new input buffer.
-		return false;
-	}
-	m_nChunkBufOffset = 0;
-
-	DWORD dwBytesEncoded = 0;
-	BE_ERR err = beEncodeChunk(m_hbeStream, m_nChunkBufSamples,
-		(short *)m_pChunkBuf, (BYTE *)pBufOut, &dwBytesEncoded);
-
-	nBufOutSize = (BE_ERR_SUCCESSFUL == err) ? dwBytesEncoded : 0;
-	return (nBufOutSize) ? true : false;
+	return (l_input_buffer_offset == nBufInSize) ? true : false;
 }
-
-/*
-///////////////////////////////////////////////////////////////////////////////
-bool CEncoder_MP3::EncodeChunk(BYTE* pBufIn, int nBufInSize)
-{
-	DWORD	dwBufInLength, dwBufTmpLength;
-	DWORD	dwBufInOffset, dwBytesEncoded;
-
-// OK checking
-	if(!m_flags.bDllOK || !m_flags.bEncOK) return false;
-
-// buffers init
-	m_dwBufOutOffset= 0;
-	dwBufInOffset	= 0;
-	dwBufInLength	= nBufInSize - dwBufInOffset;
-	dwBufTmpLength	= m_dwBufTmpSize - m_dwBufTmpOffset;
-
-// fill Out buffer
-	while (dwBufInLength > dwBufTmpLength)
-	{
-		memcpy(&m_pBufferTmp[m_dwBufTmpOffset], &pBufIn[dwBufInOffset],
-			dwBufTmpLength);
-		BE_ERR err = beEncodeChunk(m_hbeStream, m_dwBufTmpSize/2,
-			(short*)m_pBufferTmp, &m_pBufferOut[m_dwBufOutOffset],
-			&dwBytesEncoded);
-		if(err != BE_ERR_SUCCESSFUL)
-		{
-			m_dwBufTmpOffset = 0;
-			return false;
-		}
-		dwBufInOffset	 += dwBufTmpLength;
-		m_dwBufTmpOffset  = 0;
-		m_dwBufOutOffset += dwBytesEncoded;
-
-		dwBufInLength	= nBufInSize - dwBufInOffset;
-		dwBufTmpLength	= m_dwBufTmpSize;
-	}
-// store data with length < Tmp buffer length
-	memcpy(m_pBufferTmp, &pBufIn[dwBufInOffset], dwBufInLength);
-	m_dwBufTmpOffset += dwBufInLength;
-	return true;
-}
-*/
+//-----------------------------------------------------------------------------

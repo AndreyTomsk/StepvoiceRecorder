@@ -8,7 +8,7 @@
 class CEncoder_MP3// : public CEncoder
 {
 public:
-	CEncoder_MP3(int nBitrate, int nFrequency, int nChannels);
+	CEncoder_MP3(int nBitrate, int nFrequency, int nChannels); // throws CString exceptions
 	virtual ~CEncoder_MP3();
 
 	virtual bool EncodeChunk(char* pBufIn, int nBufInSize, char* pBufOut, int& nBufOutSize);
@@ -24,13 +24,8 @@ private:
 	BE_CONFIG  m_beConfig;		// стркутура настроек кодирования
 	HBE_STREAM m_hbeStream;		// дескриптор потока кодрования
 
-	char*	   m_pChunkBuf;			//
-	int		   m_nChunkBufOffset;	//
-	int		   m_nChunkBufSize;		//
-	int		   m_nChunkBufSamples;	//
-
-	char*	   m_pBufIn;		//
-	int		   m_nBufInSize;	//
+	char*	   m_pChunkBuf;		// internal chunk buffer for encoding.
+	int		   m_nChunkBufSize;	//
 };
 
 ///////////////////////////////////////////////////////////////////////////////

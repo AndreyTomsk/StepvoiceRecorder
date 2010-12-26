@@ -35,11 +35,11 @@ void CALLBACK LoopbackStreamDSP(HDSP /*a_dsp_handle*/, DWORD /*a_channel*/,
 	// as a main recording stream, for direct copying.
 
 	//1. Fill buffer with required length from Loopback stream (a_user)
-	const int BUFFER_LENGTH = 256 * 1024;
+	const int BUFFER_LENGTH = 128 * 1024;
 	ASSERT(a_length <= BUFFER_LENGTH);
 	ASSERT(a_user);
 
-	static char l_src_buffer[BUFFER_LENGTH] = {0}; //256k buffer
+	static char l_src_buffer[BUFFER_LENGTH] = {0}; //128k buffer
 	HSTREAM l_src_stream = *((HSTREAM*)a_user);
 
 	DWORD l_length = BASS_ChannelGetData(l_src_stream, l_src_buffer, a_length);

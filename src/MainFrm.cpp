@@ -237,10 +237,7 @@ BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD /*a_handle*/, void* a_buffer,
 BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 										DWORD a_length, void* a_user)
 {
-	static char pBufOut[10240]; //10k buffer
-	char* pBufIn = (char*)a_buffer;
-	int	  nBufInSize = a_length;
-	int   nBufOutSize= 0;
+	static char pBufOut[128 * 1024] = {0}; //128k buffer
 
 	CMainFrame* l_main_window = (CMainFrame *)a_user;
 	ASSERT(l_main_window);
@@ -272,25 +269,26 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 		}
 	}
 
-	while (l_main_window->m_pEncoder->EncodeChunk(pBufIn, nBufInSize,
-		pBufOut, nBufOutSize))
+	try
 	{
-		try
+		int l_encoded_bytes_count = 0;
+		bool result = l_main_window->m_pEncoder->EncodeChunk(
+			(char*)a_buffer, a_length, pBufOut, l_encoded_bytes_count);
+		if (!result)
 		{
-			l_main_window->m_record_file.Write(pBufOut, nBufOutSize);
+			//TODO: logging, not all data were encoded.
 		}
-		catch (CFileException *)
-		{	// Possible, the disk is full.
-			AfxMessageBox(IDS_REC_NOSPACE, MB_OK|MB_ICONSTOP);			
-			l_main_window->PostMessage(WM_COMMAND, IDB_BTNSTOP,
-				LONG(l_main_window->m_BtnSTOP.m_hWnd));
-			return FALSE;
-		}
-		if (pBufIn)
-		{	// Clearing pointer for iterations.
-			pBufIn = NULL;
-			nBufInSize = 0;
-		}
+
+		l_main_window->m_record_file.Write(pBufOut, l_encoded_bytes_count);
+	}
+	catch (CException *e)
+	{
+		// Possible, the disk is full, etc.
+		e->ReportError();
+		e->Delete();
+		l_main_window->PostMessage(WM_COMMAND, IDB_BTNSTOP,
+			LONG(l_main_window->m_BtnSTOP.m_hWnd));
+		return FALSE;
 	}
 
 	return TRUE;
