@@ -155,3 +155,25 @@ bool CEncoder_MP3::EncodeChunk(char* pBufIn,  int  nBufInSize,
 	return (l_input_buffer_offset == nBufInSize) ? true : false;
 }
 //-----------------------------------------------------------------------------
+
+void CEncoder_MP3::WriteVBRHeader(const CString& mp3FileName)
+{
+	/*
+	// Checking file exists (and closed?).
+	HANDLE l_file_handle = CreateFile(
+		mp3FileName,
+		GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		0,
+		NULL);
+
+	if (l_file_handle == INVALID_HANDLE_VALUE)
+		throw CString(_T("Unable to write VBR header - file is locked."));
+
+	CloseHandle(l_file_handle);
+	*/
+	beWriteVBRHeader(mp3FileName);
+}
+//-----------------------------------------------------------------------------

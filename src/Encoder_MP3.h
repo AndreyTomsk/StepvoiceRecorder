@@ -11,7 +11,8 @@ public:
 	CEncoder_MP3(int nBitrate, int nFrequency, int nChannels); // throws CString exceptions
 	virtual ~CEncoder_MP3();
 
-	virtual bool EncodeChunk(char* pBufIn, int nBufInSize, char* pBufOut, int& nBufOutSize);
+	bool EncodeChunk(char* pBufIn, int nBufInSize, char* pBufOut, int& nBufOutSize);
+	void WriteVBRHeader(const CString& mp3FileName); // recommended to call after closing.
 
 private:
 	void LoadLibrary(CString& strDllPath);

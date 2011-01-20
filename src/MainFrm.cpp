@@ -1273,10 +1273,13 @@ void CMainFrame::OnBtnSTOP()
 
 		SAFE_DELETE(m_vista_loopback);
 		SAFE_DELETE(m_visualization_data);
-		SAFE_DELETE(m_pEncoder);
 
 		CString l_recorded_file = m_record_file.GetFilePath();
+		m_record_file.Flush();
 		m_record_file.Close();
+
+		m_pEncoder->WriteVBRHeader(l_recorded_file);
+		SAFE_DELETE(m_pEncoder);
 		OpenFile(l_recorded_file);
 	}
 
