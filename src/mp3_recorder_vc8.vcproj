@@ -1302,35 +1302,7 @@
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
 			<File
-				RelativePath="RES\arrow2.cur"
-				>
-			</File>
-			<File
 				RelativePath="RES\big_digits.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\bitmap1.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\bmp00001.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\bmpnull.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\bmppause.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\bmpplay.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\bmpstop.bmp"
 				>
 			</File>
 			<File
@@ -1343,42 +1315,6 @@
 			</File>
 			<File
 				RelativePath="RES\btn_vas.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\cursor1.cur"
-				>
-			</File>
-			<File
-				RelativePath="RES\digital_window.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\din.ico"
-				>
-			</File>
-			<File
-				RelativePath="RES\din2.ico"
-				>
-			</File>
-			<File
-				RelativePath="RES\din_m.ico"
-				>
-			</File>
-			<File
-				RelativePath="RES\downarro.ico"
-				>
-			</File>
-			<File
-				RelativePath="RES\graph_wn.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\graph_wnd.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\gw_numbe.bmp"
 				>
 			</File>
 			<File
@@ -1470,39 +1406,7 @@
 				>
 			</File>
 			<File
-				RelativePath="RES\lin.ico"
-				>
-			</File>
-			<File
-				RelativePath="RES\mainbar.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\mic.ico"
-				>
-			</File>
-			<File
-				RelativePath="Ico\MIKE.ICO"
-				>
-			</File>
-			<File
-				RelativePath="RES\mixerbar.bmp"
-				>
-			</File>
-			<File
 				RelativePath="RES\mixline0.ico"
-				>
-			</File>
-			<File
-				RelativePath="RES\mixsel.ico"
-				>
-			</File>
-			<File
-				RelativePath="RES\mono_stereo.bmp"
-				>
-			</File>
-			<File
-				RelativePath="res\MP3_Rec_test.ico"
 				>
 			</File>
 			<File
@@ -1522,23 +1426,7 @@
 				>
 			</File>
 			<File
-				RelativePath="RES\otr.ico"
-				>
-			</File>
-			<File
 				RelativePath="RES\pause.ico"
-				>
-			</File>
-			<File
-				RelativePath="RES\peak_meter.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\peakmete.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\pm_lin.bmp"
 				>
 			</File>
 			<File
@@ -1550,19 +1438,7 @@
 				>
 			</File>
 			<File
-				RelativePath="RES\sel.ico"
-				>
-			</File>
-			<File
-				RelativePath="RES\small_digits.bmp"
-				>
-			</File>
-			<File
 				RelativePath="RES\stat_bitmaps.bmp"
-				>
-			</File>
-			<File
-				RelativePath="RES\stat_bitmaps2.bmp"
 				>
 			</File>
 			<File
@@ -1574,19 +1450,11 @@
 				>
 			</File>
 			<File
-				RelativePath="RES\stm.ico"
-				>
-			</File>
-			<File
 				RelativePath="RES\stop.ico"
 				>
 			</File>
 			<File
 				RelativePath="RES\time_wnd.bmp"
-				>
-			</File>
-			<File
-				RelativePath="res\Toolbar.bmp"
 				>
 			</File>
 			<File

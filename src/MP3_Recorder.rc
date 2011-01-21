@@ -242,7 +242,6 @@ IDB_STATBITMAPS         BITMAP                  "res\\stat_bitmaps.bmp"
 IDB_TIMEBITMAPS         BITMAP                  "res\\big_digits.bmp"
 IDB_PROC_ICONS          BITMAP                  "res\\icons_proc.bmp"
 IDB_STAT_WND            BITMAP                  "res\\stat_wnd2.bmp"
-IDT_MAINBAR             BITMAP                  "res\\toolbar1.bmp"
 IDB_BTN_SCHED           BITMAP                  "res\\btn_sched.bmp"
 IDB_BTN_VAS             BITMAP                  "res\\btn_vas.bmp"
 IDB_BTN_MON             BITMAP                  "RES\\btn_mon.bmp"
@@ -253,7 +252,6 @@ IDB_BTN_MON             BITMAP                  "RES\\btn_mon.bmp"
 //
 
 IDC_HAND2               CURSOR                  "res\\hand.cur"
-IDC_ARROW2              CURSOR                  "res\\arrow2.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -565,20 +563,6 @@ BEGIN
     VK_LEFT,        IDM_SOUND_REW,          VIRTKEY, NOINVERT
     VK_ESCAPE,      IDM_SOUND_STOP,         VIRTKEY, NOINVERT
     VK_SPACE,       IDM_SOUND_STOP,         VIRTKEY, SHIFT, NOINVERT
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Toolbar
-//
-
-IDT_MAINBAR TOOLBAR  16, 15
-BEGIN
-    BUTTON      IDB_BTNOPEN
-    BUTTON      IDB_BTNREC
-    BUTTON      IDB_BTNSTOP
-    BUTTON      IDB_BTNPLAY
 END
 
 

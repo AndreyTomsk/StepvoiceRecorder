@@ -105,7 +105,6 @@
 #define IDB_PEAKMETER                   185
 #define IDI_DIN2                        187
 #define IDI_MIC2                        188
-#define IDB_GRAPH_WND                   191
 #define IDR_STATMENU                    192
 #define IDD_ENTERCODE                   193
 #define IDC_HAND2                       194
@@ -124,7 +123,6 @@
 #define IDB_GWPM_LN                     217
 #define IDB_GWPM_LG                     218
 #define IDD_AUTONAME                    219
-#define IDT_MAINBAR                     221
 #define IDR_MIXERBAR                    223
 #define IDB_MAINBAR                     225
 #define IDI_DOWNARROW                   226
@@ -139,7 +137,6 @@
 #define IDD_TIMERDLG                    244
 #define IDI_MIXLINE                     244
 #define IDD__TESTDLG                    245
-#define IDC_ARROW2                      245
 #define IDI_MIXLINE00                   245
 #define IDI_MIXLINE01                   246
 #define IDI_MIXLINE02                   247
