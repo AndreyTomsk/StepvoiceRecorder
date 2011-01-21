@@ -334,10 +334,7 @@ CMainFrame::CMainFrame()
 	,m_active_mixer(E_REC_MIXER)
 	,m_recording_mixer(E_REC_MIXER)
 {
-	m_pWaveIn	= NULL;
-	m_pWaveOut	= NULL;
 	m_pEncoder	= NULL;
-	m_pDecoder	= NULL;
 	m_title		= NULL;
 
 	m_nState    = STOP_STATE;

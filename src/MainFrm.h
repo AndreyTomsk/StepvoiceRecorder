@@ -19,10 +19,7 @@
 
 #include "MySheet.h"
 
-#include "WaveIn.h"
-#include "WaveOut.h"
 #include "Encoder_MP3.h"
-#include "Decoder_MP3.h"
 #include "MappedMP3.h"
 
 #include "struct.h"
@@ -34,7 +31,6 @@
 #include "MixerRec.h"
 #include "MixerPlay.h"
 
-#include "Scheduler.h"
 #include "Scheduler2.h"
 #include "vas.h"
 #include "TimerDlg.h"
@@ -101,10 +97,7 @@ class CMainFrame : public CFrameWnd
 	CMixerRec		m_RecMixer;
 	CMixerPlay		m_PlayMixer;
 
-	CWaveIn*		m_pWaveIn;
-	CWaveOut*		m_pWaveOut;
 	CEncoder_MP3*	m_pEncoder;
-	CDecoder*		m_pDecoder;
 	CTitleText*		m_title;
 	CFile			m_record_file;
 

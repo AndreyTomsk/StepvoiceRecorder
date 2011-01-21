@@ -86,17 +86,6 @@ typedef struct
 	int bAutoFreq;	// Автоустановка частоты в диалоге
 } CONF_DIAL_MP3;
 
-/*// Настройки диалога "Scheduler"
-typedef struct
-{	int bEnable;	// Scheduler включен ?
-	int nStartH;	// Час запуска
-	int nStartM;	// Минута запуска
-	int nStartS;	// Секунда запуска
-	int nStopH;		// Час останова
-	int nStopM;		// Минута останова
-	int nStopS;		// Секунда останова
-} CONF_DIAL_SH;*/
-
 // Настройки диалога "Scheduler 2"
 typedef struct
 {	int h;	// час

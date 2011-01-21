@@ -26,7 +26,6 @@ public:
 
 	CPageCom	m_pc;
 	CPageRec	m_pr;
-	//CPageSH		m_ps;
 	CPageAN		m_pa;
 	CPageVAS	m_pv;
 	CPageSH2	m_ps2;
