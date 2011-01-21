@@ -95,7 +95,7 @@ BOOL CMixerRec::Open(int nDeviceID, HWND hWnd)
 		CControlVolume *pCV = new CControlVolume;
 		if (pCV->Init(m_hMixer, mLine.dwDestination, i, INIT_BYPOSITION))
 		{
-			m_volList.Push(pCV);
+			m_volumeControls.push_back(pCV);
 		}
 		else
 		{
@@ -118,7 +118,7 @@ CString CMixerRec::GetLineName(int Num)
 	if((Num < 0) || (Num >= GetLinesNum()))
 		return CString("");
 	//CControlVolume *pCV = &m_volVector[Num];
-	CControlVolume *pCV = m_volList[Num];
+	CControlVolume *pCV = m_volumeControls[Num];
 	return pCV->GetLineName();
 }
 
@@ -128,7 +128,7 @@ int CMixerRec::GetLineType(int nLineNum)
 	if((nLineNum < 0) || (nLineNum >= GetLinesNum()))
 		return 3; // пусть показывает микрофон
 
-	CControlVolume *pCV = m_volList[nLineNum];
+	CControlVolume *pCV = m_volumeControls[nLineNum];
 	return pCV->GetLineType();
 }
 
@@ -138,7 +138,7 @@ void CMixerRec::SetLine(int nLineNum)
 	if((nLineNum < 0) || (nLineNum >= GetLinesNum()))
 		return;
 	//CControlVolume *pCV = &m_volVector[nLineNum];
-	CControlVolume *pCV = m_volList[nLineNum];
+	CControlVolume *pCV = m_volumeControls[nLineNum];
 	
 	if (GetLinesNum() > 1)
 		m_RecMux.SetCurListItem(pCV->GetLineName());
@@ -148,10 +148,10 @@ void CMixerRec::SetLine(int nLineNum)
 CControlVolume* CMixerRec::GetCurrentVolControl()
 {
 	int l_cur_index = GetCurLine();
-	if (l_cur_index == -1 || l_cur_index >= m_volList.Size())
+	if (l_cur_index == -1 || l_cur_index >= (int)m_volumeControls.size())
 		return NULL;
 
-	return m_volList[l_cur_index];
+	return m_volumeControls[l_cur_index];
 }
 
 int CMixerRec::GetCurLine()
@@ -169,7 +169,7 @@ int CMixerRec::GetCurLine()
 	for(; i < GetLinesNum(); i++)
 	{
 		//pCV = &m_volVector[i];
-		pCV = m_volList[i];
+		pCV = m_volumeControls[i];
 		if(pCV->GetLineName() == strCurLineName)
 			break;
 	}
@@ -181,7 +181,7 @@ int CMixerRec::GetCurLine()
 void CMixerRec::SetVol(int nPercent)
 {
 	//CControlVolume *pCV = &m_volVector[GetCurLine()];
-	CControlVolume *pCV = m_volList[GetCurLine()];
+	CControlVolume *pCV = m_volumeControls[GetCurLine()];
 	pCV->SetVolume(nPercent);
 }
 
@@ -191,7 +191,7 @@ int CMixerRec::GetVol(int nLineNum)
 	if((nLineNum < 0) || (nLineNum >= GetLinesNum()))
 		return -1;
 	//CControlVolume *pCV = &m_volVector[nLineNum];
-	CControlVolume *pCV = m_volList[nLineNum];
+	CControlVolume *pCV = m_volumeControls[nLineNum];
 	return pCV->GetVolume();
 }
 

@@ -80,7 +80,7 @@ BOOL CMixerPlay::Open(int nDeviceID, HWND hWnd)
 	if(pWaveVol->Init(m_hMixer, MIXERLINE_COMPONENTTYPE_DST_SPEAKERS,
 		MIXERLINE_COMPONENTTYPE_SRC_WAVEOUT, INIT_BYTYPE))
 	{
-		m_volList.Push(pWaveVol);
+		m_volumeControls.push_back(pWaveVol);
 	}
 		
 
@@ -107,12 +107,12 @@ CString CMixerPlay::GetLineName(int Num)
 	if(Num < 0 || Num >= GetLinesNum())
 		return CString("");
 	//CControlVolume *pCV = &m_volVector[Num];
-	CControlVolume *pCV = m_volList[Num];
+	CControlVolume *pCV = m_volumeControls[Num];
 	return pCV->GetLineName();
 }
 
 //////////////////////////////////////////////////////////////////////
-int CMixerPlay::GetLineType(int nLineNum)
+int CMixerPlay::GetLineType(int /*nLineNum*/)
 {
 	return -1;
 }
@@ -122,8 +122,8 @@ void CMixerPlay::SetLine(int nLineNum)
 {
 	if((nLineNum < 0) || (nLineNum >= GetLinesNum()))
 		return;
-	//CControlVolume *pCV = &m_volVector[nLineNum];
-	CControlVolume *pCV = m_volList[nLineNum];
+
+	//CControlVolume *pCV = m_volList[nLineNum];
 	m_nCurLine = nLineNum;
 	// посылаем сообщение (для отображения подсказки пользователю)
 	if(m_hWnd)
@@ -142,7 +142,7 @@ int CMixerPlay::GetCurLine()
 //////////////////////////////////////////////////////////////////////
 void CMixerPlay::SetVol(int nPercent)
 {
-	CControlVolume *pCV = m_volList[GetCurLine()];
+	CControlVolume *pCV = m_volumeControls[GetCurLine()];
 	if (pCV)
 	{
 		pCV->SetVolume(nPercent);
@@ -155,7 +155,7 @@ int CMixerPlay::GetVol(int nLineNum)
 	if((nLineNum < 0) || (nLineNum >= GetLinesNum()))
 		return -1;
 	//CControlVolume *pCV = &m_volVector[nLineNum];
-	CControlVolume *pCV = m_volList[nLineNum];
+	CControlVolume *pCV = m_volumeControls[nLineNum];
 	return pCV->GetVolume();
 }
 

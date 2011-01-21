@@ -28,11 +28,11 @@ void CMixer::Close()
 		mixerClose(m_hMixer);
 		m_hMixer = NULL;
 
-		while (m_volList.Size() != 0)
+		while (!m_volumeControls.empty())
 		{
-			CControlVolume *pLastVol = m_volList.GetTopItem();
+			CControlVolume *pLastVol = m_volumeControls.back();
 			SAFE_DELETE(pLastVol);
-			m_volList.Pop();
+			m_volumeControls.pop_back();
 		}
 	}
 }
@@ -40,7 +40,7 @@ void CMixer::Close()
 ////////////////////////////////////////////////////////////////////////////////
 int CMixer::GetLinesNum() const
 {
-	return m_volList.Size();
+	return m_volumeControls.size();
 }
 
 /*

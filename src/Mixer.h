@@ -7,8 +7,9 @@
 #endif // _MSC_VER > 1000
 
 #include <mmsystem.h>
+#include <vector>
+
 #include "MixerFader.h"
-#include "AfStack.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #define MMERROR(M) ((M) != MMSYSERR_NOERROR)
@@ -39,7 +40,7 @@ public:
 
 protected:
 	HMIXER m_hMixer;							// дескриптор микшера
-	CAfList<CControlVolume> m_volList;
+	std::vector<CControlVolume*> m_volumeControls;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
