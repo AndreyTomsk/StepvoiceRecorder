@@ -312,13 +312,13 @@ void CGraphWnd::DrawLines()
 		const int DIVIDER = l_numbers / (m_wndsize.cx - CX_END);
 		ASSERT(DIVIDER > 0);
 
-		int nDrawPosY = START_POS_Y + int(g_play_buffer[0] * m_wndsize.cy / 4);
+		int nDrawPosY = START_POS_Y + int(g_play_buffer[0] * m_wndsize.cy / 2);
 		
 		m_memDC.MoveTo(CX_START, nDrawPosY);
 		for (int j = CX_START + 1; j < m_wndsize.cx - CX_END; j++)
 		{
 			float l_level = g_play_buffer[j*DIVIDER];
-			nDrawPosY = START_POS_Y + int(l_level * m_wndsize.cy / 4);
+			nDrawPosY = START_POS_Y + int(l_level * m_wndsize.cy / 2);
 			m_memDC.LineTo(j, nDrawPosY);	// j++ !!!
 		}
 	}
