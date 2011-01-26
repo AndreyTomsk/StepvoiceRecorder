@@ -303,25 +303,22 @@ void CGraphWnd::DrawLines()
 
 	for (UINT counter = 0; counter < 2; counter++)
 	{
-		// Handle mono playback.
-		int i = (l_ci.chans > 1) ? counter : 0;
-
-		ZeroMemory(g_play_buffer, PLAY_BUFFER_SIZE * sizeof(float));
-		int l_numbers = GetLinesLevel(i, g_play_buffer, PLAY_BUFFER_SIZE);
-		i = 0; // testing
+		int l_channel = (l_ci.chans > 1) ? counter : 0; // Handle mono playback.
+		int l_numbers = GetLinesLevel(l_channel, g_play_buffer, PLAY_BUFFER_SIZE);
 
 		const int CX_START = 3;
 		const int CX_END   = 3;
 		const int START_POS_Y = (1 + 2*counter) * m_wndsize.cy / 4;
 		const int DIVIDER = l_numbers / (m_wndsize.cx - CX_END);
+		ASSERT(DIVIDER > 0);
 
-		int nDrawPosY = START_POS_Y + int(g_play_buffer[i] * m_wndsize.cy / 2);
+		int nDrawPosY = START_POS_Y + int(g_play_buffer[0] * m_wndsize.cy / 4);
+		
 		m_memDC.MoveTo(CX_START, nDrawPosY);
-
 		for (int j = CX_START + 1; j < m_wndsize.cx - CX_END; j++)
 		{
-			float l_level = g_play_buffer[j*DIVIDER + i];
-			nDrawPosY = START_POS_Y + int(l_level * m_wndsize.cy / 2);
+			float l_level = g_play_buffer[j*DIVIDER];
+			nDrawPosY = START_POS_Y + int(l_level * m_wndsize.cy / 4);
 			m_memDC.LineTo(j, nDrawPosY);	// j++ !!!
 		}
 	}
