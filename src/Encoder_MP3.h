@@ -12,6 +12,7 @@ public:
 	virtual ~CEncoder_MP3();
 
 	bool EncodeChunk(char* pBufIn, int nBufInSize, char* pBufOut, int& nBufOutSize);
+	bool EncodeChunkFloat(float* pBufIn, int nBufInSize, char* pBufOut, int& nBufOutSize);
 	void WriteVBRHeader(const CString& mp3FileName); // recommended to call after closing.
 
 private:
@@ -26,7 +27,11 @@ private:
 	HBE_STREAM m_hbeStream;		// дескриптор потока кодрования
 
 	char*	   m_pChunkBuf;		// internal chunk buffer for encoding.
-	int		   m_nChunkBufSize;	//
+	int		   m_nChunkBufSize;
+
+	float* m_chunkBufFloat_l;
+	float* m_chunkBufFloat_r;
+	int    m_chunkBufFloatSize;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

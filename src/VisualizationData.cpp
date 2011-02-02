@@ -2,85 +2,65 @@
 #include "stdafx.h"
 #include "VisualizationData.h"
 
-const int MAX_SHORT = 32768;
+////////////////////////////////////////////////////////////////////////////////
 
-VisualizationData::VisualizationData(int a_sound_sample_freq,
-											 int a_sound_channels)
-	:BUFFER_LENGTH(102400)
+VisualizationData::VisualizationData(int a_sound_sample_freq, int a_sound_channels)
+	:m_sample_buffer(NULL)
+	,m_current_buffer_size(0)
+	,SAMPLE_BUFFER_SIZE(4096)
 	,SAMPLE_FREQ(a_sound_sample_freq)
 	,CHANNEL_COUNT(a_sound_channels)
-	,m_rec_buffer(new char[BUFFER_LENGTH])
-	,m_rec_length(0)
-	,m_rec_msec_begin(0)
+	,m_cur_level_l(0.0)
+	,m_cur_level_r(0.0)
 {
-	ASSERT(m_rec_buffer);
+	m_sample_buffer = new float[SAMPLE_BUFFER_SIZE];
+	ASSERT(m_sample_buffer);
 }
+//-----------------------------------------------------------------------------
 
 VisualizationData::~VisualizationData()
 {
-	delete [] m_rec_buffer;
-	m_rec_buffer = NULL;
+	delete [] m_sample_buffer;
 }
+//-----------------------------------------------------------------------------
 
-void VisualizationData::SetSourceBuffer(void* a_buffer, int a_length)
+void VisualizationData::SetSourceBuffer(float* a_buffer, int a_length_bytes)
 {
 	CMyLock lock(m_sync_object);
 
-	///NOTE: Assuming what we have a 16-bit sound buffer.
-	ASSERT(a_length <= BUFFER_LENGTH);
-	memcpy(m_rec_buffer, a_buffer, a_length);
+	int l_bytes_2copy = min(a_length_bytes, int(SAMPLE_BUFFER_SIZE * sizeof(float)));
+	memcpy(m_sample_buffer, a_buffer, l_bytes_2copy);
+	m_current_buffer_size = l_bytes_2copy / sizeof(float);
 
-	m_rec_length = a_length;
-	m_rec_msec_begin = ::GetTickCount();
+	m_cur_level_l = m_cur_level_r = 0.0;
+	for (int i = 0; i+1 < m_current_buffer_size; i += 8) // 4096 / 8 = 512 steps
+	{
+		m_cur_level_l = max(m_cur_level_l, m_sample_buffer[i]);
+		m_cur_level_r = max(m_cur_level_r, m_sample_buffer[i + 1]);
+	}
 }
+//-----------------------------------------------------------------------------
 
 float VisualizationData::GetPeaksLevel(int a_channel)
 {
-	CMyLock lock(m_sync_object);
-	if (m_rec_msec_begin == 0)
-		return 0;
-
-	ASSERT(a_channel < CHANNEL_COUNT);
-	static short l_level_r = 0;
-	if (a_channel == 1)
-		return float(abs(l_level_r)) / MAX_SHORT;
-
-	short l_level_l = 0;
-	l_level_r = 0;
-
-	short* l_buffer_ptr = (short*)m_rec_buffer;
-	int    l_buffer_size = m_rec_length / sizeof(short);
-
-	// Making simplified count because we know that buffer is changed fast enough
-
-	for (int i = 0; i < l_buffer_size; i += 8) // +8 instead of +2 is for speed
-	{
-		l_level_l = max(l_level_l, l_buffer_ptr[i]);
-		l_level_r = max(l_level_r, l_buffer_ptr[i + 1]);
-	}
-	return float(abs(l_level_l)) / MAX_SHORT;
+	return (a_channel == 0) ? m_cur_level_l : m_cur_level_r;
 }
+//-----------------------------------------------------------------------------
 
 int VisualizationData::GetLinesLevel(int a_channel, float* a_buffer, int a_size)
 {
 	CMyLock lock(m_sync_object);
 
-	short* l_buffer_ptr = (short*)m_rec_buffer;
-	int    l_buffer_size = m_rec_length / sizeof(short);
+	// Sometimes source buffer contains only a few new samples. In this case
+	// returning whole buffer (new data at beginning, old - at end) for wave display.
+	//int l_size_4copy = min(m_current_buffer_size, a_size);
 
-	float l_proportion = (float)l_buffer_size / a_size;
+	int l_size_4copy = min(max(m_current_buffer_size, SAMPLE_BUFFER_SIZE), a_size);
 
-	int l_dst_index = 0;
-	for (; l_dst_index < a_size; l_dst_index++)
-	{
-		int l_src_index = int(l_proportion * l_dst_index);
-		l_src_index = (l_src_index / CHANNEL_COUNT) * CHANNEL_COUNT + a_channel;
+	int l_dst_count = 0;
+	for (int i = a_channel; i < l_size_4copy; i += CHANNEL_COUNT)
+		a_buffer[l_dst_count++] = m_sample_buffer[i];
 
-		// Making check for a correct index (useful when l_proportion is < 1)
-		if (l_src_index >= l_buffer_size)
-			continue;
-
-		a_buffer[l_dst_index] = (float)l_buffer_ptr[l_src_index] / MAX_SHORT;
-	}
-	return l_dst_index;
+	return l_dst_count;
 }
+//-----------------------------------------------------------------------------

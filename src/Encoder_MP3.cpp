@@ -25,6 +25,9 @@ CEncoder_MP3::CEncoder_MP3(int nBitrate, int nFrequency, int nChannels)
 	:m_pChunkBuf(NULL)
 	,m_hbeStream(NULL)
 	,m_hDll(0)
+	,m_chunkBufFloat_l(NULL)
+	,m_chunkBufFloat_r(NULL)
+	,m_chunkBufFloatSize(0)
 {
 	CString l_app_dir = ((CMP3_RecorderApp*)AfxGetApp())->GetProgramDir();
 	LoadLibrary(l_app_dir);
@@ -92,7 +95,8 @@ void CEncoder_MP3::InitEncoder(int nBitrate, int nFrequency, int nChannels)
 	m_beConfig.format.LHV1.nMode			= nChannels == 1 ? BE_MP3_MODE_MONO : BE_MP3_MODE_STEREO;
 	m_beConfig.format.LHV1.nPreset			= LQP_NOPRESET;
 	m_beConfig.format.LHV1.bNoRes			= TRUE;			// No Bit reservoir
-	
+	m_beConfig.format.LHV1.bWriteVBRHeader	= TRUE;
+
 	// mpeg version
 	bool bMpeg2 = (nBitrate < 32) || (nBitrate == 32 && nFrequency < 22050);
 	m_beConfig.format.LHV1.dwMpegVersion = (bMpeg2) ? MPEG2 : MPEG1;
@@ -105,6 +109,10 @@ void CEncoder_MP3::InitEncoder(int nBitrate, int nFrequency, int nChannels)
 	// Creating internal dwSamples size buffer for source data.
 	m_nChunkBufSize = dwSamples * 2; // Samples has 'short' type.
 	m_pChunkBuf = new char[m_nChunkBufSize];
+
+	m_chunkBufFloatSize = dwSamples;
+	m_chunkBufFloat_l = new float[m_chunkBufFloatSize];
+	m_chunkBufFloat_r = new float[m_chunkBufFloatSize];
 }
 //-----------------------------------------------------------------------------
 
@@ -119,6 +127,10 @@ void CEncoder_MP3::CloseEncoder()
 	ZeroMemory(&m_beConfig, sizeof(m_beConfig));
 	SAFE_DELETE_ARRAY(m_pChunkBuf);
 	m_nChunkBufSize = 0;
+
+	SAFE_DELETE_ARRAY(m_chunkBufFloat_l);
+	SAFE_DELETE_ARRAY(m_chunkBufFloat_r);
+	m_chunkBufFloatSize = 0;
 }
 //-----------------------------------------------------------------------------
 
@@ -136,15 +148,59 @@ bool CEncoder_MP3::EncodeChunk(char* pBufIn,  int  nBufInSize,
 		// Taking current chunk.
 	    int l_available_count = nBufInSize - l_input_buffer_offset;
 		int l_copy_count = min(m_nChunkBufSize, l_available_count);
-
 		memcpy(m_pChunkBuf, pBufIn + l_input_buffer_offset, l_copy_count);
 		l_input_buffer_offset += l_copy_count;
 
 		// Encoding samples of type 'short'. Data saved in output buffer.
 		DWORD dwBytesEncoded = 0;
 		BE_ERR err = beEncodeChunk(m_hbeStream, l_copy_count / sizeof(short), (short *)m_pChunkBuf,
-			(BYTE *)(pBufOut + l_output_buffer_offset), &dwBytesEncoded);
+			(BYTE *)pBufOut + l_output_buffer_offset, &dwBytesEncoded);
 		
+		if (err != BE_ERR_SUCCESSFUL)
+			break;
+
+		l_output_buffer_offset += dwBytesEncoded;
+		nBufOutSize += dwBytesEncoded;
+	}
+
+	return (l_input_buffer_offset == nBufInSize) ? true : false;
+}
+//-----------------------------------------------------------------------------
+
+bool CEncoder_MP3::EncodeChunkFloat(float* pBufIn, int nBufInSize,
+									char* pBufOut, int& nBufOutSize)
+{
+	int l_input_buffer_offset  = 0;
+	int l_output_buffer_offset = 0;
+
+	nBufOutSize = 0;
+
+	int nChannels = (m_beConfig.format.LHV1.nMode == BE_MP3_MODE_MONO) ? 1 : 2;
+	ASSERT(nBufInSize % nChannels == 0);
+
+	// Dividing source buffer into chunks and encoding each.
+	while (l_input_buffer_offset < nBufInSize)
+	{
+		// Taking current chunk. Splitting source to left and right sample buffers
+		int l_available_count = nBufInSize - l_input_buffer_offset;
+		int l_copy_count = min(m_chunkBufFloatSize * nChannels, l_available_count);
+
+		float* l_current_chunk = pBufIn + l_input_buffer_offset;
+		for (int i = 0, j = 0; i < l_copy_count; i += nChannels)
+		{
+			ASSERT (j < m_chunkBufFloatSize);
+			m_chunkBufFloat_l[j] = l_current_chunk[i] * 32768;
+			if (nChannels > 1)
+				m_chunkBufFloat_r[j] = l_current_chunk[i + 1] * 32768;
+			j++;
+		}
+		l_input_buffer_offset += l_copy_count;
+
+		// Encoding float samples. Data saved in output buffer.
+		DWORD dwBytesEncoded = 0;
+		BE_ERR err = beEncodeChunkFloatS16NI(m_hbeStream, l_copy_count/nChannels, m_chunkBufFloat_l, m_chunkBufFloat_r,
+			(BYTE *)pBufOut + l_output_buffer_offset, &dwBytesEncoded);
+
 		if (err != BE_ERR_SUCCESSFUL)
 			break;
 

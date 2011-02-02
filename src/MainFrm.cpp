@@ -228,7 +228,7 @@ BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD /*a_handle*/, void* a_buffer,
 	// Updating monitoring buffer for StereoMix levels in Vista (can't get it
 	// from bass lib, because it doesn't show sound after DSP).
 	if (l_main_window->m_visualization_data)
-		l_main_window->m_visualization_data->SetSourceBuffer(a_buffer, a_length);
+		l_main_window->m_visualization_data->SetSourceBuffer((float*)a_buffer, a_length);
 
 	return TRUE;
 }
@@ -244,7 +244,7 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 
 	VisualizationData* l_vis_data = l_main_window->m_visualization_data;
 	if (l_vis_data)
-		l_vis_data->SetSourceBuffer(a_buffer, a_length);
+		l_vis_data->SetSourceBuffer((float*)a_buffer, a_length);
 
 	if (l_main_window->m_vas.IsRunning())
 	{
@@ -272,8 +272,8 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 	try
 	{
 		int l_encoded_bytes_count = 0;
-		bool result = l_main_window->m_pEncoder->EncodeChunk(
-			(char*)a_buffer, a_length, pBufOut, l_encoded_bytes_count);
+		bool result = l_main_window->m_pEncoder->EncodeChunkFloat(
+			(float*)a_buffer, a_length / sizeof(float), pBufOut, l_encoded_bytes_count);
 		if (!result)
 		{
 			//TODO: logging, not all data were encoded.
@@ -1340,7 +1340,7 @@ void CMainFrame::OnBtnREC()
 		m_visualization_data = new VisualizationData(l_frequency, l_channels);
 
 		g_record_handle = BASS_RecordStart(l_frequency, l_channels,
-			MAKELONG(BASS_RECORD_PAUSE, 25), (RECORDPROC *)&NewRecordProc, this);
+			MAKELONG(BASS_RECORD_PAUSE|BASS_SAMPLE_FLOAT, 25), (RECORDPROC *)&NewRecordProc, this);
 		if (FALSE == g_record_handle)
 		{
 			SAFE_DELETE(m_pEncoder);
@@ -2292,7 +2292,8 @@ bool CMainFrame::MonitoringStart()
 	SAFE_DELETE(m_visualization_data);
 	m_visualization_data = new VisualizationData(44100, 2);
 
-	g_monitoring_handle = BASS_RecordStart(44100, 2, MAKELONG(0, 25), (RECORDPROC *)&MonitoringProc, this);
+	g_monitoring_handle = BASS_RecordStart(44100, 2, MAKELONG(BASS_SAMPLE_FLOAT, 25),
+		(RECORDPROC *)&MonitoringProc, this);
 	if (g_monitoring_handle)
 	{
 		if (BASS_GetDevice() == -1)

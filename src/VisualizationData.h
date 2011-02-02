@@ -13,20 +13,22 @@ public:
 	VisualizationData(int a_sound_sample_freq, int a_sound_channels);
 	~VisualizationData();
 
-	void  SetSourceBuffer(void* a_buffer, int a_length);
+	void  SetSourceBuffer(float* a_buffer, int a_length_bytes);
 	float GetPeaksLevel(int a_channel);
-	int   GetLinesLevel(int a_channel, float* a_buffer, int a_size);
+	int   GetLinesLevel(int a_channel, float* a_buffer, int a_size); // returns copied size
 
 private:
-	const int BUFFER_LENGTH;
+	const int SAMPLE_BUFFER_SIZE;
 	const int SAMPLE_FREQ;
 	const int CHANNEL_COUNT;
 
-	char* m_rec_buffer;
-	int  m_rec_length;
-	int  m_rec_msec_begin;
+	float* m_sample_buffer;
+	int m_current_buffer_size;
+
+	float m_cur_level_l;
+	float m_cur_level_r;
+
 	CMyCriticalSection m_sync_object;
 };
 
 #endif //_VISUALIZATION_DATA_H
-
