@@ -68,6 +68,8 @@ class CMainFrame : public CFrameWnd
 	//static void CALLBACK LoopbackStreamDSP(HDSP handle, DWORD channel,
 	//	void *buffer, DWORD length, void *user);
 
+	friend class CGraphWnd;
+
 	static CMainFrame* m_pMainFrame;
 
 	static float PeaksCallback(int a_channel);

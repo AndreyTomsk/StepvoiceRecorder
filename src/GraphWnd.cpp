@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "MP3_Recorder.h"
 #include "GraphWnd.h"
+#include "mainfrm.h"
 
 #include <mmsystem.h>
 #include <math.h>
@@ -28,7 +29,7 @@ BEGIN_MESSAGE_MAP(CGraphWnd, CWnd)
 	ON_WM_RBUTTONDOWN()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_TIMER()
-	ON_COMMAND(ID_GRAPH_MAXPEAKS, OnGraphMaxpeaks)
+	ON_COMMAND(ID_GRAPH_MONITORING, OnGraphMonitoring)
 	//}}AFX_MSG_MAP
 	ON_COMMAND_RANGE(ID_GRAPH_PEAKMETER, ID_GRAPH_NONE, OnGraphMenu)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_GRAPH_PEAKMETER, ID_GRAPH_NONE, OnUpdateGraphMenu)
@@ -38,6 +39,7 @@ END_MESSAGE_MAP()
 CGraphWnd::CGraphWnd()
 	:m_bShowVASMark(false)
 	,m_bMaxpeaks(true)
+	,m_bMonitoring(true)
 	,m_timer_id(0)
 	,m_display_mode(E_DISPLAY_PEAKS)
 	,m_stream_handle(0)
@@ -129,11 +131,13 @@ void CGraphWnd::OnRButtonDown(UINT nFlags, CPoint point)
 	CMenu GraphMenu, *pGraphMenu;
 	GraphMenu.LoadMenu(IDR_GRAPHMENU);
 	pGraphMenu = GraphMenu.GetSubMenu(0);
-
+	
 	pGraphMenu->CheckMenuItem(markers[m_display_mode], MF_CHECKED);
-	if (m_bMaxpeaks)
+
+	CMainFrame* pMainWnd = static_cast<CMainFrame *>(GetParent());
+	if (pMainWnd->m_bMonitoringBtn)
 	{
-		pGraphMenu->CheckMenuItem(ID_GRAPH_MAXPEAKS, MF_CHECKED);
+		pGraphMenu->CheckMenuItem(ID_GRAPH_MONITORING, MF_CHECKED);
 	}
 
 	ClientToScreen(&point);
@@ -164,14 +168,10 @@ void CGraphWnd::OnGraphMenu(UINT nID)
 }
 
 //------------------------------------------------------------------------------
-void CGraphWnd::OnGraphMaxpeaks() 
+void CGraphWnd::OnGraphMonitoring()
 {
-	m_bMaxpeaks = !m_bMaxpeaks;
-
-	if (m_bMaxpeaks == false)
-	{
-		ResetMaxpeakMarks();
-	}
+	CMainFrame* pMainWnd = static_cast<CMainFrame *>(GetParent());
+	pMainWnd->OnBtnMonitoring();
 }
 
 //------------------------------------------------------------------------------

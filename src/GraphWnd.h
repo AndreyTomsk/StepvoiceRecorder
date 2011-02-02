@@ -59,7 +59,7 @@ protected:
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(UINT nIDEvent);
-	afx_msg void OnGraphMaxpeaks();
+	afx_msg void OnGraphMonitoring();
 	//}}AFX_MSG
 	afx_msg void OnGraphMenu(UINT nID);
 	afx_msg void OnUpdateGraphMenu(CCmdUI* pCmdUI);
@@ -93,11 +93,12 @@ private:
 	CDC     m_skinDC;
 
 	CBitmap m_bmp;
-	CBitmap m_bgbmp[4];	 // background bitmaps
+	CBitmap m_bgbmp[4];  // background bitmaps
 	CBitmap m_pmbmp[3];  // peak bitmaps
 
 	bool m_bShowVASMark; // VAS mark display flag
 	bool m_bMaxpeaks;    // Maximum peaks flag
+	bool m_bMonitoring;  // Input monitoring flag
 
 	double m_max_peaks[2];
 	double m_old_peaks[2];
