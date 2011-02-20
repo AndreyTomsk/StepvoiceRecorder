@@ -310,7 +310,7 @@ void CGraphWnd::DrawLines()
 		const int CX_END   = 3;
 		const int START_POS_Y = (1 + 2*counter) * m_wndsize.cy / 4;
 		const int DIVIDER = l_numbers / (m_wndsize.cx - CX_END);
-		ASSERT(DIVIDER > 0);
+		//ASSERT(DIVIDER > 0);
 
 		int nDrawPosY = START_POS_Y + int(g_play_buffer[0] * m_wndsize.cy / 2);
 		
