@@ -822,8 +822,18 @@ void CMainFrame::OnFileClear()
 	if (AfxMessageBox(l_str_warning, MB_YESNO|MB_ICONWARNING) == IDYES)
 	{
 		OnFileClose();
-		m_record_file.Open(l_str_filename, CFile::modeCreate, NULL);
-		m_record_file.Close();
+
+		CFileException e;
+		if (m_record_file.Open(l_str_filename, CFile::modeCreate, &e))
+		{
+			m_record_file.Close();
+		}
+		else
+		{
+			TCHAR szError[1024];
+			e.GetErrorMessage(szError, 1024);
+			AfxMessageBox(szError);
+		}
 		OpenFile(l_str_filename);
 	}
 }
@@ -846,10 +856,17 @@ void CMainFrame::OnFileDelete()
 	if (AfxMessageBox(l_str_warning, MB_YESNO|MB_ICONWARNING) == IDYES)
 	{
 		OnFileClose();
-		if (!DeleteFile(l_str_filename))
+
+		try
 		{
-			AfxFormatString1(l_str_warning, IDS_DEL_UNABLE, l_str_filename);
-			AfxMessageBox(l_str_warning, MB_OK|MB_ICONWARNING);
+			CFile::Remove(l_str_filename);
+		}
+		catch (CFileException* e)
+		{
+			TCHAR szError[1024];
+			e->GetErrorMessage(szError, 1024);
+			AfxMessageBox(szError);
+			e->Delete();
 		}
 	}
 }
@@ -1311,12 +1328,11 @@ void CMainFrame::OnBtnREC()
 			return;
 	}
 
-	if (m_bMonitoringBtn)
-		MonitoringStop();
+	MonitoringStop();
 
 	if (!g_record_handle)
 	{
-		if (!BASS_RecordInit(-1))
+		if (!BASS_RecordInit(-1)) //default device
 			return;
 
 		int l_bitrate = m_conf.GetConfDialMp3()->nBitrate;
