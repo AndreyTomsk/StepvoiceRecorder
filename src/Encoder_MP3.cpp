@@ -19,6 +19,12 @@ BEVERSION			beVersion		 = NULL;
 BEWRITEVBRHEADER	beWriteVBRHeader = NULL;
 BEWRITEINFOTAG		beWriteInfoTag   = NULL;
 
+#ifdef _DEBUG
+const TCHAR* g_lameLibraryName = _T("lame_enc_d.dll");
+#else
+const TCHAR* g_lameLibraryName = _T("lame_enc.dll");
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 CEncoder_MP3::CEncoder_MP3(int nBitrate, int nFrequency, int nChannels)
@@ -44,7 +50,7 @@ CEncoder_MP3::~CEncoder_MP3()
   
 void CEncoder_MP3::LoadLibrary(CString& strDllPath)
 {
-	CString strDllName = strDllPath + _T("\\lame_enc.dll");
+	CString strDllName = strDllPath + _T("\\") + g_lameLibraryName;
 
 	m_hDll = ::LoadLibrary(strDllName.GetBuffer(strDllName.GetLength()));
 	if (m_hDll != NULL)
@@ -92,10 +98,12 @@ void CEncoder_MP3::InitEncoder(int nBitrate, int nFrequency, int nChannels)
 	m_beConfig.format.LHV1.dwSampleRate		= nFrequency;
 	m_beConfig.format.LHV1.dwReSampleRate	= nFrequency;
 	m_beConfig.format.LHV1.dwBitrate		= nBitrate;
-	m_beConfig.format.LHV1.nMode			= nChannels == 1 ? BE_MP3_MODE_MONO : BE_MP3_MODE_STEREO;
+	m_beConfig.format.LHV1.nMode			= nChannels == 1 ? BE_MP3_MODE_MONO : BE_MP3_MODE_JSTEREO;
 	m_beConfig.format.LHV1.nPreset			= LQP_NOPRESET;
 	m_beConfig.format.LHV1.bNoRes			= TRUE;			// No Bit reservoir
 	m_beConfig.format.LHV1.bWriteVBRHeader	= TRUE;
+	//m_beConfig.format.LHV1.dwPsyModel		= 0;			// USE DEFAULT PSYCHOACOUSTIC MODEL 
+	//m_beConfig.format.LHV1.dwEmphasis		= 0;			// NO EMPHASIS TURNED ON
 
 	// mpeg version
 	bool bMpeg2 = (nBitrate < 32) || (nBitrate == 32 && nFrequency < 22050);

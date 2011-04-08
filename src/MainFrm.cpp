@@ -356,7 +356,7 @@ CMainFrame::CMainFrame()
 	::SystemParametersInfo(SPI_GETWORKAREA, 0, &m_rDesktopRect, 0);
 
 	BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
-	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 1000);
+	BASS_SetConfig(BASS_CONFIG_REC_BUFFER, 500);
 
 	// Note: calls OnCreate handler.
 	LoadFrame(IDR_MAINFRAME, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX);

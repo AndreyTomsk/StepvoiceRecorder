@@ -6,6 +6,7 @@
 #include <functiondiscoverykeys.h>
 
 #define EIF(x) if (FAILED(hr=(x))) { goto Exit; }	// Exit If Failed.
+#define MFTIMES_PER_MILLISEC  10000
 
 ////////////////////////////////////////////////////////////////////////////////
 DWORD CALLBACK BassVistaLoopback::LoopbackStreamProc(HSTREAM /*a_handle*/,
@@ -13,6 +14,27 @@ DWORD CALLBACK BassVistaLoopback::LoopbackStreamProc(HSTREAM /*a_handle*/,
 {
 	BassVistaLoopback* l_this = (BassVistaLoopback *)a_user;
 	ASSERT(l_this);
+
+	HRESULT hr;
+
+	// Applying sound delay for 0.1 sec (currently).
+	{
+		UINT32 paddingFrameCount;
+		hr = l_this->m_audio_client->GetCurrentPadding(&paddingFrameCount);
+		if (!paddingFrameCount || (paddingFrameCount < l_this->m_buffer_size/4 && !l_this->m_buffer_delay))
+		{
+			if (paddingFrameCount)
+				::OutputDebugString(__FUNCTION__ " ::Delaying (wait 1/4 buffer)");
+			else
+				::OutputDebugString(__FUNCTION__ " ::Delaying (no frames in buffer");
+
+			l_this->m_buffer_delay = false;
+			ZeroMemory(a_buffer, a_length);
+			return a_length;
+		}
+		else
+			l_this->m_buffer_delay = true;
+	}
 
 	BYTE*  l_dst_buffer = (BYTE*)a_buffer;
 	UINT32 l_dst_length = a_length;
@@ -33,17 +55,27 @@ DWORD CALLBACK BassVistaLoopback::LoopbackStreamProc(HSTREAM /*a_handle*/,
 		UINT32  l_src_frames_available = 0;
 		UINT32& l_src_offset = l_this->m_src_offset;
 
-		HRESULT hr = l_this->m_capture_client->GetBuffer(&l_src_buffer,
+		hr = l_this->m_capture_client->GetBuffer(&l_src_buffer,
 			&l_src_frames_available, &l_src_flags, NULL, NULL);
 
 		if (!l_src_frames_available)
 		{
+			if (l_dst_length == a_length)
+				::OutputDebugString(__FUNCTION__ " ::Empty buffer");
+			else
+				::OutputDebugString(__FUNCTION__ " ::Empty buffer (partially filled)");
+
 			ZeroMemory(l_dst_buffer, l_dst_length);
 			hr = l_this->m_capture_client->ReleaseBuffer(l_src_frames_available);
-			return a_length;
+			// Return filled length if no more frames.
+			return (l_dst_length == a_length) ? a_length : a_length - l_dst_length;
 		}
 
 		UINT32 l_src_bytes_available = l_src_frames_available * l_this->m_wfx->nBlockAlign;
+
+		if (l_src_bytes_available > a_length)
+			::OutputDebugString(__FUNCTION__ " :: TOO MANY FRAMES!");
+
 		UINT32 l_bytes_4copy = min(l_dst_length, l_src_bytes_available - l_src_offset);
 
 		memcpy(l_dst_buffer, l_src_buffer + l_src_offset, l_bytes_4copy);
@@ -68,6 +100,8 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 	:m_wfx(NULL)
 	,m_loopback_stream(0)
 	,m_src_offset(0)
+	,m_buffer_delay(false)
+	,m_buffer_size(0)
 {
 	ASSERT(a_device >= 0);
 
@@ -78,7 +112,9 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 
 	EIF(m_audio_client->Initialize(
 		AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK,
-		5000000, 0, m_wfx, NULL)); // 0.5 second in 100-ns units
+		500 * MFTIMES_PER_MILLISEC, 0, m_wfx, NULL));
+
+	EIF(m_audio_client->GetBufferSize(&m_buffer_size)); //in frames
 
 	EIF(m_audio_client->GetService(__uuidof(IAudioCaptureClient),
 		(void**)&m_capture_client));
@@ -92,7 +128,7 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 		this);
 	
 	// Better behavior of stream buffer ?
-	BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+	//BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
 
 Exit:
 	return;

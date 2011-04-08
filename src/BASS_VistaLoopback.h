@@ -31,6 +31,8 @@ private:
 	WAVEFORMATEX* m_wfx;
 	HSTREAM m_loopback_stream;
 	UINT32 m_src_offset;
+	bool m_buffer_delay;
+	UINT32 m_buffer_size;
 };
 
 #endif //_BASS_VISTA_LOOPBACK_H
