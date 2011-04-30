@@ -183,8 +183,9 @@
 #define IDC_GEN_MINSTANCES              1165
 #define IDC_STATIC_VERSION              1166
 #define ID_MIXITEM_LOOPBACK_DEVICE      3688
-#define ID_MIXITEM_PLAY_VOLUME          3698
-#define ID_MIXITEM_REC_LOOPBACK         3699
+#define ID_MIXITEM_PLAY_VOLUME          3697
+#define ID_MIXITEM_REC_LOOPBACK         3698
+#define ID_MIXITEM_REC_LOOPBACK_MIX     3699
 #define ID_MIXITEM_REC0                 3700
 #define ID_MIXITEM_REC50                3750
 #define ID_MIXITEM_PLAY0                3751

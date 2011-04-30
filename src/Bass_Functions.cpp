@@ -42,7 +42,11 @@ void CALLBACK LoopbackStreamDSP(HDSP /*a_dsp_handle*/, DWORD /*a_channel*/,
 			return;
 		}
 
-		memcpy((BYTE*)a_buffer + l_copy_offset, l_tmp_buffer, l_bytes_copied);
+		float* l_dst_buffer = static_cast<float*>(a_buffer) + l_copy_offset/sizeof(float);
+		for (int i = 0, count = l_bytes_copied / sizeof(float); i < count; i++)
+			l_dst_buffer[i] = max(-1.0, min((l_dst_buffer[i] + l_tmp_buffer[i]), 1.0));
+
+		//memcpy((BYTE*)a_buffer + l_copy_offset, l_tmp_buffer, l_bytes_copied);
 		a_length_bytes -= l_bytes_copied;
 		l_copy_offset += l_bytes_copied;
 	}
@@ -81,4 +85,10 @@ void CALLBACK LoopbackStreamDSP(HDSP /*a_dsp_handle*/, DWORD /*a_channel*/,
 }
 
 //------------------------------------------------------------------------------
+void CALLBACK StreamMuteDSP(HDSP /*handle*/, DWORD /*channel*/, void *buffer,
+							DWORD length, void* /*user*/)
+{
+	memset(buffer, 0, length);
+}
+
 } // namespace Bass

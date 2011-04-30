@@ -1,16 +1,23 @@
 -----------------------------------------------------------------------------
 Milestone: "Version 1.8". Main goals:
 
-1. - Mix StereoMix with other streams (in vista);
-2. - Migrate to float buffers;
-3. - Add a special mp3 header after recording finished.
+1. + Mix StereoMix with other streams (in vista);
+2. + Migrate to float buffers;
+3. + Add a special mp3 header after recording finished.
 4. - (?) If a user presses "Record", then save to a Untitled.mp3, and ask to save before close.
 5. - (?) Remember "What You Hear" checked in config.
-
 -----------------------------------------------------------------------------
 
 Todo
 ----
+
+20110202 (---) - Always open mp3 options when doubleclicking in stat window.
+20100202 (enh) + In graph context menu: put "monitor input" item, instead of "show peaks",
+                        that is always set by default.
+
+20110124 (enh) - "record history" for VAS. A list with timing recorded parts.
+                  So we know when recording was and can listen only this part.
+                  On the other hand, this can be done by splitting to small files.
 
 20100110 (enh) - "remember last used stream" checkbox (for command line run).
 20080727 (enh) - Keep information about a recording source in config.

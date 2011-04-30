@@ -55,6 +55,7 @@ enum ActiveSoundMixer
 {
    E_REC_MIXER,
    E_REC_LOOPBACK,
+   E_REC_LOOPBACK_MIX,
    E_PLAY_MIXER,
    E_PLAY_STREAM
 };
@@ -87,6 +88,7 @@ class CMainFrame : public CFrameWnd
 	VisualizationData* m_visualization_data;
 	BassVistaLoopback* m_vista_loopback;
 	HDSP m_loopback_hdsp;
+	HDSP m_mute_hdsp;
 	int m_loopback_device;
 
 	float m_playback_volume;
@@ -243,6 +245,7 @@ protected:
 	afx_msg void OnRecMixMenuSelect(UINT nID);
 	afx_msg void OnPlayMixMenuSelect(UINT nID);
 	afx_msg void OnRecLoopbackSelect();
+	afx_msg void OnRecLoopbackMixSelect();
 	afx_msg void OnPlayVolumeSelect();
 	afx_msg void OnLoopbackDeviceSelect(UINT nID);
 	afx_msg void OnUpdateLoopbackDeviceSelect(CCmdUI* pCmdUI);

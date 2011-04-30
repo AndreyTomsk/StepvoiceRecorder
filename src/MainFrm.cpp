@@ -212,6 +212,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND_RANGE(ID_MIXITEM_REC0, ID_MIXITEM_REC0+50, OnRecMixMenuSelect)
 	ON_COMMAND_RANGE(ID_MIXITEM_PLAY0, ID_MIXITEM_PLAY0+3, OnPlayMixMenuSelect)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK, OnRecLoopbackSelect)
+	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK_MIX, OnRecLoopbackMixSelect)
 	ON_COMMAND(ID_MIXITEM_PLAY_VOLUME, OnPlayVolumeSelect)
 
 	ON_COMMAND_RANGE(ID_MIXITEM_LOOPBACK_DEVICE, ID_MIXITEM_LOOPBACK_DEVICE+9, OnLoopbackDeviceSelect)
@@ -300,7 +301,9 @@ CMainFrame* CMainFrame::m_pMainFrame = NULL;
 //------------------------------------------------------------------------------
 float CMainFrame::PeaksCallback(int a_channel)
 {
-	if (m_pMainFrame->m_visualization_data && m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK)
+	if (m_pMainFrame->m_visualization_data && (
+		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK ||
+		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
 		return m_pMainFrame->m_visualization_data->GetPeaksLevel(a_channel);
 
 	DWORD l_level = BASS_ChannelGetLevel(g_update_handle);
@@ -314,7 +317,9 @@ float CMainFrame::PeaksCallback(int a_channel)
 //------------------------------------------------------------------------------
 int CMainFrame::LinesCallback(int a_channel, float* a_buffer, int a_size)
 {
-	if (m_pMainFrame->m_visualization_data && m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK)
+	if (m_pMainFrame->m_visualization_data && (
+		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK ||
+		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
 		return m_pMainFrame->m_visualization_data->GetLinesLevel(a_channel, a_buffer, a_size);
 
 	float* l_buffer_ptr = a_buffer + a_channel;
@@ -330,6 +335,7 @@ CMainFrame::CMainFrame()
 	:m_vista_loopback(NULL)
 	,m_visualization_data(NULL)
 	,m_loopback_hdsp(0)
+	,m_mute_hdsp(0)
 	,m_playback_volume(0)
 	,m_active_mixer(E_REC_MIXER)
 	,m_recording_mixer(E_REC_MIXER)
@@ -638,7 +644,9 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			OutputDebugString(__FUNCTION__ " :: Mixer line/control changed\n");
 
 			// Ignoring these messages when dragging or loopback mixer is active
-			if (m_SliderVol.IsDragging() || m_recording_mixer == E_REC_LOOPBACK)
+			if (m_SliderVol.IsDragging() ||
+				m_recording_mixer == E_REC_LOOPBACK ||
+				m_recording_mixer == E_REC_LOOPBACK_MIX)
 				break;
 
 			// Ignoring messages from our opened mixer devices.
@@ -652,6 +660,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			std::map<ActiveSoundMixer, int> l_mixer_vol;
 			l_mixer_vol[E_REC_MIXER] = m_RecMixer.GetVol(m_RecMixer.GetCurLine());
 			l_mixer_vol[E_REC_LOOPBACK] = m_SliderVol.GetRangeMax();
+			l_mixer_vol[E_REC_LOOPBACK_MIX] = m_SliderVol.GetRangeMax();
 			l_mixer_vol[E_PLAY_MIXER] = m_PlayMixer.GetVol(m_PlayMixer.GetCurLine());
 			l_mixer_vol[E_PLAY_STREAM] = int(m_playback_volume * 100);
 
@@ -662,15 +671,16 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 
 			OutputDebugString(__FUNCTION__ " :: recording mixer is active\n");
-			if (m_recording_mixer == E_REC_LOOPBACK)
+			if (m_loopback_hdsp || m_mute_hdsp)
 			{
-				OutputDebugString(__FUNCTION__ " :: loopback mixer is active\n");
+				OutputDebugString(__FUNCTION__ " :: loopback mixer is active. Removing both DSP.");
 
-				if (g_record_handle)
-					BASS_ChannelRemoveDSP(g_record_handle, m_loopback_hdsp);
-				else
-					BASS_ChannelRemoveDSP(g_monitoring_handle, m_loopback_hdsp);
+				HRECORD handle = g_record_handle ? g_record_handle : g_monitoring_handle;
+				BASS_ChannelRemoveDSP(handle, m_loopback_hdsp);
+				BASS_ChannelRemoveDSP(handle, m_mute_hdsp);
+
 				m_loopback_hdsp = 0;
+				m_mute_hdsp = 0;
 			}
 			UpdateMixerState();
 		}
@@ -771,7 +781,6 @@ void CMainFrame::OnDestroy()
 	m_conf.GetConfProg()->nPlayVolume = int(m_playback_volume * 10000);
 	m_conf.GetConfProg()->nLoopbackDevice = m_loopback_device;
 }
-
 
 //===========================================================================
 // MENU : File
@@ -1282,6 +1291,7 @@ void CMainFrame::OnBtnSTOP()
 		g_loopback_handle = 0;
 		g_record_handle = 0;
 		m_loopback_hdsp = 0;
+		m_mute_hdsp = 0;
 		BASS_Free();
 		BASS_RecordFree();
 
@@ -1380,8 +1390,13 @@ void CMainFrame::OnBtnREC()
 
 		if (m_recording_mixer == E_REC_LOOPBACK)
 		{
+			m_mute_hdsp = BASS_ChannelSetDSP(g_record_handle,
+				Bass::StreamMuteDSP, NULL, 0xFF); //higher priority called 1st
+		}
+		if (m_recording_mixer == E_REC_LOOPBACK || m_recording_mixer == E_REC_LOOPBACK_MIX)
+		{
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
-				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFF);
+				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFE);
 		}
 	}
 
@@ -1696,6 +1711,7 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 			std::map<ActiveSoundMixer, CString> l_line_names;
 			l_line_names[E_REC_MIXER] = m_RecMixer.GetLineName(m_RecMixer.GetCurLine());
 			l_line_names[E_REC_LOOPBACK]= CString(_T("What U Hear (Software)"));
+			l_line_names[E_REC_LOOPBACK_MIX]= CString(_T("Mixer (Software)"));
 			l_line_names[E_PLAY_MIXER] = m_PlayMixer.GetLineName(m_PlayMixer.GetCurLine());
 			l_line_names[E_PLAY_STREAM] = CString(_T("Playback volume"));
 
@@ -1889,14 +1905,19 @@ void CMainFrame::OnBtnMIX_SEL()
 		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC0 + i, m_RecMixer.GetLineName(i));
 
 	if (((CMP3_RecorderApp* )AfxGetApp())->IsVistaOS())
+	{
 		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("What U Hear (Software)"));
+		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK_MIX, _T("Mixer (Software)"));
+	}
 
-	mixMenu.CheckMenuItem((m_recording_mixer == E_REC_LOOPBACK) ? ID_MIXITEM_REC_LOOPBACK :
-		ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(), MF_CHECKED | MF_BYCOMMAND);
+	UINT itemID = ID_MIXITEM_REC0 + m_RecMixer.GetCurLine();
+	if (m_recording_mixer == E_REC_LOOPBACK)
+		itemID = ID_MIXITEM_REC_LOOPBACK;
+	if (m_recording_mixer == E_REC_LOOPBACK_MIX)
+		itemID = ID_MIXITEM_REC_LOOPBACK_MIX;
+	mixMenu.CheckMenuItem(itemID, MF_CHECKED | MF_BYCOMMAND);
+
 	/*
-	//mixMenu.CheckMenuItem((m_recording_mixer == E_REC_LOOPBACK) ? ID_MIXITEM_REC_LOOPBACK :
-	//	ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(), MF_CHECKED | MF_BYCOMMAND);
-
 	mixMenu.CheckMenuItem(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine(), MF_CHECKED | MF_BYCOMMAND);
 	//Now there is an additional checkbox, if mixing mic. with a loopback stream
 	//if (m_recording_mixer == E_REC_LOOPBACK)
@@ -2326,8 +2347,13 @@ bool CMainFrame::MonitoringStart()
 
 		if (m_recording_mixer == E_REC_LOOPBACK)
 		{
+			m_mute_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
+				Bass::StreamMuteDSP, NULL, 0xFF);
+		}
+		if (m_recording_mixer == E_REC_LOOPBACK || m_recording_mixer == E_REC_LOOPBACK_MIX)
+		{
 			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
-				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFF);
+				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFE);
 		}
 
 		///@bug Testing new functionality
@@ -2356,6 +2382,7 @@ void CMainFrame::MonitoringStop()
 		g_loopback_handle = 0;
 		g_monitoring_handle = 0;
 		m_loopback_hdsp = 0;
+		m_mute_hdsp = 0;
 
 		if (!g_stream_handle && !g_loopback_handle)
 			BASS_Free();
@@ -2634,6 +2661,27 @@ void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
 //*/
 
 ////////////////////////////////////////////////////////////////////////////////
+void CMainFrame::OnRecLoopbackMixSelect()
+{
+	OutputDebugString(__FUNCTION__" :: setting rec. loopback mix flag\n");
+
+	OnRecLoopbackSelect();
+
+	m_active_mixer = E_REC_LOOPBACK_MIX;
+	m_recording_mixer = E_REC_LOOPBACK_MIX;
+	if (g_record_handle)
+	{
+		OutputDebugString(__FUNCTION__ " :: removing mute DSP on rec. stream\n");
+		BASS_ChannelRemoveDSP(g_record_handle, m_mute_hdsp);
+	}
+	else if (g_monitoring_handle)
+	{
+		OutputDebugString(__FUNCTION__ " :: removing mute DSP on mon. stream\n");
+		BASS_ChannelRemoveDSP(g_monitoring_handle, m_mute_hdsp);
+	}
+	m_mute_hdsp = 0;
+}
+
 void CMainFrame::OnRecLoopbackSelect()
 {
 	/*
@@ -2659,24 +2707,26 @@ void CMainFrame::OnRecLoopbackSelect()
 	// If we are in recording state, when set or remove DSP function,
 	// otherwise just set the Loopback recording flag
 
-	if (m_active_mixer != E_REC_LOOPBACK)
+	if (m_active_mixer != E_REC_LOOPBACK || m_active_mixer != E_REC_LOOPBACK_MIX)
 	{
 		OutputDebugString(__FUNCTION__" :: setting rec. loopback mixer flag\n");
 		m_active_mixer = E_REC_LOOPBACK;
 		m_recording_mixer = E_REC_LOOPBACK;
 		UpdateMixerState();
 
-		if (g_record_handle && !m_loopback_hdsp)
+		HRECORD handle = g_record_handle ? g_record_handle : g_monitoring_handle;
+		if (handle)
 		{
-			OutputDebugString(__FUNCTION__ " :: setting DSP to rec. handle\n");
-			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
-				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFF);
-		}
-		else if (g_monitoring_handle && !m_loopback_hdsp)
-		{
-			OutputDebugString(__FUNCTION__ " :: setting DSP to mon. handle\n");
-			m_loopback_hdsp = BASS_ChannelSetDSP(g_monitoring_handle,
-				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFF);
+			if (!m_mute_hdsp)
+			{
+				OutputDebugString(__FUNCTION__ " :: setting mute DSP");
+				m_mute_hdsp = BASS_ChannelSetDSP(handle, Bass::StreamMuteDSP, NULL, 0xFF);
+			}
+			if (!m_loopback_hdsp)
+			{
+				OutputDebugString(__FUNCTION__ " :: setting loopback DSP");
+				m_loopback_hdsp = BASS_ChannelSetDSP(handle, Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFE);
+			}
 		}
 	}
 }
