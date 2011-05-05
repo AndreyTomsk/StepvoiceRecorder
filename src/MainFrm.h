@@ -89,7 +89,6 @@ class CMainFrame : public CFrameWnd
 	BassVistaLoopback* m_vista_loopback;
 	HDSP m_loopback_hdsp;
 	HDSP m_mute_hdsp;
-	int m_loopback_device;
 
 	float m_playback_volume;
 
@@ -164,6 +163,8 @@ protected:
 	void ProcessSliderVol(UINT nSBCode, UINT nPos);
 	void Convert(UINT nCurSec, char* pszTime, int nStrSize);
 	void OpenFile(const CString& strFileName);
+
+	void SetRecordingLine(int nLineID); // sets line by menu ID
 
 	void UpdateStatWindow();
 	void UpdateButtonState(UINT nID);
@@ -247,8 +248,6 @@ protected:
 	afx_msg void OnRecLoopbackSelect();
 	afx_msg void OnRecLoopbackMixSelect();
 	afx_msg void OnPlayVolumeSelect();
-	afx_msg void OnLoopbackDeviceSelect(UINT nID);
-	afx_msg void OnUpdateLoopbackDeviceSelect(CCmdUI* pCmdUI);
 
 protected:
 	LRESULT OnTrayNotification(WPARAM wParam, LPARAM lParam);

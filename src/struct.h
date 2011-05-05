@@ -43,19 +43,21 @@
 
 // Ощие настройки программы
 typedef struct
-{	int bAlwaysOnTop;		// Флаг "Постоянно на вершине"
-	int bEasyMove;			// Флаг перемещения за любую точку окна
-	int nXcoord;			// Последняя х-координата окна
-	int nYcoord;			// Последняя у-координата окна
-	int nDialogIndex;		// Индекс последней открытой страницы диалога
+{	int bAlwaysOnTop;	// Флаг "Постоянно на вершине"
+	int bEasyMove;		// Флаг перемещения за любую точку окна
+	int nXcoord;		// Последняя х-координата окна
+	int nYcoord;		// Последняя у-координата окна
+	int nDialogIndex;	// Индекс последней открытой страницы диалога
 	CString	strLastFilePath;// Значение пути к последнему открытому файлу
 	CString strLastFileName;// Имя последнего открытого файла (без пути)
-	int nGraphType;			// Текущий график отображения
-	int bGraphMaxpeaks;		// shows maximum peaks
-	int bMonitoring;		// флаг мониторинга записи
-	//int bMInstances;		// возможность запуска нескольких копий программы
-	int nPlayVolume;
-	int nLoopbackDevice;
+	int nGraphType;		// Текущий график отображения
+	int bGraphMaxpeaks;	// shows maximum peaks
+	int bMonitoring;	// флаг мониторинга записи
+	//int bMInstances;	// возможность запуска нескольких копий программы
+	int nPlayVolume;	// Last playback volume
+	int nPlayDevice;	// ID of a playback device (-1..., used also for loopback recording)
+	int nRecDevice;		// ID of a recording defice (-1 - system default)
+	int nRecLineID;		// Last selected item ID in rec. devices menu.
 } CONF_PROG;
 
 // Настройки микшера

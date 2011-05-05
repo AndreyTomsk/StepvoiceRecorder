@@ -19,11 +19,11 @@ BEVERSION			beVersion		 = NULL;
 BEWRITEVBRHEADER	beWriteVBRHeader = NULL;
 BEWRITEINFOTAG		beWriteInfoTag   = NULL;
 
-#ifdef _DEBUG
-const TCHAR* g_lameLibraryName = _T("lame_enc_d.dll");
-#else
+//#ifdef _DEBUG
+//const TCHAR* g_lameLibraryName = _T("lame_enc_d.dll");
+//#else
 const TCHAR* g_lameLibraryName = _T("lame_enc.dll");
-#endif
+//#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

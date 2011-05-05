@@ -214,9 +214,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK, OnRecLoopbackSelect)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK_MIX, OnRecLoopbackMixSelect)
 	ON_COMMAND(ID_MIXITEM_PLAY_VOLUME, OnPlayVolumeSelect)
-
-	ON_COMMAND_RANGE(ID_MIXITEM_LOOPBACK_DEVICE, ID_MIXITEM_LOOPBACK_DEVICE+9, OnLoopbackDeviceSelect)
-	ON_UPDATE_COMMAND_UI_RANGE(ID_MIXITEM_LOOPBACK_DEVICE, ID_MIXITEM_LOOPBACK_DEVICE+9, OnUpdateLoopbackDeviceSelect)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,10 +348,6 @@ CMainFrame::CMainFrame()
 	m_pMainFrame = this;
 	m_bAutoMenuEnable = false;
 
-	m_loopback_device = m_conf.GetConfProg()->nLoopbackDevice;
-	if (m_loopback_device < 0)
-		m_loopback_device = 0;
-
 	// Init window snapping
 	m_szMoveOffset.cx = 0;
 	m_szMoveOffset.cy = 0;
@@ -461,8 +454,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_BtnSTOP.SetIcon(IDI_STOP);
 	m_BtnREC.SetIcon(IDI_REC);
 
-	m_BtnMIX_SEL.SetIcon(IDI_MIC);
-
 	m_BtnFrame.Create(_T("Static"), "", WS_CHILD|WS_VISIBLE|SS_ETCHEDFRAME,
 		CRect(1, 80, 283, 113), this, IDC_STATIC);
 
@@ -475,7 +466,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_playback_volume = min(1, abs((float)m_conf.GetConfProg()->nPlayVolume / 10000));
 	m_RecMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	m_PlayMixer.Open(WAVE_MAPPER, GetSafeHwnd());
-	UpdateMixerState();
+
+	//m_BtnMIX_SEL.SetIcon(IDI_MIC);
+	//UpdateMixerState();
+	SetRecordingLine(m_conf.GetConfProg()->nRecLineID);
 
 	if (((CMP3_RecorderApp*)AfxGetApp())->IsVistaOS())
 	{
@@ -779,7 +773,10 @@ void CMainFrame::OnDestroy()
 	m_conf.GetConfProg()->nGraphType = m_GraphWnd.GetDisplayMode();
 	m_conf.GetConfProg()->bGraphMaxpeaks = (int)m_GraphWnd.MaxpeaksVisible();
 	m_conf.GetConfProg()->nPlayVolume = int(m_playback_volume * 10000);
-	m_conf.GetConfProg()->nLoopbackDevice = m_loopback_device;
+
+	//Not keeping ID for standard lines, thus selecting current on next start.
+	if (m_recording_mixer != E_REC_LOOPBACK && m_recording_mixer != E_REC_LOOPBACK_MIX)
+		m_conf.GetConfProg()->nRecLineID = 0;
 }
 
 //===========================================================================
@@ -912,7 +909,7 @@ void CMainFrame::OpenFile(const CString& str)
 	else
 	{
 		if (BASS_GetDevice() == -1)
-			BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
+			BASS_Init(m_conf.GetConfProg()->nPlayDevice, 44100, 0, GetSafeHwnd(), NULL);
 
 		g_stream_handle = BASS_StreamCreateFile(false, str, 0, 0, 0);
 		if (!g_stream_handle)
@@ -1313,12 +1310,8 @@ void CMainFrame::OnBtnSTOP()
 	if (m_bMonitoringBtn)
 		MonitoringStart();
 
-	if (m_recording_mixer == E_REC_LOOPBACK)
-		OnRecLoopbackSelect();
-	else
-		OnRecMixMenuSelect(ID_MIXITEM_REC0 + m_RecMixer.GetCurLine());
+	SetRecordingLine(m_conf.GetConfProg()->nRecLineID);
 }
-
 
 //===========================================================================
 void CMainFrame::OnBtnREC()
@@ -1342,7 +1335,7 @@ void CMainFrame::OnBtnREC()
 
 	if (!g_record_handle)
 	{
-		if (!BASS_RecordInit(-1)) //default device
+		if (!BASS_RecordInit(m_conf.GetConfProg()->nRecDevice)) //default device
 			return;
 
 		int l_bitrate = m_conf.GetConfDialMp3()->nBitrate;
@@ -1375,9 +1368,9 @@ void CMainFrame::OnBtnREC()
 		}
 
 		// Creating the Loopback stream
-		BASS_Init(-1, l_frequency, 0, GetSafeHwnd(), NULL);
+		BASS_Init(m_conf.GetConfProg()->nPlayDevice, l_frequency, 0, GetSafeHwnd(), NULL);
 		SAFE_DELETE(m_vista_loopback);
-		m_vista_loopback = new BassVistaLoopback(m_loopback_device);
+		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfProg()->nPlayDevice);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
 		ASSERT(g_loopback_handle == 0);
@@ -1957,6 +1950,8 @@ void CMainFrame::OnRecMixMenuSelect(UINT nID)
 	///@NOTE: Pretending that change has come from outside, for interface
 	///updating. Will update it in WindowProc.
 	PostMessage(MM_MIXM_LINE_CHANGE, 0, 0);
+
+	m_conf.GetConfProg()->nRecLineID = nID;
 }
 
 //------------------------------------------------------------------------------
@@ -2323,7 +2318,7 @@ bool CMainFrame::IsMonitoringOnly()
 //------------------------------------------------------------------------------
 bool CMainFrame::MonitoringStart()
 {
-	if (!BASS_RecordInit(-1))
+	if (!BASS_RecordInit(m_conf.GetConfProg()->nRecDevice))
 		return false;
 
 	SAFE_DELETE(m_visualization_data);
@@ -2334,10 +2329,10 @@ bool CMainFrame::MonitoringStart()
 	if (g_monitoring_handle)
 	{
 		if (BASS_GetDevice() == -1)
-			BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
+			BASS_Init(m_conf.GetConfProg()->nPlayDevice, 44100, 0, GetSafeHwnd(), NULL);
 
 		SAFE_DELETE(m_vista_loopback);
-		m_vista_loopback = new BassVistaLoopback(m_loopback_device);
+		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfProg()->nPlayDevice);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
 		ASSERT(g_loopback_handle == 0);
@@ -2539,6 +2534,15 @@ void CMainFrame::UpdateInterface()
 }
 
 //------------------------------------------------------------------------------
+void CMainFrame::SetRecordingLine(int nLineID)
+{
+	if (nLineID <= 0)
+		nLineID = ID_MIXITEM_REC0 + m_RecMixer.GetCurLine();
+
+	this->PostMessage(WM_COMMAND, nLineID, 0);
+}
+
+//------------------------------------------------------------------------------
 void CMainFrame::UpdateMixerState()
 {
 	// Current rec. mixer could have several lines, we need to update button
@@ -2680,6 +2684,7 @@ void CMainFrame::OnRecLoopbackMixSelect()
 		BASS_ChannelRemoveDSP(g_monitoring_handle, m_mute_hdsp);
 	}
 	m_mute_hdsp = 0;
+	m_conf.GetConfProg()->nRecLineID = ID_MIXITEM_REC_LOOPBACK_MIX;
 }
 
 void CMainFrame::OnRecLoopbackSelect()
@@ -2729,6 +2734,7 @@ void CMainFrame::OnRecLoopbackSelect()
 			}
 		}
 	}
+	m_conf.GetConfProg()->nRecLineID = ID_MIXITEM_REC_LOOPBACK;
 }
 
 //------------------------------------------------------------------------------
@@ -2752,15 +2758,3 @@ bool CMainFrame::CanRecord() const
 	return BASS_ChannelIsActive(g_stream_handle)==BASS_ACTIVE_STOPPED;
 }
 
-//------------------------------------------------------------------------------
-void CMainFrame::OnLoopbackDeviceSelect(UINT nID)
-{
-	m_loopback_device = nID - ID_MIXITEM_LOOPBACK_DEVICE;
-	ASSERT(m_loopback_device >= 0);
-}
-
-//------------------------------------------------------------------------------
-void CMainFrame::OnUpdateLoopbackDeviceSelect(CCmdUI* pCmdUI)
-{
-	pCmdUI->SetCheck(pCmdUI->m_nIndex == m_loopback_device);
-}

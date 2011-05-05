@@ -103,7 +103,8 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 	,m_buffer_delay(false)
 	,m_buffer_size(0)
 {
-	ASSERT(a_device >= 0);
+	if (a_device < 0)
+		a_device = 0;
 
 	HRESULT hr;
 	//EIF(GetDefaultDevice(eRender, &m_audio_client));
