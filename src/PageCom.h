@@ -15,6 +15,9 @@ class CPageCom : public CPropertyPage
 
 private:
 	CONF_DIAL_GEN* pconfig;
+	int m_default_play_id;
+	int m_default_rec_id;
+
 public:
 	CPageCom();
 	~CPageCom();
@@ -31,6 +34,8 @@ public:
 	BOOL	m_TrayIcon;
 	BOOL	m_TrayMin;
 	BOOL	m_MInstances;
+	int		m_playbackDeviceID;
+	int		m_recordingDeviceID;
 	//}}AFX_DATA
 
 // Overrides
@@ -49,6 +54,8 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
+public:
+	virtual BOOL OnInitDialog();
 };
 
 //{{AFX_INSERT_LOCATION}}

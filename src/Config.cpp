@@ -42,9 +42,7 @@ void CConfig::RegisterRead()
 	conf_prog.nGraphType      = App->GetProfileInt( "General", "Graph Type", ID_GRAPH_PEAKMETER );
 	conf_prog.bGraphMaxpeaks  = App->GetProfileInt( "General", "Show max peaks", 1);
 	conf_prog.bMonitoring     = App->GetProfileInt( "General", "Sound Monitor", 0 );
-	conf_prog.nPlayDevice     = App->GetProfileInt( "General", "Playback device", -1);
 	conf_prog.nPlayVolume     = App->GetProfileInt( "General", "Playback volume", 10000);
-	conf_prog.nRecDevice      = App->GetProfileInt( "General", "Recording device", -1);
 	conf_prog.nRecLineID      = App->GetProfileInt( "General", "Recording line", 0);
 
 	conf_dial_gen.nLoader	= App->GetProfileInt( "General", "Loader", 0 );
@@ -54,6 +52,8 @@ void CConfig::RegisterRead()
 	conf_dial_gen.bTrayIcon	= App->GetProfileInt( "General", "Show icon in tray", 1 );
 	conf_dial_gen.bTrayMin	= App->GetProfileInt( "General", "Minimize to tray", 1 );
 	conf_dial_gen.bMInstances = App->GetProfileInt( "General", "Multiple instances", 0 );
+	conf_dial_gen.nPlayDevice = App->GetProfileInt( "General", "Playback device", -1);
+	conf_dial_gen.nRecDevice  = App->GetProfileInt( "General", "Recording device", -1);
 
 	conf_dial_mp3.nBitrate	= App->GetProfileInt( "File types\\MP3", "Bitrate",	128 );
 	conf_dial_mp3.nFreq		= App->GetProfileInt( "File types\\MP3", "Freq", 44100 );
@@ -101,9 +101,7 @@ bool CConfig::RegisterWrite()
 	App->WriteProfileInt( "General", "Graph Type",		conf_prog.nGraphType );
 	App->WriteProfileInt( "General", "Show max peaks",	conf_prog.bGraphMaxpeaks);
 	App->WriteProfileInt( "General", "Sound Monitor",	conf_prog.bMonitoring );
-	App->WriteProfileInt( "General", "Playback device",	conf_prog.nPlayDevice );
 	App->WriteProfileInt( "General", "Playback volume",	conf_prog.nPlayVolume );
-	App->WriteProfileInt( "General", "Recording device",	conf_prog.nRecDevice );
 	App->WriteProfileInt( "General", "Recording line",	conf_prog.nRecLineID );
 
 	App->WriteProfileInt( "General", "Loader",			conf_dial_gen.nLoader );
@@ -113,6 +111,8 @@ bool CConfig::RegisterWrite()
 	App->WriteProfileInt( "General", "Show icon in tray",  conf_dial_gen.bTrayIcon );
 	App->WriteProfileInt( "General", "Minimize to tray",   conf_dial_gen.bTrayMin );
 	App->WriteProfileInt( "General", "Multiple instances", conf_dial_gen.bMInstances );
+	App->WriteProfileInt( "General", "Playback device",	conf_dial_gen.nPlayDevice );
+	App->WriteProfileInt( "General", "Recording device",	conf_dial_gen.nRecDevice );
 
 	App->WriteProfileInt( "File types\\MP3", "Bitrate",	conf_dial_mp3.nBitrate );
 	App->WriteProfileInt( "File types\\MP3", "Freq",	conf_dial_mp3.nFreq );

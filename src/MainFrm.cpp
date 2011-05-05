@@ -909,7 +909,7 @@ void CMainFrame::OpenFile(const CString& str)
 	else
 	{
 		if (BASS_GetDevice() == -1)
-			BASS_Init(m_conf.GetConfProg()->nPlayDevice, 44100, 0, GetSafeHwnd(), NULL);
+			BASS_Init(m_conf.GetConfDialGen()->nPlayDevice, 44100, 0, GetSafeHwnd(), NULL);
 
 		g_stream_handle = BASS_StreamCreateFile(false, str, 0, 0, 0);
 		if (!g_stream_handle)
@@ -1335,7 +1335,7 @@ void CMainFrame::OnBtnREC()
 
 	if (!g_record_handle)
 	{
-		if (!BASS_RecordInit(m_conf.GetConfProg()->nRecDevice)) //default device
+		if (!BASS_RecordInit(m_conf.GetConfDialGen()->nRecDevice)) //default device
 			return;
 
 		int l_bitrate = m_conf.GetConfDialMp3()->nBitrate;
@@ -1368,9 +1368,9 @@ void CMainFrame::OnBtnREC()
 		}
 
 		// Creating the Loopback stream
-		BASS_Init(m_conf.GetConfProg()->nPlayDevice, l_frequency, 0, GetSafeHwnd(), NULL);
+		BASS_Init(m_conf.GetConfDialGen()->nPlayDevice, l_frequency, 0, GetSafeHwnd(), NULL);
 		SAFE_DELETE(m_vista_loopback);
-		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfProg()->nPlayDevice);
+		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfDialGen()->nPlayDevice);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
 		ASSERT(g_loopback_handle == 0);
@@ -1703,8 +1703,8 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 		{
 			std::map<ActiveSoundMixer, CString> l_line_names;
 			l_line_names[E_REC_MIXER] = m_RecMixer.GetLineName(m_RecMixer.GetCurLine());
-			l_line_names[E_REC_LOOPBACK]= CString(_T("What U Hear (Software)"));
-			l_line_names[E_REC_LOOPBACK_MIX]= CString(_T("Mixer (Software)"));
+			l_line_names[E_REC_LOOPBACK]= CString(_T("Speakers (Software)"));
+			l_line_names[E_REC_LOOPBACK_MIX]= CString(_T("Speakers + Microphone (Software)"));
 			l_line_names[E_PLAY_MIXER] = m_PlayMixer.GetLineName(m_PlayMixer.GetCurLine());
 			l_line_names[E_PLAY_STREAM] = CString(_T("Playback volume"));
 
@@ -1899,8 +1899,8 @@ void CMainFrame::OnBtnMIX_SEL()
 
 	if (((CMP3_RecorderApp* )AfxGetApp())->IsVistaOS())
 	{
-		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("What U Hear (Software)"));
-		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK_MIX, _T("Mixer (Software)"));
+		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Speakers"));
+		mixMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK_MIX, _T("Speakers + Microphone"));
 	}
 
 	UINT itemID = ID_MIXITEM_REC0 + m_RecMixer.GetCurLine();
@@ -2318,7 +2318,7 @@ bool CMainFrame::IsMonitoringOnly()
 //------------------------------------------------------------------------------
 bool CMainFrame::MonitoringStart()
 {
-	if (!BASS_RecordInit(m_conf.GetConfProg()->nRecDevice))
+	if (!BASS_RecordInit(m_conf.GetConfDialGen()->nRecDevice))
 		return false;
 
 	SAFE_DELETE(m_visualization_data);
@@ -2329,10 +2329,10 @@ bool CMainFrame::MonitoringStart()
 	if (g_monitoring_handle)
 	{
 		if (BASS_GetDevice() == -1)
-			BASS_Init(m_conf.GetConfProg()->nPlayDevice, 44100, 0, GetSafeHwnd(), NULL);
+			BASS_Init(m_conf.GetConfDialGen()->nPlayDevice, 44100, 0, GetSafeHwnd(), NULL);
 
 		SAFE_DELETE(m_vista_loopback);
-		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfProg()->nPlayDevice);
+		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfDialGen()->nPlayDevice);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
 		ASSERT(g_loopback_handle == 0);

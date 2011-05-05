@@ -55,8 +55,6 @@ typedef struct
 	int bMonitoring;	// флаг мониторинга записи
 	//int bMInstances;	// возможность запуска нескольких копий программы
 	int nPlayVolume;	// Last playback volume
-	int nPlayDevice;	// ID of a playback device (-1..., used also for loopback recording)
-	int nRecDevice;		// ID of a recording defice (-1 - system default)
 	int nRecLineID;		// Last selected item ID in rec. devices menu.
 } CONF_PROG;
 
@@ -78,6 +76,8 @@ typedef struct
 	int bTrayIcon;	// Создавать иконку в трее
 	int bTrayMin;	// Минимизировать в трей
 	int bMInstances;// возможность запуска нескольких копий программы
+	int nPlayDevice;// ID of a playback device (-1..., used also for loopback recording)
+	int nRecDevice;	// ID of a recording defice (-1 - system default)
 } CONF_DIAL_GEN;
 
 // Настройки диалога "Record"

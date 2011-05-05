@@ -6,6 +6,7 @@ Milestone: "Version 1.8". Main goals:
 3. + Add a special mp3 header after recording finished.
 4. - (?) If a user presses "Record", then save to a Untitled.mp3, and ask to save before close.
 5. + Remember "What You Hear" checked in config.
+6. + Device selection possibility (recording not only from default device).
 -----------------------------------------------------------------------------
 
 Todo
@@ -21,7 +22,7 @@ Todo
                   On the other hand, this can be done by splitting to small files.
 
 20100110 (enh) - "remember last used stream" checkbox (for command line run).
-20080727 (enh) - Keep information about a recording source in config.
+20080727 (enh) + Keep information about a recording source in config.
 
 20090125 (enh) - VAS option: create new file when recording resumes.
 20080810 (enh) - Move program settings to a config (XML) file.
