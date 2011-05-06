@@ -226,7 +226,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="&quot;C:\Program Files\ASProtect 1.35 Release\ASProtect.exe&quot; -process &quot;..\doc\StepVoice Recorder.aspr&quot;"
+				CommandLine="&quot;C:\Program Files\ASProtect\ASProtect.exe&quot; -process &quot;..\doc\StepVoice Recorder.aspr&quot;"
 			/>
 		</Configuration>
 	</Configurations>
