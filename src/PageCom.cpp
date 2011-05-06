@@ -25,7 +25,7 @@ CPageCom::CPageCom()
 	m_Loader	= FALSE;
 	m_AutoRun	= FALSE;
 	m_Minimized	= FALSE;
-	m_ToolTipEnable = FALSE;
+	m_ToolTipEnable = TRUE;
 	m_TrayIcon = FALSE;
 	m_TrayMin = FALSE;
 	m_MInstances = FALSE;
@@ -93,17 +93,16 @@ void CPageCom::SetConfig(CONF_DIAL_GEN* pconf_dial_gen)
 {
 	pconfig			= pconf_dial_gen;
 
-	m_Loader		= pconfig->nLoader;
-	m_AutoRun		= pconfig->bAutoRun;
-	m_Minimized		= pconfig->bMinimized;
-	m_ToolTipEnable	= pconfig->bToolTips;
-	//m_ShowIn		= pconfig->nShowIn;
+	//m_Loader		= pconfig->nLoader;
+	//m_AutoRun		= pconfig->bAutoRun;
+	//m_Minimized	= pconfig->bMinimized;
+	//m_ToolTipEnable	= pconfig->bToolTips;
 	m_TrayIcon		= pconfig->bTrayIcon;
 	m_TrayMin		= pconfig->bTrayMin;
 	m_MInstances	= pconfig->bMInstances;
 
-	m_playbackDeviceID  = pconfig->nPlayDevice; // default device is -1
-	m_recordingDeviceID = pconfig->nRecDevice; // default device is -1
+	m_playbackDeviceID  = pconfig->nPlayDevice;
+	m_recordingDeviceID = pconfig->nRecDevice;
 }
 
 /////////////////////////////////////////////////////////////////////////////
