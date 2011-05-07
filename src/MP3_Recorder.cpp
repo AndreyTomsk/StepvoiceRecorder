@@ -159,7 +159,7 @@ BOOL CAboutDlg::OnInitDialog()
 
 	m_wndOrder.SubclassDlgItem(IDC_GETNOW, this);
 	//m_wndOrder.Init();
-	m_wndOrder.SetUrl("http://stepvoice.com/order.html");
+	m_wndOrder.SetUrl("http://stepvoice.com/order.shtml");
 
 
 	REG_CRYPT_BEGIN;
@@ -372,7 +372,7 @@ void CMP3_RecorderApp::OnHelpWww()
 
 void CMP3_RecorderApp::OnHelpOrderOnline() 
 {
-	ShellExecute(0, NULL, _T("http://www.stepvoice.com/order.html"), NULL, NULL,
+	ShellExecute(0, NULL, _T("http://www.stepvoice.com/order.shtml"), NULL, NULL,
 		SW_SHOWNORMAL);
 }
 

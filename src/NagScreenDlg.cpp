@@ -15,7 +15,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-#define ORDER_URL "http://stepvoice.com/order.html"
+#define ORDER_URL "http://stepvoice.com/order.shtml"
 
 /////////////////////////////////////////////////////////////////////////////
 BEGIN_MESSAGE_MAP(CNagScreenDlg, CDialog)

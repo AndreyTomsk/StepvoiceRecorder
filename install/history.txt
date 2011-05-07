@@ -4,9 +4,9 @@ Stepvoice Recorder History
   Version 1.8
   ----------------------------------------
 
+  + Mixing virtual 'speakers' line with microphone (for Majicjack, skype,...).
   + Added recording/playback device selection.
   + Current mixer line is restored on next start.
-  + Mixer virtual 'speakers' line with microphone (for Majicjack, skype,...).
   + Adding VBR header to mp3 file.
   * Switched to 32-bit floating-point sample data.
   - Fixed program crash when starting in registered mode, Windows 7.
