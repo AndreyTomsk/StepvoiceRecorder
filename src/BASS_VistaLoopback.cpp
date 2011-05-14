@@ -103,14 +103,17 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 	,m_buffer_delay(false)
 	,m_buffer_size(0)
 {
-	if (a_device < 0)
-		a_device = 0;
-
 	HRESULT hr;
-	//EIF(GetDefaultDevice(eRender, &m_audio_client));
-	EIF(GetDevice(a_device, eRender, &m_audio_client));
-	EIF(m_audio_client->GetMixFormat(&m_wfx));
 
+	if (a_device < 0)
+	{
+		EIF(GetDefaultDevice(eRender, &m_audio_client));
+	}
+	else
+	{
+		EIF(GetDevice(a_device, eRender, &m_audio_client));
+	}
+	EIF(m_audio_client->GetMixFormat(&m_wfx));
 	EIF(m_audio_client->Initialize(
 		AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK,
 		500 * MFTIMES_PER_MILLISEC, 0, m_wfx, NULL));

@@ -909,7 +909,10 @@ void CMainFrame::OpenFile(const CString& str)
 	else
 	{
 		if (BASS_GetDevice() == -1)
-			BASS_Init(m_conf.GetConfDialGen()->nPlayDevice, 44100, 0, GetSafeHwnd(), NULL);
+		{
+			int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
+			BASS_Init(deviceID <= 0 ? -1 : deviceID, 44100, 0, GetSafeHwnd(), NULL);
+		}
 
 		g_stream_handle = BASS_StreamCreateFile(false, str, 0, 0, 0);
 		if (!g_stream_handle)
@@ -1368,7 +1371,9 @@ void CMainFrame::OnBtnREC()
 		}
 
 		// Creating the Loopback stream
-		BASS_Init(m_conf.GetConfDialGen()->nPlayDevice, l_frequency, 0, GetSafeHwnd(), NULL);
+		int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
+		BASS_Init(deviceID <= 0 ? -1 : deviceID, l_frequency, 0, GetSafeHwnd(), NULL);
+
 		SAFE_DELETE(m_vista_loopback);
 		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfDialGen()->nPlayDevice);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
@@ -2329,7 +2334,10 @@ bool CMainFrame::MonitoringStart()
 	if (g_monitoring_handle)
 	{
 		if (BASS_GetDevice() == -1)
-			BASS_Init(m_conf.GetConfDialGen()->nPlayDevice, 44100, 0, GetSafeHwnd(), NULL);
+		{
+			int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
+			BASS_Init(deviceID <= 0 ? -1 : deviceID, 44100, 0, GetSafeHwnd(), NULL);
+		}
 
 		SAFE_DELETE(m_vista_loopback);
 		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfDialGen()->nPlayDevice);

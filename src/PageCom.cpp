@@ -70,9 +70,6 @@ void CPageCom::OnOK()
 		pconfig->bTrayMin	= m_TrayMin;
 		pconfig->bMInstances = m_MInstances;
 
-		// Combobox ID -> device ID conversion.
-
-		m_playbackDeviceID++; // BASS playback device IDs starts from 1
 		pconfig->nPlayDevice = (m_playbackDeviceID != m_default_play_id) ?
 			m_playbackDeviceID : -1;
 		pconfig->nRecDevice  = (m_recordingDeviceID != m_default_rec_id) ?
@@ -141,13 +138,9 @@ BOOL CPageCom::OnInitDialog()
 			m_default_rec_id = i;
 	}
 
-	// Device ID -> combobox ID conversion.
-
+	m_default_play_id--; // BASS starts devices from 1
 	if (m_playbackDeviceID == -1) // default
 		m_playbackDeviceID = m_default_play_id;
-	if (m_playbackDeviceID > 0)
-		m_playbackDeviceID -= 1;  // combo IDs starts from 0
-
 	if (m_recordingDeviceID == -1) // default
 		m_recordingDeviceID = m_default_rec_id;
 
