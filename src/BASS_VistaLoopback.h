@@ -21,6 +21,7 @@ public:
 private:
 	HRESULT GetDefaultDevice(EDataFlow a_flow, IAudioClient **a_client);
 	HRESULT GetDevice(int a_device_id, EDataFlow a_flow, IAudioClient **a_client);
+	HRESULT GetDevice(LPCWSTR a_device_driver, EDataFlow a_flow, IAudioClient **a_client);
 
 	static DWORD CALLBACK LoopbackStreamProc(HSTREAM a_handle,
 		void* a_buffer, DWORD a_length, void* a_user);

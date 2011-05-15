@@ -6,6 +6,8 @@
 #include <functiondiscoverykeys.h>
 
 #define EIF(x) if (FAILED(hr=(x))) { goto Exit; }	// Exit If Failed.
+#define SAFE_RELEASE(x) { if (x != NULL) { x.Release(); x = NULL; } }
+
 #define MFTIMES_PER_MILLISEC  10000
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,6 +105,7 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 	,m_buffer_delay(false)
 	,m_buffer_size(0)
 {
+	USES_CONVERSION;
 	HRESULT hr;
 
 	if (a_device < 0)
@@ -111,7 +114,13 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 	}
 	else
 	{
-		EIF(GetDevice(a_device, eRender, &m_audio_client));
+		// Taking device, based on driver name, not ID (BASS enumeration doesn't
+		// equal with WASAPI's). Again, real device IDs starts from 1 in BASS.
+		BASS_DEVICEINFO info;
+		BOOL result = BASS_GetDeviceInfo(a_device + 1, &info);
+		ASSERT(result);
+
+		EIF(GetDevice(A2W(info.driver), eRender, &m_audio_client));
 	}
 	EIF(m_audio_client->GetMixFormat(&m_wfx));
 	EIF(m_audio_client->Initialize(
@@ -181,6 +190,42 @@ HRESULT BassVistaLoopback::GetDefaultDevice(EDataFlow a_flow, IAudioClient **a_c
 	EIF(l_properties->GetValue(PKEY_Device_FriendlyName, &varName));
 	PropVariantClear(&varName);
 	*/
+Exit:
+	return hr;
+}
+////////////////////////////////////////////////////////////////////////////////
+
+HRESULT BassVistaLoopback::GetDevice(LPCWSTR a_device_driver, EDataFlow a_flow,
+									 IAudioClient **a_client)
+{
+	CComPtr<IMMDeviceEnumerator> l_enumerator;
+	CComPtr<IMMDeviceCollection> l_device_collection;
+	CComPtr<IMMDevice> l_device;
+	LPWSTR l_device_driver = NULL;
+	UINT l_device_count = 0;
+	UINT l_device_id = -1;
+
+	HRESULT hr;
+	EIF(l_enumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator)));
+	EIF(l_enumerator->EnumAudioEndpoints(a_flow, DEVICE_STATE_ACTIVE, &l_device_collection));
+
+	EIF(l_device_collection->GetCount(&l_device_count));
+	for (UINT i = 0; i < l_device_count; i++)
+	{
+		EIF(l_device_collection->Item(i, &l_device));
+		EIF(l_device->GetId(&l_device_driver));
+		SAFE_RELEASE(l_device);
+
+		if (CString(a_device_driver) == CString(l_device_driver))
+			l_device_id = i;
+		CoTaskMemFree(l_device_driver);
+		if (l_device_id != -1)
+			break;
+	}
+
+	EIF(l_device_collection->Item(l_device_id, &l_device));
+	EIF(l_device->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER,
+		NULL, reinterpret_cast<void**>(a_client)));
 Exit:
 	return hr;
 }
