@@ -117,7 +117,7 @@ CString CMixerRec::GetLineName(int Num)
 {
 	if((Num < 0) || (Num >= GetLinesNum()))
 		return CString("");
-	//CControlVolume *pCV = &m_volVector[Num];
+
 	CControlVolume *pCV = m_volumeControls[Num];
 	return pCV->GetLineName();
 }
@@ -137,7 +137,7 @@ void CMixerRec::SetLine(int nLineNum)
 {
 	if((nLineNum < 0) || (nLineNum >= GetLinesNum()))
 		return;
-	//CControlVolume *pCV = &m_volVector[nLineNum];
+
 	CControlVolume *pCV = m_volumeControls[nLineNum];
 	
 	if (GetLinesNum() > 1)
@@ -168,7 +168,6 @@ int CMixerRec::GetCurLine()
 	CControlVolume *pCV;
 	for(; i < GetLinesNum(); i++)
 	{
-		//pCV = &m_volVector[i];
 		pCV = m_volumeControls[i];
 		if(pCV->GetLineName() == strCurLineName)
 			break;
@@ -180,17 +179,19 @@ int CMixerRec::GetCurLine()
 //////////////////////////////////////////////////////////////////////
 void CMixerRec::SetVol(int nPercent)
 {
-	//CControlVolume *pCV = &m_volVector[GetCurLine()];
-	CControlVolume *pCV = m_volumeControls[GetCurLine()];
-	pCV->SetVolume(nPercent);
+	if (GetLinesNum() > 0)
+	{
+		CControlVolume *pCV = m_volumeControls[GetCurLine()];
+		pCV->SetVolume(nPercent);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////
 int CMixerRec::GetVol(int nLineNum)
 {
-	if((nLineNum < 0) || (nLineNum >= GetLinesNum()))
+	if ((nLineNum < 0) || (nLineNum >= GetLinesNum()))
 		return -1;
-	//CControlVolume *pCV = &m_volVector[nLineNum];
+
 	CControlVolume *pCV = m_volumeControls[nLineNum];
 	return pCV->GetVolume();
 }

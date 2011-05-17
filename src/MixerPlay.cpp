@@ -69,7 +69,6 @@ BOOL CMixerPlay::Open(int nDeviceID, HWND hWnd)
 		return false;
 
 	// добавляем линии громкости в список
-	//CControlVolume *pMainVol = new CControlVolume;
 	CControlVolume *pWaveVol = new CControlVolume;
 	//if(pMainVol->Init(m_hMixer, MIXERLINE_COMPONENTTYPE_DST_SPEAKERS,
 	//	NO_SOURCE, INIT_BYTYPE))
@@ -87,7 +86,6 @@ BOOL CMixerPlay::Open(int nDeviceID, HWND hWnd)
 	if(GetLinesNum() == 0)
 	{
 		Close();
-		//SAFE_DELETE(pMainVol);
 		SAFE_DELETE(pWaveVol);
 		return false;
 	}
@@ -106,7 +104,7 @@ CString CMixerPlay::GetLineName(int Num)
 {
 	if(Num < 0 || Num >= GetLinesNum())
 		return CString("");
-	//CControlVolume *pCV = &m_volVector[Num];
+
 	CControlVolume *pCV = m_volumeControls[Num];
 	return pCV->GetLineName();
 }
@@ -123,7 +121,6 @@ void CMixerPlay::SetLine(int nLineNum)
 	if((nLineNum < 0) || (nLineNum >= GetLinesNum()))
 		return;
 
-	//CControlVolume *pCV = m_volList[nLineNum];
 	m_nCurLine = nLineNum;
 	// посылаем сообщение (для отображения подсказки пользователю)
 	if(m_hWnd)
@@ -142,9 +139,9 @@ int CMixerPlay::GetCurLine()
 //////////////////////////////////////////////////////////////////////
 void CMixerPlay::SetVol(int nPercent)
 {
-	CControlVolume *pCV = m_volumeControls[GetCurLine()];
-	if (pCV)
+	if (GetLinesNum() > 0)
 	{
+		CControlVolume *pCV = m_volumeControls[GetCurLine()];
 		pCV->SetVolume(nPercent);
 	}
 }
@@ -154,7 +151,7 @@ int CMixerPlay::GetVol(int nLineNum)
 {
 	if((nLineNum < 0) || (nLineNum >= GetLinesNum()))
 		return -1;
-	//CControlVolume *pCV = &m_volVector[nLineNum];
+
 	CControlVolume *pCV = m_volumeControls[nLineNum];
 	return pCV->GetVolume();
 }
