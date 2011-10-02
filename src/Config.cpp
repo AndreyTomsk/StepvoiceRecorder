@@ -1,8 +1,10 @@
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 #include "stdafx.h"
 #include "MP3_Recorder.h"
 #include "Config.h"
 #include <mmsystem.h>
+#include "BASS_Functions.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -10,19 +12,34 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 CConfig::CConfig()
 {
 	loadConfig();
 }
+//------------------------------------------------------------------------------
 
 CConfig::~CConfig()
 {
 	saveConfig();
-	SetAutoRun( conf_dial_gen.bAutoRun != 0 );
+	//SetAutoRun( conf_dial_gen.bAutoRun != 0 );
 }
+//------------------------------------------------------------------------------
+
+bool CConfig::loadConfig()
+{
+	RegisterRead();
+	ValidateRead();
+	return true;
+}
+//------------------------------------------------------------------------------
+
+bool CConfig::saveConfig()
+{
+	return RegisterWrite();
+}
+//------------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////
 // Register read/write functions
@@ -85,8 +102,17 @@ void CConfig::RegisterRead()
 	conf_dial_an.strAutoName = App->GetProfileString( "Autoname", "Current template", "%b%d_%H%M" );
 	conf_dial_an.strTDefault = App->GetProfileString( "Autoname", "Default template", "%b%d_%H%M" );
 }
+//------------------------------------------------------------------------------
 
-//====================================================================
+void CConfig::ValidateRead()
+{
+	if (!Bass::IsPlaybackDeviceValid(conf_dial_gen.nPlayDevice))
+		conf_dial_gen.nPlayDevice = -1;
+	if (!Bass::IsRecordingDeviceValid(conf_dial_gen.nRecDevice))
+		conf_dial_gen.nRecDevice = -1;
+}
+//------------------------------------------------------------------------------
+
 bool CConfig::RegisterWrite()
 {
 	CWinApp* App = AfxGetApp();
@@ -150,6 +176,7 @@ bool CConfig::RegisterWrite()
 }
 
 //====================================================================
+/*
 bool CConfig::SetAutoRun( bool bSet )
 {
 	HKEY hKey;
@@ -175,5 +202,5 @@ bool CConfig::SetAutoRun( bool bSet )
 	RegCloseKey( hKey );
 	return true;
 }
-
+*/
 //////////////////////////////////////////////////////////////////////

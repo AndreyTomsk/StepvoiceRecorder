@@ -2,18 +2,23 @@
 #ifndef _BASS_FUNCTIONS_H
 #define _BASS_FUNCTIONS_H
 
-#include <bass.h>
+////////////////////////////////////////////////////////////////////////////////
 
 namespace Bass
 {
-	float GetMaxPeakDB(HRECORD a_handle);
+	float GetMaxPeakDB(DWORD a_handle);
 
-	void CALLBACK LoopbackStreamDSP(HDSP handle, DWORD channel, void *buffer,
+	void CALLBACK LoopbackStreamDSP(DWORD handle, DWORD channel, void *buffer,
 		DWORD length, void *user);
 
-	void CALLBACK StreamMuteDSP(HDSP handle, DWORD channel, void *buffer,
+	void CALLBACK StreamMuteDSP(DWORD handle, DWORD channel, void *buffer,
 		DWORD length, void *user);
+
+	bool IsPlaybackDeviceValid(int a_device);
+	bool IsRecordingDeviceValid(int a_device);
 
 } // namespace Bass
+
+////////////////////////////////////////////////////////////////////////////////
 
 #endif //_BASS_FUNCTIONS_H

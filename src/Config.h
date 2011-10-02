@@ -15,10 +15,10 @@ public:
 	CConfig();
 	~CConfig();
 
-	bool loadConfig() { RegisterRead(); return true; }
-	bool saveConfig() { return RegisterWrite(); }
+	bool loadConfig();
+	bool saveConfig();
 
-	CONF_PROG*		GetConfProg()    { return &conf_prog; }
+	CONF_PROG*      GetConfProg()    { return &conf_prog; }
 	CONF_DIAL_GEN*	GetConfDialGen() { return &conf_dial_gen; }
 	CONF_DIAL_MP3*	GetConfDialMp3() { return &conf_dial_mp3; }
 	CONF_DIAL_SH2*	GetConfDialSH2() { return &conf_dial_sh2; }
@@ -27,8 +27,9 @@ public:
 
 private:
 	void RegisterRead();
+	void ValidateRead();
 	bool RegisterWrite();
-	bool SetAutoRun( bool bSet );
+	//bool SetAutoRun( bool bSet );
 
 private:
 	CONF_PROG		conf_prog;

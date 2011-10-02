@@ -1345,6 +1345,9 @@ void CMainFrame::OnBtnREC()
 		int l_frequency = m_conf.GetConfDialMp3()->nFreq;
 		int l_channels = m_conf.GetConfDialMp3()->nStereo + 1;
 
+		int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
+		BASS_Init(deviceID <= 0 ? -1 : deviceID, l_frequency, 0, GetSafeHwnd(), NULL);
+
 		try
 		{
 			SAFE_DELETE(m_pEncoder);
@@ -1371,8 +1374,8 @@ void CMainFrame::OnBtnREC()
 		}
 
 		// Creating the Loopback stream
-		int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
-		BASS_Init(deviceID <= 0 ? -1 : deviceID, l_frequency, 0, GetSafeHwnd(), NULL);
+		//int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
+		//BASS_Init(deviceID <= 0 ? -1 : deviceID, l_frequency, 0, GetSafeHwnd(), NULL);
 
 		SAFE_DELETE(m_vista_loopback);
 		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfDialGen()->nPlayDevice);

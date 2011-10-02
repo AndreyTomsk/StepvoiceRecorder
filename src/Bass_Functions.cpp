@@ -1,12 +1,16 @@
 
 #include "stdafx.h"
-#include "Bass_Functions.h"
+#include <bass.h>
 #include <math.h>
+#include "Bass_Functions.h"
+
+////////////////////////////////////////////////////////////////////////////////
 
 namespace Bass
 {
 //------------------------------------------------------------------------------
-float GetMaxPeakDB(HRECORD a_handle)
+
+float GetMaxPeakDB(DWORD a_handle)
 {
 	DWORD l_ch_level = BASS_ChannelGetLevel(a_handle); // 0..32768
 	ASSERT(l_ch_level != -1);
@@ -14,9 +18,9 @@ float GetMaxPeakDB(HRECORD a_handle)
 	DWORD l_level = max(LOWORD(l_ch_level), HIWORD(l_ch_level));
 	return 20 * log10(float(l_level) / 32768);
 }
-
 //------------------------------------------------------------------------------
-void CALLBACK LoopbackStreamDSP(HDSP /*a_dsp_handle*/, DWORD /*a_channel*/,
+
+void CALLBACK LoopbackStreamDSP(DWORD /*a_dsp_handle*/, DWORD /*a_channel*/,
 								void *a_buffer, DWORD a_length_bytes, void *a_user)
 {
 	// Loopback is a decoding stream and have same parameters (freq, channels)
@@ -83,12 +87,31 @@ void CALLBACK LoopbackStreamDSP(HDSP /*a_dsp_handle*/, DWORD /*a_channel*/,
 	l_dst_buffer[i] = max(-1.0, min((l_dst_buffer[i] + l_src_buffer_float[i]), 1.0));
 	*/
 }
-
 //------------------------------------------------------------------------------
-void CALLBACK StreamMuteDSP(HDSP /*handle*/, DWORD /*channel*/, void *buffer,
+
+void CALLBACK StreamMuteDSP(DWORD /*handle*/, DWORD /*channel*/, void *buffer,
 							DWORD length, void* /*user*/)
 {
 	memset(buffer, 0, length);
 }
+//------------------------------------------------------------------------------
+
+bool IsPlaybackDeviceValid(int a_device)
+{
+	BASS_DEVICEINFO info;
+	BOOL result = BASS_GetDeviceInfo(a_device + 1, &info);
+	return result && (info.flags&BASS_DEVICE_ENABLED);
+}
+//------------------------------------------------------------------------------
+
+bool IsRecordingDeviceValid(int a_device)
+{
+	BASS_DEVICEINFO info;
+	BOOL result = BASS_RecordGetDeviceInfo(a_device + 1, &info);
+	return result && (info.flags&BASS_DEVICE_ENABLED);
+}
+//------------------------------------------------------------------------------
 
 } // namespace Bass
+
+
