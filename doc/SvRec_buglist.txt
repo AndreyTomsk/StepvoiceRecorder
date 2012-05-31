@@ -1,28 +1,22 @@
 -----------------------------------------------------------------------------
-Milestone: "Version 1.8". Main goals:
+Milestone: "Version 1.9". Main goals:
 
-1. + Mix StereoMix with other streams (in vista);
-2. + Migrate to float buffers;
-3. + Add a special mp3 header after recording finished.
-4. - (?) If a user presses "Record", then save to a Untitled.mp3, and ask to save before close.
-5. + Remember "What You Hear" checked in config.
-6. + Device selection possibility (recording not only from default device).
+1. 
 -----------------------------------------------------------------------------
 
 Todo
 ----
 
+20110802 (enh) - Add supported OS list on the web-site.
+20110515 (bug) - Playback continues to same device, even if changed in options.
 20110502 (enh) - Recording from a phone, connected to PC (?).
 20110202 (---) - Always open mp3 options when doubleclicking in stat window.
-20100202 (enh) + In graph context menu: put "monitor input" item, instead of "show peaks",
-                        that is always set by default.
 
 20110124 (enh) - "record history" for VAS. A list with timing recorded parts.
                   So we know when recording was and can listen only this part.
                   On the other hand, this can be done by splitting to small files.
 
 20100110 (enh) - "remember last used stream" checkbox (for command line run).
-20080727 (enh) + Keep information about a recording source in config.
 
 20090125 (enh) - VAS option: create new file when recording resumes.
 20080810 (enh) - Move program settings to a config (XML) file.
@@ -35,8 +29,6 @@ Todo
 
 20080309 (enh) - Automatic recording levels adjustment.
 ???????? (enh) - Audio normalizer and compressor filters.
-
-20080311 (enh) + In Vista mixing StereoMix with other streams.
 
 20080217 (enh) - If a user presses "Record", then save to a
                  Untitled.mp3, and ask to save before close.
@@ -60,7 +52,7 @@ Todo
 ???????? (enh) - New window: ID3 tags autofilling and editing.
 
 ???????? (enh) - Working log (also for users: errors, info, ...).
-???????? (enh) - Non-modal properties dialog.
+???????? (---) - Non-modal properties dialog.
 
 20080309 (enh) - In the recorded files list make a row with levels preview.
 20061208 (enh) * (?) In file menu instead of "Find..."
@@ -69,6 +61,20 @@ Todo
 ???????? (enh) - New design: Properties dialog.
 ???????? (enh) - New design: skins.
 ???????? (enh) - New design: icons, logo, nagscreen.
+
+-----------------------------------------------------------------------------
+Milestone: "Version 1.8". Main goals:
+
+1. + Mix StereoMix with other streams (in vista);
+2. + Migrate to float buffers;
+3. + Add a special mp3 header after recording finished.
+4. + Remember "What You Hear" checked in config.
+5. + Device selection possibility (recording not only from default device).
+
+20100202 (enh) + In graph context menu: put "monitor input" item, instead of "show peaks",
+                        that is always set by default.
+20080311 (enh) + In Vista mixing StereoMix with other streams.
+20080727 (enh) + Keep information about a recording source in config.
 
 -----------------------------------------------------------------------------
 Milestone: "Version 1.7". Main goals:
