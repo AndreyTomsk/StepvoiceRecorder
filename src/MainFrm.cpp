@@ -635,7 +635,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	case MM_MIXM_LINE_CHANGE:
 		{
-			OutputDebugString(__FUNCTION__ " :: Mixer line/control changed\n");
+			//OutputDebugString(__FUNCTION__ " :: Mixer line/control changed\n");
 
 			// Ignoring these messages when dragging or loopback mixer is active
 			if (m_SliderVol.IsDragging() ||
@@ -650,7 +650,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			//	(HMIXER)wParam == m_PlayMixer.GetMixerHandle())
 			//	break;
 
-			OutputDebugString(__FUNCTION__ " :: changed not by our device (or from our message post :)\n");
+			//OutputDebugString(__FUNCTION__ " :: changed not by our device (or from our message post :)\n");
 			std::map<ActiveSoundMixer, int> l_mixer_vol;
 			l_mixer_vol[E_REC_MIXER] = m_RecMixer.GetVol(m_RecMixer.GetCurLine());
 			l_mixer_vol[E_REC_LOOPBACK] = m_SliderVol.GetRangeMax();
@@ -664,7 +664,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 			if (m_active_mixer == E_PLAY_MIXER || m_active_mixer == E_PLAY_STREAM)
 				break;
 
-			OutputDebugString(__FUNCTION__ " :: recording mixer is active\n");
+			//OutputDebugString(__FUNCTION__ " :: recording mixer is active\n");
 			if (m_loopback_hdsp || m_mute_hdsp)
 			{
 				OutputDebugString(__FUNCTION__ " :: loopback mixer is active. Removing both DSP.");
@@ -1267,6 +1267,7 @@ void CMainFrame::OnBtnPLAY()
 //===========================================================================
 void CMainFrame::OnBtnSTOP()
 {
+	::OutputDebugString(__FUNCTION__" ::1");
 	SetFocus();
 
 	m_nState = STOP_STATE;
@@ -1282,19 +1283,26 @@ void CMainFrame::OnBtnSTOP()
 	}
 	if (g_record_handle)
 	{
+		::OutputDebugString(__FUNCTION__" ::2");
 		KillTimer(2);
 		BOOL l_result = BASS_ChannelStop(g_record_handle);
 		ASSERT(l_result);
+
+		::OutputDebugString(__FUNCTION__" ::3");
 		l_result = BASS_ChannelStop(g_loopback_handle);
 		ASSERT(l_result);
 
+		::OutputDebugString(__FUNCTION__" ::4");
 		g_loopback_handle = 0;
 		g_record_handle = 0;
 		m_loopback_hdsp = 0;
 		m_mute_hdsp = 0;
 		BASS_Free();
+		
+		::OutputDebugString(__FUNCTION__" ::5");
 		BASS_RecordFree();
 
+		::OutputDebugString(__FUNCTION__" ::6");
 		SAFE_DELETE(m_vista_loopback);
 		SAFE_DELETE(m_visualization_data);
 
@@ -1307,18 +1315,22 @@ void CMainFrame::OnBtnSTOP()
 		OpenFile(l_recorded_file);
 	}
 
+	::OutputDebugString(__FUNCTION__" ::7");
 	PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
 		(LPARAM)m_pMainFrame->m_SliderTime.m_hWnd);
 
 	if (m_bMonitoringBtn)
 		MonitoringStart();
 
+	::OutputDebugString(__FUNCTION__" ::8");
 	SetRecordingLine(m_conf.GetConfProg()->nRecLineID);
+	::OutputDebugString(__FUNCTION__" ::9");
 }
 
 //===========================================================================
 void CMainFrame::OnBtnREC()
 {
+	::OutputDebugString(__FUNCTION__ " ::1");
 	SetFocus();
 
 	// Data for the scheduler start
@@ -1334,13 +1346,17 @@ void CMainFrame::OnBtnREC()
 			return;
 	}
 
+	::OutputDebugString(__FUNCTION__ " ::2");
 	MonitoringStop();
+	::OutputDebugString(__FUNCTION__ " ::3");
 
 	if (!g_record_handle)
 	{
+		::OutputDebugString(__FUNCTION__ " ::4");
 		if (!BASS_RecordInit(m_conf.GetConfDialGen()->nRecDevice)) //default device
 			return;
 
+		::OutputDebugString(__FUNCTION__ " ::5");
 		int l_bitrate = m_conf.GetConfDialMp3()->nBitrate;
 		int l_frequency = m_conf.GetConfDialMp3()->nFreq;
 		int l_channels = m_conf.GetConfDialMp3()->nStereo + 1;
@@ -1348,6 +1364,7 @@ void CMainFrame::OnBtnREC()
 		int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
 		BASS_Init(deviceID <= 0 ? -1 : deviceID, l_frequency, 0, GetSafeHwnd(), NULL);
 
+		::OutputDebugString(__FUNCTION__ " ::6");
 		try
 		{
 			SAFE_DELETE(m_pEncoder);
@@ -1361,6 +1378,7 @@ void CMainFrame::OnBtnREC()
 			return;
 		}
 
+		::OutputDebugString(__FUNCTION__ " ::7");
 		SAFE_DELETE(m_visualization_data);
 		m_visualization_data = new VisualizationData(l_frequency, l_channels);
 
@@ -1368,11 +1386,13 @@ void CMainFrame::OnBtnREC()
 			MAKELONG(BASS_RECORD_PAUSE|BASS_SAMPLE_FLOAT, 25), (RECORDPROC *)&NewRecordProc, this);
 		if (FALSE == g_record_handle)
 		{
+			::OutputDebugString(__FUNCTION__ " ::8");
 			SAFE_DELETE(m_pEncoder);
 			g_record_handle = 0;
 			return;
 		}
 
+		::OutputDebugString(__FUNCTION__ " ::8");
 		// Creating the Loopback stream
 		//int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
 		//BASS_Init(deviceID <= 0 ? -1 : deviceID, l_frequency, 0, GetSafeHwnd(), NULL);
@@ -1381,14 +1401,19 @@ void CMainFrame::OnBtnREC()
 		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfDialGen()->nPlayDevice);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
+		::OutputDebugString(__FUNCTION__ " ::9");
+
 		ASSERT(g_loopback_handle == 0);
 		g_loopback_handle = BASS_Mixer_StreamCreate(l_frequency, l_channels,
 			BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
 		ASSERT(g_loopback_handle);
 
+		::OutputDebugString(__FUNCTION__ " ::10");
+
 		BASS_Mixer_StreamAddChannel(g_loopback_handle, l_stream_handle,
 			BASS_MIXER_DOWNMIX);
 
+		::OutputDebugString(__FUNCTION__ " ::11");
 		if (m_recording_mixer == E_REC_LOOPBACK)
 		{
 			m_mute_hdsp = BASS_ChannelSetDSP(g_record_handle,
@@ -1401,6 +1426,7 @@ void CMainFrame::OnBtnREC()
 		}
 	}
 
+	::OutputDebugString(__FUNCTION__ " ::12");
 	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_record_handle);
 	switch (CHANNEL_STATE)
 	{
@@ -1432,6 +1458,7 @@ void CMainFrame::OnBtnREC()
 		m_nState = RECORD_STATE;
 		break;
 	}
+	::OutputDebugString(__FUNCTION__ " ::13");
 }
 
 //===========================================================================

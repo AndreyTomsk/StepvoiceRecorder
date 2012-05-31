@@ -25,10 +25,10 @@ DWORD CALLBACK BassVistaLoopback::LoopbackStreamProc(HSTREAM /*a_handle*/,
 		hr = l_this->m_audio_client->GetCurrentPadding(&paddingFrameCount);
 		if (!paddingFrameCount || (paddingFrameCount < l_this->m_buffer_size/4 && !l_this->m_buffer_delay))
 		{
-			if (paddingFrameCount)
-				::OutputDebugString(__FUNCTION__ " ::Delaying (wait 1/4 buffer)");
-			else
-				::OutputDebugString(__FUNCTION__ " ::Delaying (no frames in buffer");
+			//if (paddingFrameCount)
+			//	::OutputDebugString(__FUNCTION__ " ::Delaying (wait 1/4 buffer)");
+			//else
+			//	::OutputDebugString(__FUNCTION__ " ::Delaying (no frames in buffer");
 
 			l_this->m_buffer_delay = false;
 			ZeroMemory(a_buffer, a_length);
