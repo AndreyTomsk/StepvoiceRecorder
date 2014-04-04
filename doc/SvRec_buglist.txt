@@ -6,6 +6,14 @@ Milestone: "Version 1.9". Main goals:
 
 Todo
 ----
+20130302 (bug) - see message from Cindy Martenson (uParts) <cindy@uparts.com>
+                 Problem with microphone line not detected in Mixer Line
+                 context menu - leading to empty recording.
+20130301 (bug) - Interesting thing: in Windows8 Recording Devices combobox is
+                 empty, if microphone is not connected to input (update bass?).
+
+20120606 (enh) - Users often complains about "No sound" problem. We need some
+                 mechanism to help them.
 
 20110802 (enh) - Add supported OS list on the web-site.
 20110515 (bug) - Playback continues to same device, even if changed in options.
