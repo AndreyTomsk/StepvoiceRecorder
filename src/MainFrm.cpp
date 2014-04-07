@@ -15,6 +15,7 @@ static char THIS_FILE[] = __FILE__;
 #include "common.h"
 #include "system.h"
 #include "BASS_Functions.h"
+#include "RecordingSourceDlg.h"
 
 HSTREAM g_stream_handle = 0;   // Playback
 HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
@@ -214,6 +215,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK, OnRecLoopbackSelect)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK_MIX, OnRecLoopbackMixSelect)
 	ON_COMMAND(ID_MIXITEM_PLAY_VOLUME, OnPlayVolumeSelect)
+	ON_COMMAND(ID_OPTIONS_SELECTRECORDINGSOURCE, &CMainFrame::OnOptionsSelectRecordingSource)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2796,3 +2798,15 @@ bool CMainFrame::CanRecord() const
 	return BASS_ChannelIsActive(g_stream_handle)==BASS_ACTIVE_STOPPED;
 }
 
+//------------------------------------------------------------------------------
+void CMainFrame::OnOptionsSelectRecordingSource()
+{
+	//CRecordingSourceDlg recSourceDialog;
+	//recSourceDialog.DoModal();
+
+	//CRecordingSourceDlg* recSourceDialog = new CRecordingSourceDlg(this);
+	//if (recSourceDialog->Create(CRecordingSourceDlg::IDD))
+	//	recSourceDialog->ShowWindow(SW_SHOW);
+
+	CRecordingSourceDlg::Execute(this);
+}

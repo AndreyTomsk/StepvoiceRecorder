@@ -190,6 +190,7 @@ BEGIN
             MENUITEM "&Play control...\aCtrl - V",  IDM_MIX_PLAY,MFT_STRING,MFS_ENABLED
         END
         MENUITEM "Sound &Devices...",           IDM_OPT_SNDDEV,MFT_STRING,MFS_ENABLED
+        MENUITEM "Select Recording Source...",  ID_OPTIONS_SELECTRECORDINGSOURCE,MFT_STRING,MFS_ENABLED
     END
     POPUP "&Help",                          65535,MFT_STRING,MFS_ENABLED
     BEGIN
@@ -435,18 +436,36 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "Stepvoice Recorder %d.%d"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CONTROL         "",IDC_BUTTON1,"Button",BS_OWNERDRAW | WS_TABSTOP,206,86,6,6
-    DEFPUSHBUTTON   "&Get Now!",IDC_ORDER,146,121,60,15
-    PUSHBUTTON      "I &Agree",IDCANCEL,78,121,60,15
     PUSHBUTTON      "&Enter key...",IDC_ENTERCODE,10,121,60,15
-    LTEXT           "Thank you for trying Stepvoice Recorder!",IDC_THANKYOU,5,7,186,9
+    PUSHBUTTON      "I &Agree",IDCANCEL,78,121,60,15
+    DEFPUSHBUTTON   "&Get Now!",IDC_ORDER,146,121,60,15
     ICON            IDR_MAINFRAME,IDC_STATIC,191,1,20,20,SS_CENTERIMAGE
+    CONTROL         "",IDC_BUTTON1,"Button",BS_OWNERDRAW | WS_TABSTOP,206,86,6,6
+    LTEXT           "Thank you for trying Stepvoice Recorder!",IDC_THANKYOU,5,7,186,9
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,41,207,1
     CTEXT           "Unregistered version (remained %d days)",IDC_UNREGVERSION,5,56,207,8
     CTEXT           "Click here to order online",IDC_ONLINEREGISTER,39,72,141,8,SS_NOTIFY
     CTEXT           "I understand that I may use this program only for evaluation and that any other use requires payment of the registration fee.",IDC_STATIC,5,99,207,17
     LTEXT           "This trial version is for evaluation use only. The registered version does not display this notice.",IDC_STATIC,5,20,207,16
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,94,207,1
+END
+
+IDD_RECORDING_SOURCE DIALOGEX 0, 0, 312, 292
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "COLOR_MENU",IDC_STATIC_1,140,7,100,8
+    LTEXT           "COLOR_MENUHILIGHT",IDC_STATIC_2,140,22,100,8
+    LTEXT           "COLOR_MENUBAR",IDC_STATIC_3,140,37,100,8
+    LTEXT           "COLOR_DESKTOP",IDC_STATIC_4,140,52,100,8
+    LTEXT           "COLOR_MENUTEXT",IDC_STATIC_5,140,67,100,8
+    LTEXT           "COLOR_GRAYTEXT",IDC_STATIC_6,140,82,100,8
+    LTEXT           "COLOR_HIGHLIGHTTEXT",IDC_STATIC_7,140,97,100,8
+    LTEXT           "COLOR_HIGHLIGHT",IDC_STATIC_8,140,112,100,8
+    LTEXT           "COLOR_HOTLIGHT",IDC_STATIC_9,140,127,100,8
+    LTEXT           "COLOR_INACTIVEBORDER",IDC_STATIC_10,140,142,100,8
+    LTEXT           "COLOR_INFOBK",IDC_STATIC_11,140,157,100,8
 END
 
 
@@ -535,6 +554,15 @@ BEGIN
         RIGHTMARGIN, 212
         TOPMARGIN, 5
         BOTTOMMARGIN, 136
+    END
+
+    IDD_RECORDING_SOURCE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 305
+        VERTGUIDE, 140
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 286
     END
 END
 #endif    // APSTUDIO_INVOKED

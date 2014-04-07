@@ -248,6 +248,7 @@ protected:
 	afx_msg void OnRecLoopbackSelect();
 	afx_msg void OnRecLoopbackMixSelect();
 	afx_msg void OnPlayVolumeSelect();
+	afx_msg void OnOptionsSelectRecordingSource();
 
 protected:
 	LRESULT OnTrayNotification(WPARAM wParam, LPARAM lParam);

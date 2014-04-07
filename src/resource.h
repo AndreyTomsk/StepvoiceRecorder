@@ -91,6 +91,7 @@
 #define IDI_MIXLINE00                   245
 #define IDI_MIXLINE01                   246
 #define IDI_MIXLINE02                   247
+#define IDD_RECORDING_SOURCE            247
 #define IDI_MIXLINE03                   248
 #define IDI_MIXLINE04                   249
 #define IDI_MIXLINE05                   250
@@ -184,6 +185,18 @@
 #define IDC_STATIC_VERSION              1166
 #define IDC_PLAYBACK_DEVICE             1167
 #define IDC_RECORDING_DEVICE            1168
+#define IDC_STATIC_1                    1169
+#define IDC_STATIC_2                    1170
+#define IDC_STATIC_3                    1171
+#define IDC_STATIC_4                    1172
+#define IDC_STATIC_5                    1173
+#define IDC_STATIC_6                    1174
+#define IDC_STATIC_7                    1175
+#define IDC_STATIC_8                    1176
+#define IDC_STATIC_9                    1177
+#define IDC_STATIC_10                   1178
+#define IDC_STATIC_11                   1179
+#define IDC_STATIC_13                   1181
 #define ID_MIXITEM_LOOPBACK_DEVICE      3688
 #define ID_MIXITEM_PLAY_VOLUME          3697
 #define ID_MIXITEM_REC_LOOPBACK         3698
@@ -231,15 +244,18 @@
 #define IDA_VOL_UP                      32908
 #define IDA_VOL_DOWN                    32909
 #define ID_GRAPH_MONITORING             32923
+#define ID_OPTIONS_SELECTSOUCE          32924
+#define ID_OPTIONS_SELECTRECORDINGSOUCE 32925
+#define ID_OPTIONS_SELECTRECORDINGSOURCE 32926
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        247
-#define _APS_NEXT_COMMAND_VALUE         32924
-#define _APS_NEXT_CONTROL_VALUE         1169
+#define _APS_NEXT_RESOURCE_VALUE        248
+#define _APS_NEXT_COMMAND_VALUE         32927
+#define _APS_NEXT_CONTROL_VALUE         1170
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
 #endif

@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="MP3_Recorder"
 	ProjectGUID="{254B43C3-F9C6-41C1-8F2D-084F654D1967}"
+	RootNamespace="MP3_Recorder"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -816,6 +817,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\RecordingSourceDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Scheduler2.cpp"
 				>
 				<FileConfiguration
@@ -1210,6 +1215,10 @@
 			</File>
 			<File
 				RelativePath="PROTECT.H"
+				>
+			</File>
+			<File
+				RelativePath=".\RecordingSourceDlg.h"
 				>
 			</File>
 			<File
