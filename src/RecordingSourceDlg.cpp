@@ -143,3 +143,17 @@ void CRecordingSourceDlg::OnPaint()
 	for (int i = 0; i < 30; i++)
 	  dc.FillSolidRect(0, i*15, 100, 15, GetSysColor(i));
 }
+//---------------------------------------------------------------------------
+
+BOOL CRecordingSourceDlg::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+	//Hiding dialog when changing focus to other windows (similar to menus)
+	if (message == WM_ACTIVATE && LOWORD(wParam) == WA_INACTIVE)
+	{
+		this->ShowWindow(SW_HIDE);
+		this->GetParent()->PostMessage(WM_RECSOURCE_DLGCLOSED);
+	}
+
+	return CDialog::OnWndMsg(message, wParam, lParam, pResult);
+}
+//---------------------------------------------------------------------------

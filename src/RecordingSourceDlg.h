@@ -6,6 +6,11 @@
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
+
+#define WM_RECSOURCE_DLGCLOSED WM_USER+IDD_RECORDING_SOURCE+0
+#define WM_RECSOURCE_CHANGED   WM_USER+IDD_RECORDING_SOURCE+1
+
+/////////////////////////////////////////////////////////////////////////////
 class CRecordingSourceDlg : public CDialog
 {
 public:
@@ -25,6 +30,7 @@ protected:
   virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
   virtual BOOL OnInitDialog();
   virtual void PostNcDestroy();
+  virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult);
   //}}AFX_VIRTUAL
 
 // Implementation
