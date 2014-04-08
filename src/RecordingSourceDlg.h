@@ -41,6 +41,7 @@ protected:
   //{{AFX_MSG(CRecordingSourceDlg)
   afx_msg void OnPaint();
   afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+  afx_msg void OnBnClickedButton1();
   //}}AFX_MSG
   DECLARE_MESSAGE_MAP()
 };

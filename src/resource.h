@@ -186,17 +186,6 @@
 #define IDC_PLAYBACK_DEVICE             1167
 #define IDC_RECORDING_DEVICE            1168
 #define IDC_STATIC_1                    1169
-#define IDC_STATIC_2                    1170
-#define IDC_STATIC_3                    1171
-#define IDC_STATIC_4                    1172
-#define IDC_STATIC_5                    1173
-#define IDC_STATIC_6                    1174
-#define IDC_STATIC_7                    1175
-#define IDC_STATIC_8                    1176
-#define IDC_STATIC_9                    1177
-#define IDC_STATIC_10                   1178
-#define IDC_STATIC_11                   1179
-#define IDC_STATIC_13                   1181
 #define ID_MIXITEM_LOOPBACK_DEVICE      3688
 #define ID_MIXITEM_PLAY_VOLUME          3697
 #define ID_MIXITEM_REC_LOOPBACK         3698

@@ -2,9 +2,13 @@
 //
 
 #include "stdafx.h"
+//#include <vssym32.h>
+//#include <Uxtheme.h>
 #include "mp3_recorder.h"
 #include "RecordingSourceDlg.h"
 #include <map>
+
+//#pragma comment(lib, "UxTheme.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -18,6 +22,7 @@ BEGIN_MESSAGE_MAP(CRecordingSourceDlg, CDialog)
   ON_WM_CTLCOLOR()
   //}}AFX_MSG_MAP
   ON_WM_PAINT()
+  ON_BN_CLICKED(IDC_BUTTON1, &CRecordingSourceDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -141,7 +146,14 @@ void CRecordingSourceDlg::OnPaint()
 	// Do not call CDialog::OnPaint() for painting messages
 
 	for (int i = 0; i < 30; i++)
-	  dc.FillSolidRect(0, i*15, 100, 15, GetSysColor(i));
+		dc.FillSolidRect(0, i*15, 100, 15, GetSysColor(i));
+
+	//HTHEME hTheme = GetWindowTheme(this->GetSafeHwnd());
+	//for (int i = 0; i < 30; i++)
+	//{
+	//	dc.FillSolidRect(120, i*15, 100, 15, GetThemeSysColor(hTheme, i));
+	//}
+	//CloseThemeData(hTheme);
 }
 //---------------------------------------------------------------------------
 
@@ -157,3 +169,63 @@ BOOL CRecordingSourceDlg::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, L
 	return CDialog::OnWndMsg(message, wParam, lParam, pResult);
 }
 //---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::OnBnClickedButton1()
+{
+	/*
+	CDC* dc = GetWindowDC();
+
+	HTHEME hTheme = OpenThemeData(this->GetSafeHwnd(), VSCLASS_MENU);
+
+	COLORREF color;
+	HRESULT  result;
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_ACTIVEBORDER, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_BACKGROUND, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_BORDERCOLOR, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FILLCOLOR, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR1, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR2, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR3, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR4, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR5, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_MENU, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_WINDOW, &color);
+	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_EDGEFILLCOLOR, &color);
+	*/
+	//dc->FillSolidRect(120, 0*15, 100, 15, color);
+
+	/*
+	GetThemeColor(hTheme, MENU_BARBACKGROUND, MB_INACTIVE, TMT_COLOR, &color);
+	dc.FillSolidRect(120, 1*15, 100, 15, color);
+	
+	GetThemeColor(hTheme, MENU_BARITEM, MBI_DISABLED, TMT_COLOR, &color);
+	dc.FillSolidRect(120, 2*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_BARITEM, MBI_DISABLEDHOT, TMT_COLOR, &color);
+	dc.FillSolidRect(120, 3*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_BARITEM, MBI_DISABLEDPUSHED, TMT_COLOR, &color);
+	dc.FillSolidRect(120, 4*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_BARITEM, MBI_HOT, TMT_COLOR, &color);
+	dc.FillSolidRect(120, 5*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_BARITEM, MBI_NORMAL, TMT_COLOR, &color);
+	dc.FillSolidRect(120, 6*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_BARITEM, MBI_PUSHED, TMT_COLOR, &color);
+	dc.FillSolidRect(120, 7*15, 100, 15, color);
+
+	GetThemeColor(hTheme, MENU_CHEVRON_TMSCHEMA, 0, TMT_COLOR, &color);
+	dc.FillSolidRect(120, 8*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_MENUBARDROPDOWN_TMSCHEMA, 0, TMT_COLOR, &color);
+	dc.FillSolidRect(120, 9*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_MENUBARITEM_TMSCHEMA, 0, TMT_COLOR, &color);
+	dc.FillSolidRect(120,10*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_MENUDROPDOWN_TMSCHEMA, 0, TMT_COLOR, &color);
+	dc.FillSolidRect(120,11*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_MENUITEM_TMSCHEMA, 0, TMT_COLOR, &color);
+	dc.FillSolidRect(120,12*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_POPUPBACKGROUND, 0, TMT_COLOR, &color);
+	dc.FillSolidRect(120,13*15, 100, 15, color);
+	GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_COLOR, &color);
+	dc.FillSolidRect(120,14*15, 100, 15, color);
+	*/
+
+	//CloseThemeData(hTheme);
+}
