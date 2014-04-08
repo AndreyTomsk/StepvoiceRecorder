@@ -2,13 +2,13 @@
 //
 
 #include "stdafx.h"
-//#include <vssym32.h>
-//#include <Uxtheme.h>
+#include <vssym32.h>
+#include <Uxtheme.h>
 #include "mp3_recorder.h"
 #include "RecordingSourceDlg.h"
 #include <map>
 
-//#pragma comment(lib, "UxTheme.lib")
+#pragma comment(lib, "UxTheme.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -172,60 +172,111 @@ BOOL CRecordingSourceDlg::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, L
 
 void CRecordingSourceDlg::OnBnClickedButton1()
 {
-	/*
 	CDC* dc = GetWindowDC();
 
 	HTHEME hTheme = OpenThemeData(this->GetSafeHwnd(), VSCLASS_MENU);
+	{
+		RECT rect;
+		this->GetClientRect(&rect);
 
-	COLORREF color;
-	HRESULT  result;
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_ACTIVEBORDER, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_BACKGROUND, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_BORDERCOLOR, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FILLCOLOR, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR1, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR2, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR3, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR4, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_FROMCOLOR5, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_MENU, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_WINDOW, &color);
-	result = GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_EDGEFILLCOLOR, &color);
-	*/
-	//dc->FillSolidRect(120, 0*15, 100, 15, color);
+        int part = MENU_POPUPBORDERS;
+        int state = 0;
 
-	/*
-	GetThemeColor(hTheme, MENU_BARBACKGROUND, MB_INACTIVE, TMT_COLOR, &color);
-	dc.FillSolidRect(120, 1*15, 100, 15, color);
-	
-	GetThemeColor(hTheme, MENU_BARITEM, MBI_DISABLED, TMT_COLOR, &color);
-	dc.FillSolidRect(120, 2*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_BARITEM, MBI_DISABLEDHOT, TMT_COLOR, &color);
-	dc.FillSolidRect(120, 3*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_BARITEM, MBI_DISABLEDPUSHED, TMT_COLOR, &color);
-	dc.FillSolidRect(120, 4*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_BARITEM, MBI_HOT, TMT_COLOR, &color);
-	dc.FillSolidRect(120, 5*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_BARITEM, MBI_NORMAL, TMT_COLOR, &color);
-	dc.FillSolidRect(120, 6*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_BARITEM, MBI_PUSHED, TMT_COLOR, &color);
-	dc.FillSolidRect(120, 7*15, 100, 15, color);
+		if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+			DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect, &rect);
+	}
+	{
+		RECT rect = {120, 0, 122, 100};
+        int part = MENU_POPUPGUTTER;
+        int state = 0;
 
-	GetThemeColor(hTheme, MENU_CHEVRON_TMSCHEMA, 0, TMT_COLOR, &color);
-	dc.FillSolidRect(120, 8*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_MENUBARDROPDOWN_TMSCHEMA, 0, TMT_COLOR, &color);
-	dc.FillSolidRect(120, 9*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_MENUBARITEM_TMSCHEMA, 0, TMT_COLOR, &color);
-	dc.FillSolidRect(120,10*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_MENUDROPDOWN_TMSCHEMA, 0, TMT_COLOR, &color);
-	dc.FillSolidRect(120,11*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_MENUITEM_TMSCHEMA, 0, TMT_COLOR, &color);
-	dc.FillSolidRect(120,12*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_POPUPBACKGROUND, 0, TMT_COLOR, &color);
-	dc.FillSolidRect(120,13*15, 100, 15, color);
-	GetThemeColor(hTheme, MENU_POPUPBORDERS, 0, TMT_COLOR, &color);
-	dc.FillSolidRect(120,14*15, 100, 15, color);
-	*/
+		if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+			DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect, &rect);
+	}
+	{
+		RECT rect = {130, 50, 230, 55};
+        int part = MENU_POPUPSEPARATOR;
+        int state = 0;
 
-	//CloseThemeData(hTheme);
+		if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+			DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect, &rect);
+	}
+	{
+		RECT rect = {120, 100, 220, 125};
+        int part = MENU_POPUPITEM;
+        int state = MPI_NORMAL;
+
+		if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+			DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect, &rect);
+	}
+	{
+		RECT rect = {120, 126, 220, 151};
+        int part = MENU_POPUPITEM;
+        int state = MPI_HOT;
+
+		if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+			DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect, &rect);
+	}
+	{
+		RECT rect = {120, 152, 220, 177};
+        int part = MENU_POPUPITEM;
+        int state = MPI_DISABLED;
+
+		if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+			DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect, &rect);
+	}
+	{
+		RECT rect = {120, 178, 220, 203};
+        int part = MENU_POPUPITEM;
+        int state = MPI_DISABLEDHOT;
+
+		if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+			DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect, &rect);
+	}
+	{
+		RECT rect = {125, 209, 141, 225};
+        int part = MENU_POPUPCHECK;
+        int state = MC_CHECKMARKNORMAL;
+
+		if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+			DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect, &rect);
+
+		RECT rect2 = {120, 204, 145, 229};
+        part = MENU_BARITEM;
+        state = MBI_PUSHED;
+		//if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+		//	DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect2, &rect2);
+	}
+
+
+	{
+		RECT rect = {125, 235, 141, 251};
+        int part = MENU_POPUPCHECK;
+        int state = MC_CHECKMARKNORMAL;
+
+		if (IsThemeBackgroundPartiallyTransparent(hTheme, part, state))
+			DrawThemeParentBackground(this->GetSafeHwnd(), dc->GetSafeHdc(), &rect);
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect, &rect);
+
+		RECT rect2 = {120, 230, 145, 255};
+        part = MENU_BARITEM;
+        state = MBI_PUSHED;
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect2, &rect2);
+
+		RECT rect3 = {120, 230, 220, 255};
+        part = MENU_POPUPITEM;
+        state = MPI_HOT;
+		DrawThemeBackground(hTheme, dc->GetSafeHdc(), part, state, &rect3, &rect3);
+	}
+
+	CloseThemeData(hTheme);
 }
