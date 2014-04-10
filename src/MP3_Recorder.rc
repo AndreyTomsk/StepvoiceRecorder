@@ -190,7 +190,6 @@ BEGIN
             MENUITEM "&Play control...\aCtrl - V",  IDM_MIX_PLAY,MFT_STRING,MFS_ENABLED
         END
         MENUITEM "Sound &Devices...",           IDM_OPT_SNDDEV,MFT_STRING,MFS_ENABLED
-        MENUITEM "Select Recording Source...",  ID_OPTIONS_SELECTRECORDINGSOURCE,MFT_STRING,MFS_ENABLED
     END
     POPUP "&Help",                          65535,MFT_STRING,MFS_ENABLED
     BEGIN
@@ -543,6 +542,11 @@ BEGIN
         RIGHTMARGIN, 212
         TOPMARGIN, 5
         BOTTOMMARGIN, 136
+    END
+
+    IDD_RECORDING_SOURCE, DIALOG
+    BEGIN
+        RIGHTMARGIN, 215
     END
 END
 #endif    // APSTUDIO_INVOKED

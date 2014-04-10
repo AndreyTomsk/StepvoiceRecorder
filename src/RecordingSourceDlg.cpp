@@ -24,6 +24,26 @@ END_MESSAGE_MAP()
 
 CRecordingSourceDlg* g_dialogInstance = NULL;
 
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::Execute(CPoint& pos, CWnd* parentWindow)
+{
+	if (!g_dialogInstance)
+	{
+		g_dialogInstance = new CRecordingSourceDlg(parentWindow);
+		g_dialogInstance->Create(CRecordingSourceDlg::IDD);
+	}
+	g_dialogInstance->SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
+	g_dialogInstance->ShowWindow(SW_SHOW);
+}
+//---------------------------------------------------------------------------
+
+const CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
+{
+	ASSERT(g_dialogInstance != NULL);
+	return g_dialogInstance;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
@@ -31,17 +51,6 @@ CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 {
   //{{AFX_DATA_INIT(CRecordingSourceDlg)
   //}}AFX_DATA_INIT
-}
-//---------------------------------------------------------------------------
-
-/*static*/ void CRecordingSourceDlg::Execute(CWnd* parent)
-{
-	if (!g_dialogInstance)
-	{
-		g_dialogInstance = new CRecordingSourceDlg(parent);
-		g_dialogInstance->Create(CRecordingSourceDlg::IDD);
-	}
-	g_dialogInstance->ShowWindow(SW_SHOW);
 }
 //---------------------------------------------------------------------------
 

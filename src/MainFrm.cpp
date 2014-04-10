@@ -215,7 +215,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK, OnRecLoopbackSelect)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK_MIX, OnRecLoopbackMixSelect)
 	ON_COMMAND(ID_MIXITEM_PLAY_VOLUME, OnPlayVolumeSelect)
-	ON_COMMAND(ID_OPTIONS_SELECTRECORDINGSOURCE, &CMainFrame::OnOptionsSelectRecordingSource)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1854,6 +1853,37 @@ void CMainFrame::OnUpdateTrayRec(CCmdUI* pCmdUI)
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnMIX_SEL()
 {
+	{
+		CRect r;
+		m_BtnMIX_SEL.GetWindowRect(&r);
+		CRecordingSourceDlg::Execute(CPoint(r.right, r.top), this);
+		return;
+	}
+
+	/*
+	// TEST code
+	CMenu testMenu;
+	testMenu.CreatePopupMenu();
+	//testMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("FiiO USB DAC-E10"));
+	//testMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Устройство с поддержкой High Definition Audio"));
+	//testMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("HD Webcam C270"));
+
+	testMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Микрофон (HD Webcam C270)"));
+	testMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Микрофон (Устройство с поддержкой High Definition Audio)"));
+	testMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Интерфейс SPDIF (FiiO USB DAC-E10)"));
+	testMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Динамики (Устройство с поддержкой High Definition Audio)"));
+	testMenu.AppendMenu(MF_SEPARATOR);
+	testMenu.AppendMenu(MF_STRING, ID_MIXITEM_REC_LOOPBACK, _T("Item after separator"));
+
+	CRect r0;
+	m_BtnMIX_SEL.GetWindowRect(&r0);
+
+	testMenu.TrackPopupMenu(TPM_VCENTERALIGN|TPM_LEFTBUTTON|TPM_RETURNCMD,
+		r0.right, r0.top+(r0.bottom-r0.top)/2, this);
+	return;
+	*/
+
+
 	this->SetFocus();
 
 	static bool bShowMenu = true;
@@ -2799,14 +2829,3 @@ bool CMainFrame::CanRecord() const
 }
 
 //------------------------------------------------------------------------------
-void CMainFrame::OnOptionsSelectRecordingSource()
-{
-	//CRecordingSourceDlg recSourceDialog;
-	//recSourceDialog.DoModal();
-
-	//CRecordingSourceDlg* recSourceDialog = new CRecordingSourceDlg(this);
-	//if (recSourceDialog->Create(CRecordingSourceDlg::IDD))
-	//	recSourceDialog->ShowWindow(SW_SHOW);
-
-	CRecordingSourceDlg::Execute(this);
-}

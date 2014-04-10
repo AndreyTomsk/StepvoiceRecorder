@@ -11,11 +11,8 @@
 class CRecordingSourceDlg : public CDialog
 {
 public:
-	/*
-	static bool Create(CPoint& pos, CWnd* parentWindow);
+	static void Execute(CPoint& pos, CWnd* pParent); //modeless dialog construction
 	static const CRecordingSourceDlg* GetInstance();
-	*/
-	static void Execute(CWnd* pParent); //modeless dialog construction
 
 // Dialog Data
 	//{{AFX_DATA(CRecordingSourceDlg)
