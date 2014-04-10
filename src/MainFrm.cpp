@@ -1856,7 +1856,7 @@ void CMainFrame::OnBtnMIX_SEL()
 	{
 		CRect r;
 		m_BtnMIX_SEL.GetWindowRect(&r);
-		CRecordingSourceDlg::Execute(CPoint(r.right, r.top), this);
+		CRecordingSourceDlg::GetInstance()->Execute(CPoint(r.right, r.top));
 		return;
 	}
 

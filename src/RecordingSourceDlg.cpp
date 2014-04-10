@@ -26,22 +26,13 @@ CRecordingSourceDlg* g_dialogInstance = NULL;
 
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::Execute(CPoint& pos, CWnd* parentWindow)
+CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 {
 	if (!g_dialogInstance)
 	{
-		g_dialogInstance = new CRecordingSourceDlg(parentWindow);
+		g_dialogInstance = new CRecordingSourceDlg(NULL); //deleted by dialog
 		g_dialogInstance->Create(CRecordingSourceDlg::IDD);
 	}
-	g_dialogInstance->InitWasapiDevicesList(g_dialogInstance->m_checkList);
-	g_dialogInstance->SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	g_dialogInstance->ShowWindow(SW_SHOW);
-}
-//---------------------------------------------------------------------------
-
-const CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
-{
-	ASSERT(g_dialogInstance != NULL);
 	return g_dialogInstance;
 }
 
@@ -52,6 +43,14 @@ CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 {
   //{{AFX_DATA_INIT(CRecordingSourceDlg)
   //}}AFX_DATA_INIT
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::Execute(CPoint& pos)
+{
+	InitWasapiDevicesList(m_checkList);
+	SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
+	ShowWindow(SW_SHOW);
 }
 //---------------------------------------------------------------------------
 
@@ -86,10 +85,10 @@ void CRecordingSourceDlg::InitWasapiDevicesList(CCheckListBox& devicesList)
 	BASS_WASAPI_DEVICEINFO info;
 	for (int id = 0; BASS_WASAPI_GetDeviceInfo(id, &info); id++)
 	{
-		const bool isEnabled = info.flags & BASS_DEVICE_ENABLED;
-		const bool isDefault = info.flags & BASS_DEVICE_DEFAULT;
-		const bool isInputDevice = info.flags & BASS_DEVICE_INPUT;
-		const bool isLoopback = info.flags & BASS_DEVICE_LOOPBACK;
+		const BOOL isEnabled = info.flags & BASS_DEVICE_ENABLED;
+		const BOOL isDefault = info.flags & BASS_DEVICE_DEFAULT;
+		const BOOL isInputDevice = info.flags & BASS_DEVICE_INPUT;
+		const BOOL isLoopback = info.flags & BASS_DEVICE_LOOPBACK;
 
 		if (isEnabled && (isInputDevice || isLoopback))
 		{
