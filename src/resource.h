@@ -185,7 +185,7 @@
 #define IDC_STATIC_VERSION              1166
 #define IDC_PLAYBACK_DEVICE             1167
 #define IDC_RECORDING_DEVICE            1168
-#define IDC_STATIC_1                    1169
+#define IDC_LIST3                       1175
 #define ID_MIXITEM_LOOPBACK_DEVICE      3688
 #define ID_MIXITEM_PLAY_VOLUME          3697
 #define ID_MIXITEM_REC_LOOPBACK         3698
@@ -244,7 +244,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        248
 #define _APS_NEXT_COMMAND_VALUE         32927
-#define _APS_NEXT_CONTROL_VALUE         1170
+#define _APS_NEXT_CONTROL_VALUE         1176
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
 #endif
