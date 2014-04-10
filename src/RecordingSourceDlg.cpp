@@ -33,6 +33,7 @@ void CRecordingSourceDlg::Execute(CPoint& pos, CWnd* parentWindow)
 		g_dialogInstance = new CRecordingSourceDlg(parentWindow);
 		g_dialogInstance->Create(CRecordingSourceDlg::IDD);
 	}
+	g_dialogInstance->InitWasapiDevicesList(g_dialogInstance->m_checkList);
 	g_dialogInstance->SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
 	g_dialogInstance->ShowWindow(SW_SHOW);
 }
@@ -74,8 +75,6 @@ void CRecordingSourceDlg::DoDataExchange(CDataExchange* pDX)
 BOOL CRecordingSourceDlg::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
-	InitWasapiDevicesList(m_checkList);
-
 	return TRUE;
 }
 //---------------------------------------------------------------------------
