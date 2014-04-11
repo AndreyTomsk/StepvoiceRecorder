@@ -8,6 +8,7 @@
 namespace Helpers
 {
 	CString ToString_HMMSS(unsigned int seconds);
+	CString ToString_HMMSS(double seconds);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

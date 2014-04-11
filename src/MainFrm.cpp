@@ -1526,7 +1526,7 @@ void CMainFrame::UpdateStatWindow()
 		l_size_seconds = (double)l_size_bytes / (l_stream_rate * 125);
 	}
 
-	const CString allSeconds = Helpers::ToString_HMMSS((unsigned)l_size_seconds);
+	const CString allSeconds = Helpers::ToString_HMMSS(l_size_seconds);
 	m_StatWnd.Set(l_stream_freq, l_stream_rate, l_stream_mode);
 	m_StatWnd.Set((UINT)l_size_bytes/1024, allSeconds);
 }
@@ -2617,8 +2617,8 @@ void CMainFrame::UpdateWindowTitle_SeekTo(
 	double curSeconds, double allSeconds, int displayTimeMs)
 {
 	const int percent = int(curSeconds/allSeconds)*100;
-	const CString strCurSec = Helpers::ToString_HMMSS((unsigned)curSeconds);
-	const CString strAllSec = Helpers::ToString_HMMSS((unsigned)allSeconds);
+	const CString strCurSec = Helpers::ToString_HMMSS(curSeconds);
+	const CString strAllSec = Helpers::ToString_HMMSS(allSeconds);
 
 	CString title;
 	title.Format(IDS_SEEKTO, strCurSec, strAllSec, percent);

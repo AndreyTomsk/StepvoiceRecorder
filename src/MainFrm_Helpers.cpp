@@ -23,19 +23,12 @@ CString ToString_HMMSS(unsigned int seconds)
 	CString str;
 	str.Format(_T("%d:%02d:%02d"), iHour, iMin, iSec);
 	return str;
+}
+//------------------------------------------------------------------------------
 
-/*
-	const char* szPattern[] = {"%d", "0%d"};
-	char szMin[3] = "", szSec[3] = "";
-
-	int iHour= nCurSec/3600;
-	int iMin =(nCurSec - iHour*3600)/60;
-	int iSec = nCurSec - iHour*3600 - iMin*60;
-
-	sprintf_s(szMin, sizeof(szMin), szPattern[iMin<10], iMin);
-	sprintf_s(szSec, sizeof(szSec), szPattern[iSec<10], iSec);
-	sprintf_s(pszTime, nStrSize, "%d:%s:%s", iHour, szMin, szSec);
-*/
+CString ToString_HMMSS(double seconds)
+{
+	return ToString_HMMSS((unsigned int)seconds);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
