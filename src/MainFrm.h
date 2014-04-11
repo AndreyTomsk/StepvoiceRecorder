@@ -169,6 +169,7 @@ protected:
 	void UpdateStatWindow();
 	void UpdateButtonState(UINT nID);
 	void UpdateMixerState();
+	void UpdateWindowTitle_SeekTo(double curSeconds, double allSeconds, int displayTimeMs);
 	CString GetAutoName(CString& strPattern);
 
 	/**
