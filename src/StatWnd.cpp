@@ -133,7 +133,7 @@ void CStatWnd::OnPaint()
 /////////////////////////////////////////////////////////////////////////////
 // Interface functions
 /////////////////////////////////////////////////////////////////////////////
-void CStatWnd::Set(float fF, int iR, int iS, UINT nSize, char* szTime)
+void CStatWnd::Set(float fF, int iR, int iS, UINT nSize, const CString& szTime)
 {
 //	Set(fF, iR, iS);			//
 //	Set(nSize, szTime);	// 
@@ -169,7 +169,7 @@ void CStatWnd::Set(int nFreq, int nBitrate, int nStereo)
 	Invalidate(true);
 }
 
-void CStatWnd::Set(UINT nSize, char* szTime)
+void CStatWnd::Set(UINT nSize, const CString& szTime)
 {
 	int nDigits[7] = {0, 0, 0, 0, 0, 0, 0}, nOffset, nI = 0;
 
@@ -193,7 +193,7 @@ void CStatWnd::Set(UINT nSize, char* szTime)
 
 	// take digits of szTime (like "1:23:59")
 	ZeroMemory(&nDigits[0], sizeof(nDigits));
-	nOffset = strlen(szTime);
+	nOffset = szTime.GetLength();
 	while(nOffset--) {
 		if(szTime[nOffset] == ':') continue;
 		nDigits[nI++] = szTime[nOffset] - 48;

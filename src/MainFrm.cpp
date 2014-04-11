@@ -11,6 +11,7 @@ static char THIS_FILE[] = __FILE__;
 
 #include "MP3_Recorder.h"
 #include "MainFrm.h"
+#include "MainFrm_Helpers.h"
 #include "Interface\Buttons\BitmapBtn.h" 
 #include "common.h"
 #include "system.h"
@@ -954,11 +955,11 @@ void CMainFrame::OnFileFindfile()
 //===========================================================================
 void CMainFrame::OnSoundBegin()
 {
-	double l_all_seconds = 0;
+	double l_seconds_all = 0;
 
 	if (g_stream_handle)
 	{
-		l_all_seconds = BASS_ChannelBytes2Seconds(g_stream_handle,
+		l_seconds_all = BASS_ChannelBytes2Seconds(g_stream_handle,
 			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
 
 		// Moving to the beginning on file
@@ -970,12 +971,18 @@ void CMainFrame::OnSoundBegin()
 		m_SliderTime.SetCurPos(0);
 	}
 
+	const CString allSeconds = Helpers::ToString_HMMSS((unsigned)l_seconds_all);
+	CString title;
+	title.Format(IDS_SEEKTO, _T("0:00:00"), allSeconds, 0);
+	m_title->SetTitleText(title, 1200);
+	/*
 	char l_str_alltime[20] = {0};
 	Convert((UINT)l_all_seconds, l_str_alltime, sizeof(l_str_alltime));
 
 	CString l_str_caption;
 	l_str_caption.Format(IDS_SEEKTO, _T("0:00:00"), l_str_alltime, 0);
 	m_title->SetTitleText(l_str_caption, 1200);
+	*/
 }
 
 //===========================================================================
@@ -1003,6 +1010,14 @@ void CMainFrame::OnSoundRew()
 		m_SliderTime.SetCurPos(int(l_cursec/l_allsec*1000));
 	}
 
+	const int percent = int(l_cursec/l_allsec)*100;
+	const CString curSeconds = Helpers::ToString_HMMSS((unsigned)l_cursec);
+	const CString allSeconds = Helpers::ToString_HMMSS((unsigned)l_allsec);
+
+	CString title;
+	title.Format(IDS_SEEKTO, curSeconds, allSeconds, percent);
+	m_title->SetTitleText(title, 1200);
+	/*
 	char szCurSec[20] = {0};
 	char szAllSec[20] = {0};
 	Convert((UINT)l_cursec, szCurSec, sizeof(szCurSec));
@@ -1011,6 +1026,7 @@ void CMainFrame::OnSoundRew()
 	CString strRes;
 	strRes.Format(IDS_SEEKTO, szCurSec, szAllSec, int(l_cursec/l_allsec*100));
 	m_title->SetTitleText(strRes, 1200);
+	*/
 }
 
 //===========================================================================
@@ -1038,6 +1054,14 @@ void CMainFrame::OnSoundFf()
 		m_SliderTime.SetCurPos(int(l_cursec/l_allsec*1000));
 	}
 
+	const int percent = int(l_cursec/l_allsec)*100;
+	const CString curSeconds = Helpers::ToString_HMMSS((unsigned)l_cursec);
+	const CString allSeconds = Helpers::ToString_HMMSS((unsigned)l_allsec);
+
+	CString title;
+	title.Format(IDS_SEEKTO, curSeconds, allSeconds, percent);
+	m_title->SetTitleText(title, 1200);
+	/*
 	char szCurSec[20] = {0};
 	char szAllSec[20] = {0};
 	Convert((UINT)l_cursec, szCurSec, sizeof(szCurSec));
@@ -1046,6 +1070,7 @@ void CMainFrame::OnSoundFf()
 	CString strRes;
 	strRes.Format(IDS_SEEKTO, szCurSec, szAllSec, int(l_cursec/l_allsec*100));
 	m_title->SetTitleText(strRes, 1200);
+	*/
 }
 
 //===========================================================================
@@ -1068,12 +1093,18 @@ void CMainFrame::OnSoundEnd()
 		m_SliderTime.SetCurPos(1000);
 	}
 
+	const CString allSeconds = Helpers::ToString_HMMSS((unsigned)l_allsec);
+	CString title;
+	title.Format(IDS_SEEKTO, allSeconds, allSeconds, 100);
+	m_title->SetTitleText(title, 1200);
+	/*
 	char l_str_alltime[20] = {0};
 	Convert((UINT)l_allsec, l_str_alltime, sizeof(l_str_alltime));
 
 	CString l_str_caption;
 	l_str_caption.Format(IDS_SEEKTO, l_str_alltime, l_str_alltime, 100);
 	m_title->SetTitleText(l_str_caption, 1200);
+	*/
 }
 
 //===========================================================================
@@ -1237,9 +1268,7 @@ void CMainFrame::OnBtnPLAY()
 	{
 		OnBtnOPEN();
 		if (!g_stream_handle)
-		{
 			return;
-		}
 	}
 
 	if (m_bMonitoringBtn)
@@ -1520,7 +1549,7 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 	}
 }
 
-
+/*
 //===========================================================================
 // Function to transform seconds count into the "H:MM:SS" string
 //===========================================================================
@@ -1537,7 +1566,7 @@ void CMainFrame::Convert(UINT nCurSec, char *pszTime, int nStrSize)
 	sprintf_s(szSec, sizeof(szSec), szPattern[iSec<10], iSec);
 	sprintf_s(pszTime, nStrSize, "%d:%s:%s", iHour, szMin, szSec);
 }
-
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::UpdateStatWindow()
@@ -1569,11 +1598,17 @@ void CMainFrame::UpdateStatWindow()
 		l_size_bytes   = (QWORD)m_record_file.GetLength();
 		l_size_seconds = (double)l_size_bytes / (l_stream_rate * 125);
 	}
+
+	const CString allSeconds = Helpers::ToString_HMMSS((unsigned)l_size_seconds);
+	m_StatWnd.Set(l_stream_freq, l_stream_rate, l_stream_mode);
+	m_StatWnd.Set((UINT)l_size_bytes/1024, allSeconds);
+	/*
 	char l_time_str[20] = {0};	// Time string in Hours:Minutes:Seconds format
 	Convert((UINT)l_size_seconds, l_time_str, sizeof(l_time_str));
 
 	m_StatWnd.Set(l_stream_freq, l_stream_rate, l_stream_mode);
 	m_StatWnd.Set((UINT)l_size_bytes/1024, l_time_str);
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -2065,6 +2100,13 @@ void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
 
 	if (SB_THUMBTRACK == nSBCode)
 	{
+		const CString curSeconds = Helpers::ToString_HMMSS((unsigned)l_seconds_pos);
+		const CString allSeconds = Helpers::ToString_HMMSS((unsigned)l_seconds_all);
+
+		CString title;
+		title.Format(IDS_SEEKTO, curSeconds, allSeconds, nPos/10);
+		m_title->SetTitleText(title, 10000);
+		/*
 		// Converting seconds to HHMMSS format
 		char l_str_curtime[20] = {0};
 		char l_str_alltime[20] = {0};
@@ -2074,6 +2116,7 @@ void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
 		CString l_seek_msg;
 		l_seek_msg.Format(IDS_SEEKTO, l_str_curtime, l_str_alltime, nPos/10);
 		m_title->SetTitleText(l_seek_msg, 10000);
+		*/
 	}
 	else if (SB_THUMBPOSITION == nSBCode)
 	{

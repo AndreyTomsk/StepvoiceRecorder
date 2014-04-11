@@ -34,9 +34,9 @@ public:
 // Implementation
 public:
 	CStatWnd();
-	void Set(float fF, int iR, int iS, UINT nSize, char* szTime);
+	void Set(float fF, int iR, int iS, UINT nSize, const CString& szTime);
 	void Set(int nFreq, int nBitrate, int nStereo);
-	void Set(UINT nSize, char* szTime);
+	void Set(UINT nSize, const CString& szTime);
 	~CStatWnd();
 
 	// Generated message map functions

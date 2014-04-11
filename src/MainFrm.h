@@ -161,7 +161,7 @@ public:
 protected:
 	void ProcessSliderTime(UINT nSBCode, UINT nPos);
 	void ProcessSliderVol(UINT nSBCode, UINT nPos);
-	void Convert(UINT nCurSec, char* pszTime, int nStrSize);
+	//void Convert(UINT nCurSec, char* pszTime, int nStrSize);
 	void OpenFile(const CString& strFileName);
 
 	void SetRecordingLine(int nLineID); // sets line by menu ID

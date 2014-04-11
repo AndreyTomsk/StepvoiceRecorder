@@ -467,6 +467,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\MainFrm_Helpers.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MappedMP3.cpp"
 				>
 				<FileConfiguration
@@ -1151,6 +1155,10 @@
 			</File>
 			<File
 				RelativePath="MainFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MainFrm_Helpers.h"
 				>
 			</File>
 			<File
