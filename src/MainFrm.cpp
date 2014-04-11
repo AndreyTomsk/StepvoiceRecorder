@@ -2371,8 +2371,6 @@ bool CMainFrame::MonitoringStart()
 		///@bug Testing new functionality
 		g_update_handle = g_monitoring_handle;
 		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
-
-		m_GraphWnd.StartUpdate((HSTREAM)g_monitoring_handle);
 	}
 	return g_monitoring_handle != 0;
 }
@@ -2499,7 +2497,6 @@ void CMainFrame::UpdateInterface()
 		g_update_handle = g_stream_handle;
 		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
 
-		m_GraphWnd.StartUpdate(g_stream_handle);
 		m_BtnPLAY.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
 		m_IcoWnd.SetNewIcon(ICON_PLAY);
@@ -2517,7 +2514,6 @@ void CMainFrame::UpdateInterface()
 		g_update_handle = g_record_handle;
 		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
 
-		m_GraphWnd.StartUpdate((HSTREAM)g_record_handle);
 		m_BtnREC.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
 		m_IcoWnd.SetNewIcon(ICON_REC);

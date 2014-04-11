@@ -3,8 +3,6 @@
 #include "MP3_Recorder.h"
 #include "GraphWnd.h"
 #include "mainfrm.h"
-
-#include <mmsystem.h>
 #include <math.h>
 
 #ifdef _DEBUG
@@ -42,7 +40,6 @@ CGraphWnd::CGraphWnd()
 	,m_bMonitoring(true)
 	,m_timer_id(0)
 	,m_display_mode(E_DISPLAY_PEAKS)
-	,m_stream_handle(0)
 	,m_peaks_func(NULL)
 	,m_lines_func(NULL)
 {
@@ -113,11 +110,9 @@ void CGraphWnd::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// Rotating display mode
 	DisplayMode l_new_mode = DisplayMode(m_display_mode + 1);
-	
 	if (l_new_mode > sizeof(DisplayMode) - 1)
-	{
 		l_new_mode = E_DISPLAY_PEAKS;
-	}
+
 	SetDisplayMode(l_new_mode);
 	CWnd::OnLButtonDown(nFlags, point);
 }
@@ -184,21 +179,17 @@ void CGraphWnd::OnUpdateGraphMenu(CCmdUI* pCmdUI)
 void CGraphWnd::Update(char* /*pSndBuf*/, int /*nBufSize*/)
 {
 	ClearWindow();
-
-	if (m_stream_handle)
+	switch (m_display_mode)
 	{
-		switch (m_display_mode)
-		{
-		case E_DISPLAY_PEAKS:
-		case E_DISPLAY_PEAKS_DB:
-			DrawPeaks();
-			break;
-		case E_DISPLAY_LINES:
-			DrawLines();
-			break;
-		default:
-			return;
-		}
+	case E_DISPLAY_PEAKS:
+	case E_DISPLAY_PEAKS_DB:
+		DrawPeaks();
+		break;
+	case E_DISPLAY_LINES:
+		DrawLines();
+		break;
+	default:
+		return;
 	}
 	InvalidateRect(NULL);
 }
@@ -241,11 +232,6 @@ void CGraphWnd::DrawPeaks()
 	const int END_Y[2] =  {13, m_wndsize.cy/2 + 18};
 	const float MAXPEAK = 1;
 	const int GRAPH_MAXDB = 60;
-
-	BASS_CHANNELINFO l_ci;
-	BOOL l_result = BASS_ChannelGetInfo(m_stream_handle, &l_ci);
-	if (!l_result)
-		return;
 
 	for (int channel = 0; channel < 2; channel++)
 	{
@@ -296,19 +282,13 @@ void CGraphWnd::DrawPeaks()
 //------------------------------------------------------------------------------
 void CGraphWnd::DrawLines()
 {
-	BASS_CHANNELINFO l_ci;
-	BOOL l_result = BASS_ChannelGetInfo(m_stream_handle, &l_ci);
-	if (!l_result)
-		return;
-
-	for (UINT counter = 0; counter < 2; counter++)
+	for (int channel = 0; channel < 2; channel++)
 	{
-		int l_channel = (l_ci.chans > 1) ? counter : 0; // Handle mono playback.
-		int l_numbers = GetLinesLevel(l_channel, g_play_buffer, PLAY_BUFFER_SIZE);
+		int l_numbers = GetLinesLevel(channel, g_play_buffer, PLAY_BUFFER_SIZE);
 
 		const int CX_START = 3;
 		const int CX_END   = 3;
-		const int START_POS_Y = (1 + 2*counter) * m_wndsize.cy / 4;
+		const int START_POS_Y = (1 + 2*channel) * m_wndsize.cy / 4;
 		const int DIVIDER = l_numbers / (m_wndsize.cx - CX_END);
 		//ASSERT(DIVIDER > 0);
 
@@ -407,29 +387,18 @@ bool CGraphWnd::MaxpeaksVisible() const
 }
 
 //------------------------------------------------------------------------------
-bool CGraphWnd::StartUpdate(HSTREAM a_stream_handle)
+bool CGraphWnd::StartUpdate(PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_func)
 {
-	if (!a_stream_handle)
-	{
-		return false;
-	}
+	ASSERT(a_peaks_func);
+	ASSERT(a_lines_func);
+
 	StopUpdate();
-	m_stream_handle = a_stream_handle;
+	m_peaks_func = a_peaks_func;
+	m_lines_func = a_lines_func;
 
 	m_timer_id = timeSetEvent(25, 25, (LPTIMECALLBACK)&UpdateVisualization,
 		(DWORD_PTR)this, TIME_PERIODIC);
 	return (m_timer_id != 0);
-}
-
-//------------------------------------------------------------------------------
-bool CGraphWnd::StartUpdate(PEAKS_CALLBACK a_peaks_func,
-							LINES_CALLBACK a_lines_func)
-{
-	///@BUG: Not fully working currently
-
-	m_peaks_func = a_peaks_func;
-	m_lines_func = a_lines_func;	
-	return false;
 }
 
 //------------------------------------------------------------------------------
@@ -440,7 +409,8 @@ void CGraphWnd::StopUpdate()
 		timeKillEvent(m_timer_id);
 		m_timer_id = 0;
 	}
-	m_stream_handle = 0;
+	m_peaks_func = NULL;
+	m_lines_func = NULL;
 	Clear();
 }
 //------------------------------------------------------------------------------

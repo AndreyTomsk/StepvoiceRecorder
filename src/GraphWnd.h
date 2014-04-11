@@ -40,8 +40,6 @@ public:
 	bool SetDisplayMode(DisplayMode a_new_mode);
 	int  GetDisplayMode() const;
 
-	// Start/stop visualization (a_stream_handle - handle to bass Stream)
-	bool StartUpdate(HSTREAM a_stream_handle);
 	bool StartUpdate(PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_func);
 	void StopUpdate();
 	
@@ -106,7 +104,6 @@ private:
 
 	DWORD m_timer_id;
 	DisplayMode m_display_mode;
-	HSTREAM m_stream_handle;
 	CMyCriticalSection m_sync_object;
 };
 
