@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 #include <bass.h>
+#include <basswasapi.h>
 #include <math.h>
 #include "Bass_Functions.h"
 
@@ -111,6 +112,42 @@ bool IsRecordingDeviceValid(int a_device)
 	return result && (info.flags&BASS_DEVICE_ENABLED);
 }
 //------------------------------------------------------------------------------
+
+DevicesArray GetWasapiDevicesList()
+{
+	DevicesArray result;
+
+	BASS_WASAPI_DEVICEINFO info;
+	for (int id = 0; BASS_WASAPI_GetDeviceInfo(id, &info); id++)
+	{
+		const BOOL isEnabled = info.flags & BASS_DEVICE_ENABLED;
+		const BOOL isInputDevice = info.flags & BASS_DEVICE_INPUT;
+		const BOOL isLoopback = info.flags & BASS_DEVICE_LOOPBACK;
+
+		if (isEnabled && (isInputDevice || isLoopback))
+			result.push_back(DeviceIdNamePair(id, info.name));
+	}
+	return result;
+}
+//------------------------------------------------------------------------------
+
+DeviceIdNamePair GetDefaultRecordingDevice()
+{
+	BASS_WASAPI_DEVICEINFO info;
+	for (int id = 0; BASS_WASAPI_GetDeviceInfo(id, &info); id++)
+	{
+		const BOOL isEnabled = info.flags & BASS_DEVICE_ENABLED;
+		const BOOL isDefault = info.flags & BASS_DEVICE_DEFAULT;
+		const BOOL isInputDevice = info.flags & BASS_DEVICE_INPUT;
+
+		if (isEnabled && isInputDevice && isDefault)
+			return DeviceIdNamePair(id, info.name);
+	}
+
+	return DeviceIdNamePair(0xFFFF, _T(""));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // namespace Bass
 

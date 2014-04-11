@@ -2,7 +2,7 @@
 #define _RECORDING_SOURCE_DLG_H
 #pragma once
 
-#include <vector>
+#include "Bass_Functions.h" //for Bass::DevicesArray
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -13,10 +13,10 @@
 class CRecordingSourceDlg : public CDialog
 {
 public:
-	typedef std::pair<DWORD, CString> DeviceIdNamePair;
-	typedef std::vector<DeviceIdNamePair> DevicesArray;
-public:
 	static CRecordingSourceDlg* GetInstance();
+
+	Bass::DevicesArray GetSelectedDevices() const;
+	void SelectDevices(const Bass::DevicesArray& src);
 	void Execute(CPoint& pos);
 
 // Dialog Data
@@ -42,13 +42,15 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	//}}AFX_MSG
+	afx_msg void OnDevicesListSelChange();
 	DECLARE_MESSAGE_MAP()
 
 private:
 	CRecordingSourceDlg(CWnd* pParent = NULL);
-	void InitWasapiDevicesList(CCheckListBox&);
+	void InitDevicesListBox(CCheckListBox&);
 private:
 	CCheckListBox m_checkList;
+	Bass::DevicesArray m_selectedDevices;
 };
 
 #endif // _RECORDING_SOURCE_DLG_H

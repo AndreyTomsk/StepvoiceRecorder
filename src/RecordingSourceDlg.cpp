@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "mp3_recorder.h"
 #include "RecordingSourceDlg.h"
-#include <basswasapi.h>
+#include <algorithm> //for std::find
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,8 +16,9 @@ static char THIS_FILE[] = __FILE__;
 BEGIN_MESSAGE_MAP(CRecordingSourceDlg, CDialog)
 	//{{AFX_MSG_MAP(CRecordingSourceDlg)
 	ON_WM_CTLCOLOR()
-	//}}AFX_MSG_MAP
 	ON_WM_PAINT()
+	//}}AFX_MSG_MAP
+	ON_LBN_SELCHANGE(IDC_DEVICES_LIST, &CRecordingSourceDlg::OnDevicesListSelChange)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -41,16 +42,31 @@ CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 	:CDialog(CRecordingSourceDlg::IDD, pParent)
 {
-  //{{AFX_DATA_INIT(CRecordingSourceDlg)
-  //}}AFX_DATA_INIT
+	m_selectedDevices.push_back(Bass::GetDefaultRecordingDevice());
+
+	//{{AFX_DATA_INIT(CRecordingSourceDlg)
+	//}}AFX_DATA_INIT
 }
 //---------------------------------------------------------------------------
 
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
-	InitWasapiDevicesList(m_checkList);
+	InitDevicesListBox(m_checkList);
 	SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
 	ShowWindow(SW_SHOW);
+}
+//---------------------------------------------------------------------------
+
+Bass::DevicesArray CRecordingSourceDlg::GetSelectedDevices() const
+{
+	return m_selectedDevices;
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::SelectDevices(const Bass::DevicesArray& src)
+{
+	m_selectedDevices = src;
+	//And devices list box update on next display.
 }
 //---------------------------------------------------------------------------
 
@@ -67,7 +83,7 @@ void CRecordingSourceDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CRecordingSourceDlg)
 	//}}AFX_DATA_MAP
-	DDX_Control(pDX, IDC_LIST3, m_checkList);
+	DDX_Control(pDX, IDC_DEVICES_LIST, m_checkList);
 }
 //---------------------------------------------------------------------------
 
@@ -78,27 +94,25 @@ BOOL CRecordingSourceDlg::OnInitDialog()
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::InitWasapiDevicesList(CCheckListBox& devicesList)
+void CRecordingSourceDlg::InitDevicesListBox(CCheckListBox& devicesList)
 {
+	using namespace Bass;
+	DevicesArray wasapiDevices = GetWasapiDevicesList();
+	DevicesArray::iterator it = wasapiDevices.begin();
+
 	devicesList.ResetContent();
-
-	BASS_WASAPI_DEVICEINFO info;
-	for (int id = 0; BASS_WASAPI_GetDeviceInfo(id, &info); id++)
+	while (it != wasapiDevices.end())
 	{
-		const BOOL isEnabled = info.flags & BASS_DEVICE_ENABLED;
-		const BOOL isDefault = info.flags & BASS_DEVICE_DEFAULT;
-		const BOOL isInputDevice = info.flags & BASS_DEVICE_INPUT;
-		const BOOL isLoopback = info.flags & BASS_DEVICE_LOOPBACK;
+		DeviceIdNamePair p = *it++;
 
-		if (isEnabled && (isInputDevice || isLoopback))
-		{
-			devicesList.AddString(info.name);
-			const int lastIndex = devicesList.GetCount()-1;
+		devicesList.AddString(p.second);
+		const int lastIndex = devicesList.GetCount()-1;
+		devicesList.SetItemData(lastIndex, p.first);
 
-			devicesList.SetItemData(lastIndex, id);
-			if (isDefault)
-				devicesList.SetCheck(lastIndex, BST_CHECKED);
-		}
+		//Checking list item
+		const DevicesArray& sd = m_selectedDevices;
+		if (std::find(sd.begin(), sd.end(), p) != sd.end())
+			devicesList.SetCheck(lastIndex, BST_CHECKED);
 	}
 }
 //---------------------------------------------------------------------------
@@ -128,5 +142,28 @@ BOOL CRecordingSourceDlg::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, L
 	}
 
 	return CDialog::OnWndMsg(message, wParam, lParam, pResult);
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::OnDevicesListSelChange()
+{
+	//::OutputDebugString(__FUNCTION__"\n");
+
+	//Updating internal array of selected devices and notifying parent.
+	m_selectedDevices.clear();
+	for (int i = 0; i < m_checkList.GetCount(); i++)
+	{
+		if (m_checkList.GetCheck(i) == BST_CHECKED)
+		{
+			DWORD id = m_checkList.GetItemData(i);
+			CString deviceName;
+			m_checkList.GetText(i, deviceName);
+			m_selectedDevices.push_back(Bass::DeviceIdNamePair(id, deviceName));
+		}
+	}
+	if (m_selectedDevices.empty())
+		m_selectedDevices.push_back(Bass::GetDefaultRecordingDevice());
+
+	this->GetParent()->PostMessage(WM_RECSOURCE_CHANGED);
 }
 //---------------------------------------------------------------------------
