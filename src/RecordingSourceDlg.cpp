@@ -18,6 +18,7 @@ BEGIN_MESSAGE_MAP(CRecordingSourceDlg, CDialog)
 	ON_WM_CTLCOLOR()
 	ON_WM_PAINT()
 	//}}AFX_MSG_MAP
+	ON_WM_ACTIVATE()
 	ON_LBN_SELCHANGE(IDC_DEVICES_LIST, &CRecordingSourceDlg::OnDevicesListSelChange)
 END_MESSAGE_MAP()
 
@@ -134,14 +135,20 @@ void CRecordingSourceDlg::OnPaint()
 
 BOOL CRecordingSourceDlg::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 {
+	return CDialog::OnWndMsg(message, wParam, lParam, pResult);
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
+{
+	CDialog::OnActivate(nState, pWndOther, bMinimized);
+
 	//Hiding dialog when changing focus to other windows (similar to menus)
-	if (message == WM_ACTIVATE && LOWORD(wParam) == WA_INACTIVE)
+	if (nState == WA_INACTIVE && IsWindowVisible())
 	{
 		this->ShowWindow(SW_HIDE);
 		this->GetParent()->PostMessage(WM_RECSOURCE_DLGCLOSED);
 	}
-
-	return CDialog::OnWndMsg(message, wParam, lParam, pResult);
 }
 //---------------------------------------------------------------------------
 

@@ -252,6 +252,8 @@ protected:
 
 protected:
 	LRESULT OnTrayNotification(WPARAM wParam, LPARAM lParam);
+	LRESULT OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam);
+	LRESULT OnRecSourceChanged(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 };
 

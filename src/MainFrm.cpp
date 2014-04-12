@@ -210,12 +210,14 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTA, 0, 0xFFFF, OnToolTipNotify)
 	ON_UPDATE_COMMAND_UI_RANGE(IDM_SOUND_PLAY, IDM_SOUND_END,
 							   OnUpdateSoundPlay)
-	ON_MESSAGE(WM_ICON_NOTIFY, OnTrayNotification)
 	ON_COMMAND_RANGE(ID_MIXITEM_REC0, ID_MIXITEM_REC0+50, OnRecMixMenuSelect)
 	ON_COMMAND_RANGE(ID_MIXITEM_PLAY0, ID_MIXITEM_PLAY0+3, OnPlayMixMenuSelect)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK, OnRecLoopbackSelect)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK_MIX, OnRecLoopbackMixSelect)
 	ON_COMMAND(ID_MIXITEM_PLAY_VOLUME, OnPlayVolumeSelect)
+	ON_MESSAGE(WM_ICON_NOTIFY, OnTrayNotification)
+	ON_MESSAGE(WM_RECSOURCE_DLGCLOSED, OnRecSourceDialogClosed)
+	ON_MESSAGE(WM_RECSOURCE_CHANGED, OnRecSourceChanged)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2782,5 +2784,19 @@ bool CMainFrame::CanPlay() const
 bool CMainFrame::CanRecord() const
 {
 	return BASS_ChannelIsActive(g_stream_handle)==BASS_ACTIVE_STOPPED;
+}
+//------------------------------------------------------------------------------
+
+LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
+{
+	OutputDebugString(__FUNCTION__"\n");
+	return 0;
+}
+//------------------------------------------------------------------------------
+
+LRESULT CMainFrame::OnRecSourceChanged(WPARAM wParam, LPARAM lParam)
+{
+	OutputDebugString(__FUNCTION__"\n");
+	return 0;
 }
 //------------------------------------------------------------------------------
