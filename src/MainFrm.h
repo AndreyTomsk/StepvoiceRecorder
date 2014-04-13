@@ -76,14 +76,17 @@ class CMainFrame : public CFrameWnd
 	static float PeaksCallback(int a_channel);
 	static int   LinesCallback(int a_channel, float* a_buffer, int a_size);
 
+	static float PeaksCallback_Wasapi(int a_channel);
+	static int   LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size);
+
 	friend DWORD WINAPI SchedProc( LPVOID lpParam );
 	friend void Scheduler2Function(int nAction);
 	
 	///Callback function to process sample data
-	static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer,
-		DWORD a_length, void* a_user);
-	static BOOL CALLBACK MonitoringProc(HRECORD a_handle, void* a_buffer,
-		DWORD a_length, void* a_user);
+	static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer, DWORD a_length, void* a_user);
+	static BOOL CALLBACK MonitoringProc(HRECORD a_handle, void* a_buffer, DWORD a_length, void* a_user);
+	static DWORD CALLBACK WasapiRecordingProc(void *buffer, DWORD length, void *user);
+
 
 	VisualizationData* m_visualization_data;
 	BassVistaLoopback* m_vista_loopback;

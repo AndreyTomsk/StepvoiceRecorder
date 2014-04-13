@@ -17,6 +17,7 @@ static char THIS_FILE[] = __FILE__;
 #include "system.h"
 #include "BASS_Functions.h"
 #include "RecordingSourceDlg.h"
+#include <basswasapi.h>
 
 HSTREAM g_stream_handle = 0;   // Playback
 HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
@@ -297,6 +298,45 @@ BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Bass WASAPI routine
+
+//!!!test
+DWORD CALLBACK CMainFrame::WasapiRecordingProc(void *buffer, DWORD length, void *user)
+{
+	OutputDebugString(__FUNCTION__"\n");
+
+	CMainFrame* l_main_window = static_cast<CMainFrame *>(user);
+	ASSERT(l_main_window);
+
+	// Updating monitoring buffer for StereoMix levels in Vista (can't get it
+	// from bass lib, because it doesn't show sound after DSP).
+	if (l_main_window->m_visualization_data)
+		l_main_window->m_visualization_data->SetSourceBuffer((float*)buffer, length);
+
+	return 1; //0 stops a device
+}
+//------------------------------------------------------------------------------
+
+float CMainFrame::PeaksCallback_Wasapi(int a_channel)
+{
+	if (m_pMainFrame->m_visualization_data)
+		return m_pMainFrame->m_visualization_data->GetPeaksLevel(a_channel);
+	else
+		return 0.0;
+}
+//------------------------------------------------------------------------------
+
+int CMainFrame::LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size)
+{
+	if (m_pMainFrame->m_visualization_data)
+		return m_pMainFrame->m_visualization_data->GetLinesLevel(a_channel, a_buffer, a_size);
+	else
+		return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
 CMainFrame* CMainFrame::m_pMainFrame = NULL;
 
 //------------------------------------------------------------------------------
@@ -368,6 +408,10 @@ CMainFrame::CMainFrame()
 //====================================================================
 CMainFrame::~CMainFrame()
 {
+	//!!!test
+	BASS_WASAPI_Stop(TRUE);
+	BASS_WASAPI_Free();
+
 	SAFE_DELETE(m_title);
 	SAFE_DELETE(m_visualization_data);
 }
@@ -2787,9 +2831,38 @@ bool CMainFrame::CanRecord() const
 }
 //------------------------------------------------------------------------------
 
+//!!!test
 LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 {
 	OutputDebugString(__FUNCTION__"\n");
+
+	BOOL result = BASS_WASAPI_Stop(TRUE);
+	result = BASS_WASAPI_Free();
+	m_GraphWnd.StopUpdate();
+	SAFE_DELETE(m_visualization_data);
+
+	//graph_wnd start update with our test stream.
+	
+	Bass::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+	ASSERT(!selectedDevices.empty());
+	const DWORD deviceID = selectedDevices[0].first;
+	DWORD errorCode = 0;
+
+	result = BASS_WASAPI_Init(deviceID, 44100, 2, BASS_WASAPI_AUTOFORMAT, 0.5, 0, WasapiRecordingProc, this);
+	if (result)
+	{
+		OutputDebugString(__FUNCTION__" ::SUCCESS!\n");
+		result = BASS_WASAPI_Start();
+	}
+	else
+	{
+		OutputDebugString(__FUNCTION__" ::ERROR!\n");
+		errorCode = BASS_ErrorGetCode();
+		return 0;
+	}
+
+	m_visualization_data = new VisualizationData(44100, 2);
+	m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi);
 	return 0;
 }
 //------------------------------------------------------------------------------
