@@ -39,6 +39,45 @@ CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 	}
 	return g_dialogInstance;
 }
+//---------------------------------------------------------------------------
+
+static DWORD CALLBACK EmptyRecordingProc(void* /*buffer*/, DWORD /*length*/, void* /*user*/)
+{
+	return 1; //0 stops a device
+}
+//---------------------------------------------------------------------------
+
+//We can monitor and display current peak levels only when a recording device
+//is opened. It is easy to see loopback device levels (if any music playing),
+//but must explicitly initialize all microphones, etc.
+static BOOL InitRecordingDevices(const Bass::DevicesArray& devices)
+{
+	BOOL result = FALSE;
+
+	Bass::DevicesArray::const_iterator it = devices.begin();
+	while (it != devices.end())
+	{
+		Bass::DeviceIdNamePair p = *it++;
+		result = BASS_WASAPI_Init(p.first, 44100, 2, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyRecordingProc, NULL);
+		result = BASS_WASAPI_Start();
+	}
+	return result;
+}
+//---------------------------------------------------------------------------
+
+static BOOL FreeRecordingDevices(const Bass::DevicesArray& devices)
+{
+	BOOL result = FALSE;
+
+	Bass::DevicesArray::const_iterator it = devices.begin();
+	while (it != devices.end())
+	{
+		Bass::DeviceIdNamePair p = *it++;
+		result = BASS_WASAPI_SetDevice(p.first);
+		result = BASS_WASAPI_Free(); //frees device, currently set for this thread
+	}
+	return result;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +94,7 @@ CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
 	m_allDevices = Bass::GetWasapiDevicesList();
+	InitRecordingDevices(m_allDevices);
 	UpdateDevicesListBox(m_allDevices, m_checkList);
 
 	SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
@@ -73,6 +113,7 @@ void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimiz
 		KillTimer(IDD_RECORDING_SOURCE);
 		this->ShowWindow(SW_HIDE);
 		this->GetParent()->PostMessage(WM_RECSOURCE_DLGCLOSED);
+		FreeRecordingDevices(m_allDevices);
 	}
 }
 //---------------------------------------------------------------------------

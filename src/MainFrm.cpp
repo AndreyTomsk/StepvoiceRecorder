@@ -2835,7 +2835,7 @@ bool CMainFrame::CanRecord() const
 LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 {
 	OutputDebugString(__FUNCTION__"\n");
-
+	/*
 	BOOL result = BASS_WASAPI_Stop(TRUE);
 	result = BASS_WASAPI_Free();
 	m_GraphWnd.StopUpdate();
@@ -2863,6 +2863,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 
 	m_visualization_data = new VisualizationData(44100, 2);
 	m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi);
+	*/
 	return 0;
 }
 //------------------------------------------------------------------------------
