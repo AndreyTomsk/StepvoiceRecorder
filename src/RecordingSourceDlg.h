@@ -44,13 +44,16 @@ protected:
 	//}}AFX_MSG
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	afx_msg void OnDevicesListSelChange();
+	afx_msg void OnTimer(UINT_PTR nIDEvent); //device levels updating
 	DECLARE_MESSAGE_MAP()
 
 private:
 	CRecordingSourceDlg(CWnd* pParent = NULL);
-	void InitDevicesListBox(CCheckListBox&);
+	void UpdateDevicesListBox(const Bass::DevicesArray& devices, CCheckListBox& listBox);
+
 private:
 	CCheckListBox m_checkList;
+	Bass::DevicesArray m_allDevices;
 	Bass::DevicesArray m_selectedDevices;
 };
 

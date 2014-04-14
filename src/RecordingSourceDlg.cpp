@@ -5,6 +5,7 @@
 #include "mp3_recorder.h"
 #include "RecordingSourceDlg.h"
 #include <algorithm> //for std::find
+#include <basswasapi.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -20,6 +21,7 @@ BEGIN_MESSAGE_MAP(CRecordingSourceDlg, CDialog)
 	//}}AFX_MSG_MAP
 	ON_WM_ACTIVATE()
 	ON_LBN_SELCHANGE(IDC_DEVICES_LIST, &CRecordingSourceDlg::OnDevicesListSelChange)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -52,9 +54,26 @@ CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
-	InitDevicesListBox(m_checkList);
+	m_allDevices = Bass::GetWasapiDevicesList();
+	UpdateDevicesListBox(m_allDevices, m_checkList);
+
 	SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
 	ShowWindow(SW_SHOW);
+	SetTimer(IDD_RECORDING_SOURCE, 200, NULL);
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
+{
+	CDialog::OnActivate(nState, pWndOther, bMinimized);
+
+	//Hiding dialog when changing focus to other windows (similar to menus)
+	if (nState == WA_INACTIVE && IsWindowVisible())
+	{
+		KillTimer(IDD_RECORDING_SOURCE);
+		this->ShowWindow(SW_HIDE);
+		this->GetParent()->PostMessage(WM_RECSOURCE_DLGCLOSED);
+	}
 }
 //---------------------------------------------------------------------------
 
@@ -95,25 +114,31 @@ BOOL CRecordingSourceDlg::OnInitDialog()
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::InitDevicesListBox(CCheckListBox& devicesList)
+void CRecordingSourceDlg::UpdateDevicesListBox(
+	const Bass::DevicesArray& devices, CCheckListBox& listBox)
 {
-	using namespace Bass;
-	DevicesArray wasapiDevices = GetWasapiDevicesList();
-	DevicesArray::iterator it = wasapiDevices.begin();
+	listBox.ResetContent();
 
-	devicesList.ResetContent();
-	while (it != wasapiDevices.end())
+	Bass::DevicesArray::const_iterator it = devices.begin();
+	while (it != devices.end())
 	{
-		DeviceIdNamePair p = *it++;
+		Bass::DeviceIdNamePair p = *it++;
+		const CString deviceName = p.second;
+		const DWORD deviceID = p.first;
+		const float deviceLevel = BASS_WASAPI_GetDeviceLevel(deviceID, -1); //all channels
 
-		devicesList.AddString(p.second);
-		const int lastIndex = devicesList.GetCount()-1;
-		devicesList.SetItemData(lastIndex, p.first);
+		//Adding device volume level to items
+		CString itemName;
+		itemName.Format(deviceName + _T("\t   (%d%%)"), int(deviceLevel*100));
+		listBox.AddString(itemName);
+
+		const int lastIndex = listBox.GetCount()-1;
+		listBox.SetItemData(lastIndex, deviceID);
 
 		//Checking list item
-		const DevicesArray& sd = m_selectedDevices;
+		const Bass::DevicesArray& sd = m_selectedDevices;
 		if (std::find(sd.begin(), sd.end(), p) != sd.end())
-			devicesList.SetCheck(lastIndex, BST_CHECKED);
+			listBox.SetCheck(lastIndex, BST_CHECKED);
 	}
 }
 //---------------------------------------------------------------------------
@@ -139,19 +164,6 @@ BOOL CRecordingSourceDlg::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, L
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
-{
-	CDialog::OnActivate(nState, pWndOther, bMinimized);
-
-	//Hiding dialog when changing focus to other windows (similar to menus)
-	if (nState == WA_INACTIVE && IsWindowVisible())
-	{
-		this->ShowWindow(SW_HIDE);
-		this->GetParent()->PostMessage(WM_RECSOURCE_DLGCLOSED);
-	}
-}
-//---------------------------------------------------------------------------
-
 void CRecordingSourceDlg::OnDevicesListSelChange()
 {
 	//::OutputDebugString(__FUNCTION__"\n");
@@ -174,3 +186,9 @@ void CRecordingSourceDlg::OnDevicesListSelChange()
 	this->GetParent()->PostMessage(WM_RECSOURCE_CHANGED);
 }
 //---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	UpdateDevicesListBox(m_allDevices, m_checkList);
+	CDialog::OnTimer(nIDEvent);
+}
