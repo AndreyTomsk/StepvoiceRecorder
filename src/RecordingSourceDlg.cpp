@@ -60,6 +60,13 @@ static BOOL InitRecordingDevices(const Bass::DevicesArray& devices)
 		Bass::DeviceIdNamePair p = *it++;
 		result = BASS_WASAPI_Init(p.first, 44100, 2, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyRecordingProc, NULL);
 		result = BASS_WASAPI_Start();
+
+		//BASS_WASAPI_AUTOFORMAT helps - my webcam's microphone (Logitech C270)
+		//initializes recording with 48000Hz, Mono.
+
+		//BASS_WASAPI_INFO actualInfo;
+		//result = BASS_WASAPI_GetInfo(&actualInfo);
+		//result = result;
 	}
 	return result;
 }
