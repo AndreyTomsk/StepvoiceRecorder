@@ -212,6 +212,19 @@ BOOL CRecordingSourceDlg::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, L
 }
 //---------------------------------------------------------------------------
 
+static CString FindDeviceNameByID(const Bass::DevicesArray& arr, DWORD id)
+{
+	Bass::DevicesArray::const_iterator it = arr.begin();
+	while (it != arr.end())
+	{
+		Bass::DeviceIdNamePair p = *it++;
+		if (p.first == id)
+			return p.second;
+	}
+	return CString();
+}
+//---------------------------------------------------------------------------
+
 void CRecordingSourceDlg::OnDevicesListSelChange()
 {
 	//::OutputDebugString(__FUNCTION__"\n");
@@ -222,9 +235,8 @@ void CRecordingSourceDlg::OnDevicesListSelChange()
 	{
 		if (m_checkList.GetCheck(i) == BST_CHECKED)
 		{
-			DWORD id = m_checkList.GetItemData(i);
-			CString deviceName;
-			m_checkList.GetText(i, deviceName);
+			const DWORD id = m_checkList.GetItemData(i);
+			const CString deviceName = FindDeviceNameByID(m_allDevices, id);
 			m_selectedDevices.push_back(Bass::DeviceIdNamePair(id, deviceName));
 		}
 	}
