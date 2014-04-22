@@ -17,6 +17,7 @@ static char THIS_FILE[] = __FILE__;
 #include "system.h"
 #include "BASS_Functions.h"
 #include "RecordingSourceDlg.h"
+#include "WasapiRecorder.h"
 #include <basswasapi.h>
 
 HSTREAM g_stream_handle = 0;   // Playback
@@ -25,6 +26,8 @@ HSTREAM g_loopback_handle = 0; // Handle for Loopback stream in Vista
 
 HRECORD g_record_handle = 0; 
 HRECORD g_monitoring_handle = 0;
+
+static CWasapiRecorder* g_wasapi_recorder = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 // shared data
@@ -319,19 +322,28 @@ DWORD CALLBACK CMainFrame::WasapiRecordingProc(void *buffer, DWORD length, void 
 
 float CMainFrame::PeaksCallback_Wasapi(int a_channel)
 {
-	if (m_pMainFrame->m_visualization_data)
-		return m_pMainFrame->m_visualization_data->GetPeaksLevel(a_channel);
+	if (g_wasapi_recorder)
+		return g_wasapi_recorder->GetPeakLevel(a_channel);
 	else
 		return 0.0;
+
+	//if (m_pMainFrame->m_visualization_data)
+	//	return m_pMainFrame->m_visualization_data->GetPeaksLevel(a_channel);
+	//else
+	//	return 0.0;
 }
 //------------------------------------------------------------------------------
 
 int CMainFrame::LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size)
 {
-	if (m_pMainFrame->m_visualization_data)
-		return m_pMainFrame->m_visualization_data->GetLinesLevel(a_channel, a_buffer, a_size);
-	else
+	//if (g_wasapi_recorder)
+	//	return 0;
+	//else
 		return 0;
+	//if (m_pMainFrame->m_visualization_data)
+	//	return m_pMainFrame->m_visualization_data->GetLinesLevel(a_channel, a_buffer, a_size);
+	//else
+	//	return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -408,6 +420,8 @@ CMainFrame::CMainFrame()
 //====================================================================
 CMainFrame::~CMainFrame()
 {
+	SAFE_DELETE(g_wasapi_recorder);
+
 	//!!!test
 	BASS_WASAPI_Stop(TRUE);
 	BASS_WASAPI_Free();
@@ -2835,6 +2849,19 @@ bool CMainFrame::CanRecord() const
 LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 {
 	OutputDebugString(__FUNCTION__"\n");
+	m_GraphWnd.StopUpdate();
+
+	Bass::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+	ASSERT(!selectedDevices.empty());
+	const DWORD deviceID = selectedDevices[0].first;
+
+	SAFE_DELETE(g_wasapi_recorder);
+	g_wasapi_recorder = new CWasapiRecorder(deviceID, 44100, 2, NULL, NULL);
+	g_wasapi_recorder->Start();
+
+	m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi);
+
+
 	/*
 	BOOL result = BASS_WASAPI_Stop(TRUE);
 	result = BASS_WASAPI_Free();

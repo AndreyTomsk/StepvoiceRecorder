@@ -1072,6 +1072,10 @@
 				RelativePath=".\VisualizationData.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\WasapiRecorder.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1299,6 +1303,10 @@
 			</File>
 			<File
 				RelativePath=".\VisualizationData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WasapiRecorder.h"
 				>
 			</File>
 			<File
