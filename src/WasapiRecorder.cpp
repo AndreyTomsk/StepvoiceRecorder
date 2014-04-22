@@ -55,12 +55,11 @@ CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC
 	:m_deviceID(device)
 	,m_isMono(false)
 {
-	BOOL result = GetDeviceActualData(device, freq, chans);
+	BOOL result = GetDeviceActualData(device, freq, chans); //modifies freq and chans
 	ASSERT(result);
 	m_isMono = (chans == 1);
 
-	result = BASS_Init(0, freq, m_isMono ? BASS_DEVICE_MONO : 0, 0, NULL);
-	//0=no sound device.
+	result = BASS_Init(0 /*no sound device*/, freq, m_isMono ? BASS_DEVICE_MONO : 0, 0, NULL);
 	ASSERT(result);
 
 	if (outputProc == NULL)
@@ -178,5 +177,25 @@ DWORD CWasapiRecorder::GetData(void* buffer, DWORD lengthBytes) const
 {
 	CurrentThreadDevice temp(m_deviceID);
 	return BASS_WASAPI_GetData(buffer, lengthBytes);
+}
+//---------------------------------------------------------------------------
+
+DWORD CWasapiRecorder::GetChannelData(int channel, float* buffer, int bufferSize)
+{
+	if (m_isMono)
+	{
+		DWORD bytesWritten = GetData(buffer, bufferSize*sizeof(float));
+		return bytesWritten/sizeof(float);
+	}
+
+	static const int LOCAL_SIZE = 2048*2; //hack, used parameters from GraphWnd.cpp
+	static float localBuffer[LOCAL_SIZE];
+
+	const int bytesRequested = min(LOCAL_SIZE, bufferSize)*sizeof(float);
+	const int bytesWritten = GetData(localBuffer, bytesRequested);
+	for (int i=0, count=bytesWritten/sizeof(float); i < count; i += 2)
+		buffer[i] = localBuffer[i+channel];
+
+	return bytesWritten/sizeof(float);
 }
 //---------------------------------------------------------------------------

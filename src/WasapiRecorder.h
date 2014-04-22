@@ -34,6 +34,9 @@ public:
 	float GetPeakLevel(int channel) const; //0 = first channel, -1 = all channels
 	DWORD GetData(void* buffer, DWORD lengthBytes) const; //returns -1 if error
 
+	//For compatibility with GraphWnd callback
+	DWORD GetChannelData(int channel, float* buffer, int bufferSize);
+
 private:
 	int m_deviceID;
 	bool m_isMono;

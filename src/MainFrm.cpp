@@ -334,11 +334,11 @@ float CMainFrame::PeaksCallback_Wasapi(int a_channel)
 }
 //------------------------------------------------------------------------------
 
-int CMainFrame::LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size)
+int CMainFrame::LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_bufferSize)
 {
-	//if (g_wasapi_recorder)
-	//	return 0;
-	//else
+	if (g_wasapi_recorder)
+		return g_wasapi_recorder->GetChannelData(a_channel, a_buffer, a_bufferSize);
+	else
 		return 0;
 	//if (m_pMainFrame->m_visualization_data)
 	//	return m_pMainFrame->m_visualization_data->GetLinesLevel(a_channel, a_buffer, a_size);
@@ -2850,6 +2850,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 {
 	OutputDebugString(__FUNCTION__"\n");
 	m_GraphWnd.StopUpdate();
+	::Sleep(50); //letting exit from callback handlers
 
 	Bass::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
 	ASSERT(!selectedDevices.empty());
