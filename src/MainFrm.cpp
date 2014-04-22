@@ -2850,7 +2850,6 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 {
 	OutputDebugString(__FUNCTION__"\n");
 	m_GraphWnd.StopUpdate();
-	::Sleep(50); //letting exit from callback handlers
 
 	Bass::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
 	ASSERT(!selectedDevices.empty());

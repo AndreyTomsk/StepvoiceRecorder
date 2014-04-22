@@ -36,15 +36,15 @@ static DWORD CALLBACK EmptyProc(void* , DWORD , void* ) { return 1; }
 
 //---------------------------------------------------------------------------
 
-static BOOL GetDeviceActualData(int device, DWORD& frequency, DWORD& channels)
-//all reference params are in/out
+static BOOL GetDeviceActualData(int device, DWORD freq, DWORD chans,
+								DWORD& actualFreq, DWORD& actualChans)
 {
-	BASS_WASAPI_Init(device, frequency, channels, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyProc, NULL);
+	BASS_WASAPI_Init(device, freq, chans, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyProc, NULL);
 
 	BASS_WASAPI_INFO info;
 	BASS_WASAPI_GetInfo(&info);
-	frequency = info.freq;
-	channels = info.chans;
+	actualFreq = info.freq;
+	actualChans = info.chans;
 
 	return BASS_WASAPI_Free();
 }
@@ -53,20 +53,19 @@ static BOOL GetDeviceActualData(int device, DWORD& frequency, DWORD& channels)
 
 CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC* outputProc, void* user)
 	:m_deviceID(device)
-	,m_isMono(false)
 {
-	BOOL result = GetDeviceActualData(device, freq, chans); //modifies freq and chans
+	BOOL result = GetDeviceActualData(device, freq, chans, m_actualFreq, m_actualChans);
 	ASSERT(result);
-	m_isMono = (chans == 1);
 
-	result = BASS_Init(0 /*no sound device*/, freq, m_isMono ? BASS_DEVICE_MONO : 0, 0, NULL);
+	const bool isMono = (m_actualChans == 1);
+	result = BASS_Init(0 /*no sound device*/, m_actualFreq, isMono ? BASS_DEVICE_MONO : 0, 0, NULL);
 	ASSERT(result);
 
 	if (outputProc == NULL)
 		outputProc = EmptyProc; //could not initialize if output procedure empty
 
-	result = BASS_WASAPI_Init(device, freq, chans,
-		BASS_WASAPI_AUTOFORMAT | BASS_WASAPI_BUFFER,
+	result = BASS_WASAPI_Init(device, m_actualFreq, m_actualChans,
+		BASS_WASAPI_BUFFER, //with actual freq/chans shold work without BASS_WASAPI_AUTOFORMAT!
 		0.5,	//length of the device's buffer in seconds
 		0,		//interval (in seconds) between callback function calls, 0=use default.
 		outputProc,
@@ -87,19 +86,13 @@ CWasapiRecorder::~CWasapiRecorder()
 
 DWORD CWasapiRecorder::GetActualFrequency() const
 {
-	CurrentThreadDevice temp(m_deviceID);
-	BASS_WASAPI_INFO info;
-	BASS_WASAPI_GetInfo(&info);
-	return info.freq;
+	return m_actualFreq;
 }
 //---------------------------------------------------------------------------
 
 DWORD CWasapiRecorder::GetActualChannelCount() const
 {
-	CurrentThreadDevice temp(m_deviceID);
-	BASS_WASAPI_INFO info;
-	BASS_WASAPI_GetInfo(&info);
-	return info.chans;
+	return m_actualChans;
 }
 //---------------------------------------------------------------------------
 
@@ -167,7 +160,8 @@ BOOL CWasapiRecorder::SetVolume(float volume)
 
 float CWasapiRecorder::GetPeakLevel(int channel) const
 {
-	const float level = BASS_WASAPI_GetDeviceLevel(m_deviceID, m_isMono ? 0 : channel);
+	const bool isMono = (m_actualChans == 1);
+	const float level = BASS_WASAPI_GetDeviceLevel(m_deviceID, isMono ? 0 : channel);
 	ASSERT(level != -1);
 	return level;
 }
@@ -182,20 +176,23 @@ DWORD CWasapiRecorder::GetData(void* buffer, DWORD lengthBytes) const
 
 DWORD CWasapiRecorder::GetChannelData(int channel, float* buffer, int bufferSize)
 {
-	if (m_isMono)
+	const bool isMono = (m_actualChans == 1);
+	if (isMono)
 	{
-		DWORD bytesWritten = GetData(buffer, bufferSize*sizeof(float));
-		return bytesWritten/sizeof(float);
+		const DWORD bytesWritten = GetData(buffer, bufferSize*sizeof(float));
+		return (bytesWritten == -1) ? 0 : bytesWritten/sizeof(float);
 	}
 
 	static const int LOCAL_SIZE = 2048*2; //hack, used parameters from GraphWnd.cpp
 	static float localBuffer[LOCAL_SIZE];
 
-	const int bytesRequested = min(LOCAL_SIZE, bufferSize)*sizeof(float);
-	const int bytesWritten = GetData(localBuffer, bytesRequested);
+	const DWORD bytesRequested = min(LOCAL_SIZE, bufferSize)*sizeof(float);
+	const DWORD bytesWritten = GetData(localBuffer, bytesRequested);
+	if (bytesWritten == -1)
+		return 0;
+
 	for (int i=0, count=bytesWritten/sizeof(float); i < count; i += 2)
 		buffer[i] = localBuffer[i+channel];
-
 	return bytesWritten/sizeof(float);
 }
 //---------------------------------------------------------------------------

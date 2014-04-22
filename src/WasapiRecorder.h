@@ -39,7 +39,8 @@ public:
 
 private:
 	int m_deviceID;
-	bool m_isMono;
+	DWORD m_actualFreq;
+	DWORD m_actualChans;
 };
 
 /////////////////////////////////////////////////////////////////////////////

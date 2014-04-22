@@ -285,6 +285,7 @@ void CGraphWnd::DrawLines()
 	for (int channel = 0; channel < 2; channel++)
 	{
 		int l_numbers = GetLinesLevel(channel, g_play_buffer, PLAY_BUFFER_SIZE);
+		ASSERT(l_numbers <= PLAY_BUFFER_SIZE);
 
 		const int CX_START = 3;
 		const int CX_END   = 3;
