@@ -1,6 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
-//
-
 #include "stdafx.h"
 #include "mp3_recorder.h"
 #include "RecordingSourceDlg.h"
@@ -39,52 +36,6 @@ CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 	}
 	return g_dialogInstance;
 }
-//---------------------------------------------------------------------------
-
-static DWORD CALLBACK EmptyRecordingProc(void* /*buffer*/, DWORD /*length*/, void* /*user*/)
-{
-	return 1; //0 stops a device
-}
-//---------------------------------------------------------------------------
-
-//We can monitor and display current peak levels only when a recording device
-//is opened. It is easy to see loopback device levels (if any music playing),
-//but must explicitly initialize all microphones, etc.
-static BOOL InitRecordingDevices(const WasapiHelpers::DevicesArray& devices)
-{
-	BOOL result = FALSE;
-
-	WasapiHelpers::DevicesArray::const_iterator it = devices.begin();
-	while (it != devices.end())
-	{
-		WasapiHelpers::DeviceIdNamePair p = *it++;
-		result = BASS_WASAPI_Init(p.first, 44100, 2, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyRecordingProc, NULL);
-		result = BASS_WASAPI_Start();
-
-		//BASS_WASAPI_AUTOFORMAT helps - my webcam's microphone (Logitech C270)
-		//initializes recording with 48000Hz, Mono.
-
-		//BASS_WASAPI_INFO actualInfo;
-		//result = BASS_WASAPI_GetInfo(&actualInfo);
-		//result = result;
-	}
-	return result;
-}
-//---------------------------------------------------------------------------
-
-static BOOL FreeRecordingDevices(const WasapiHelpers::DevicesArray& devices)
-{
-	BOOL result = FALSE;
-
-	WasapiHelpers::DevicesArray::const_iterator it = devices.begin();
-	while (it != devices.end())
-	{
-		WasapiHelpers::DeviceIdNamePair p = *it++;
-		result = BASS_WASAPI_SetDevice(p.first);
-		result = BASS_WASAPI_Free(); //frees device, currently set for this thread
-	}
-	return result;
-}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +52,7 @@ CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
 	m_allDevices = WasapiHelpers::GetWasapiDevicesList();
-	InitRecordingDevices(m_allDevices);
+	WasapiHelpers::InitRecordingDevices(m_allDevices);
 	UpdateDevicesListBox(m_allDevices, m_checkList);
 
 	SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
@@ -112,15 +63,15 @@ void CRecordingSourceDlg::Execute(CPoint& pos)
 
 void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 {
-	CDialog::OnActivate(nState, pWndOther, bMinimized);
-
 	//Hiding dialog when changing focus to other windows (similar to menus)
+
+	CDialog::OnActivate(nState, pWndOther, bMinimized);
 	if (nState == WA_INACTIVE && IsWindowVisible())
 	{
 		KillTimer(IDD_RECORDING_SOURCE);
 		this->ShowWindow(SW_HIDE);
 		this->GetParent()->PostMessage(WM_RECSOURCE_DLGCLOSED);
-		FreeRecordingDevices(m_allDevices);
+		WasapiHelpers::FreeRecordingDevices(m_allDevices);
 	}
 }
 //---------------------------------------------------------------------------
@@ -252,3 +203,4 @@ void CRecordingSourceDlg::OnTimer(UINT_PTR nIDEvent)
 	UpdateDevicesListBox(m_allDevices, m_checkList);
 	CDialog::OnTimer(nIDEvent);
 }
+//---------------------------------------------------------------------------

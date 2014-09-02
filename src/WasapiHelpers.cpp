@@ -49,7 +49,8 @@ DeviceIdNamePair GetDefaultRecordingDevice()
 }
 //---------------------------------------------------------------------------
 
-static DWORD CALLBACK EmptyProc(void* , DWORD , void* ) { return 1; }
+static DWORD CALLBACK EmptyProc(void* , DWORD , void* ) { return 1; } //0 stops recording
+//---------------------------------------------------------------------------
 
 BOOL GetDeviceActualData(int device, DWORD freq, DWORD chans,
 	DWORD& actualFreq, DWORD& actualChans)
@@ -62,6 +63,39 @@ BOOL GetDeviceActualData(int device, DWORD freq, DWORD chans,
 	actualChans = info.chans;
 
 	return BASS_WASAPI_Free();
+}
+//---------------------------------------------------------------------------
+
+BOOL InitRecordingDevices(const DevicesArray& devices)
+{
+	BOOL result = FALSE;
+
+	DevicesArray::const_iterator it = devices.begin();
+	while (it != devices.end())
+	{
+		DeviceIdNamePair p = *it++;
+		result = BASS_WASAPI_Init(p.first, 44100, 2, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyProc, NULL);
+		result = BASS_WASAPI_Start();
+
+		//BASS_WASAPI_AUTOFORMAT helps - my webcam's microphone (Logitech C270)
+		//initializes recording with 48000Hz, Mono. See GetDeviceActualData above.
+	}
+	return result;
+}
+//---------------------------------------------------------------------------
+
+BOOL FreeRecordingDevices(const DevicesArray& devices)
+{
+	BOOL result = FALSE;
+
+	DevicesArray::const_iterator it = devices.begin();
+	while (it != devices.end())
+	{
+		DeviceIdNamePair p = *it++;
+		result = BASS_WASAPI_SetDevice(p.first);
+		result = BASS_WASAPI_Free(); //frees device, currently set for this thread
+	}
+	return result;
 }
 
 /////////////////////////////////////////////////////////////////////////////

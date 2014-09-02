@@ -21,6 +21,12 @@ namespace WasapiHelpers
 	BOOL GetDeviceActualData(int device, DWORD freq, DWORD chans,
 		DWORD& actualFreq, DWORD& actualChans);
 
+	//We can monitor and display current peak levels only when a recording device
+	//is opened. It is easy to see loopback device levels (if any music playing),
+	//but must explicitly initialize all microphones, etc.
+	BOOL InitRecordingDevices(const DevicesArray& devices);
+	BOOL FreeRecordingDevices(const DevicesArray& devices);
+
 } // namespace Bass
 
 /////////////////////////////////////////////////////////////////////////////
