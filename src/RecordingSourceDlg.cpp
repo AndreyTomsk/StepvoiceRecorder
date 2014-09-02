@@ -116,6 +116,7 @@ BOOL CRecordingSourceDlg::OnInitDialog()
 void CRecordingSourceDlg::UpdateDevicesListBox(
 	const WasapiHelpers::DevicesArray& devices, CCheckListBox& listBox)
 {
+	listBox.SetRedraw(FALSE);
 	listBox.ResetContent();
 
 	WasapiHelpers::DevicesArray::const_iterator it = devices.begin();
@@ -139,6 +140,8 @@ void CRecordingSourceDlg::UpdateDevicesListBox(
 		if (std::find(sd.begin(), sd.end(), p) != sd.end())
 			listBox.SetCheck(lastIndex, BST_CHECKED);
 	}
+	listBox.SetRedraw(TRUE);
+	listBox.Invalidate();
 }
 //---------------------------------------------------------------------------
 
