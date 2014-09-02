@@ -50,14 +50,14 @@ static DWORD CALLBACK EmptyRecordingProc(void* /*buffer*/, DWORD /*length*/, voi
 //We can monitor and display current peak levels only when a recording device
 //is opened. It is easy to see loopback device levels (if any music playing),
 //but must explicitly initialize all microphones, etc.
-static BOOL InitRecordingDevices(const Bass::DevicesArray& devices)
+static BOOL InitRecordingDevices(const WasapiHelpers::DevicesArray& devices)
 {
 	BOOL result = FALSE;
 
-	Bass::DevicesArray::const_iterator it = devices.begin();
+	WasapiHelpers::DevicesArray::const_iterator it = devices.begin();
 	while (it != devices.end())
 	{
-		Bass::DeviceIdNamePair p = *it++;
+		WasapiHelpers::DeviceIdNamePair p = *it++;
 		result = BASS_WASAPI_Init(p.first, 44100, 2, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyRecordingProc, NULL);
 		result = BASS_WASAPI_Start();
 
@@ -72,14 +72,14 @@ static BOOL InitRecordingDevices(const Bass::DevicesArray& devices)
 }
 //---------------------------------------------------------------------------
 
-static BOOL FreeRecordingDevices(const Bass::DevicesArray& devices)
+static BOOL FreeRecordingDevices(const WasapiHelpers::DevicesArray& devices)
 {
 	BOOL result = FALSE;
 
-	Bass::DevicesArray::const_iterator it = devices.begin();
+	WasapiHelpers::DevicesArray::const_iterator it = devices.begin();
 	while (it != devices.end())
 	{
-		Bass::DeviceIdNamePair p = *it++;
+		WasapiHelpers::DeviceIdNamePair p = *it++;
 		result = BASS_WASAPI_SetDevice(p.first);
 		result = BASS_WASAPI_Free(); //frees device, currently set for this thread
 	}
@@ -91,7 +91,7 @@ static BOOL FreeRecordingDevices(const Bass::DevicesArray& devices)
 CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 	:CDialog(CRecordingSourceDlg::IDD, pParent)
 {
-	m_selectedDevices.push_back(Bass::GetDefaultRecordingDevice());
+	m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
 
 	//{{AFX_DATA_INIT(CRecordingSourceDlg)
 	//}}AFX_DATA_INIT
@@ -100,7 +100,7 @@ CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
-	m_allDevices = Bass::GetWasapiDevicesList();
+	m_allDevices = WasapiHelpers::GetWasapiDevicesList();
 	InitRecordingDevices(m_allDevices);
 	UpdateDevicesListBox(m_allDevices, m_checkList);
 
@@ -125,13 +125,13 @@ void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimiz
 }
 //---------------------------------------------------------------------------
 
-Bass::DevicesArray CRecordingSourceDlg::GetSelectedDevices() const
+WasapiHelpers::DevicesArray CRecordingSourceDlg::GetSelectedDevices() const
 {
 	return m_selectedDevices;
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::SelectDevices(const Bass::DevicesArray& src)
+void CRecordingSourceDlg::SelectDevices(const WasapiHelpers::DevicesArray& src)
 {
 	m_selectedDevices = src;
 	//And devices list box update on next display.
@@ -163,14 +163,14 @@ BOOL CRecordingSourceDlg::OnInitDialog()
 //---------------------------------------------------------------------------
 
 void CRecordingSourceDlg::UpdateDevicesListBox(
-	const Bass::DevicesArray& devices, CCheckListBox& listBox)
+	const WasapiHelpers::DevicesArray& devices, CCheckListBox& listBox)
 {
 	listBox.ResetContent();
 
-	Bass::DevicesArray::const_iterator it = devices.begin();
+	WasapiHelpers::DevicesArray::const_iterator it = devices.begin();
 	while (it != devices.end())
 	{
-		Bass::DeviceIdNamePair p = *it++;
+		WasapiHelpers::DeviceIdNamePair p = *it++;
 		const CString deviceName = p.second;
 		const DWORD deviceID = p.first;
 		const float deviceLevel = BASS_WASAPI_GetDeviceLevel(deviceID, -1); //all channels
@@ -184,7 +184,7 @@ void CRecordingSourceDlg::UpdateDevicesListBox(
 		listBox.SetItemData(lastIndex, deviceID);
 
 		//Checking list item
-		const Bass::DevicesArray& sd = m_selectedDevices;
+		const WasapiHelpers::DevicesArray& sd = m_selectedDevices;
 		if (std::find(sd.begin(), sd.end(), p) != sd.end())
 			listBox.SetCheck(lastIndex, BST_CHECKED);
 	}
@@ -212,12 +212,12 @@ BOOL CRecordingSourceDlg::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, L
 }
 //---------------------------------------------------------------------------
 
-static CString FindDeviceNameByID(const Bass::DevicesArray& arr, DWORD id)
+static CString FindDeviceNameByID(const WasapiHelpers::DevicesArray& arr, DWORD id)
 {
-	Bass::DevicesArray::const_iterator it = arr.begin();
+	WasapiHelpers::DevicesArray::const_iterator it = arr.begin();
 	while (it != arr.end())
 	{
-		Bass::DeviceIdNamePair p = *it++;
+		WasapiHelpers::DeviceIdNamePair p = *it++;
 		if (p.first == id)
 			return p.second;
 	}
@@ -237,11 +237,11 @@ void CRecordingSourceDlg::OnDevicesListSelChange()
 		{
 			const DWORD id = m_checkList.GetItemData(i);
 			const CString deviceName = FindDeviceNameByID(m_allDevices, id);
-			m_selectedDevices.push_back(Bass::DeviceIdNamePair(id, deviceName));
+			m_selectedDevices.push_back(WasapiHelpers::DeviceIdNamePair(id, deviceName));
 		}
 	}
 	if (m_selectedDevices.empty())
-		m_selectedDevices.push_back(Bass::GetDefaultRecordingDevice());
+		m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
 
 	this->GetParent()->PostMessage(WM_RECSOURCE_CHANGED);
 }

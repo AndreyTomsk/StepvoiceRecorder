@@ -1,10 +1,9 @@
-
 #ifndef _BASS_FUNCTIONS_H
 #define _BASS_FUNCTIONS_H
 
 #include <vector>
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 namespace Bass
 {
@@ -19,18 +18,8 @@ namespace Bass
 	bool IsPlaybackDeviceValid(int a_device);
 	bool IsRecordingDeviceValid(int a_device);
 
-
-	// New features, helping with WASAPI recording
-	// We need to correctly identify (selected) device, etc.
-
-	typedef std::pair<DWORD, CString> DeviceIdNamePair;
-	typedef std::vector<DeviceIdNamePair> DevicesArray;
-
-	DevicesArray GetWasapiDevicesList();
-	DeviceIdNamePair GetDefaultRecordingDevice();
-
 } // namespace Bass
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 #endif //_BASS_FUNCTIONS_H

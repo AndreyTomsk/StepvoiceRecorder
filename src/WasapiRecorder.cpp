@@ -2,8 +2,9 @@
 //
 
 #include "stdafx.h"
-#include "WasapiRecorder.h"
 #include <basswasapi.h>
+#include "WasapiRecorder.h"
+#include "WasapiHelpers.h"
 
 
 #ifdef _DEBUG
@@ -36,25 +37,10 @@ static DWORD CALLBACK EmptyProc(void* , DWORD , void* ) { return 1; }
 
 //---------------------------------------------------------------------------
 
-static BOOL GetDeviceActualData(int device, DWORD freq, DWORD chans,
-								DWORD& actualFreq, DWORD& actualChans)
-{
-	BASS_WASAPI_Init(device, freq, chans, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyProc, NULL);
-
-	BASS_WASAPI_INFO info;
-	BASS_WASAPI_GetInfo(&info);
-	actualFreq = info.freq;
-	actualChans = info.chans;
-
-	return BASS_WASAPI_Free();
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC* outputProc, void* user)
 	:m_deviceID(device)
 {
-	BOOL result = GetDeviceActualData(device, freq, chans, m_actualFreq, m_actualChans);
+	BOOL result = WasapiHelpers::GetDeviceActualData(device, freq, chans, m_actualFreq, m_actualChans);
 	ASSERT(result);
 
 	const bool isMono = (m_actualChans == 1);

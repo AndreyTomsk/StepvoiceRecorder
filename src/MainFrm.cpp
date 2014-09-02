@@ -2851,7 +2851,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 	OutputDebugString(__FUNCTION__"\n");
 	m_GraphWnd.StopUpdate();
 
-	Bass::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+	WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
 	ASSERT(!selectedDevices.empty());
 	const DWORD deviceID = selectedDevices[0].first;
 
@@ -2870,7 +2870,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 
 	//graph_wnd start update with our test stream.
 	
-	Bass::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+	WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
 	ASSERT(!selectedDevices.empty());
 	const DWORD deviceID = selectedDevices[0].first;
 	DWORD errorCode = 0;

@@ -1,15 +1,14 @@
-
 #include "stdafx.h"
 #include <bass.h>
 #include <basswasapi.h>
 #include <math.h>
 #include "Bass_Functions.h"
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 namespace Bass
 {
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 float GetMaxPeakDB(DWORD a_handle)
 {
@@ -19,10 +18,10 @@ float GetMaxPeakDB(DWORD a_handle)
 	DWORD l_level = max(LOWORD(l_ch_level), HIWORD(l_ch_level));
 	return 20 * log10(float(l_level) / 32768);
 }
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 void CALLBACK LoopbackStreamDSP(DWORD /*a_dsp_handle*/, DWORD /*a_channel*/,
-								void *a_buffer, DWORD a_length_bytes, void *a_user)
+	void *a_buffer, DWORD a_length_bytes, void *a_user)
 {
 	// Loopback is a decoding stream and have same parameters (freq, channels)
 	// as a main recording stream, for direct copying.
@@ -88,14 +87,14 @@ void CALLBACK LoopbackStreamDSP(DWORD /*a_dsp_handle*/, DWORD /*a_channel*/,
 	l_dst_buffer[i] = max(-1.0, min((l_dst_buffer[i] + l_src_buffer_float[i]), 1.0));
 	*/
 }
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 void CALLBACK StreamMuteDSP(DWORD /*handle*/, DWORD /*channel*/, void *buffer,
 							DWORD length, void* /*user*/)
 {
 	memset(buffer, 0, length);
 }
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 bool IsPlaybackDeviceValid(int a_device)
 {
@@ -103,7 +102,7 @@ bool IsPlaybackDeviceValid(int a_device)
 	BOOL result = BASS_GetDeviceInfo(a_device + 1, &info);
 	return result && (info.flags&BASS_DEVICE_ENABLED);
 }
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 bool IsRecordingDeviceValid(int a_device)
 {
@@ -111,44 +110,7 @@ bool IsRecordingDeviceValid(int a_device)
 	BOOL result = BASS_RecordGetDeviceInfo(a_device + 1, &info);
 	return result && (info.flags&BASS_DEVICE_ENABLED);
 }
-//------------------------------------------------------------------------------
 
-DevicesArray GetWasapiDevicesList()
-{
-	DevicesArray result;
-
-	BASS_WASAPI_DEVICEINFO info;
-	for (int id = 0; BASS_WASAPI_GetDeviceInfo(id, &info); id++)
-	{
-		const BOOL isEnabled = info.flags & BASS_DEVICE_ENABLED;
-		const BOOL isInputDevice = info.flags & BASS_DEVICE_INPUT;
-		const BOOL isLoopback = info.flags & BASS_DEVICE_LOOPBACK;
-
-		if (isEnabled && (isInputDevice || isLoopback))
-			result.push_back(DeviceIdNamePair(id, info.name));
-	}
-	return result;
-}
-//------------------------------------------------------------------------------
-
-DeviceIdNamePair GetDefaultRecordingDevice()
-{
-	BASS_WASAPI_DEVICEINFO info;
-	for (int id = 0; BASS_WASAPI_GetDeviceInfo(id, &info); id++)
-	{
-		const BOOL isEnabled = info.flags & BASS_DEVICE_ENABLED;
-		const BOOL isDefault = info.flags & BASS_DEVICE_DEFAULT;
-		const BOOL isInputDevice = info.flags & BASS_DEVICE_INPUT;
-
-		if (isEnabled && isInputDevice && isDefault)
-			return DeviceIdNamePair(id, info.name);
-	}
-
-	return DeviceIdNamePair(0xFFFF, _T(""));
-}
-
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 } // namespace Bass
-
-

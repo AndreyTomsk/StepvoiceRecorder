@@ -2,7 +2,7 @@
 #define _RECORDING_SOURCE_DLG_H
 #pragma once
 
-#include "Bass_Functions.h" //for Bass::DevicesArray
+#include "WasapiHelpers.h" //for DevicesArray
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -15,8 +15,8 @@ class CRecordingSourceDlg : public CDialog
 public:
 	static CRecordingSourceDlg* GetInstance();
 
-	Bass::DevicesArray GetSelectedDevices() const;
-	void SelectDevices(const Bass::DevicesArray& src);
+	WasapiHelpers::DevicesArray GetSelectedDevices() const;
+	void SelectDevices(const WasapiHelpers::DevicesArray& src);
 	void Execute(CPoint& pos);
 
 // Dialog Data
@@ -49,12 +49,12 @@ protected:
 
 private:
 	CRecordingSourceDlg(CWnd* pParent = NULL);
-	void UpdateDevicesListBox(const Bass::DevicesArray& devices, CCheckListBox& listBox);
+	void UpdateDevicesListBox(const WasapiHelpers::DevicesArray& devices, CCheckListBox& listBox);
 
 private:
 	CCheckListBox m_checkList;
-	Bass::DevicesArray m_allDevices;
-	Bass::DevicesArray m_selectedDevices;
+	WasapiHelpers::DevicesArray m_allDevices;
+	WasapiHelpers::DevicesArray m_selectedDevices;
 };
 
 #endif // _RECORDING_SOURCE_DLG_H

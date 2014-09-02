@@ -1073,6 +1073,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\WasapiHelpers.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WasapiRecorder.cpp"
 				>
 			</File>
@@ -1303,6 +1307,10 @@
 			</File>
 			<File
 				RelativePath=".\VisualizationData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WasapiHelpers.h"
 				>
 			</File>
 			<File
