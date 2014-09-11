@@ -13,7 +13,7 @@ public:
 
 	void SetCheck(bool check);
 	void SetLabel(const CString& newLabel);
-	void SetLevel(int levelPercent);
+	void SetLevel(unsigned levelPercent);
 
 	bool GetCheck() const;
 

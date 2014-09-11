@@ -91,3 +91,30 @@ void CRecordingSourceItem::OnTimer(UINT nIDEvent)
 	CWnd::OnTimer(nIDEvent);
 }
 //---------------------------------------------------------------------------
+
+void CRecordingSourceItem::SetCheck(bool check)
+{
+	m_itemCheckBox.SetCheck(check ? BST_CHECKED : BST_UNCHECKED);
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceItem::SetLabel(const CString& newLabel)
+{
+	m_itemLabel.SetWindowTextA(newLabel);
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceItem::SetLevel(unsigned levelPercent)
+{
+	CString newLevel;
+	newLevel.Format(_T("%02d%%"), levelPercent);
+	m_itemLevel.SetWindowTextA(newLevel);
+}
+//---------------------------------------------------------------------------
+
+bool CRecordingSourceItem::GetCheck() const
+{
+	return m_itemCheckBox.GetCheck() == BST_CHECKED;
+}
+//---------------------------------------------------------------------------
+
