@@ -4,6 +4,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 //Menu-like item with selection checkbox, device name, and its current volume level.
+//To handle checkbox clicked event, use ON_BN_CLICKED with IDC_RECORDING_DEVICE id.
 
 class CRecordingSourceItem : public CWnd
 {
@@ -11,11 +12,12 @@ public:
 	CRecordingSourceItem();
 	~CRecordingSourceItem();
 
+	bool GetCheck() const;
+	//CString GetLabel() const; //to determine device
+
 	void SetCheck(bool check);
 	void SetLabel(const CString& newLabel);
 	void SetLevel(unsigned levelPercent);
-
-	bool GetCheck() const;
 
 public:
 	// ClassWizard generated virtual function overrides
@@ -30,6 +32,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnCheckboxClicked();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

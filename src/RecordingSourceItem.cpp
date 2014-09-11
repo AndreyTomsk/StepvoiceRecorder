@@ -15,6 +15,7 @@ BEGIN_MESSAGE_MAP(CRecordingSourceItem, CWnd)
 	ON_WM_PAINT()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_RECORDING_DEVICE, OnCheckboxClicked)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -73,9 +74,7 @@ BOOL CRecordingSourceItem::PreTranslateMessage(MSG* pMsg)
 void CRecordingSourceItem::OnLButtonDown(UINT nFlags, CPoint point) 
 {
 	//Toggle checkbox state
-	const bool isChecked = m_itemCheckBox.GetCheck() == BST_CHECKED;
-	m_itemCheckBox.SetCheck(isChecked ? BST_UNCHECKED : BST_CHECKED);
-
+	SetCheck(!GetCheck());
 	CWnd::OnLButtonDown(nFlags, point);
 }
 //---------------------------------------------------------------------------
@@ -92,12 +91,27 @@ void CRecordingSourceItem::OnTimer(UINT nIDEvent)
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceItem::SetCheck(bool check)
+bool CRecordingSourceItem::GetCheck() const
 {
-	m_itemCheckBox.SetCheck(check ? BST_CHECKED : BST_UNCHECKED);
+	return m_itemCheckBox.GetCheck() == BST_CHECKED;
 }
 //---------------------------------------------------------------------------
 
+void CRecordingSourceItem::SetCheck(bool check)
+{
+	m_itemCheckBox.SetCheck(check ? BST_CHECKED : BST_UNCHECKED);
+	OnCheckboxClicked();
+}
+//---------------------------------------------------------------------------
+/*
+CString CRecordingSourceItem::GetLabel() const
+{
+	CString label;
+	m_itemLabel.GetWindowTextA(label);
+	return label;
+}
+//---------------------------------------------------------------------------
+*/
 void CRecordingSourceItem::SetLabel(const CString& newLabel)
 {
 	m_itemLabel.SetWindowTextA(newLabel);
@@ -112,9 +126,10 @@ void CRecordingSourceItem::SetLevel(unsigned levelPercent)
 }
 //---------------------------------------------------------------------------
 
-bool CRecordingSourceItem::GetCheck() const
+void CRecordingSourceItem::OnCheckboxClicked()
 {
-	return m_itemCheckBox.GetCheck() == BST_CHECKED;
+	GetParent()->PostMessageA(WM_COMMAND,
+		MAKEWPARAM(IDC_RECORDING_DEVICE, BN_CLICKED), 0);
 }
 //---------------------------------------------------------------------------
 

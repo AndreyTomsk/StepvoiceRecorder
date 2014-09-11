@@ -19,6 +19,7 @@ BEGIN_MESSAGE_MAP(CRecordingSourceDlg, CDialog)
 	ON_WM_ACTIVATE()
 	ON_LBN_SELCHANGE(IDC_DEVICES_LIST, &CRecordingSourceDlg::OnDevicesListSelChange)
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_RECORDING_DEVICE, OnRecodingSourceItemClicked)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -54,6 +55,9 @@ void CRecordingSourceDlg::Execute(CPoint& pos)
 	m_allDevices = WasapiHelpers::GetWasapiDevicesList();
 	WasapiHelpers::InitRecordingDevices(m_allDevices);
 	UpdateDevicesListBox(m_allDevices, m_checkList);
+
+	CreateDeviceItems(m_allDevices.size());
+	UpdateDeviceItems();
 
 	SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
 	ShowWindow(SW_SHOW);
@@ -92,25 +96,15 @@ void CRecordingSourceDlg::SelectDevices(const WasapiHelpers::DevicesArray& src)
 BOOL CRecordingSourceDlg::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
-
-	CRecordingSourceItem* newItem = new CRecordingSourceItem();
-	newItem->Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(0, 100, 200, 120), this, IDW_RECORDING_ITEM);
-	m_recordingSourceItems.push_back(newItem);
-
 	return TRUE;
 }
 //---------------------------------------------------------------------------
 
 void CRecordingSourceDlg::PostNcDestroy()
 {
-	std::vector<CRecordingSourceItem*>::iterator it = m_recordingSourceItems.begin();
-	while (it != m_recordingSourceItems.end())
-	{
-		CRecordingSourceItem* item = *it++;
-		delete item;
-	}
-
+	DeleteDeviceItems();
 	g_dialogInstance = NULL;
+
 	CDialog::PostNcDestroy();
 	delete this;
 }
@@ -216,6 +210,64 @@ void CRecordingSourceDlg::OnDevicesListSelChange()
 void CRecordingSourceDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	UpdateDevicesListBox(m_allDevices, m_checkList);
+	UpdateDeviceItems();
 	CDialog::OnTimer(nIDEvent);
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::CreateDeviceItems(unsigned count)
+{
+	CRect dialogRect;
+	GetWindowRect(&dialogRect);
+	const int itemWidth = dialogRect.Width();
+	const int itemHeight = 20;
+
+	DeleteDeviceItems();
+	for (unsigned i = 0; i < count; i++)
+	{
+		const int top = 150 + itemHeight*i;
+		const CRect itemRect(0, top, itemWidth, top+itemHeight);
+
+		CRecordingSourceItem* newItem = new CRecordingSourceItem();
+		newItem->Create(NULL, NULL, WS_CHILD|WS_VISIBLE, itemRect, this, IDW_RECORDING_ITEM+i);
+		m_recordingSourceItems.push_back(newItem);
+	}
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::DeleteDeviceItems()
+{
+	std::vector<CRecordingSourceItem*>::iterator it = m_recordingSourceItems.begin();
+	while (it != m_recordingSourceItems.end())
+	{
+		CRecordingSourceItem* item = *it++;
+		item->DestroyWindow();
+		delete item;
+	}
+	m_recordingSourceItems.clear();
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::UpdateDeviceItems()
+{
+	ASSERT(m_recordingSourceItems.size() == m_allDevices.size());
+	for (unsigned i = 0; i < m_allDevices.size(); i++)
+	{
+		const WasapiHelpers::DeviceIdNamePair p = m_allDevices[i];
+
+		const CString deviceName = p.second;
+		const DWORD deviceID = p.first;
+		const float deviceLevel = BASS_WASAPI_GetDeviceLevel(deviceID, -1); //all channels
+		const int deviceLevelPercent = deviceLevel == -1 ? 0 : unsigned(deviceLevel*100);
+
+		m_recordingSourceItems[i]->SetLabel(deviceName);
+		m_recordingSourceItems[i]->SetLevel(deviceLevelPercent);
+	}
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::OnRecodingSourceItemClicked()
+{
+	OutputDebugString(__FUNCTION__);
 }
 //---------------------------------------------------------------------------

@@ -46,11 +46,16 @@ protected:
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	afx_msg void OnDevicesListSelChange();
 	afx_msg void OnTimer(UINT_PTR nIDEvent); //device levels updating
+	afx_msg void OnRecodingSourceItemClicked();
 	DECLARE_MESSAGE_MAP()
 
 private:
 	CRecordingSourceDlg(CWnd* pParent = NULL);
 	void UpdateDevicesListBox(const WasapiHelpers::DevicesArray& devices, CCheckListBox& listBox);
+
+	void CreateDeviceItems(unsigned count);
+	void UpdateDeviceItems();
+	void DeleteDeviceItems();
 
 private:
 	CCheckListBox m_checkList;
