@@ -825,6 +825,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RecordingSourceItem.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Scheduler2.cpp"
 				>
 				<FileConfiguration
@@ -1235,6 +1239,10 @@
 			</File>
 			<File
 				RelativePath=".\RecordingSourceDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RecordingSourceItem.h"
 				>
 			</File>
 			<File

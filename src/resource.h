@@ -13,6 +13,7 @@
 #define IDW_GRAPH                       117
 #define IDW_TIME                        118
 #define IDW_ICO                         119
+#define IDW_RECORDING_ITEM              5000
 #define IDB_BTNSTOP                     120
 #define IDB_BTNOPEN                     121
 #define IDB_MIX_REC                     126

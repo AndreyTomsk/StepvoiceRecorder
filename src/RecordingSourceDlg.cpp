@@ -89,8 +89,27 @@ void CRecordingSourceDlg::SelectDevices(const WasapiHelpers::DevicesArray& src)
 }
 //---------------------------------------------------------------------------
 
+BOOL CRecordingSourceDlg::OnInitDialog() 
+{
+	CDialog::OnInitDialog();
+
+	CRecordingSourceItem* newItem = new CRecordingSourceItem();
+	newItem->Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(0, 100, 200, 120), this, IDW_RECORDING_ITEM);
+	m_recordingSourceItems.push_back(newItem);
+
+	return TRUE;
+}
+//---------------------------------------------------------------------------
+
 void CRecordingSourceDlg::PostNcDestroy()
 {
+	std::vector<CRecordingSourceItem*>::iterator it = m_recordingSourceItems.begin();
+	while (it != m_recordingSourceItems.end())
+	{
+		CRecordingSourceItem* item = *it++;
+		delete item;
+	}
+
 	g_dialogInstance = NULL;
 	CDialog::PostNcDestroy();
 	delete this;
@@ -103,13 +122,6 @@ void CRecordingSourceDlg::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CRecordingSourceDlg)
 	//}}AFX_DATA_MAP
 	DDX_Control(pDX, IDC_DEVICES_LIST, m_checkList);
-}
-//---------------------------------------------------------------------------
-
-BOOL CRecordingSourceDlg::OnInitDialog() 
-{
-	CDialog::OnInitDialog();
-	return TRUE;
 }
 //---------------------------------------------------------------------------
 

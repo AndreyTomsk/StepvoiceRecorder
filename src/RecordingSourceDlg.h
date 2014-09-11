@@ -2,6 +2,7 @@
 #define _RECORDING_SOURCE_DLG_H
 #pragma once
 
+#include "RecordingSourceItem.h"
 #include "WasapiHelpers.h" //for DevicesArray
 
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +56,8 @@ private:
 	CCheckListBox m_checkList;
 	WasapiHelpers::DevicesArray m_allDevices;
 	WasapiHelpers::DevicesArray m_selectedDevices;
+
+	std::vector<CRecordingSourceItem*> m_recordingSourceItems;
 };
 
 #endif // _RECORDING_SOURCE_DLG_H

@@ -1,8 +1,6 @@
 #ifndef _BASS_FUNCTIONS_H
 #define _BASS_FUNCTIONS_H
 
-#include <vector>
-
 /////////////////////////////////////////////////////////////////////////////
 
 namespace Bass
