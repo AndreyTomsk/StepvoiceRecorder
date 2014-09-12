@@ -30,10 +30,8 @@ public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CRecordingSourceDlg)
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
 	virtual void PostNcDestroy();
-	virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -44,25 +42,21 @@ protected:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	//}}AFX_MSG
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
-	afx_msg void OnDevicesListSelChange();
 	afx_msg void OnTimer(UINT_PTR nIDEvent); //device levels updating
 	afx_msg void OnRecodingSourceItemClicked();
 	DECLARE_MESSAGE_MAP()
 
 private:
 	CRecordingSourceDlg(CWnd* pParent = NULL);
-	void UpdateDevicesListBox(const WasapiHelpers::DevicesArray& devices, CCheckListBox& listBox);
 
 	void CreateDeviceItems(unsigned count);
 	void UpdateDeviceItems();
 	void DeleteDeviceItems();
 
 private:
-	CCheckListBox m_checkList;
+	std::vector<CRecordingSourceItem*> m_recordingSourceItems;
 	WasapiHelpers::DevicesArray m_allDevices;
 	WasapiHelpers::DevicesArray m_selectedDevices;
-
-	std::vector<CRecordingSourceItem*> m_recordingSourceItems;
 };
 
 #endif // _RECORDING_SOURCE_DLG_H

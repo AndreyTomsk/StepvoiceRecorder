@@ -13,7 +13,6 @@ public:
 	~CRecordingSourceItem();
 
 	bool GetCheck() const;
-	//CString GetLabel() const; //to determine device
 
 	void SetCheck(bool check);
 	void SetLabel(const CString& newLabel);
@@ -31,7 +30,6 @@ protected:
 	afx_msg int  OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnPaint();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnCheckboxClicked();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
@@ -53,8 +51,6 @@ private:
 	CButton m_itemCheckBox;
 	CStatic m_itemLabel;
 	CStatic m_itemLevel;
-
-	DWORD m_timer_id;
 };
 
 /////////////////////////////////////////////////////////////////////////////

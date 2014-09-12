@@ -14,14 +14,12 @@ BEGIN_MESSAGE_MAP(CRecordingSourceItem, CWnd)
 	ON_WM_CREATE()
 	ON_WM_PAINT()
 	ON_WM_LBUTTONDOWN()
-	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_RECORDING_DEVICE, OnCheckboxClicked)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 CRecordingSourceItem::CRecordingSourceItem()
-	:m_timer_id(0)
 {
 }
 //---------------------------------------------------------------------------
@@ -75,19 +73,8 @@ void CRecordingSourceItem::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	//Toggle checkbox state
 	SetCheck(!GetCheck());
-	CWnd::OnLButtonDown(nFlags, point);
-}
-//---------------------------------------------------------------------------
 
-void CRecordingSourceItem::OnTimer(UINT nIDEvent) 
-{
-	/*
-	if (nIDEvent == MAXPEAK_TIMER_ID)
-	{
-		ResetMaxpeakMarks();
-	}
-	*/
-	CWnd::OnTimer(nIDEvent);
+	CWnd::OnLButtonDown(nFlags, point);
 }
 //---------------------------------------------------------------------------
 
@@ -103,15 +90,7 @@ void CRecordingSourceItem::SetCheck(bool check)
 	OnCheckboxClicked();
 }
 //---------------------------------------------------------------------------
-/*
-CString CRecordingSourceItem::GetLabel() const
-{
-	CString label;
-	m_itemLabel.GetWindowTextA(label);
-	return label;
-}
-//---------------------------------------------------------------------------
-*/
+
 void CRecordingSourceItem::SetLabel(const CString& newLabel)
 {
 	m_itemLabel.SetWindowTextA(newLabel);

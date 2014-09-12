@@ -17,7 +17,6 @@ BEGIN_MESSAGE_MAP(CRecordingSourceDlg, CDialog)
 	ON_WM_PAINT()
 	//}}AFX_MSG_MAP
 	ON_WM_ACTIVATE()
-	ON_LBN_SELCHANGE(IDC_DEVICES_LIST, &CRecordingSourceDlg::OnDevicesListSelChange)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_RECORDING_DEVICE, OnRecodingSourceItemClicked)
 END_MESSAGE_MAP()
@@ -44,9 +43,6 @@ CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 	:CDialog(CRecordingSourceDlg::IDD, pParent)
 {
 	m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
-
-	//{{AFX_DATA_INIT(CRecordingSourceDlg)
-	//}}AFX_DATA_INIT
 }
 //---------------------------------------------------------------------------
 
@@ -54,7 +50,6 @@ void CRecordingSourceDlg::Execute(CPoint& pos)
 {
 	m_allDevices = WasapiHelpers::GetWasapiDevicesList();
 	WasapiHelpers::InitRecordingDevices(m_allDevices);
-	UpdateDevicesListBox(m_allDevices, m_checkList);
 
 	CreateDeviceItems(m_allDevices.size());
 	UpdateDeviceItems();
@@ -89,7 +84,6 @@ WasapiHelpers::DevicesArray CRecordingSourceDlg::GetSelectedDevices() const
 void CRecordingSourceDlg::SelectDevices(const WasapiHelpers::DevicesArray& src)
 {
 	m_selectedDevices = src;
-	//And devices list box update on next display.
 }
 //---------------------------------------------------------------------------
 
@@ -110,47 +104,6 @@ void CRecordingSourceDlg::PostNcDestroy()
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CRecordingSourceDlg)
-	//}}AFX_DATA_MAP
-	DDX_Control(pDX, IDC_DEVICES_LIST, m_checkList);
-}
-//---------------------------------------------------------------------------
-
-void CRecordingSourceDlg::UpdateDevicesListBox(
-	const WasapiHelpers::DevicesArray& devices, CCheckListBox& listBox)
-{
-	listBox.SetRedraw(FALSE);
-	listBox.ResetContent();
-
-	WasapiHelpers::DevicesArray::const_iterator it = devices.begin();
-	while (it != devices.end())
-	{
-		WasapiHelpers::DeviceIdNamePair p = *it++;
-		const CString deviceName = p.second;
-		const DWORD deviceID = p.first;
-		const float deviceLevel = BASS_WASAPI_GetDeviceLevel(deviceID, -1); //all channels
-
-		//Adding device volume level to items
-		CString itemName;
-		itemName.Format(deviceName + _T("\t   (%d%%)"), int(deviceLevel*100));
-		listBox.AddString(itemName);
-
-		const int lastIndex = listBox.GetCount()-1;
-		listBox.SetItemData(lastIndex, deviceID);
-
-		//Checking list item
-		const WasapiHelpers::DevicesArray& sd = m_selectedDevices;
-		if (std::find(sd.begin(), sd.end(), p) != sd.end())
-			listBox.SetCheck(lastIndex, BST_CHECKED);
-	}
-	listBox.SetRedraw(TRUE);
-	listBox.Invalidate();
-}
-//---------------------------------------------------------------------------
-
 HBRUSH CRecordingSourceDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
 {
 	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
@@ -166,50 +119,8 @@ void CRecordingSourceDlg::OnPaint()
 }
 //---------------------------------------------------------------------------
 
-BOOL CRecordingSourceDlg::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
-{
-	return CDialog::OnWndMsg(message, wParam, lParam, pResult);
-}
-//---------------------------------------------------------------------------
-
-static CString FindDeviceNameByID(const WasapiHelpers::DevicesArray& arr, DWORD id)
-{
-	WasapiHelpers::DevicesArray::const_iterator it = arr.begin();
-	while (it != arr.end())
-	{
-		WasapiHelpers::DeviceIdNamePair p = *it++;
-		if (p.first == id)
-			return p.second;
-	}
-	return CString();
-}
-//---------------------------------------------------------------------------
-
-void CRecordingSourceDlg::OnDevicesListSelChange()
-{
-	//::OutputDebugString(__FUNCTION__"\n");
-
-	//Updating internal array of selected devices and notifying parent.
-	m_selectedDevices.clear();
-	for (int i = 0; i < m_checkList.GetCount(); i++)
-	{
-		if (m_checkList.GetCheck(i) == BST_CHECKED)
-		{
-			const DWORD id = m_checkList.GetItemData(i);
-			const CString deviceName = FindDeviceNameByID(m_allDevices, id);
-			m_selectedDevices.push_back(WasapiHelpers::DeviceIdNamePair(id, deviceName));
-		}
-	}
-	if (m_selectedDevices.empty())
-		m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
-
-	this->GetParent()->PostMessage(WM_RECSOURCE_CHANGED);
-}
-//---------------------------------------------------------------------------
-
 void CRecordingSourceDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	UpdateDevicesListBox(m_allDevices, m_checkList);
 	UpdateDeviceItems();
 	CDialog::OnTimer(nIDEvent);
 }
@@ -225,7 +136,7 @@ void CRecordingSourceDlg::CreateDeviceItems(unsigned count)
 	DeleteDeviceItems();
 	for (unsigned i = 0; i < count; i++)
 	{
-		const int top = 150 + itemHeight*i;
+		const int top = itemHeight*i;
 		const CRect itemRect(0, top, itemWidth, top+itemHeight);
 
 		CRecordingSourceItem* newItem = new CRecordingSourceItem();
