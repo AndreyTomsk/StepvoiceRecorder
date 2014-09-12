@@ -251,6 +251,8 @@ void CRecordingSourceDlg::DeleteDeviceItems()
 void CRecordingSourceDlg::UpdateDeviceItems()
 {
 	ASSERT(m_recordingSourceItems.size() == m_allDevices.size());
+	const WasapiHelpers::DevicesArray& sd = m_selectedDevices;
+
 	for (unsigned i = 0; i < m_allDevices.size(); i++)
 	{
 		const WasapiHelpers::DeviceIdNamePair p = m_allDevices[i];
@@ -260,6 +262,8 @@ void CRecordingSourceDlg::UpdateDeviceItems()
 		const float deviceLevel = BASS_WASAPI_GetDeviceLevel(deviceID, -1); //all channels
 		const int deviceLevelPercent = deviceLevel == -1 ? 0 : unsigned(deviceLevel*100);
 
+		if (std::find(sd.begin(), sd.end(), p) != sd.end())
+			m_recordingSourceItems[i]->SetCheck(true);
 		m_recordingSourceItems[i]->SetLabel(deviceName);
 		m_recordingSourceItems[i]->SetLevel(deviceLevelPercent);
 	}
@@ -268,6 +272,21 @@ void CRecordingSourceDlg::UpdateDeviceItems()
 
 void CRecordingSourceDlg::OnRecodingSourceItemClicked()
 {
-	OutputDebugString(__FUNCTION__);
+	//Filling selected devices list and notifying parent.
+
+	ASSERT(m_recordingSourceItems.size() == m_allDevices.size());
+	m_selectedDevices.clear();
+	for (unsigned i = 0; i < m_allDevices.size(); i++)
+	{
+		const WasapiHelpers::DeviceIdNamePair p = m_allDevices[i];
+		const CString name = p.second;
+		const DWORD id = p.first;
+		if (m_recordingSourceItems[i]->GetCheck())
+			m_selectedDevices.push_back(WasapiHelpers::DeviceIdNamePair(id, name));
+	}
+	if (m_selectedDevices.empty())
+		m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
+
+	this->GetParent()->PostMessage(WM_RECSOURCE_CHANGED);
 }
 //---------------------------------------------------------------------------
