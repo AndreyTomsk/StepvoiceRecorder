@@ -14,7 +14,11 @@ namespace WasapiHelpers
 {
 //---------------------------------------------------------------------------
 
-DevicesArray GetWasapiDevicesList()
+const DeviceIdNamePair EMPTY_DEVICE = DeviceIdNamePair(0xFFFF, _T(""));
+
+//---------------------------------------------------------------------------
+
+DevicesArray GetRecordingDevicesList()
 {
 	DevicesArray result;
 
@@ -34,18 +38,31 @@ DevicesArray GetWasapiDevicesList()
 
 DeviceIdNamePair GetDefaultRecordingDevice()
 {
+	//NOTE: seems that loopback devices cannot be system default.
+	DeviceIdNamePair defaultRecordingDevice = EMPTY_DEVICE;
+	DeviceIdNamePair defaultLoopbackDevice = EMPTY_DEVICE;
+
 	BASS_WASAPI_DEVICEINFO info;
 	for (int id = 0; BASS_WASAPI_GetDeviceInfo(id, &info); id++)
 	{
 		const BOOL isEnabled = info.flags & BASS_DEVICE_ENABLED;
 		const BOOL isDefault = info.flags & BASS_DEVICE_DEFAULT;
 		const BOOL isInputDevice = info.flags & BASS_DEVICE_INPUT;
+		const BOOL isLoopback = info.flags & BASS_DEVICE_LOOPBACK;
 
+		if (isEnabled && isLoopback)
+			defaultLoopbackDevice = DeviceIdNamePair(id, info.name);
+
+		//Input device has most priority. Break if found.
 		if (isEnabled && isInputDevice && isDefault)
-			return DeviceIdNamePair(id, info.name);
+		{
+			defaultRecordingDevice = DeviceIdNamePair(id, info.name);
+			break;
+		}
 	}
 
-	return DeviceIdNamePair(0xFFFF, _T(""));
+	return (defaultRecordingDevice != EMPTY_DEVICE) ?
+		defaultRecordingDevice : defaultLoopbackDevice;
 }
 //---------------------------------------------------------------------------
 

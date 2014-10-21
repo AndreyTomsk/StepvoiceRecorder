@@ -48,7 +48,7 @@ CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
-	m_allDevices = WasapiHelpers::GetWasapiDevicesList();
+	m_allDevices = WasapiHelpers::GetRecordingDevicesList();
 	WasapiHelpers::InitRecordingDevices(m_allDevices);
 
 	CreateDeviceItems(m_allDevices.size());

@@ -14,9 +14,10 @@ namespace WasapiHelpers
 	typedef std::pair<DWORD, CString> DeviceIdNamePair;
 	typedef std::vector<DeviceIdNamePair> DevicesArray;
 
-	DevicesArray GetWasapiDevicesList();
-	DeviceIdNamePair GetDefaultRecordingDevice();
+	DevicesArray GetRecordingDevicesList();
+	DeviceIdNamePair GetDefaultRecordingDevice(); //can be EMPTY_DEVICE
 
+	extern const DeviceIdNamePair EMPTY_DEVICE;
 
 	BOOL GetDeviceActualData(int device, DWORD freq, DWORD chans,
 		DWORD& actualFreq, DWORD& actualChans);
