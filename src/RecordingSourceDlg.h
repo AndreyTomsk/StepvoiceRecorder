@@ -49,7 +49,7 @@ protected:
 private:
 	CRecordingSourceDlg(CWnd* pParent = NULL);
 
-	void CreateDeviceItems(unsigned count);
+	void CreateDeviceItems(const WasapiHelpers::DevicesArray& src);
 	void UpdateDeviceItems();
 	void DeleteDeviceItems();
 

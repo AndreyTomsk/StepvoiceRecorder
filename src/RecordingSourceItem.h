@@ -9,13 +9,12 @@
 class CRecordingSourceItem : public CWnd
 {
 public:
-	CRecordingSourceItem();
+	CRecordingSourceItem(const CString& caption);
 	~CRecordingSourceItem();
 
 	bool GetCheck() const;
 
 	void SetCheck(bool check);
-	void SetLabel(const CString& newLabel);
 	void SetLevel(unsigned levelPercent);
 
 public:
@@ -51,6 +50,9 @@ private:
 	CButton m_itemCheckBox;
 	CStatic m_itemLabel;
 	CStatic m_itemLevel;
+	CFont   m_menuFont;
+
+	CString m_caption;
 };
 
 /////////////////////////////////////////////////////////////////////////////

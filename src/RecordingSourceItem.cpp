@@ -19,7 +19,8 @@ BEGIN_MESSAGE_MAP(CRecordingSourceItem, CWnd)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-CRecordingSourceItem::CRecordingSourceItem()
+CRecordingSourceItem::CRecordingSourceItem(const CString& caption)
+:m_caption(caption)
 {
 }
 //---------------------------------------------------------------------------
@@ -34,14 +35,34 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
+	// Creating child windows
+
 	CSize wndSize(lpCreateStruct->cx, lpCreateStruct->cy);
 	const CRect rCheckbox = CRect(5, 0, 25, wndSize.cy);
 	const CRect rLevel    = CRect(wndSize.cx-50, 0, wndSize.cx, wndSize.cy);	
 	const CRect rLabel    = CRect(rCheckbox.right+1, 0, rLevel.left-1, wndSize.cy);
 
 	m_itemCheckBox.Create(NULL, WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX, rCheckbox, this, IDC_RECORDING_DEVICE);
-	m_itemLabel.Create(_T("Sample label"), WS_CHILD|WS_VISIBLE|SS_WORDELLIPSIS|SS_SUNKEN, rLabel, this);
-	m_itemLevel.Create(_T("0%"), WS_CHILD|WS_VISIBLE|SS_CENTER|SS_SUNKEN, rLevel, this);
+	m_itemLabel.Create(m_caption, WS_CHILD|WS_VISIBLE|SS_WORDELLIPSIS|SS_CENTERIMAGE, rLabel, this);
+	m_itemLevel.Create(_T("0%"), WS_CHILD|WS_VISIBLE|SS_CENTER|SS_CENTERIMAGE, rLevel, this);
+	
+	// Updating font
+	// Such complex code thanks to article: "SystemParametersInfo with SPI_GETNONCLIENTMETRICS may fail"
+	// http://chabster.blogspot.ru/2010/01/systemparametersinfo-with.html
+
+	NONCLIENTMETRICS ncm;
+	ncm.cbSize = sizeof(NONCLIENTMETRICS);
+
+	#if (WINVER >= 0x0600)
+		OSVERSIONINFO osvi = { sizeof(OSVERSIONINFO), 0 };
+		VERIFY(GetVersionEx(&osvi));
+		if (osvi.dwMajorVersion < 6) { ncm.cbSize -= sizeof(int); }
+	#endif
+	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0);
+
+	VERIFY(m_menuFont.CreateFontIndirect(&ncm.lfMenuFont));
+	m_itemLabel.SetFont(&m_menuFont);
+	m_itemLevel.SetFont(&m_menuFont);
 
 	return 0;
 }
@@ -88,12 +109,6 @@ void CRecordingSourceItem::SetCheck(bool check)
 {
 	m_itemCheckBox.SetCheck(check ? BST_CHECKED : BST_UNCHECKED);
 	OnCheckboxClicked();
-}
-//---------------------------------------------------------------------------
-
-void CRecordingSourceItem::SetLabel(const CString& newLabel)
-{
-	m_itemLabel.SetWindowTextA(newLabel);
 }
 //---------------------------------------------------------------------------
 

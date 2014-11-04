@@ -51,7 +51,7 @@ void CRecordingSourceDlg::Execute(CPoint& pos)
 	m_allDevices = WasapiHelpers::GetRecordingDevicesList();
 	WasapiHelpers::InitRecordingDevices(m_allDevices);
 
-	CreateDeviceItems(m_allDevices.size());
+	CreateDeviceItems(m_allDevices);
 	UpdateDeviceItems();
 
 	SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
@@ -126,20 +126,23 @@ void CRecordingSourceDlg::OnTimer(UINT_PTR nIDEvent)
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::CreateDeviceItems(unsigned count)
+void CRecordingSourceDlg::CreateDeviceItems(const WasapiHelpers::DevicesArray& src)
 {
 	CRect dialogRect;
 	GetWindowRect(&dialogRect);
 	const int itemWidth = dialogRect.Width();
-	const int itemHeight = 20;
+	const int itemHeight = 21; //height=19 + border=2
 
 	DeleteDeviceItems();
-	for (unsigned i = 0; i < count; i++)
+	for (unsigned i = 0; i < src.size(); i++)
 	{
+		const WasapiHelpers::DeviceIdNamePair p = m_allDevices[i];
+		const CString deviceName = p.second;
+
 		const int top = itemHeight*i;
 		const CRect itemRect(0, top, itemWidth, top+itemHeight);
 
-		CRecordingSourceItem* newItem = new CRecordingSourceItem();
+		CRecordingSourceItem* newItem = new CRecordingSourceItem(deviceName);
 		newItem->Create(NULL, NULL, WS_CHILD|WS_VISIBLE, itemRect, this, IDW_RECORDING_ITEM+i);
 		m_recordingSourceItems.push_back(newItem);
 	}
@@ -167,15 +170,13 @@ void CRecordingSourceDlg::UpdateDeviceItems()
 	for (unsigned i = 0; i < m_allDevices.size(); i++)
 	{
 		const WasapiHelpers::DeviceIdNamePair p = m_allDevices[i];
-
-		const CString deviceName = p.second;
 		const DWORD deviceID = p.first;
+
 		const float deviceLevel = BASS_WASAPI_GetDeviceLevel(deviceID, -1); //all channels
 		const int deviceLevelPercent = deviceLevel == -1 ? 0 : unsigned(deviceLevel*100);
 
 		if (std::find(sd.begin(), sd.end(), p) != sd.end())
 			m_recordingSourceItems[i]->SetCheck(true);
-		m_recordingSourceItems[i]->SetLabel(deviceName);
 		m_recordingSourceItems[i]->SetLevel(deviceLevelPercent);
 	}
 }
