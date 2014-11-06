@@ -30,6 +30,8 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnCheckboxClicked();
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg LRESULT OnMouseLeave(WPARAM,LPARAM);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -53,6 +55,8 @@ private:
 	CFont   m_menuFont;
 
 	CString m_caption;
+	bool m_mouseOverWindow;
+	bool m_mouseOverCheckbox;
 };
 
 /////////////////////////////////////////////////////////////////////////////

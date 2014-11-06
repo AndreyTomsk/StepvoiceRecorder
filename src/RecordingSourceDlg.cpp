@@ -131,7 +131,7 @@ void CRecordingSourceDlg::CreateDeviceItems(const WasapiHelpers::DevicesArray& s
 	CRect dialogRect;
 	GetWindowRect(&dialogRect);
 	const int itemWidth = dialogRect.Width();
-	const int itemHeight = 21; //height=19 + border=2
+	const int itemHeight = 22; //height=19 + border=2 + 1???
 
 	DeleteDeviceItems();
 	for (unsigned i = 0; i < src.size(); i++)

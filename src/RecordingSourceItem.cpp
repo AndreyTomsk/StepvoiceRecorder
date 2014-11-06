@@ -15,12 +15,16 @@ BEGIN_MESSAGE_MAP(CRecordingSourceItem, CWnd)
 	ON_WM_PAINT()
 	ON_WM_LBUTTONDOWN()
 	ON_BN_CLICKED(IDC_RECORDING_DEVICE, OnCheckboxClicked)
+	ON_WM_MOUSEMOVE()
+	ON_MESSAGE(WM_MOUSELEAVE, OnMouseLeave)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 CRecordingSourceItem::CRecordingSourceItem(const CString& caption)
 :m_caption(caption)
+,m_mouseOverWindow(false)
+,m_mouseOverCheckbox(false)
 {
 }
 //---------------------------------------------------------------------------
@@ -38,7 +42,7 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Creating child windows
 
 	CSize wndSize(lpCreateStruct->cx, lpCreateStruct->cy);
-	const CRect rCheckbox = CRect(5, 0, 25, wndSize.cy);
+	const CRect rCheckbox = CRect(8, 1, 30, wndSize.cy-1);
 	const CRect rLevel    = CRect(wndSize.cx-50, 0, wndSize.cx, wndSize.cy);	
 	const CRect rLabel    = CRect(rCheckbox.right+1, 0, rLevel.left-1, wndSize.cy);
 
@@ -58,8 +62,7 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		VERIFY(GetVersionEx(&osvi));
 		if (osvi.dwMajorVersion < 6) { ncm.cbSize -= sizeof(int); }
 	#endif
-	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0);
-
+	VERIFY(SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0));
 	VERIFY(m_menuFont.CreateFontIndirect(&ncm.lfMenuFont));
 	m_itemLabel.SetFont(&m_menuFont);
 	m_itemLevel.SetFont(&m_menuFont);
@@ -71,6 +74,10 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CRecordingSourceItem::OnPaint() 
 {
 	CWnd::OnPaint();
+
+	const bool isOverItem = m_mouseOverWindow || m_mouseOverCheckbox;
+	TRACE(_T("isOverItem=%d"), isOverItem);
+
 	/*
 	CMyLock lock(m_sync_object);
 
@@ -127,3 +134,43 @@ void CRecordingSourceItem::OnCheckboxClicked()
 }
 //---------------------------------------------------------------------------
 
+void CRecordingSourceItem::OnMouseMove(UINT /*nFlags*/, CPoint /*point*/)
+{
+	if (!m_mouseOverWindow || m_mouseOverCheckbox)
+	{
+		if (!m_mouseOverCheckbox)
+			Invalidate();
+
+		m_mouseOverWindow = true;
+		m_mouseOverCheckbox = false;
+
+		//Tracking next "mouse leave" event.
+
+		TRACKMOUSEEVENT tme;
+		tme.cbSize = sizeof(TRACKMOUSEEVENT);
+		tme.dwFlags = TME_LEAVE;
+		tme.dwHoverTime = HOVER_DEFAULT;
+		tme.hwndTrack = this->GetSafeHwnd();
+		VERIFY(TrackMouseEvent(&tme));
+	}
+}
+//---------------------------------------------------------------------------
+
+LRESULT CRecordingSourceItem::OnMouseLeave(WPARAM, LPARAM)
+{
+	m_mouseOverWindow = false;
+
+	//Check if mouse position is over the checkbox.
+
+	CPoint cursorPos;
+	GetCursorPos(&cursorPos);
+	CRect rCheckbox;
+	m_itemCheckBox.GetWindowRect(&rCheckbox);
+	m_mouseOverCheckbox = (rCheckbox.PtInRect(cursorPos) == TRUE);
+
+	if (!m_mouseOverCheckbox)
+		Invalidate();
+
+	return 0;
+}
+//---------------------------------------------------------------------------
