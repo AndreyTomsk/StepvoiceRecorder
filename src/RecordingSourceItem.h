@@ -36,19 +36,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	/*
-	CSize   m_wndsize;
-	CPen    m_greenPen;
-	CBrush  m_bkbrush;
-
-	CDC     m_memDC;
-	CDC     m_peakDC;
-	CDC     m_skinDC;
-
-	CBitmap m_bmp;
-	CBitmap m_bgbmp[4];  // background bitmaps
-	CBitmap m_pmbmp[3];  // peak bitmaps
-	*/
 	CButton m_itemCheckBox;
 	CStatic m_itemLabel;
 	CStatic m_itemLevel;

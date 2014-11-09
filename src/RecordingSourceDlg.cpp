@@ -54,7 +54,12 @@ void CRecordingSourceDlg::Execute(CPoint& pos)
 	CreateDeviceItems(m_allDevices);
 	UpdateDeviceItems();
 
-	SetWindowPos(NULL, pos.x, pos.y, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
+	CRect rClient;
+	GetClientRect(&rClient);
+	const int dialogWidth = rClient.Width();
+	const int dialogHeight = m_allDevices.size() * GetDefaultItemHeight() + 6;
+
+	SetWindowPos(NULL, pos.x, pos.y, dialogWidth, dialogHeight, SWP_NOZORDER);
 	ShowWindow(SW_SHOW);
 	SetTimer(IDD_RECORDING_SOURCE, 200, NULL);
 }
@@ -131,12 +136,19 @@ void CRecordingSourceDlg::OnTimer(UINT_PTR nIDEvent)
 }
 //---------------------------------------------------------------------------
 
+int CRecordingSourceDlg::GetDefaultItemHeight() const
+{
+	return 25;
+}
+//---------------------------------------------------------------------------
+
 void CRecordingSourceDlg::CreateDeviceItems(const WasapiHelpers::DevicesArray& src)
 {
 	CRect dialogRect;
 	GetWindowRect(&dialogRect);
 	const int itemWidth = dialogRect.Width();
-	const int itemHeight = 22; //height=19 + border=2 + 1???
+	const int itemHeight = GetDefaultItemHeight();
+	const int margin = 2;
 
 	DeleteDeviceItems();
 	for (unsigned i = 0; i < src.size(); i++)
@@ -145,7 +157,7 @@ void CRecordingSourceDlg::CreateDeviceItems(const WasapiHelpers::DevicesArray& s
 		const CString deviceName = p.second;
 
 		const int top = itemHeight*i;
-		const CRect itemRect(0, top, itemWidth, top+itemHeight);
+		const CRect itemRect(0+margin, top+margin, itemWidth-2*margin-2, top+margin+itemHeight);
 
 		CRecordingSourceItem* newItem = new CRecordingSourceItem(deviceName);
 		newItem->Create(NULL, NULL, WS_CHILD|WS_VISIBLE, itemRect, this, IDW_RECORDING_ITEM+i);

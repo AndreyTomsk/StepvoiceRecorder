@@ -43,8 +43,8 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CSize wndSize(lpCreateStruct->cx, lpCreateStruct->cy);
 	const CRect rCheckbox = CRect(8, 1, 30, wndSize.cy-1);
-	const CRect rLevel    = CRect(wndSize.cx-50, 0, wndSize.cx, wndSize.cy);	
-	const CRect rLabel    = CRect(rCheckbox.right+1, 0, rLevel.left-1, wndSize.cy);
+	const CRect rLevel    = CRect(wndSize.cx-50, 1, wndSize.cx-1, wndSize.cy-1);
+	const CRect rLabel    = CRect(rCheckbox.right+1, 1, rLevel.left, wndSize.cy-1);
 
 	m_itemCheckBox.Create(NULL, WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX, rCheckbox, this, IDC_RECORDING_DEVICE);
 	m_itemLabel.Create(m_caption, WS_CHILD|WS_VISIBLE|SS_WORDELLIPSIS|SS_CENTERIMAGE, rLabel, this);
@@ -71,19 +71,40 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 }
 //---------------------------------------------------------------------------
 
+static CRect MyGetClientRect(const CWnd* window)
+{
+	CRect r;
+	window->GetClientRect(&r);
+	return r;
+}
+//---------------------------------------------------------------------------
+
 void CRecordingSourceItem::OnPaint() 
 {
+	CPaintDC dc(this);
+
+	static const COLORREF dialogColor = GetSysColor(COLOR_BTNFACE);
+	static const COLORREF menuFrameColor = RGB(120,174,229);
+	static const CRect rClient = MyGetClientRect(this); //same for all items
+
+	if (m_mouseOverWindow || m_mouseOverCheckbox)
+	{
+		CBrush dialogBruch(dialogColor);
+		CBrush* pOldBrush = dc.SelectObject(&dialogBruch);
+		CPen borderPen(PS_SOLID, 1, menuFrameColor);
+		CPen* pOldPen = dc.SelectObject(&borderPen);
+
+		dc.Rectangle(&rClient);
+
+		dc.SelectObject(pOldPen);
+		dc.SelectObject(pOldBrush);
+	}
+	else
+	{
+		dc.FillSolidRect(&rClient, dialogColor);
+	}
+
 	CWnd::OnPaint();
-
-	const bool isOverItem = m_mouseOverWindow || m_mouseOverCheckbox;
-	TRACE(_T("isOverItem=%d"), isOverItem);
-
-	/*
-	CMyLock lock(m_sync_object);
-
-	CPaintDC dc(this); // device context for painting
-	dc.BitBlt(0, 0, m_wndsize.cx, m_wndsize.cy, &m_memDC, 0, 0, SRCCOPY);
-	*/
 }
 //---------------------------------------------------------------------------
 
@@ -99,9 +120,7 @@ BOOL CRecordingSourceItem::PreTranslateMessage(MSG* pMsg)
 
 void CRecordingSourceItem::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	//Toggle checkbox state
 	SetCheck(!GetCheck());
-
 	CWnd::OnLButtonDown(nFlags, point);
 }
 //---------------------------------------------------------------------------
