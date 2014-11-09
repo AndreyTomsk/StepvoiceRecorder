@@ -90,6 +90,11 @@ void CRecordingSourceDlg::SelectDevices(const WasapiHelpers::DevicesArray& src)
 BOOL CRecordingSourceDlg::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
+
+	// Adding shadow to window.
+	const DWORD wndClassStyle = GetClassLong(this->GetSafeHwnd(), GCL_STYLE);
+	SetClassLong(this->GetSafeHwnd(), GCL_STYLE, wndClassStyle | CS_DROPSHADOW);
+
 	return TRUE;
 }
 //---------------------------------------------------------------------------
