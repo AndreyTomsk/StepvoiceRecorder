@@ -54,9 +54,10 @@ void CRecordingSourceDlg::Execute(CPoint& pos)
 	CreateDeviceItems(m_allDevices);
 	UpdateDeviceItems();
 
-	CRect rClient;
-	GetClientRect(&rClient);
-	const int dialogWidth = rClient.Width();
+	CRect wndRect;
+	GetWindowRect(&wndRect);
+
+	const int dialogWidth = wndRect.Width();
 	const int dialogHeight = m_allDevices.size() * GetDefaultItemHeight() + 6;
 
 	SetWindowPos(NULL, pos.x, pos.y, dialogWidth, dialogHeight, SWP_NOZORDER);
@@ -157,7 +158,7 @@ void CRecordingSourceDlg::CreateDeviceItems(const WasapiHelpers::DevicesArray& s
 		const CString deviceName = p.second;
 
 		const int top = itemHeight*i;
-		const CRect itemRect(0+margin, top+margin, itemWidth-2*margin-2, top+margin+itemHeight);
+		const CRect itemRect(0+margin, top+margin, itemWidth-2*margin, top+margin+itemHeight);
 
 		CRecordingSourceItem* newItem = new CRecordingSourceItem(deviceName);
 		newItem->Create(NULL, NULL, WS_CHILD|WS_VISIBLE, itemRect, this, IDW_RECORDING_ITEM+i);

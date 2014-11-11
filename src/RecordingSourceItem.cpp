@@ -43,8 +43,8 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CSize wndSize(lpCreateStruct->cx, lpCreateStruct->cy);
 	const CRect rCheckbox = CRect(8, 1, 30, wndSize.cy-1);
-	const CRect rLevel    = CRect(wndSize.cx-50, 1, wndSize.cx-1, wndSize.cy-1);
-	const CRect rLabel    = CRect(rCheckbox.right+1, 1, rLevel.left, wndSize.cy-1);
+	const CRect rLevel    = CRect(wndSize.cx-51, 1, wndSize.cx-1, wndSize.cy-1);
+	const CRect rLabel    = CRect(rCheckbox.right, 1, rLevel.left, wndSize.cy-1);
 
 	m_itemCheckBox.Create(NULL, WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX, rCheckbox, this, IDC_RECORDING_DEVICE);
 	m_itemLabel.Create(m_caption, WS_CHILD|WS_VISIBLE|SS_WORDELLIPSIS|SS_CENTERIMAGE, rLabel, this);
