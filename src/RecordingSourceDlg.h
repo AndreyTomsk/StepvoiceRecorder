@@ -48,6 +48,7 @@ protected:
 
 private:
 	CRecordingSourceDlg(CWnd* pParent = NULL);
+	void AdjustDialogCoordinates(CRect& windowRect) const;
 
 	void CreateDeviceItems(const WasapiHelpers::DevicesArray& src);
 	void UpdateDeviceItems();

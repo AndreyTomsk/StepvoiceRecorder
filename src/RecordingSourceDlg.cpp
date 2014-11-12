@@ -54,13 +54,20 @@ void CRecordingSourceDlg::Execute(CPoint& pos)
 	CreateDeviceItems(m_allDevices);
 	UpdateDeviceItems();
 
-	CRect wndRect;
-	GetWindowRect(&wndRect);
+	// Adjusting dialog's size and position on screen.
 
-	const int dialogWidth = wndRect.Width();
-	const int dialogHeight = m_allDevices.size() * GetDefaultItemHeight() + 6;
+	CRect dialogRect;
+	GetWindowRect(&dialogRect);
 
-	SetWindowPos(NULL, pos.x, pos.y, dialogWidth, dialogHeight, SWP_NOZORDER);
+	const int newDialogWidth = dialogRect.Width();
+	const int newDialogHeight = m_allDevices.size() * GetDefaultItemHeight() + 6;
+	dialogRect = CRect(pos, CSize(newDialogWidth, newDialogHeight));
+	AdjustDialogCoordinates(dialogRect);
+
+	// Displaying.
+
+	const CRect& r = dialogRect;
+	SetWindowPos(NULL, r.left, r.top, r.Width(), r.Height(), SWP_NOZORDER);
 	ShowWindow(SW_SHOW);
 	SetTimer(IDD_RECORDING_SOURCE, 200, NULL);
 }
@@ -77,6 +84,31 @@ void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimiz
 		this->ShowWindow(SW_HIDE);
 		this->GetParent()->PostMessage(WM_RECSOURCE_DLGCLOSED);
 		WasapiHelpers::FreeRecordingDevices(m_allDevices);
+	}
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::AdjustDialogCoordinates(CRect& dialogRect) const
+{
+	//Making dialog rectangle fully visible on screen.
+
+	MONITORINFO mi;
+	mi.cbSize = sizeof(MONITORINFO);
+	HMONITOR hMonitor = MonitorFromWindow(GetSafeHwnd(), MONITOR_DEFAULTTONEAREST);
+	GetMonitorInfo(hMonitor, &mi);
+
+	const int rightBorderOffset = dialogRect.right - mi.rcMonitor.right;
+	const int bottomBorderOffset = dialogRect.bottom - mi.rcMonitor.bottom;
+
+	if (rightBorderOffset > 0)
+	{
+		dialogRect.left -= rightBorderOffset;
+		dialogRect.right -= rightBorderOffset;
+	}
+	if (bottomBorderOffset > 0)
+	{
+		dialogRect.top -= bottomBorderOffset;
+		dialogRect.bottom -= bottomBorderOffset;
 	}
 }
 //---------------------------------------------------------------------------
