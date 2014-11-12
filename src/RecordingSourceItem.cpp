@@ -39,7 +39,8 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	// Creating child windows
+	// Creating child windows.
+	// Checkbox borders should be inside item window for mouse move/leave messages.
 
 	CSize wndSize(lpCreateStruct->cx, lpCreateStruct->cy);
 	const CRect rCheckbox = CRect(8, 1, 30, wndSize.cy-1);
@@ -89,8 +90,8 @@ void CRecordingSourceItem::OnPaint()
 
 	if (m_mouseOverWindow || m_mouseOverCheckbox)
 	{
-		CBrush dialogBruch(dialogColor);
-		CBrush* pOldBrush = dc.SelectObject(&dialogBruch);
+		CBrush dialogBrush(dialogColor);
+		CBrush* pOldBrush = dc.SelectObject(&dialogBrush);
 		CPen borderPen(PS_SOLID, 1, menuFrameColor);
 		CPen* pOldPen = dc.SelectObject(&borderPen);
 
@@ -158,7 +159,7 @@ void CRecordingSourceItem::OnMouseMove(UINT /*nFlags*/, CPoint /*point*/)
 	if (!m_mouseOverWindow || m_mouseOverCheckbox)
 	{
 		if (!m_mouseOverCheckbox)
-			Invalidate();
+			Invalidate(); //display 'active' border.
 
 		m_mouseOverWindow = true;
 		m_mouseOverCheckbox = false;
@@ -188,7 +189,7 @@ LRESULT CRecordingSourceItem::OnMouseLeave(WPARAM, LPARAM)
 	m_mouseOverCheckbox = (rCheckbox.PtInRect(cursorPos) == TRUE);
 
 	if (!m_mouseOverCheckbox)
-		Invalidate();
+		Invalidate(); //remove 'active' border.
 
 	return 0;
 }
