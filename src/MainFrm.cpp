@@ -2857,7 +2857,8 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 
 	SAFE_DELETE(g_wasapi_recorder);
 	g_wasapi_recorder = new CWasapiRecorder(deviceID, 44100, 2, NULL, NULL);
-	g_wasapi_recorder->Start();
+	if (!g_wasapi_recorder->Start())
+		return 0;
 
 	m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi);
 

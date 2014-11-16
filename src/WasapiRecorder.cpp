@@ -40,17 +40,17 @@ static DWORD CALLBACK EmptyProc(void* , DWORD , void* ) { return 1; }
 CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC* outputProc, void* user)
 	:m_deviceID(device)
 {
-	BOOL result = WasapiHelpers::GetDeviceActualData(device, freq, chans, m_actualFreq, m_actualChans);
-	ASSERT(result);
+	if (!WasapiHelpers::GetDeviceActualData(device, freq, chans, m_actualFreq, m_actualChans))
+		return;
 
 	const bool isMono = (m_actualChans == 1);
-	result = BASS_Init(0 /*no sound device*/, m_actualFreq, isMono ? BASS_DEVICE_MONO : 0, 0, NULL);
-	ASSERT(result);
+	if (!BASS_Init(0 /*no sound device*/, m_actualFreq, isMono ? BASS_DEVICE_MONO : 0, 0, NULL))
+		return;
 
 	if (outputProc == NULL)
 		outputProc = EmptyProc; //could not initialize if output procedure empty
 
-	result = BASS_WASAPI_Init(device, m_actualFreq, m_actualChans,
+	BOOL result = BASS_WASAPI_Init(device, m_actualFreq, m_actualChans,
 		BASS_WASAPI_BUFFER, //with actual freq/chans shold work without BASS_WASAPI_AUTOFORMAT!
 		0.5,	//length of the device's buffer in seconds
 		0,		//interval (in seconds) between callback function calls, 0=use default.
