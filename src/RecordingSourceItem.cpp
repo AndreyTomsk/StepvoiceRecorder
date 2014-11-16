@@ -25,6 +25,7 @@ CRecordingSourceItem::CRecordingSourceItem(const CString& caption)
 :m_caption(caption)
 ,m_mouseOverWindow(false)
 ,m_mouseOverCheckbox(false)
+,m_level(0)
 {
 }
 //---------------------------------------------------------------------------
@@ -49,8 +50,8 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_itemCheckBox.Create(NULL, WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX, rCheckbox, this, IDC_RECORDING_DEVICE);
 	m_itemLabel.Create(m_caption, WS_CHILD|WS_VISIBLE|SS_WORDELLIPSIS|SS_CENTERIMAGE, rLabel, this);
-	m_itemLevel.Create(_T("0%"), WS_CHILD|WS_VISIBLE|SS_CENTER|SS_CENTERIMAGE, rLevel, this);
-	
+	//m_itemLevel.Create(_T("0%"), WS_CHILD|WS_VISIBLE|SS_CENTER|SS_CENTERIMAGE, rLevel, this);
+
 	// Updating font
 	// Such complex code thanks to article: "SystemParametersInfo with SPI_GETNONCLIENTMETRICS may fail"
 	// http://chabster.blogspot.ru/2010/01/systemparametersinfo-with.html
@@ -66,7 +67,13 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	VERIFY(SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0));
 	VERIFY(m_menuFont.CreateFontIndirect(&ncm.lfMenuFont));
 	m_itemLabel.SetFont(&m_menuFont);
-	m_itemLevel.SetFont(&m_menuFont);
+	//m_itemLevel.SetFont(&m_menuFont);
+
+
+	CClientDC dc(this);
+	m_peakMeterDC.CreateCompatibleDC(&dc);
+	m_peakMeterBitmap.LoadBitmap(IDB_PEAKMETER_MENU);
+	m_peakMeterDC.SelectObject(&m_peakMeterBitmap);
 
 	return 0;
 }
@@ -105,6 +112,20 @@ void CRecordingSourceItem::OnPaint()
 		dc.FillSolidRect(&rClient, dialogColor);
 	}
 
+	// Displaying peak levels
+
+	BITMAP bm;
+	m_peakMeterBitmap.GetObject(sizeof(BITMAP),&bm);
+	const int vOffset = (rClient.Height()-2)/2 - bm.bmHeight/4;
+	const CRect r = CRect(rClient.Width()-51+5, 1+vOffset, rClient.Width()-1, rClient.Height()-1);
+
+	dc.TransparentBlt(r.left, r.top, bm.bmWidth, bm.bmHeight/2, &m_peakMeterDC,
+		0, 0, bm.bmWidth, bm.bmHeight/2, RGB(255, 0, 255));
+
+	const unsigned displayLevel = bm.bmWidth * m_level / 100;
+	dc.TransparentBlt(r.left, r.top, displayLevel, bm.bmHeight/2, &m_peakMeterDC,
+		0, bm.bmHeight/2, displayLevel, bm.bmHeight/2, RGB(255, 0, 255));
+
 	CWnd::OnPaint();
 }
 //---------------------------------------------------------------------------
@@ -141,9 +162,25 @@ void CRecordingSourceItem::SetCheck(bool check)
 
 void CRecordingSourceItem::SetLevel(unsigned levelPercent)
 {
-	CString newLevel;
-	newLevel.Format(_T("%02d%%"), levelPercent);
-	m_itemLevel.SetWindowTextA(newLevel);
+	//We have 10 segment peak level display. So, aligning level to it:
+	//0 - 0
+	//1-10 - 1
+	//11-20 - 2
+	//21-30 - 3
+	//31-40 - 4
+	//41-50 - 5
+	//51-60 - 6
+	//61-70 - 7
+	//71-80 - 8
+	//81-90 - 9
+	//91-100 - 10
+
+	m_level = int((levelPercent+9)/10)*10;
+	Invalidate();
+
+	//CString msg;
+	//msg.Format(_T("%02d%%"), m_level);
+	//OutputDebugString(msg);
 }
 //---------------------------------------------------------------------------
 

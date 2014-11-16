@@ -38,12 +38,25 @@ protected:
 private:
 	CButton m_itemCheckBox;
 	CStatic m_itemLabel;
-	CStatic m_itemLevel;
+	//CStatic m_itemLevel;
 	CFont   m_menuFont;
 
 	CString m_caption;
 	bool m_mouseOverWindow;
 	bool m_mouseOverCheckbox;
+
+	CDC     m_peakMeterDC;
+	CBitmap m_peakMeterBitmap;
+	int     m_level;
+
+	/*
+	CDC		m_memDC;
+	CBitmap m_memBmp;
+	CSize	m_wndSize;
+	CBrush  m_bkbrush;
+	CDC		m_icoDC;
+	CBitmap m_icobmp;
+	*/
 };
 
 /////////////////////////////////////////////////////////////////////////////

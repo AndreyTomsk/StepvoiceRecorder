@@ -91,19 +91,6 @@ BEGIN
         MENUITEM "E&xit",                       IDM_TRAY_EXIT
     END
 END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDB_GWBG_LNP            BITMAP                  "res\\gwbg_lnp.bmp"
-IDB_GWBG_LGP            BITMAP                  "res\\gwbg_lgp.bmp"
-IDB_GWBG_DOTS           BITMAP                  "res\\gwbg_dot.bmp"
-IDB_GWBG_NONE           BITMAP                  "res\\gwbg_non.bmp"
-IDB_GWPM_LN             BITMAP                  "RES\\pmln_24.bmp"
-IDB_GWPM_LG             BITMAP                  "RES\\pmlg_24.bmp"
 #endif    // Russian resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -237,14 +224,21 @@ END
 // Bitmap
 //
 
-IDB_TIME_WND            BITMAP                  "res\\time_wnd.bmp"
-IDB_STATBITMAPS         BITMAP                  "res\\stat_bitmaps.bmp"
-IDB_TIMEBITMAPS         BITMAP                  "res\\big_digits.bmp"
-IDB_PROC_ICONS          BITMAP                  "res\\icons_proc.bmp"
-IDB_STAT_WND            BITMAP                  "res\\stat_wnd2.bmp"
-IDB_BTN_SCHED           BITMAP                  "res\\btn_sched.bmp"
-IDB_BTN_VAS             BITMAP                  "res\\btn_vas.bmp"
+IDB_TIME_WND            BITMAP                  "RES\\time_wnd.bmp"
+IDB_STATBITMAPS         BITMAP                  "RES\\stat_bitmaps.bmp"
+IDB_TIMEBITMAPS         BITMAP                  "RES\\big_digits.bmp"
+IDB_PROC_ICONS          BITMAP                  "RES\\icons_proc.bmp"
+IDB_STAT_WND            BITMAP                  "RES\\stat_wnd2.bmp"
+IDB_BTN_SCHED           BITMAP                  "RES\\btn_sched.bmp"
+IDB_BTN_VAS             BITMAP                  "RES\\btn_vas.bmp"
 IDB_BTN_MON             BITMAP                  "RES\\btn_mon.bmp"
+IDB_GWBG_LNP            BITMAP                  "RES\\gwbg_lnp.bmp"
+IDB_GWBG_LGP            BITMAP                  "RES\\gwbg_lgp.bmp"
+IDB_GWBG_DOTS           BITMAP                  "RES\\gwbg_dot.bmp"
+IDB_GWBG_NONE           BITMAP                  "RES\\gwbg_non.bmp"
+IDB_GWPM_LN             BITMAP                  "RES\\pmln_24.bmp"
+IDB_GWPM_LG             BITMAP                  "RES\\pmlg_24.bmp"
+IDB_PEAKMETER_MENU      BITMAP                  "RES\\peak_meter_menu.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
