@@ -47,16 +47,8 @@ private:
 
 	CDC     m_peakMeterDC;
 	CBitmap m_peakMeterBitmap;
-	int     m_level;
-
-	/*
-	CDC		m_memDC;
-	CBitmap m_memBmp;
-	CSize	m_wndSize;
-	CBrush  m_bkbrush;
-	CDC		m_icoDC;
-	CBitmap m_icobmp;
-	*/
+	int     m_curLevel;
+	int     m_oldLevel;
 };
 
 /////////////////////////////////////////////////////////////////////////////

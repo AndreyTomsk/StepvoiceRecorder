@@ -25,7 +25,8 @@ CRecordingSourceItem::CRecordingSourceItem(const CString& caption)
 :m_caption(caption)
 ,m_mouseOverWindow(false)
 ,m_mouseOverCheckbox(false)
-,m_level(0)
+,m_curLevel(0)
+,m_oldLevel(0)
 {
 }
 //---------------------------------------------------------------------------
@@ -122,7 +123,7 @@ void CRecordingSourceItem::OnPaint()
 	dc.TransparentBlt(r.left, r.top, bm.bmWidth, bm.bmHeight/2, &m_peakMeterDC,
 		0, 0, bm.bmWidth, bm.bmHeight/2, RGB(255, 0, 255));
 
-	const unsigned displayLevel = bm.bmWidth * m_level / 100;
+	const unsigned displayLevel = bm.bmWidth * m_curLevel / 100;
 	dc.TransparentBlt(r.left, r.top, displayLevel, bm.bmHeight/2, &m_peakMeterDC,
 		0, bm.bmHeight/2, displayLevel, bm.bmHeight/2, RGB(255, 0, 255));
 
@@ -163,24 +164,19 @@ void CRecordingSourceItem::SetCheck(bool check)
 void CRecordingSourceItem::SetLevel(unsigned levelPercent)
 {
 	//We have 10 segment peak level display. So, aligning level to it:
-	//0 - 0
-	//1-10 - 1
-	//11-20 - 2
-	//21-30 - 3
-	//31-40 - 4
-	//41-50 - 5
-	//51-60 - 6
-	//61-70 - 7
-	//71-80 - 8
-	//81-90 - 9
-	//91-100 - 10
+	//0 - 0bars; 1-10 - 1bar; ...; 91-100 - 10bars.
+	//Also, avoid extra display updates (m_itemLabel text blinks).
 
-	m_level = int((levelPercent+9)/10)*10;
-	Invalidate();
+	m_curLevel = 10*int((levelPercent+9)/10);
+	if (m_curLevel != m_oldLevel)
+	{
+		//CString msg;
+		//msg.Format(_T("%02d%%"), m_curLevel);
+		//OutputDebugString(msg);
 
-	//CString msg;
-	//msg.Format(_T("%02d%%"), m_level);
-	//OutputDebugString(msg);
+		m_oldLevel = m_curLevel;
+		Invalidate();
+	}
 }
 //---------------------------------------------------------------------------
 
