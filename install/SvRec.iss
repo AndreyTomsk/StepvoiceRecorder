@@ -47,6 +47,7 @@ Source: ..\bin\lame_enc.dll;       DestDir: {app}; Flags: ignoreversion
 Source: ..\doc\Help\SvRec.chm;     DestDir: {app}; Flags: ignoreversion
 Source: ..\..\bass\bass.dll;       DestDir: {app}; Flags: ignoreversion
 Source: ..\..\bassmix\bassmix.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\..\basswasapi\basswasapi.dll; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 ;Name: {group}\Order Online;                   Filename: {app}\order.url; WorkingDir: {app}
@@ -85,7 +86,7 @@ begin
   
   if CheckForMutexes('SVREC-169A0B91-77B7-4533-9C25-59FCB08FCD614') then
   begin
-    MsgBox('Stepvoice Recorder is running, please close it and run again setup.',
+    MsgBox('Stepvoice Recorder is running, please close it and restart the setup application.',
       mbError, MB_OK);
     Result := false;
   end
@@ -125,7 +126,7 @@ function InitializeUninstall(): Boolean;
 begin
   if CheckForMutexes('SVREC-169A0B91-77B7-4533-9C25-59FCB08FCD614') then
   begin
-    MsgBox('Stepvoice Recorder is running, please close it and run again uninstall.',
+    MsgBox('Stepvoice Recorder is running, please close it and restart the uninstall process.',
       mbError, MB_OK);
     Result := false;
   end

@@ -158,7 +158,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c;..\..\bassmix\c"
+				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c;..\..\bassmix\c;..\..\basswasapi\c"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -187,12 +187,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib bassmix.lib"
+				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib bassmix.lib basswasapi.lib"
 				OutputFile="$(OutDir)\SvRec.exe"
 				Version="1.5"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c;..\..\bassmix\c"
+				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c;..\..\bassmix\c;..\..\basswasapi\c"
 				GenerateManifest="false"
 				ProgramDatabaseFile="$(IntDir)\SvRec.pdb"
 				GenerateMapFile="true"

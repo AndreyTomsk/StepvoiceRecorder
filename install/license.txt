@@ -1,6 +1,6 @@
 Stepvoice Recorder
 
-Copyright © 2011 Stepvoice Software.
+Copyright © 2014 Stepvoice Software.
 All Rights Reserved
 
 SOFTWARE LICENSE
