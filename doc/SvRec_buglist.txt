@@ -6,6 +6,7 @@ Milestone: "Version 1.9". Main goals:
 
 Todo
 ----
+20141126 (enh) - fast access to user created recordings (list & user_folder options).
 20110802 (enh) - Add supported OS list on the web-site.
 20110515 (bug) - Playback continues to same device, even if changed in options.
 20110502 (enh) - Recording from a phone, connected to PC (?).
