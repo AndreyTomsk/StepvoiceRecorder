@@ -50,9 +50,9 @@ private:
 	CRecordingSourceDlg(CWnd* pParent = NULL);
 	void AdjustDialogCoordinates(CRect& windowRect) const;
 
-	void CreateDeviceItems(const WasapiHelpers::DevicesArray& src);
-	void UpdateDeviceItems();
-	void DeleteDeviceItems();
+	void CreateRecordingSourceItems(const WasapiHelpers::DevicesArray& src);
+	void UpdateRecordingSourceItems();
+	void DeleteRecordingSourceItems();
 	int  GetDefaultItemHeight() const;
 
 private:

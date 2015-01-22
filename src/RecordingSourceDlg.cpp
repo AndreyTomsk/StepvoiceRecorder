@@ -51,8 +51,8 @@ void CRecordingSourceDlg::Execute(CPoint& pos)
 	m_allDevices = WasapiHelpers::GetRecordingDevicesList();
 	WasapiHelpers::InitRecordingDevices(m_allDevices);
 
-	CreateDeviceItems(m_allDevices);
-	UpdateDeviceItems();
+	CreateRecordingSourceItems(m_allDevices);
+	UpdateRecordingSourceItems();
 
 	// Adjusting dialog's size and position on screen.
 
@@ -139,7 +139,7 @@ BOOL CRecordingSourceDlg::OnInitDialog()
 
 void CRecordingSourceDlg::PostNcDestroy()
 {
-	DeleteDeviceItems();
+	DeleteRecordingSourceItems();
 	g_dialogInstance = NULL;
 
 	CDialog::PostNcDestroy();
@@ -164,18 +164,18 @@ void CRecordingSourceDlg::OnPaint()
 
 void CRecordingSourceDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	UpdateDeviceItems();
+	UpdateRecordingSourceItems();
 	CDialog::OnTimer(nIDEvent);
 }
 //---------------------------------------------------------------------------
 
 int CRecordingSourceDlg::GetDefaultItemHeight() const
 {
-	return 25;
+	return 26;
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::CreateDeviceItems(const WasapiHelpers::DevicesArray& src)
+void CRecordingSourceDlg::CreateRecordingSourceItems(const WasapiHelpers::DevicesArray& src)
 {
 	CRect dialogRect;
 	GetWindowRect(&dialogRect);
@@ -183,7 +183,7 @@ void CRecordingSourceDlg::CreateDeviceItems(const WasapiHelpers::DevicesArray& s
 	const int itemHeight = GetDefaultItemHeight();
 	const int margin = 2;
 
-	DeleteDeviceItems();
+	DeleteRecordingSourceItems();
 	for (unsigned i = 0; i < src.size(); i++)
 	{
 		const WasapiHelpers::DeviceIdNamePair p = m_allDevices[i];
@@ -199,7 +199,7 @@ void CRecordingSourceDlg::CreateDeviceItems(const WasapiHelpers::DevicesArray& s
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::DeleteDeviceItems()
+void CRecordingSourceDlg::DeleteRecordingSourceItems()
 {
 	std::vector<CRecordingSourceItem*>::iterator it = m_recordingSourceItems.begin();
 	while (it != m_recordingSourceItems.end())
@@ -212,7 +212,7 @@ void CRecordingSourceDlg::DeleteDeviceItems()
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::UpdateDeviceItems()
+void CRecordingSourceDlg::UpdateRecordingSourceItems()
 {
 	ASSERT(m_recordingSourceItems.size() == m_allDevices.size());
 	const WasapiHelpers::DevicesArray& sd = m_selectedDevices;
