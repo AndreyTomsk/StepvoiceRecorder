@@ -23,7 +23,7 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 
-CRecordingSourceDlg* g_dialogInstance = NULL;
+static CRecordingSourceDlg* g_dialogInstance = NULL;
 
 //---------------------------------------------------------------------------
 

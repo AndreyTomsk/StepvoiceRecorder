@@ -51,7 +51,7 @@ CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC
 		outputProc = EmptyProc; //could not initialize if output procedure empty
 
 	BOOL result = BASS_WASAPI_Init(device, m_actualFreq, m_actualChans,
-		BASS_WASAPI_BUFFER, //with actual freq/chans shold work without BASS_WASAPI_AUTOFORMAT!
+		BASS_WASAPI_BUFFER, //with actual freq/chans should work without BASS_WASAPI_AUTOFORMAT!
 		0.5,	//length of the device's buffer in seconds
 		0,		//interval (in seconds) between callback function calls, 0=use default.
 		outputProc,

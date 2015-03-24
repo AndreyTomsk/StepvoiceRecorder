@@ -401,6 +401,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Filter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="GraphWnd.cpp"
 				>
 				<FileConfiguration
@@ -1151,6 +1155,10 @@
 			</File>
 			<File
 				RelativePath="EnterCodeDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Filter.h"
 				>
 			</File>
 			<File

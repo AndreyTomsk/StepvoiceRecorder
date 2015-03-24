@@ -9,10 +9,12 @@ class CWasapiRecorder
 public:
 	typedef DWORD (CALLBACK OUTPUTPROC)(void* buffer, DWORD lengthBytes, void* user);
 	/*Copied definition from WASAPIPROC (to avoid additional include).
-	buffer : Buffer containing the sample data
+	buffer : Buffer containing a sample data
 	length : Number of bytes
 	user   : The 'user' parameter given when calling BASS_WASAPI_Init
 	RETURN : The number of bytes written (output devices), 0/1 = stop/continue (input devices)*/
+
+	//typedef DWORD (CALLBACK STATEPROC)(CWasapiRecorder* obj);
 
 	CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC* outputProc, void* user);
 	~CWasapiRecorder();
