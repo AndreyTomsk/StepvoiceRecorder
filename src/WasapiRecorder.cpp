@@ -33,11 +33,10 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
-static DWORD CALLBACK EmptyProc(void* , DWORD , void* ) { return 1; }
+//static DWORD CALLBACK EmptyProc(void* , DWORD , void* ) { return 1; }
 
-//---------------------------------------------------------------------------
-
-CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC* outputProc, void* user)
+//CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC* outputProc, void* user)
+CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans)
 	:m_deviceID(device)
 {
 	if (!WasapiHelpers::GetDeviceActualData(device, freq, chans, m_actualFreq, m_actualChans))
@@ -47,15 +46,15 @@ CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC
 	if (!BASS_Init(0 /*no sound device*/, m_actualFreq, isMono ? BASS_DEVICE_MONO : 0, 0, NULL))
 		return;
 
-	if (outputProc == NULL)
-		outputProc = EmptyProc; //could not initialize if output procedure empty
+	//if (outputProc == NULL)
+	//	outputProc = EmptyProc; //could not initialize if output procedure empty
 
 	BOOL result = BASS_WASAPI_Init(device, m_actualFreq, m_actualChans,
 		BASS_WASAPI_BUFFER, //with actual freq/chans should work without BASS_WASAPI_AUTOFORMAT!
 		0.5,	//length of the device's buffer in seconds
 		0,		//interval (in seconds) between callback function calls, 0=use default.
-		outputProc,
-		user);
+		OutputProc,
+		this);
 	ASSERT(result);
 }
 //---------------------------------------------------------------------------
@@ -180,5 +179,18 @@ DWORD CWasapiRecorder::GetChannelData(int channel, float* buffer, int bufferSize
 	for (int i=0, count=bytesWritten/sizeof(float); i < count; i += 2)
 		buffer[i] = localBuffer[i+channel];
 	return bytesWritten/sizeof(float);
+}
+//---------------------------------------------------------------------------
+
+DWORD CALLBACK CWasapiRecorder::OutputProc(void* buffer, DWORD lengthBytes, void* user)
+{
+	return static_cast<CWasapiRecorder*>(user)->ProcessData(buffer, lengthBytes);
+}
+//---------------------------------------------------------------------------
+
+bool CWasapiRecorder::ProcessData(void* buffer, DWORD lengthBytes)
+{
+	//Just using base implementation: it sends data to next filter in chain.
+	return Filter::ProcessData(buffer, lengthBytes);
 }
 //---------------------------------------------------------------------------

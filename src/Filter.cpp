@@ -55,6 +55,13 @@ void Filter::SetNotifyCallback(NOTIFY_CALLBACK func, void* userData)
 }
 //---------------------------------------------------------------------------
 
+void Filter::SendNotification(const Parameter& parameter)
+{
+	if (m_notifyCallback != NULL)
+		m_notifyCallback(this, parameter, m_userData);
+}
+//---------------------------------------------------------------------------
+
 bool Filter::ProcessData(void* buffer, DWORD lengthBytes)
 {
 	if (m_childFilter != NULL)

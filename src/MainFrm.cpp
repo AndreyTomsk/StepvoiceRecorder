@@ -2856,7 +2856,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 	const DWORD deviceID = selectedDevices[0].first;
 
 	SAFE_DELETE(g_wasapi_recorder);
-	g_wasapi_recorder = new CWasapiRecorder(deviceID, 44100, 2, NULL, NULL);
+	g_wasapi_recorder = new CWasapiRecorder(deviceID, 44100, 2);//, NULL, NULL);
 	if (!g_wasapi_recorder->Start())
 		return 0;
 

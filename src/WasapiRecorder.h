@@ -2,12 +2,14 @@
 #define _WASAPI_RECORDER_H
 #pragma once
 
+#include "Filter.h"
+
 /////////////////////////////////////////////////////////////////////////////
 
-class CWasapiRecorder
+class CWasapiRecorder : public Filter
 {
 public:
-	typedef DWORD (CALLBACK OUTPUTPROC)(void* buffer, DWORD lengthBytes, void* user);
+	//typedef DWORD (CALLBACK OUTPUTPROC)(void* buffer, DWORD lengthBytes, void* user);
 	/*Copied definition from WASAPIPROC (to avoid additional include).
 	buffer : Buffer containing a sample data
 	length : Number of bytes
@@ -16,7 +18,8 @@ public:
 
 	//typedef DWORD (CALLBACK STATEPROC)(CWasapiRecorder* obj);
 
-	CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC* outputProc, void* user);
+	//CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC* outputProc, void* user);
+	CWasapiRecorder(int device, DWORD freq, DWORD chans);
 	~CWasapiRecorder();
 
 	DWORD GetActualFrequency() const;
@@ -40,6 +43,9 @@ public:
 	DWORD GetChannelData(int channel, float* buffer, int bufferSize);
 
 private:
+	static DWORD CALLBACK OutputProc(void* buffer, DWORD lengthBytes, void* user);
+	virtual bool ProcessData(void* buffer, DWORD lengthBytes); //overridden
+
 	int m_deviceID;
 	DWORD m_actualFreq;
 	DWORD m_actualChans;

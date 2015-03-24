@@ -37,10 +37,15 @@ public:
 protected:
 	Filter();
 
-	//Override this method for buffer processing.
-	//Default behaviour - do nothing, just pass to next filter in chain.
+	//Helper function for derived classes - notifying via callback.
+	//If callback not set - does nothing.
+	void SendNotification(const Parameter& parameter);
+
+	//Override method for custom buffer processing.
+	//Use this method for passing data to next filter in chain.
 	virtual bool ProcessData(void* buffer, DWORD lengthBytes);
 
+private:
 	Filter* m_childFilter;
 	NOTIFY_CALLBACK m_notifyCallback;
 	void* m_userData;
