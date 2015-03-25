@@ -405,6 +405,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FilterFileWriter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="GraphWnd.cpp"
 				>
 				<FileConfiguration
@@ -1159,6 +1163,10 @@
 			</File>
 			<File
 				RelativePath=".\Filter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FilterFileWriter.h"
 				>
 			</File>
 			<File
