@@ -24,9 +24,18 @@ FileWriter::~FileWriter()
 
 bool FileWriter::ProcessData(void* buffer, DWORD lengthBytes)
 {
+	static const DWORD msecInitial = ::GetTickCount();
+	static int counter = 0;
 	try
 	{
 		m_outputFile.Write(buffer, lengthBytes);
+		if (++counter%10 == 0)
+		{
+			const int fileLength = (int)m_outputFile.GetLength();
+			const int secondsFromStart = (::GetTickCount()-msecInitial)/1000;
+			SendNotification(Parameter(_T("FileWriter.BytesWritten"), fileLength));
+			SendNotification(Parameter(_T("FileWriter.SecondsWritten"), secondsFromStart));
+		}
 	}
 	catch (CException *e)
 	{
