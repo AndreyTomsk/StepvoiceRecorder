@@ -1,38 +1,43 @@
-
-#ifndef _ENCODER_MP3
-#define _ENCODER_MP3
+#ifndef ENCODER_MP3_H
+#define ENCODER_MP3_H
+#pragma once
 
 #include <BladeMP3EncDll.h>
+#include "Filter.h"
 
-///////////////////////////////////////////////////////////////////////////////
-class CEncoder_MP3// : public CEncoder
+/////////////////////////////////////////////////////////////////////////////
+//Uses "lame_enc.dll" library for mp3 encoding. Expects float buffers.
+
+class CEncoder_MP3 : public Filter
 {
 public:
-	CEncoder_MP3(int nBitrate, int nFrequency, int nChannels); // throws CString exceptions
+	//Throws CString exceptions, in case of "lame_enc.dll" not found or not correct.
+	CEncoder_MP3(int bitrate, int frequency, int channels);
 	virtual ~CEncoder_MP3();
 
-	bool EncodeChunk(char* pBufIn, int nBufInSize, char* pBufOut, int& nBufOutSize);
-	bool EncodeChunkFloat(float* pBufIn, int nBufInSize, char* pBufOut, int& nBufOutSize);
-	void WriteVBRHeader(const CString& mp3FileName); // recommended to call after closing.
+	//This method recommended to call after mp3 file is finished (closed).
+	void WriteVBRHeader(const CString& filePath);
+
+	bool EncodeChunkFloat(float* bufIn, int bufInSize, char* bufOut, int& bufOutSize);
 
 private:
-	void LoadLibrary(CString& strDllPath);
-	void FreeLibrary();
+	void LoadLameLibrary();
+	void FreeLameLibrary();
 
-	void InitEncoder(int nBitrate, int nFrequency, int nChannels);
+	void InitEncoder(int bitrate, int frequency, int channels);
 	void CloseEncoder();
 
-	HINSTANCE  m_hDll;			// дескриптор библиотеки lame.dll
-	BE_CONFIG  m_beConfig;		// стркутура настроек кодировани€
-	HBE_STREAM m_hbeStream;		// дескриптор потока кодровани€
+	virtual bool ProcessData(void* buffer, DWORD lengthBytes); //overridden
 
-	char*	   m_pChunkBuf;		// internal chunk buffer for encoding.
-	int		   m_nChunkBufSize;
+
+	HINSTANCE  m_hDll;
+	BE_CONFIG  m_beConfig;	// stores options for encoder
+	HBE_STREAM m_hbeStream;	// encoding stream handle
 
 	float* m_chunkBufFloat_l;
 	float* m_chunkBufFloat_r;
 	int    m_chunkBufFloatSize;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-#endif // _ENCODER_MP3
+/////////////////////////////////////////////////////////////////////////////
+#endif
