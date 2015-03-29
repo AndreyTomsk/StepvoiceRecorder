@@ -17,8 +17,12 @@ static char THIS_FILE[] = __FILE__;
 #include "system.h"
 #include "BASS_Functions.h"
 #include "RecordingSourceDlg.h"
-#include "WasapiRecorder.h"
 #include <basswasapi.h>
+
+#include "FilterFileWriter.h"
+#include "FilterFileWriterWAV.h"
+#include "WasapiRecorder.h"
+#include "Encoder_MP3.h"
 
 HSTREAM g_stream_handle = 0;   // Playback
 HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
@@ -28,6 +32,8 @@ HRECORD g_record_handle = 0;
 HRECORD g_monitoring_handle = 0;
 
 static CWasapiRecorder* g_wasapi_recorder = NULL;
+static FileWriterWAV* g_fileWriter = NULL;
+static CEncoder_MP3* g_mp3Encoder = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 // shared data
@@ -420,7 +426,14 @@ CMainFrame::CMainFrame()
 //====================================================================
 CMainFrame::~CMainFrame()
 {
+	if (g_wasapi_recorder != NULL)
+		g_wasapi_recorder->Stop();
+	if (g_mp3Encoder != NULL)
+		g_mp3Encoder->WriteVBRHeader(_T("d:\\test.mp3"));
+
 	SAFE_DELETE(g_wasapi_recorder);
+	SAFE_DELETE(g_fileWriter);
+	SAFE_DELETE(g_mp3Encoder);
 
 	//!!!test
 	BASS_WASAPI_Stop(TRUE);
@@ -2855,8 +2868,36 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 	ASSERT(!selectedDevices.empty());
 	const DWORD deviceID = selectedDevices[0].first;
 
-	SAFE_DELETE(g_wasapi_recorder);
-	g_wasapi_recorder = new CWasapiRecorder(deviceID, 44100, 2);//, NULL, NULL);
+	try
+	{
+		SAFE_DELETE(g_wasapi_recorder);
+		SAFE_DELETE(g_fileWriter);
+		SAFE_DELETE(g_mp3Encoder);
+
+		g_wasapi_recorder = new CWasapiRecorder(deviceID, 44100, 2);//, NULL, NULL);
+		const int actualFreq = g_wasapi_recorder->GetActualFrequency();
+		const int actualChannels = g_wasapi_recorder->GetActualChannelCount();
+
+		//g_mp3Encoder = new CEncoder_MP3(128, actualFreq, actualChannels);
+		g_fileWriter = new FileWriterWAV(_T("d:\\test.wav"), actualFreq, actualChannels);
+
+		g_wasapi_recorder->SetChildFilter(g_fileWriter);
+		//g_wasapi_recorder->SetChildFilter(g_mp3Encoder);
+		//g_mp3Encoder->SetChildFilter(g_fileWriter);
+
+	}
+	catch (CException* e)
+	{
+		SAFE_DELETE(g_wasapi_recorder);
+		SAFE_DELETE(g_fileWriter);
+		SAFE_DELETE(g_mp3Encoder);
+		throw;
+	}
+	catch (...)
+	{
+		AfxMessageBox(_T("Unknown exception occured."));
+	}
+
 	if (!g_wasapi_recorder->Start())
 		return 0;
 

@@ -14,7 +14,7 @@ public:
 	FileWriter(const CString& fileName);
 	virtual ~FileWriter();
 
-private:
+protected:
 	virtual bool ProcessData(void* buffer, DWORD lengthBytes);
 	CFile m_outputFile;
 };

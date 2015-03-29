@@ -10,7 +10,7 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 
 FileWriter::FileWriter(const CString& fileName)
-	:m_outputFile(fileName, CFile::modeCreate | CFile::modeWrite)
+	:m_outputFile(fileName, CFile::modeCreate | CFile::modeWrite | CFile::shareDenyWrite)
 {
 }
 //---------------------------------------------------------------------------
