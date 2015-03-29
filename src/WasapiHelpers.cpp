@@ -72,7 +72,8 @@ static DWORD CALLBACK EmptyProc(void* , DWORD , void* ) { return 1; } //0 stops 
 BOOL GetDeviceActualData(int device, DWORD freq, DWORD chans,
 	DWORD& actualFreq, DWORD& actualChans)
 {
-	BASS_WASAPI_Init(device, freq, chans, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyProc, NULL);
+	BOOL result = BASS_WASAPI_Init(device, freq, chans, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyProc, NULL);
+	ASSERT(result);
 
 	BASS_WASAPI_INFO info;
 	BASS_WASAPI_GetInfo(&info);
