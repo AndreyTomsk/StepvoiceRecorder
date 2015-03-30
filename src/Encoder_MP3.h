@@ -15,7 +15,7 @@ public:
 	CEncoder_MP3(int bitrate, int frequency, int channels);
 	virtual ~CEncoder_MP3();
 
-	//This method recommended to call after mp3 file is finished (closed).
+	//This method recommended to call after mp3 file is finished (and closed).
 	void WriteVBRHeader(const CString& filePath);
 
 	bool EncodeChunkFloat(float* bufIn, int bufInSize, char* bufOut, int& bufOutSize);

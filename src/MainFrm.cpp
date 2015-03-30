@@ -32,7 +32,7 @@ HRECORD g_record_handle = 0;
 HRECORD g_monitoring_handle = 0;
 
 static CWasapiRecorder* g_wasapi_recorder = NULL;
-static FileWriterWAV* g_fileWriter = NULL;
+static FileWriter* g_fileWriter = NULL;
 static CEncoder_MP3* g_mp3Encoder = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2878,13 +2878,11 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 		const int actualFreq = g_wasapi_recorder->GetActualFrequency();
 		const int actualChannels = g_wasapi_recorder->GetActualChannelCount();
 
-		//g_mp3Encoder = new CEncoder_MP3(128, actualFreq, actualChannels);
-		g_fileWriter = new FileWriterWAV(_T("d:\\test.wav"), actualFreq, actualChannels);
+		g_mp3Encoder = new CEncoder_MP3(128, actualFreq, actualChannels);
+		g_wasapi_recorder->SetChildFilter(g_mp3Encoder);
 
-		g_wasapi_recorder->SetChildFilter(g_fileWriter);
-		//g_wasapi_recorder->SetChildFilter(g_mp3Encoder);
-		//g_mp3Encoder->SetChildFilter(g_fileWriter);
-
+		g_fileWriter = new FileWriter(_T("d:\\test.mp3"));
+		g_mp3Encoder->SetChildFilter(g_fileWriter);
 	}
 	catch (CException* e)
 	{

@@ -57,8 +57,8 @@ void CEncoder_MP3::LoadLameLibrary()
 	beWriteVBRHeader= (BEWRITEVBRHEADER)GetProcAddress(m_hDll, TEXT_BEWRITEVBRHEADER);
 	beWriteInfoTag  = (BEWRITEINFOTAG)  GetProcAddress(m_hDll, TEXT_BEWRITEINFOTAG);
 
-	bool allFunctionsFound = (beInitStream && beEncodeChunk && beDeinitStream
-		&& beCloseStream && beVersion && beWriteVBRHeader);
+	bool allFunctionsFound = (beInitStream && beEncodeChunkFloatS16NI
+		&& beDeinitStream && beCloseStream && beVersion && beWriteVBRHeader);
 
 	if (!allFunctionsFound)
 	{
@@ -97,7 +97,7 @@ void CEncoder_MP3::InitEncoder(int bitrate, int frequency, int channels)
 	//m_beConfig.format.LHV1.dwEmphasis		= 0;			// NO EMPHASIS TURNED ON
 
 	// mpeg version
-	bool bMpeg2 = (bitrate < 32) || (bitrate == 32 && frequency < 22050);
+	const bool bMpeg2 = (bitrate < 32) || (bitrate == 32 && frequency < 22050);
 	m_beConfig.format.LHV1.dwMpegVersion = (bMpeg2) ? MPEG2 : MPEG1;
 
 	DWORD dwSamples = 0, dwBufOutMinSize = 0;
@@ -134,7 +134,7 @@ bool CEncoder_MP3::EncodeChunkFloat(float* pBufIn, int nBufInSize,
 
 	nBufOutSize = 0;
 
-	int channels = (m_beConfig.format.LHV1.nMode == BE_MP3_MODE_MONO) ? 1 : 2;
+	const int channels = (m_beConfig.format.LHV1.nMode == BE_MP3_MODE_MONO) ? 1 : 2;
 	ASSERT(nBufInSize % channels == 0);
 
 	// Dividing source buffer into chunks and encoding each.
@@ -195,9 +195,20 @@ void CEncoder_MP3::WriteVBRHeader(const CString& filePath)
 
 bool CEncoder_MP3::ProcessData(void* buffer, DWORD lengthBytes)
 {
-	//TODO... encode data and send updated buffer.
+	static char outputBuffer[128 * 1024] = {0}; //128k buffer
 
-	return Filter::ProcessData(buffer, lengthBytes);
+	int encodedBytesCount = 0;
+	bool result = EncodeChunkFloat((float*)buffer, lengthBytes/sizeof(float),
+		outputBuffer, encodedBytesCount);
+
+	TRACE("%s ::result=%d, encodedBytesCount=%d\n", __FUNCTION__, result, encodedBytesCount);
+	if (!result || encodedBytesCount == 0)
+	{
+		//TODO: logging, not all data were encoded.
+		return true;
+	}
+
+	return Filter::ProcessData(outputBuffer, encodedBytesCount);
 }
 //---------------------------------------------------------------------------
 
