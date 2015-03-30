@@ -80,9 +80,9 @@ void CEncoder_MP3::FreeLameLibrary()
 
 void CEncoder_MP3::InitEncoder(int bitrate, int frequency, int channels)
 {
-	CloseEncoder();
-
 	// Adjusting encoder settings.
+
+	ZeroMemory(&m_beConfig, sizeof(m_beConfig));
 	m_beConfig.dwConfig						= BE_CONFIG_LAME;
 	m_beConfig.format.LHV1.dwStructVersion	= 1;
 	m_beConfig.format.LHV1.dwStructSize		= sizeof(m_beConfig);		
@@ -119,7 +119,6 @@ void CEncoder_MP3::CloseEncoder()
 		m_hbeStream	= NULL;
 	}
 
-	ZeroMemory(&m_beConfig, sizeof(m_beConfig));
 	SAFE_DELETE_ARRAY(m_chunkBufFloat_l);
 	SAFE_DELETE_ARRAY(m_chunkBufFloat_r);
 	m_chunkBufFloatSize = 0;
