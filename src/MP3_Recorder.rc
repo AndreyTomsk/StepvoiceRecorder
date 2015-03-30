@@ -91,6 +91,7 @@ BEGIN
         MENUITEM "E&xit",                       IDM_TRAY_EXIT
     END
 END
+
 #endif    // Russian resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -620,6 +621,13 @@ BEGIN
     IDS_TT_SCHEDULER        "Scheduler"
     IDS_TT_VAS              "Voice Activation System"
     IDS_TT_MONITORING       "Input monitoring"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_ERROR_LAME_NOTFOUND """lame_enc.dll"" library not found."
+    IDS_ERROR_LAME_NOTVALID """lame_enc.dll"" library not valid."
+    IDS_ERROR_LAME_INIT     "Failed to initialize encoder."
 END
 
 #endif    // English (U.S.) resources

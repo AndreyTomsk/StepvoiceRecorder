@@ -46,7 +46,7 @@ void CEncoder_MP3::LoadLameLibrary()
 
 	m_hDll = ::LoadLibrary(lameFullPath);
 	if (m_hDll == NULL)
-		throw CString(_T("'lame_enc.dll' library not found, file path:\n") + lameFullPath);
+		throw new CNotSupportedException(TRUE, IDS_ERROR_LAME_NOTFOUND);
 
 	beInitStream	= (BEINITSTREAM)    GetProcAddress(m_hDll, TEXT_BEINITSTREAM);
 	beEncodeChunk	= (BEENCODECHUNK)   GetProcAddress(m_hDll, TEXT_BEENCODECHUNK);
@@ -63,7 +63,7 @@ void CEncoder_MP3::LoadLameLibrary()
 	if (!allFunctionsFound)
 	{
 		FreeLameLibrary();
-		throw CString(_T("'lame_enc.dll' file is corrupted."));
+		throw new CNotSupportedException(TRUE, IDS_ERROR_LAME_NOTVALID);
 	}
 }
 //---------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void CEncoder_MP3::InitEncoder(int bitrate, int frequency, int channels)
 	DWORD dwSamples = 0, dwBufOutMinSize = 0;
 	BE_ERR err = beInitStream(&m_beConfig, &dwSamples, &dwBufOutMinSize, &m_hbeStream);
 	if (err != BE_ERR_SUCCESSFUL)
-		throw CString(_T("Failed to initialize encoder."));
+		throw new CNotSupportedException(TRUE, IDS_ERROR_LAME_INIT);
 
 	m_chunkBufFloatSize = dwSamples;
 	m_chunkBufFloat_l = new float[m_chunkBufFloatSize];
@@ -200,7 +200,7 @@ bool CEncoder_MP3::ProcessData(void* buffer, DWORD lengthBytes)
 	bool result = EncodeChunkFloat((float*)buffer, lengthBytes/sizeof(float),
 		outputBuffer, encodedBytesCount);
 
-	TRACE("%s ::result=%d, encodedBytesCount=%d\n", __FUNCTION__, result, encodedBytesCount);
+	//TRACE("%s ::result=%d, encodedBytesCount=%d\n", __FUNCTION__, result, encodedBytesCount);
 	if (!result || encodedBytesCount == 0)
 	{
 		//TODO: logging, not all data were encoded.
