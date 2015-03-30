@@ -115,10 +115,11 @@ void CEncoder_MP3::CloseEncoder()
 {
 	if (m_hbeStream)
 	{
-		beCloseStream(m_hbeStream);		
+		beCloseStream(m_hbeStream);
 		m_hbeStream	= NULL;
 	}
 
+	ZeroMemory(&m_beConfig, sizeof(m_beConfig));
 	SAFE_DELETE_ARRAY(m_chunkBufFloat_l);
 	SAFE_DELETE_ARRAY(m_chunkBufFloat_r);
 	m_chunkBufFloatSize = 0;
