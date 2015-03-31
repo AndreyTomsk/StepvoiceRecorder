@@ -1085,6 +1085,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\VASFilter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\VisualizationData.cpp"
 				>
 			</File>
@@ -1335,6 +1339,10 @@
 			</File>
 			<File
 				RelativePath="VAS.h"
+				>
+			</File>
+			<File
+				RelativePath=".\VASFilter.h"
 				>
 			</File>
 			<File
