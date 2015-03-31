@@ -42,6 +42,13 @@ bool VasFilter::ProcessData(void* buffer, DWORD lengthBytes)
 	static DWORD silenceStartMS = 0;
 	static bool silenceState = false;
 
+	if (!m_enabled)
+	{
+		silenceStartMS = 0;
+		silenceState = false;
+		return Filter::ProcessData(buffer, lengthBytes);
+	}
+
 	if (SilenceDetected((float*)buffer, lengthBytes/sizeof(float)))
 	{
 		const DWORD silenceCurMS = GetTickCount(); //TODO: replace by GetTickCount64
