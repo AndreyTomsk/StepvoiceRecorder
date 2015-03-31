@@ -184,7 +184,12 @@ DWORD CWasapiRecorder::GetChannelData(int channel, float* buffer, int bufferSize
 
 DWORD CALLBACK CWasapiRecorder::OutputProc(void* buffer, DWORD lengthBytes, void* user)
 {
-	return static_cast<CWasapiRecorder*>(user)->ProcessData(buffer, lengthBytes);
+	CWasapiRecorder* recorder = static_cast<CWasapiRecorder*>(user);
+	if (recorder->ProcessData(buffer, lengthBytes))
+		return 1;
+
+	recorder->SendNotification(Parameter(_T("Recorder.Stopped"), CString()));
+	return 0;
 }
 //---------------------------------------------------------------------------
 
