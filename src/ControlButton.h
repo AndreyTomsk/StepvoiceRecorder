@@ -30,6 +30,8 @@ protected:
 	//{{AFX_MSG(CControlButton)
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
+	virtual BOOL OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult);
 };
 
 /////////////////////////////////////////////////////////////////////////////

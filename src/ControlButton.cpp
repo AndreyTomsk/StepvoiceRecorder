@@ -52,12 +52,12 @@ HICON CControlButton::SetIcon( int nResourceID )
 		);
 }
 
-/////////////////////////////////////////////////////////////////////////////
-/*void CControlButton::OnClicked() 
+//===========================================================================
+BOOL CControlButton::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult)
 {
-	if(GetButtonStyle() & WS_DISABLED) return; // exit if disabled
-	//
-	GetParent()->PostMessage(WM_COMMAND, MAKEWPARAM(m_nID, BN_CLICKED));
-	GetParent()->SetFocus();
+	//Avoid focus on button, restore it on parent window.
+	if (message == WM_COMMAND && HIWORD(wParam) == BN_CLICKED)
+		GetParent()->SetFocus();
+
+	return CButton::OnChildNotify(message, wParam, lParam, pLResult);
 }
-*/

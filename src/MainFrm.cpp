@@ -1246,8 +1246,6 @@ void CMainFrame::OnMixRec()
 //===========================================================================
 void CMainFrame::OnBtnOPEN()
 {
-	SetFocus();
-
 	CString strTemp;
 	strTemp.LoadString(IDS_FILEFILTER);
 
@@ -1278,8 +1276,6 @@ void CMainFrame::OnBtnOPEN()
 //===========================================================================
 void CMainFrame::OnBtnPLAY()
 {
-	SetFocus();
-
 	if (!this->CanPlay())
 		return;
 
@@ -1317,7 +1313,6 @@ void CMainFrame::OnBtnPLAY()
 void CMainFrame::OnBtnSTOP()
 {
 	::OutputDebugString(__FUNCTION__" ::1");
-	SetFocus();
 
 	m_nState = STOP_STATE;
 	if (g_stream_handle)
@@ -1380,7 +1375,6 @@ void CMainFrame::OnBtnSTOP()
 void CMainFrame::OnBtnREC()
 {
 	::OutputDebugString(__FUNCTION__ " ::1");
-	SetFocus();
 
 	// Data for the scheduler start
 	bool bIsSchedEnabled= m_conf.GetConfDialSH2()->bIsEnabled  != 0;
@@ -1513,14 +1507,12 @@ void CMainFrame::OnBtnREC()
 //===========================================================================
 void CMainFrame::OnBtnMIX_REC()
 {
-	SetFocus();
 	OnMixRec();
 }
 
 //===========================================================================
 void CMainFrame::OnBtnMIX_PLAY()
 {
-	SetFocus();
 	OnMixPlay();
 }
 
@@ -1911,8 +1903,6 @@ void CMainFrame::OnBtnMIX_SEL()
 	return;
 	*/
 
-
-	this->SetFocus();
 
 	static bool bShowMenu = true;
 	if (!bShowMenu)
