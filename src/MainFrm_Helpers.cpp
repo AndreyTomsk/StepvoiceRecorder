@@ -30,6 +30,27 @@ CString ToString_HMMSS(double seconds)
 {
 	return ToString_HMMSS((unsigned int)seconds);
 }
+//------------------------------------------------------------------------------
+
+bool IsSuitableForRecording(const CString& filePath, DWORD* outErrorCode)
+{
+	HANDLE fileHandle = CreateFile(filePath, GENERIC_READ, FILE_SHARE_WRITE,
+		NULL, OPEN_EXISTING, 0, NULL);
+
+	const DWORD errorCode = ::GetLastError();
+	if (outErrorCode != NULL)
+		*outErrorCode = errorCode;
+
+	if (fileHandle == INVALID_HANDLE_VALUE)
+		return (errorCode == ERROR_FILE_NOT_FOUND) ? true : false;
+
+	LARGE_INTEGER fileSize;
+	if (!GetFileSizeEx(fileHandle, &fileSize))
+		fileSize.QuadPart = -1; //for not suitable check later
+
+	CloseHandle(fileHandle);
+	return (fileSize.QuadPart == 0);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

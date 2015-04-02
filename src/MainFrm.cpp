@@ -59,28 +59,6 @@ bool IsRecording(const ProgramState& a_state)
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Check if a file is suitable for recording (not exist or length = 0).
-bool IsSuitableForRecording(CString a_filename, DWORD& a_error_code)
-{
-	HANDLE l_file_handle = CreateFile(
-		a_filename.GetBuffer(a_filename.GetLength()),
-		GENERIC_READ,
-		FILE_SHARE_WRITE,
-		NULL,
-		OPEN_EXISTING,
-		0,
-		NULL);
-
-	a_error_code = ::GetLastError();
-	if (INVALID_HANDLE_VALUE == l_file_handle)
-		return (ERROR_FILE_NOT_FOUND == a_error_code) ? true : false;
-
-	DWORD l_size = GetFileSize(l_file_handle, NULL);
-	CloseHandle(l_file_handle);
-	return (l_size == 0);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 #define WM_ICON_NOTIFY WM_USER+10
 
 static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(
@@ -131,7 +109,7 @@ LRESULT CMainFrame::OnParseLine(WPARAM, LPARAM)
 		// Change file name if it is currently exist
 		int l_number = 2;
 		DWORD l_error_code = 0;
-		while (!IsSuitableForRecording(l_file_name, l_error_code))
+		while (!Helpers::IsSuitableForRecording(l_file_name, &l_error_code))
 		{
 			if (ERROR_PATH_NOT_FOUND == l_error_code)
 			{
@@ -972,12 +950,10 @@ void CMainFrame::OpenFile(const CString& str)
 		l_last_name = str.Right(str.GetLength() - l_slash_pos - 1);
 	}
 
-	DWORD l_error_code = 0;
-	UINT l_open_flags = CFile::modeReadWrite | CFile::typeBinary | CFile::shareDenyWrite;
-
-	if (IsSuitableForRecording(str, l_error_code))
+	if (Helpers::IsSuitableForRecording(str))
 	{
-		l_open_flags |= CFile::modeCreate;
+		UINT l_open_flags = CFile::modeCreate | CFile::modeReadWrite |
+			CFile::typeBinary | CFile::shareDenyWrite;
 		if (!m_record_file.Open(str, l_open_flags, NULL))
 			return;
 	}

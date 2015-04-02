@@ -9,6 +9,9 @@ namespace Helpers
 {
 	CString ToString_HMMSS(unsigned int seconds);
 	CString ToString_HMMSS(double seconds);
+
+	//Check if a file is suitable for recording (not exist or length = 0).
+	bool IsSuitableForRecording(const CString& filePath, DWORD* outErrorCode = NULL);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
