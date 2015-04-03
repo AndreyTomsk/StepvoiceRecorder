@@ -16,6 +16,7 @@ public:
 	~FilterChain();
 
 	void AddFilter(Filter* filter);
+	void Empty();
 	//unsigned FilterCount() const;
 	//Filter* GetFilter(unsigned index) const;
 

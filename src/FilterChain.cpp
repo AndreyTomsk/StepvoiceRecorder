@@ -18,15 +18,7 @@ FilterChain::FilterChain(Filter::NOTIFY_CALLBACK func, void* userData)
 
 FilterChain::~FilterChain()
 {
-	//Deleting filters in reverse order.
-	for (int i = m_filters.size()-1; i >= 0; i--)
-	{
-		if (i > 0)
-			m_filters[i-1]->SetChildFilter(NULL);
-
-		delete m_filters[i];
-		m_filters[i] = NULL;
-	}
+	Empty();
 }
 //---------------------------------------------------------------------------
 
@@ -42,6 +34,22 @@ void FilterChain::AddFilter(Filter* filter)
 	m_filters.push_back(filter);
 }
 //---------------------------------------------------------------------------
+
+void FilterChain::Empty()
+{
+	//Deleting filters in reverse order.
+	for (int i = m_filters.size()-1; i >= 0; i--)
+	{
+		if (i > 0)
+			m_filters[i-1]->SetChildFilter(NULL);
+
+		delete m_filters[i];
+		m_filters[i] = NULL;
+	}
+	m_filters.clear();
+}
+//---------------------------------------------------------------------------
+
 /*
 unsigned FilterChain::FilterCount() const
 {
