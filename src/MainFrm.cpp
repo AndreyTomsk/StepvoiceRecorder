@@ -19,6 +19,7 @@ static char THIS_FILE[] = __FILE__;
 #include "RecordingSourceDlg.h"
 #include <basswasapi.h>
 
+#include "FilterChain.h"
 #include "FilterFileWriter.h"
 #include "FilterFileWriterWAV.h"
 #include "WasapiRecorder.h"
@@ -2827,6 +2828,19 @@ bool CMainFrame::CanRecord() const
 //!!!test
 LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 {
+	FilterChain chain(NULL, NULL);
+	chain.AddFilter(new FileWriter(_T("d:\\test.mp3")));
+	chain.AddFilter(new CEncoder_MP3(128, 44100, 2));
+
+	FileWriter* curWriter = chain.GetFilter<FileWriter>();
+	FileWriterWAV* curWriterWav = chain.GetFilter<FileWriterWAV>();
+	CEncoder_MP3* curEncoder = chain.GetFilter<CEncoder_MP3>();
+	CWasapiRecorder* curRecorder = chain.GetFilter<CWasapiRecorder>();
+
+	bool debug = true;
+
+	//NEW version, commented.
+	/*
 	OutputDebugString(__FUNCTION__"\n");
 	m_GraphWnd.StopUpdate();
 
@@ -2866,6 +2880,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi);
+	*/
 
 
 	/*

@@ -405,6 +405,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FilterChain.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FilterFileWriter.cpp"
 				>
 			</File>
@@ -1171,6 +1175,10 @@
 			</File>
 			<File
 				RelativePath=".\Filter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FilterChain.h"
 				>
 			</File>
 			<File

@@ -20,7 +20,7 @@ public:
 
 	//CWasapiRecorder(int device, DWORD freq, DWORD chans, OUTPUTPROC* outputProc, void* user);
 	CWasapiRecorder(int device, DWORD freq, DWORD chans);
-	~CWasapiRecorder();
+	virtual ~CWasapiRecorder();
 
 	DWORD GetActualFrequency() const;
 	DWORD GetActualChannelCount() const;

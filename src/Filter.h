@@ -31,6 +31,7 @@ public:
 	typedef void (*NOTIFY_CALLBACK)(
 		const Filter* fromFilter, const Parameter& parameter, void* userData);
 
+	virtual ~Filter();
 	void SetChildFilter(Filter* child);
 	void SetNotifyCallback(NOTIFY_CALLBACK func, void* userData);
 
