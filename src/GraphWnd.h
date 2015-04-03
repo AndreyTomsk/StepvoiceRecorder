@@ -13,8 +13,8 @@
 // Lines callback function asks to fill a float array of certain size with
 //   [0, 1] values. It returns the actual size filled (could be 0).
 
-typedef float (*PEAKS_CALLBACK)(int a_channel);
-typedef int   (*LINES_CALLBACK)(int a_channel, float* a_buffer, int a_size);
+typedef float (*PEAKS_CALLBACK)(int a_channel, void* userData);
+typedef int   (*LINES_CALLBACK)(int a_channel, float* a_buffer, int a_size, void* userData);
 
 ///////////////////////////////////////////////////////////////////////////////
 class CGraphWnd : public CWnd
@@ -40,7 +40,7 @@ public:
 	bool SetDisplayMode(DisplayMode a_new_mode);
 	int  GetDisplayMode() const;
 
-	bool StartUpdate(PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_func);
+	bool StartUpdate(PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_func, void* userData);
 	void StopUpdate();
 	
 public:
@@ -81,6 +81,7 @@ private:
 private:
 	PEAKS_CALLBACK m_peaks_func;
 	LINES_CALLBACK m_lines_func;
+	void* m_userData;
 
 	CSize   m_wndsize;
 	CPen    m_greenPen;

@@ -42,6 +42,7 @@ CGraphWnd::CGraphWnd()
 	,m_display_mode(E_DISPLAY_PEAKS)
 	,m_peaks_func(NULL)
 	,m_lines_func(NULL)
+	,m_userData(NULL)
 {
 }
 
@@ -217,12 +218,12 @@ void CGraphWnd::Clear()
 //------------------------------------------------------------------------------
 float CGraphWnd::GetPeakLevel(int a_channel) const
 {
-	return m_peaks_func ? m_peaks_func(a_channel) : 0;
+	return m_peaks_func ? m_peaks_func(a_channel, m_userData) : 0;
 }
 
 int CGraphWnd::GetLinesLevel(int a_channel, float* a_buffer, int a_size)
 {
-	return m_lines_func ? m_lines_func(a_channel, a_buffer, a_size) : 0;
+	return m_lines_func ? m_lines_func(a_channel, a_buffer, a_size, m_userData) : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -388,7 +389,8 @@ bool CGraphWnd::MaxpeaksVisible() const
 }
 
 //------------------------------------------------------------------------------
-bool CGraphWnd::StartUpdate(PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_func)
+bool CGraphWnd::StartUpdate(
+	PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_func, void* userData)
 {
 	ASSERT(a_peaks_func);
 	ASSERT(a_lines_func);
@@ -396,6 +398,7 @@ bool CGraphWnd::StartUpdate(PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_
 	StopUpdate();
 	m_peaks_func = a_peaks_func;
 	m_lines_func = a_lines_func;
+	m_userData = userData;
 
 	m_timer_id = timeSetEvent(25, 25, (LPTIMECALLBACK)&UpdateVisualization,
 		(DWORD_PTR)this, TIME_PERIODIC);

@@ -305,30 +305,17 @@ DWORD CALLBACK CMainFrame::WasapiRecordingProc(void *buffer, DWORD length, void 
 }
 //------------------------------------------------------------------------------
 
-float CMainFrame::PeaksCallback_Wasapi(int a_channel)
+float CMainFrame::PeaksCallback_Wasapi(int channel, void* userData)
 {
-	if (g_wasapi_recorder)
-		return g_wasapi_recorder->GetPeakLevel(a_channel);
-	else
-		return 0.0;
-
-	//if (m_pMainFrame->m_visualization_data)
-	//	return m_pMainFrame->m_visualization_data->GetPeaksLevel(a_channel);
-	//else
-	//	return 0.0;
+	CWasapiRecorder* recorder = static_cast<CWasapiRecorder*>(userData);
+	return recorder->GetPeakLevel(channel);
 }
 //------------------------------------------------------------------------------
 
-int CMainFrame::LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_bufferSize)
+int CMainFrame::LinesCallback_Wasapi(int channel, float* buffer, int bufferSize, void* userData)
 {
-	if (g_wasapi_recorder)
-		return g_wasapi_recorder->GetChannelData(a_channel, a_buffer, a_bufferSize);
-	else
-		return 0;
-	//if (m_pMainFrame->m_visualization_data)
-	//	return m_pMainFrame->m_visualization_data->GetLinesLevel(a_channel, a_buffer, a_size);
-	//else
-	//	return 0;
+	CWasapiRecorder* recorder = static_cast<CWasapiRecorder*>(userData);
+	return recorder->GetChannelData(channel, buffer, bufferSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,7 +324,7 @@ int CMainFrame::LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_buffe
 CMainFrame* CMainFrame::m_pMainFrame = NULL;
 
 //------------------------------------------------------------------------------
-float CMainFrame::PeaksCallback(int a_channel)
+float CMainFrame::PeaksCallback(int a_channel, void* userData)
 {
 	if (m_pMainFrame->m_visualization_data && (
 		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK ||
@@ -353,7 +340,7 @@ float CMainFrame::PeaksCallback(int a_channel)
 }
 
 //------------------------------------------------------------------------------
-int CMainFrame::LinesCallback(int a_channel, float* a_buffer, int a_size)
+int CMainFrame::LinesCallback(int a_channel, float* a_buffer, int a_size, void* userData)
 {
 	if (m_pMainFrame->m_visualization_data && (
 		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK ||
@@ -2410,7 +2397,7 @@ bool CMainFrame::MonitoringStart()
 
 		///@bug Testing new functionality
 		g_update_handle = g_monitoring_handle;
-		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
+		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, NULL);
 	}
 	return g_monitoring_handle != 0;
 }
@@ -2535,7 +2522,7 @@ void CMainFrame::UpdateInterface()
 	case PLAY_STATE:
 		///@bug Testing new functionality
 		g_update_handle = g_stream_handle;
-		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
+		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, NULL);
 
 		m_BtnPLAY.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
@@ -2552,7 +2539,7 @@ void CMainFrame::UpdateInterface()
 	case RECORD_STATE:
 		///@bug Testing new functionality
 		g_update_handle = g_record_handle;
-		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback);
+		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, NULL);
 
 		m_BtnREC.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
@@ -2879,7 +2866,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 	if (!g_wasapi_recorder->Start())
 		return 0;
 
-	m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi);
+	m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, g_wasapi_recorder);
 	*/
 
 

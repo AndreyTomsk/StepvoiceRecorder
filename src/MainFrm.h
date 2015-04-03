@@ -73,11 +73,11 @@ class CMainFrame : public CFrameWnd
 
 	static CMainFrame* m_pMainFrame;
 
-	static float PeaksCallback(int a_channel);
-	static int   LinesCallback(int a_channel, float* a_buffer, int a_size);
+	static float PeaksCallback(int a_channel, void* userData);
+	static int   LinesCallback(int a_channel, float* a_buffer, int a_size, void* userData);
 
-	static float PeaksCallback_Wasapi(int a_channel);
-	static int   LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size);
+	static float PeaksCallback_Wasapi(int a_channel, void* userData);
+	static int   LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size, void* userData);
 
 	friend DWORD WINAPI SchedProc( LPVOID lpParam );
 	friend void Scheduler2Function(int nAction);
