@@ -364,6 +364,7 @@ CMainFrame::CMainFrame()
 	,m_playback_volume(0)
 	,m_active_mixer(E_REC_MIXER)
 	,m_recording_mixer(E_REC_MIXER)
+	,m_monitoringChain(HandleFilterNotification, this)
 {
 	m_pEncoder	= NULL;
 	m_title		= NULL;
@@ -2359,6 +2360,23 @@ bool CMainFrame::IsMonitoringOnly()
 //------------------------------------------------------------------------------
 bool CMainFrame::MonitoringStart()
 {
+	//TODO: add check if recording currently. Possible should avoid two
+	//CWasapiRecorders in one thread (BASS_Wasapi_Stop etc. can affect also main recorder).
+
+	WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+	ASSERT(!selectedDevices.empty());
+	const DWORD deviceID = selectedDevices[0].first;
+
+	CWasapiRecorder* recorder = new CWasapiRecorder(deviceID, 44100, 2);
+	m_monitoringChain.AddFilter(recorder); //will keep recorder object
+	if (recorder->Start())
+	{
+		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, recorder);
+		return true;
+	}
+	return false;
+
+	/*
 	if (!BASS_RecordInit(m_conf.GetConfDialGen()->nRecDevice))
 		return false;
 
@@ -2400,11 +2418,18 @@ bool CMainFrame::MonitoringStart()
 		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, NULL);
 	}
 	return g_monitoring_handle != 0;
+	*/
 }
 
 //------------------------------------------------------------------------------
 void CMainFrame::MonitoringStop()
 {
+	m_GraphWnd.StopUpdate();
+	m_monitoringChain.GetFilter<CWasapiRecorder>()->Stop();
+	m_monitoringChain.Empty();
+
+
+	/*
 	if (g_monitoring_handle)
 	{
 		m_GraphWnd.StopUpdate();
@@ -2425,6 +2450,7 @@ void CMainFrame::MonitoringStop()
 			BASS_Free();
 		BASS_RecordFree();
 	}
+	*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2815,6 +2841,7 @@ bool CMainFrame::CanRecord() const
 //!!!test
 LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 {
+	/*
 	FilterChain chain(NULL, NULL);
 	chain.AddFilter(new FileWriter(_T("d:\\test.mp3")));
 	chain.AddFilter(new CEncoder_MP3(128, 44100, 2));
@@ -2825,6 +2852,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 	CWasapiRecorder* curRecorder = chain.GetFilter<CWasapiRecorder>();
 
 	bool debug = true;
+	*/
 
 	//NEW version, commented.
 	/*
@@ -2907,5 +2935,11 @@ LRESULT CMainFrame::OnRecSourceChanged(WPARAM wParam, LPARAM lParam)
 {
 	OutputDebugString(__FUNCTION__"\n");
 	return 0;
+}
+//------------------------------------------------------------------------------
+
+void CMainFrame::HandleFilterNotification(
+	const Filter* fromFilter, const Parameter& parameter, void* userData)
+{
 }
 //------------------------------------------------------------------------------

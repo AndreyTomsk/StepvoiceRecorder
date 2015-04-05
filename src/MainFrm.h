@@ -40,6 +40,9 @@
 #include "BASS_VistaLoopback.h"
 #include "VisualizationData.h"
 
+#include "Filter.h" //for NOTIFY_CALLBACK
+#include "FilterChain.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 enum ProgramState
 {
@@ -258,6 +261,12 @@ protected:
 	LRESULT OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam);
 	LRESULT OnRecSourceChanged(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
+
+private:
+	static void HandleFilterNotification(
+		const Filter* fromFilter, const Parameter& parameter, void* userData);
+
+	FilterChain m_monitoringChain;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
