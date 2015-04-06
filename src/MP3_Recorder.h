@@ -12,7 +12,8 @@
 	#error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "resource.h"       // main symbols
+#include "resource.h" // main symbols
+#include "config.h" //for RegistryConfig class, must make it friend to access CWinApp->SetRegistryKey
 
 ////////////////////////////////////////////////////////////////////////////////
 class CMP3_RecorderApp : public CWinApp
@@ -49,6 +50,8 @@ private:
 
 private:
 	bool m_is_vista;
+	friend class RegistryConfig; //to access SetRegistryKey
+
 public:
 	virtual BOOL OnIdle(LONG lCount);
 };

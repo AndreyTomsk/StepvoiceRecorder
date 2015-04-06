@@ -204,3 +204,70 @@ bool CConfig::SetAutoRun( bool bSet )
 }
 */
 //////////////////////////////////////////////////////////////////////
+
+void RegistryConfig::SetRegistryKey(const CString& regPath)
+{
+	CMP3_RecorderApp* winApp = dynamic_cast<CMP3_RecorderApp*>(AfxGetApp());
+	winApp->SetRegistryKey(regPath);
+}
+//--------------------------------------------------------------------
+
+struct RegistryPlace
+{
+	CString section;
+	CString entry;
+};
+
+static RegistryPlace GetRegistryPlace(const CString& initialPath)
+{
+	RegistryPlace rp;
+
+	const int lastBackslashPos = initialPath.ReverseFind(_T('\\'));
+	if (lastBackslashPos == -1)
+	{
+		rp.entry = initialPath;
+	}
+	else
+	{
+		rp.section = initialPath.Left(lastBackslashPos);
+		rp.entry   = initialPath.Right(initialPath.GetLength() - lastBackslashPos - 1);
+	}
+
+	ASSERT(!rp.entry.IsEmpty());
+	return rp;
+}
+//--------------------------------------------------------------------
+
+template<>
+int RegistryConfig::GetOption<int>(const CString& initialPath, const int& defaultValue)
+{
+	const RegistryPlace rp = GetRegistryPlace(initialPath);
+	return AfxGetApp()->GetProfileInt(rp.section, rp.entry, defaultValue);
+}
+//--------------------------------------------------------------------
+
+template<>
+CString RegistryConfig::GetOption<CString>(const CString& initialPath, const CString& defaultValue)
+{
+	const RegistryPlace rp = GetRegistryPlace(initialPath);
+	return AfxGetApp()->GetProfileString(rp.section, rp.entry, defaultValue);
+}
+//--------------------------------------------------------------------
+
+template<>
+void RegistryConfig::SetOption<int>(const CString& initialPath, const int& value)
+{
+	const RegistryPlace rp = GetRegistryPlace(initialPath);
+	AfxGetApp()->WriteProfileInt(rp.section, rp.entry, value);
+}
+//--------------------------------------------------------------------
+
+template<>
+void RegistryConfig::SetOption<CString>(const CString& initialPath, const CString& value)
+{
+	const RegistryPlace rp = GetRegistryPlace(initialPath);
+	AfxGetApp()->WriteProfileString(rp.section, rp.entry, value);
+}
+//--------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////

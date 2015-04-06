@@ -283,6 +283,7 @@ BOOL CMP3_RecorderApp::InitInstance()
 {
 	// метка в реестре
 	SetRegistryKey(_T("StepVoice Software"));
+	RegistryConfig::SetRegistryKey(_T("StepVoice Software"));
 
 	if (m_lpCmdLine[0] != _T('\0') && strcmp(m_lpCmdLine, _T("/register")) == 0)
 	{
