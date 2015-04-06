@@ -50,6 +50,12 @@ void FilterChain::Empty()
 }
 //---------------------------------------------------------------------------
 
+bool FilterChain::IsEmpty() const
+{
+	return m_filters.empty();
+}
+//---------------------------------------------------------------------------
+
 /*
 unsigned FilterChain::FilterCount() const
 {

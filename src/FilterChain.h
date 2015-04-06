@@ -17,6 +17,7 @@ public:
 
 	void AddFilter(Filter* filter);
 	void Empty();
+	bool IsEmpty() const;
 	//unsigned FilterCount() const;
 	//Filter* GetFilter(unsigned index) const;
 
