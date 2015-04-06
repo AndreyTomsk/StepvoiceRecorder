@@ -13,6 +13,8 @@ class FileWriter : public Filter
 public:
 	FileWriter(const CString& fileName);
 	virtual ~FileWriter();
+	
+	ULONGLONG GetFileLength() const; //in bytes
 
 protected:
 	virtual bool ProcessData(void* buffer, DWORD lengthBytes);
