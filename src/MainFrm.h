@@ -74,7 +74,7 @@ class CMainFrame : public CFrameWnd
 
 	friend class CGraphWnd;
 
-	static CMainFrame* m_pMainFrame;
+	//static CMainFrame* m_pMainFrame;
 
 	static float PeaksCallback(int a_channel, void* userData);
 	static int   LinesCallback(int a_channel, float* a_buffer, int a_size, void* userData);
@@ -86,9 +86,9 @@ class CMainFrame : public CFrameWnd
 	friend void Scheduler2Function(int nAction);
 	
 	///Callback function to process sample data
-	static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer, DWORD a_length, void* a_user);
-	static BOOL CALLBACK MonitoringProc(HRECORD a_handle, void* a_buffer, DWORD a_length, void* a_user);
-	static DWORD CALLBACK WasapiRecordingProc(void *buffer, DWORD length, void *user);
+	//static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer, DWORD a_length, void* a_user);
+	//static BOOL CALLBACK MonitoringProc(HRECORD a_handle, void* a_buffer, DWORD a_length, void* a_user);
+	//static DWORD CALLBACK WasapiRecordingProc(void *buffer, DWORD length, void *user);
 
 
 	VisualizationData* m_visualization_data;
@@ -108,7 +108,7 @@ class CMainFrame : public CFrameWnd
 
 	CEncoder_MP3*	m_pEncoder;
 	CTitleText*		m_title;
-	CFile			m_record_file;
+	//CFile			m_record_file;
 
 	CString m_strDir;
 	int m_bMonitoringBtn;
@@ -168,7 +168,7 @@ protected:
 	void ProcessSliderTime(UINT nSBCode, UINT nPos);
 	void ProcessSliderVol(UINT nSBCode, UINT nPos);
 	//void Convert(UINT nCurSec, char* pszTime, int nStrSize);
-	void OpenFile(const CString& strFileName);
+	void OpenFile(CString strFileName);
 
 	void SetRecordingLine(int nLineID); // sets line by menu ID
 
@@ -267,6 +267,11 @@ private:
 		const Filter* fromFilter, const Parameter& parameter, void* userData);
 
 	FilterChain m_monitoringChain;
+	FilterChain m_recordingChain;
+
+	//These parameters should be mutually exclusive:
+	CString m_recordingFileName; //Not empty name indicates that able to record.
+	HSTREAM m_bassPlaybackHandle;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

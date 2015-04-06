@@ -19,22 +19,22 @@ static char THIS_FILE[] = __FILE__;
 #include "RecordingSourceDlg.h"
 #include <basswasapi.h>
 
-#include "FilterChain.h"
+//#include "FilterChain.h"
 #include "FilterFileWriter.h"
-#include "FilterFileWriterWAV.h"
+//#include "FilterFileWriterWAV.h"
 #include "WasapiRecorder.h"
 #include "Encoder_MP3.h"
 
-HSTREAM g_stream_handle = 0;   // Playback
-HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
-HSTREAM g_loopback_handle = 0; // Handle for Loopback stream in Vista
+HSTREAM m_bassPlaybackHandle = 0;   // Playback
+//HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
+//HSTREAM g_loopback_handle = 0; // Handle for Loopback stream in Vista
 
-HRECORD g_record_handle = 0; 
-HRECORD g_monitoring_handle = 0;
+//HRECORD g_record_handle = 0; 
+//HRECORD g_monitoring_handle = 0;
 
-static CWasapiRecorder* g_wasapi_recorder = NULL;
-static FileWriter* g_fileWriter = NULL;
-static CEncoder_MP3* g_mp3Encoder = NULL;
+//static CWasapiRecorder* g_wasapi_recorder = NULL;
+//static FileWriter* g_fileWriter = NULL;
+//static CEncoder_MP3* g_mp3Encoder = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 // shared data
@@ -208,9 +208,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_MESSAGE(WM_RECSOURCE_DLGCLOSED, OnRecSourceDialogClosed)
 	ON_MESSAGE(WM_RECSOURCE_CHANGED, OnRecSourceChanged)
 END_MESSAGE_MAP()
-
+/*
 ////////////////////////////////////////////////////////////////////////////////
-BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD /*a_handle*/, void* a_buffer,
+BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD , void* a_buffer,
 										DWORD a_length, void* a_user)
 {
 	CMainFrame* l_main_window = (CMainFrame *)a_user;
@@ -304,7 +304,7 @@ DWORD CALLBACK CMainFrame::WasapiRecordingProc(void *buffer, DWORD length, void 
 	return 1; //0 stops a device
 }
 //------------------------------------------------------------------------------
-
+*/
 float CMainFrame::PeaksCallback_Wasapi(int channel, void* userData)
 {
 	CWasapiRecorder* recorder = static_cast<CWasapiRecorder*>(userData);
@@ -321,37 +321,42 @@ int CMainFrame::LinesCallback_Wasapi(int channel, float* buffer, int bufferSize,
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-CMainFrame* CMainFrame::m_pMainFrame = NULL;
+//CMainFrame* CMainFrame::m_pMainFrame = NULL;
 
 //------------------------------------------------------------------------------
-float CMainFrame::PeaksCallback(int a_channel, void* userData)
+float CMainFrame::PeaksCallback(int channel, void* userData)
 {
-	if (m_pMainFrame->m_visualization_data && (
-		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK ||
-		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
-		return m_pMainFrame->m_visualization_data->GetPeaksLevel(a_channel);
+	CMainFrame* mainFrame = static_cast<CMainFrame*>(userData);
 
-	DWORD l_level = BASS_ChannelGetLevel(g_update_handle);
-	if (l_level == -1 || a_channel < 0 || a_channel > 1)
+	if (mainFrame->m_visualization_data && (
+		mainFrame->m_recording_mixer == E_REC_LOOPBACK ||
+		mainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
+		return mainFrame->m_visualization_data->GetPeaksLevel(channel);
+
+	DWORD peakLevel = BASS_ChannelGetLevel(mainFrame->m_bassPlaybackHandle);
+	if (peakLevel == -1 || channel < 0 || channel > 1)
 		return 0;
 
-	l_level = (a_channel == 0) ? LOWORD(l_level) : HIWORD(l_level);
-	return float(l_level) / 32768;
+	peakLevel = (channel == 0) ? LOWORD(peakLevel) : HIWORD(peakLevel);
+	return float(peakLevel) / 32768;
 }
 
 //------------------------------------------------------------------------------
-int CMainFrame::LinesCallback(int a_channel, float* a_buffer, int a_size, void* userData)
+int CMainFrame::LinesCallback(int channel, float* buffer, int bufferSize, void* userData)
 {
-	if (m_pMainFrame->m_visualization_data && (
-		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK ||
-		m_pMainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
-		return m_pMainFrame->m_visualization_data->GetLinesLevel(a_channel, a_buffer, a_size);
+	CMainFrame* mainFrame = static_cast<CMainFrame*>(userData);
 
-	float* l_buffer_ptr = a_buffer + a_channel;
-	int l_bytes_2_copy = (a_size - a_channel) * sizeof(float);
+	if (mainFrame->m_visualization_data && (
+		mainFrame->m_recording_mixer == E_REC_LOOPBACK ||
+		mainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
+		return mainFrame->m_visualization_data->GetLinesLevel(channel, buffer, bufferSize);
 
-	int l_bytes_copied = BASS_ChannelGetData(g_update_handle, l_buffer_ptr,
-		(l_bytes_2_copy | BASS_DATA_FLOAT));
+	float* l_buffer_ptr = buffer + channel;
+	const int l_bytes_2_copy = (bufferSize - channel) * sizeof(float);
+
+	const int l_bytes_copied = BASS_ChannelGetData(
+		mainFrame->m_bassPlaybackHandle, l_buffer_ptr, (l_bytes_2_copy | BASS_DATA_FLOAT));
+
 	return (l_bytes_copied == -1) ? 0 : l_bytes_copied / sizeof(float);
 }
 
@@ -365,6 +370,8 @@ CMainFrame::CMainFrame()
 	,m_active_mixer(E_REC_MIXER)
 	,m_recording_mixer(E_REC_MIXER)
 	,m_monitoringChain(HandleFilterNotification, this)
+	,m_recordingChain(HandleFilterNotification, this)
+	,m_bassPlaybackHandle(0)
 {
 	m_pEncoder	= NULL;
 	m_title		= NULL;
@@ -374,7 +381,7 @@ CMainFrame::CMainFrame()
 
 	m_pOptDialog = NULL;
 
-	m_pMainFrame = this;
+	//m_pMainFrame = this;
 	m_bAutoMenuEnable = false;
 
 	// Init window snapping
@@ -393,14 +400,14 @@ CMainFrame::CMainFrame()
 //====================================================================
 CMainFrame::~CMainFrame()
 {
-	if (g_wasapi_recorder != NULL)
-		g_wasapi_recorder->Stop();
-	if (g_mp3Encoder != NULL)
-		g_mp3Encoder->WriteVBRHeader(_T("d:\\test.mp3"));
+	//if (g_wasapi_recorder != NULL)
+	//	g_wasapi_recorder->Stop();
+	//if (g_mp3Encoder != NULL)
+	//	g_mp3Encoder->WriteVBRHeader(_T("d:\\test.mp3"));
 
-	SAFE_DELETE(g_wasapi_recorder);
-	SAFE_DELETE(g_fileWriter);
-	SAFE_DELETE(g_mp3Encoder);
+	//SAFE_DELETE(g_wasapi_recorder);
+	//SAFE_DELETE(g_fileWriter);
+	//SAFE_DELETE(g_mp3Encoder);
 
 	//!!!test
 	BASS_WASAPI_Stop(TRUE);
@@ -658,6 +665,10 @@ BOOL CMainFrame::ShowWindow()
 /////////////////////////////////////////////////////////////////////////////
 LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
 {
+	if (message == WM_DISPLAYCHANGE)
+		::SystemParametersInfo(SPI_GETWORKAREA, 0, &m_rDesktopRect, 0);
+
+	/*
 	switch (message)
 	{
 	// Processing a display resolution changed for snapping
@@ -722,7 +733,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
-
+	*/
 	return CFrameWnd::WindowProc(message, wParam, lParam);
 }
 
@@ -826,20 +837,19 @@ void CMainFrame::OnDestroy()
 //===========================================================================
 void CMainFrame::OnFileClose() 
 {
-	///@TODO: Make a check based on m_record_file
 	OnBtnSTOP();
 
-	// We don't need a playback handle since file is closed
-	if (g_stream_handle)
-	{
-		BASS_StreamFree(g_stream_handle);
-		g_stream_handle = 0;
-	}
+	//Recording and playback parameters should be mutually exclusive.
+	//But, calling OnFileClose with nothing opened, should not assert.
 
-	if (m_record_file.m_hFile != CFile::hFileNull)
+	if (!m_recordingFileName.IsEmpty())
 	{
-		m_record_file.Flush();
-		m_record_file.Close();
+		m_recordingFileName.Empty();
+	}
+	if (m_bassPlaybackHandle != NULL)
+	{
+		BASS_StreamFree(m_bassPlaybackHandle);
+		m_bassPlaybackHandle = 0;
 	}
 
 	// Setting the default window text: <no file> - Stepvoice Recorder
@@ -855,7 +865,8 @@ void CMainFrame::OnFileClose()
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnFileClear() 
 {
-	if (!g_record_handle && !g_stream_handle &&
+	/*
+	if (!g_record_handle && !m_bassPlaybackHandle &&
 		(m_record_file.m_hFile == CFile::hFileNull))
 	{
 		return;
@@ -884,12 +895,14 @@ void CMainFrame::OnFileClear()
 		}
 		OpenFile(l_str_filename);
 	}
+	*/
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnFileDelete() 
 {
-	if (!g_record_handle && !g_stream_handle &&
+	/*
+	if (!g_record_handle && !m_bassPlaybackHandle &&
 		(m_record_file.m_hFile == CFile::hFileNull))
 	{
 		return;
@@ -917,13 +930,33 @@ void CMainFrame::OnFileDelete()
 			e->Delete();
 		}
 	}
+	*/
 }
 
 //=======not from menu, but useful one :)===========================================
-void CMainFrame::OpenFile(const CString& str)
+void CMainFrame::OpenFile(CString fileName)
 {
 	OnFileClose();
 
+	if (Helpers::IsSuitableForRecording(fileName))
+	{
+		m_recordingFileName = fileName;
+	}
+	else
+	{
+		BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
+		m_bassPlaybackHandle = BASS_StreamCreateFile(false, fileName, 0, 0, 0);
+		if (!m_bassPlaybackHandle)
+		{
+			//ReportBassError(_T("Unable to open file."), BASS_ErrorGetCode());
+			BASS_Free();
+			return;
+		}
+	}
+
+	RegistryConfig::SetOption(_T("General\\LastFile"), fileName);
+
+	/*
 	// Storing last opened file name and path.
 	CString& l_last_path = m_conf.GetConfProg()->strLastFilePath;
 	CString& l_last_name = m_conf.GetConfProg()->strLastFileName;
@@ -954,25 +987,25 @@ void CMainFrame::OpenFile(const CString& str)
 			BASS_Init(deviceID <= 0 ? -1 : deviceID, 44100, 0, GetSafeHwnd(), NULL);
 		}
 
-		g_stream_handle = BASS_StreamCreateFile(false, str, 0, 0, 0);
-		if (!g_stream_handle)
+		m_bassPlaybackHandle = BASS_StreamCreateFile(false, str, 0, 0, 0);
+		if (!m_bassPlaybackHandle)
 		{
 			// Not calling BASS_Free, because it can be used by monitoring
 			//BASS_Free();
 			return;
 		}
 	}
+	*/
 
 	// Modifying window caption to "<FILE> - StepVoice Recorder".
-	CString l_filename = str;
-	if (l_filename.ReverseFind('\\') != -1)
-	{
-		l_filename = l_filename.Right(l_filename.GetLength() -
-			l_filename.ReverseFind('\\') - 1);
-	}
-	CString l_new_caption;
-	AfxFormatString1(l_new_caption, IDS_FILETITLE, l_filename);
-	m_title->SetTitleText(l_new_caption);
+
+	const int slashPos = fileName.ReverseFind('\\');
+	const CString shortName = (slashPos == -1) ? fileName
+		: fileName.Right(fileName.GetLength() - slashPos - 1);
+
+	CString newCaption;
+	AfxFormatString1(newCaption, IDS_FILETITLE, shortName);
+	m_title->SetTitleText(newCaption);
 	
 	UpdateStatWindow();
 	UpdateTrayText();
@@ -995,14 +1028,14 @@ void CMainFrame::OnSoundBegin()
 {
 	double l_seconds_all = 0;
 
-	if (g_stream_handle)
+	if (m_bassPlaybackHandle)
 	{
-		l_seconds_all = BASS_ChannelBytes2Seconds(g_stream_handle,
-			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+		l_seconds_all = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetLength(m_bassPlaybackHandle, BASS_POS_BYTE));
 
 		// Moving to the beginning on file
-		BOOL l_result = BASS_ChannelSetPosition(g_stream_handle,
-			BASS_ChannelSeconds2Bytes(g_stream_handle, 0), BASS_POS_BYTE);
+		BOOL l_result = BASS_ChannelSetPosition(m_bassPlaybackHandle,
+			BASS_ChannelSeconds2Bytes(m_bassPlaybackHandle, 0), BASS_POS_BYTE);
 		ASSERT(l_result);
 
 		m_TimeWnd.SetTime(0);
@@ -1018,18 +1051,18 @@ void CMainFrame::OnSoundRew()
 	double l_allsec = 0;
 	double l_cursec = 0;
 
-	if (g_stream_handle)
+	if (m_bassPlaybackHandle)
 	{
-		l_cursec = BASS_ChannelBytes2Seconds(g_stream_handle,
-			BASS_ChannelGetPosition(g_stream_handle, BASS_POS_BYTE));
-		l_allsec = BASS_ChannelBytes2Seconds(g_stream_handle,
-			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+		l_cursec = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetPosition(m_bassPlaybackHandle, BASS_POS_BYTE));
+		l_allsec = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetLength(m_bassPlaybackHandle, BASS_POS_BYTE));
 
 		l_cursec = ((l_cursec - 5) > 0) ? l_cursec - 5 : 0;
 
 		BOOL l_result = BASS_ChannelSetPosition(
-			g_stream_handle,
-			BASS_ChannelSeconds2Bytes(g_stream_handle, l_cursec),
+			m_bassPlaybackHandle,
+			BASS_ChannelSeconds2Bytes(m_bassPlaybackHandle, l_cursec),
 			BASS_POS_BYTE);
 		ASSERT(l_result);
 
@@ -1046,18 +1079,18 @@ void CMainFrame::OnSoundFf()
 	double l_allsec = 0;
 	double l_cursec = 0;
 
-	if (g_stream_handle)
+	if (m_bassPlaybackHandle)
 	{
-		l_cursec = BASS_ChannelBytes2Seconds(g_stream_handle,
-			BASS_ChannelGetPosition(g_stream_handle, BASS_POS_BYTE));
-		l_allsec = BASS_ChannelBytes2Seconds(g_stream_handle,
-			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+		l_cursec = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetPosition(m_bassPlaybackHandle, BASS_POS_BYTE));
+		l_allsec = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetLength(m_bassPlaybackHandle, BASS_POS_BYTE));
 
 		l_cursec = ((l_cursec + 5) < l_allsec) ? l_cursec + 5 : l_allsec;
 
 		BOOL l_result = BASS_ChannelSetPosition(
-			g_stream_handle,
-			BASS_ChannelSeconds2Bytes(g_stream_handle, l_cursec),
+			m_bassPlaybackHandle,
+			BASS_ChannelSeconds2Bytes(m_bassPlaybackHandle, l_cursec),
 			BASS_POS_BYTE);
 		ASSERT(l_result);
 
@@ -1073,14 +1106,14 @@ void CMainFrame::OnSoundEnd()
 {
 	double l_allsec = 0;
 
-	if (g_stream_handle)
+	if (m_bassPlaybackHandle)
 	{
-		l_allsec = BASS_ChannelBytes2Seconds(g_stream_handle,
-			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+		l_allsec = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetLength(m_bassPlaybackHandle, BASS_POS_BYTE));
 
 		BOOL l_result = BASS_ChannelSetPosition(
-			g_stream_handle,
-			BASS_ChannelSeconds2Bytes(g_stream_handle, l_allsec - 0.3),
+			m_bassPlaybackHandle,
+			BASS_ChannelSeconds2Bytes(m_bassPlaybackHandle, l_allsec - 0.3),
 			BASS_POS_BYTE);
 		ASSERT(l_result);
 
@@ -1211,29 +1244,24 @@ void CMainFrame::OnMixRec()
 //===========================================================================
 void CMainFrame::OnBtnOPEN()
 {
-	CString strTemp;
-	strTemp.LoadString(IDS_FILEFILTER);
+	CString dialogTitle, filesFilter;
+	dialogTitle.LoadString(IDS_FILENEWOPENTITLE);
+	filesFilter.LoadString(IDS_FILEFILTER);
 
-	CString strName = GetAutoName(CString(""));	// Name like 08jun_05.mp3
-	CString strLastPath = m_conf.GetConfProg()->strLastFilePath;
-
-	if (!strLastPath.IsEmpty())
-	{	
-		strLastPath = strLastPath + "\\";
-	}
+	const CString generatedName = GetAutoName(CString("")); // Name like 08jun_05.mp3
+	
+	const CString lastFileName = RegistryConfig::GetOption(_T("General\\LastFile"), CString());
+	const int slashPos = lastFileName.ReverseFind(_T('\\'));
+	const CString lastFilePath = (slashPos != -1) ? lastFileName.Left(slashPos) : CString();
 
 	// Creating a standard file open dialog
-	CFileDialog NewOpenFileDialog(true, "mp3",
-		strName.GetBuffer(strName.GetLength()),
-		OFN_HIDEREADONLY | OFN_EXPLORER, strTemp);
+	CFileDialog openDialog(true, "mp3", generatedName, OFN_HIDEREADONLY | OFN_EXPLORER, filesFilter);
+	openDialog.m_ofn.lpstrTitle= dialogTitle;
+	openDialog.m_ofn.lpstrInitialDir = lastFilePath;	
 
-	strTemp.LoadString(IDS_FILENEWOPENTITLE);
-	NewOpenFileDialog.m_ofn.lpstrTitle= strTemp.GetBuffer(strTemp.GetLength());
-	NewOpenFileDialog.m_ofn.lpstrInitialDir = strLastPath;	
-
-	if (NewOpenFileDialog.DoModal() == IDOK)
+	if (openDialog.DoModal() == IDOK)
 	{	
-		OpenFile(NewOpenFileDialog.GetPathName());
+		OpenFile(openDialog.GetPathName());
 		return;
 	}
 }
@@ -1244,74 +1272,103 @@ void CMainFrame::OnBtnPLAY()
 	if (!this->CanPlay())
 		return;
 
-	if (!g_stream_handle)
+	if (!m_bassPlaybackHandle)
 	{
 		OnBtnOPEN();
-		if (!g_stream_handle)
+		if (!m_bassPlaybackHandle)
 			return;
 	}
 
 	if (m_bMonitoringBtn)
 		MonitoringStop();
 
-	BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, m_playback_volume);
-	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_stream_handle);
+	BASS_ChannelSetAttribute(m_bassPlaybackHandle, BASS_ATTRIB_VOL, m_playback_volume);
+	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(m_bassPlaybackHandle);
 	switch (CHANNEL_STATE)
 	{
 	case BASS_ACTIVE_PLAYING:
-		BASS_ChannelPause(g_stream_handle);
+		BASS_ChannelPause(m_bassPlaybackHandle);
 		KillTimer(1);
 		m_nState = PAUSEPLAY_STATE;
 		break;
 
 	case BASS_ACTIVE_STOPPED:
 	case BASS_ACTIVE_PAUSED:
-		BASS_ChannelPlay(g_stream_handle, false);
+		BASS_ChannelPlay(m_bassPlaybackHandle, false);
 		SetTimer(1, 1000, NULL);
 		m_nState = PLAY_STATE;
 		break;
 	}
-	OnPlayVolumeSelect();
+	
+	//OnPlayVolumeSelect();
 }
 
 //===========================================================================
 void CMainFrame::OnBtnSTOP()
 {
-	::OutputDebugString(__FUNCTION__" ::1");
+	if (m_bassPlaybackHandle)
+	{
+		ASSERT(m_recordingFileName.IsEmpty());
+		KillTimer(1);
+
+		BOOL result = BASS_ChannelStop(m_bassPlaybackHandle);
+		ASSERT(result);
+		result = BASS_ChannelSetPosition(m_bassPlaybackHandle,
+			BASS_ChannelSeconds2Bytes(m_bassPlaybackHandle, 0), BASS_POS_BYTE);
+		ASSERT(result);
+	}
+
+	if (!m_recordingChain.IsEmpty())
+	{
+		ASSERT(!m_recordingFileName.IsEmpty());
+		KillTimer(2);
+		
+		m_recordingChain.GetFilter<CWasapiRecorder>()->Stop();
+		delete m_recordingChain.GetFilter<FileWriter>(); //must close file before writing VBR header
+		m_recordingChain.GetFilter<CEncoder_MP3>()->WriteVBRHeader(m_recordingFileName);
+		m_recordingChain.Empty();
+
+		OpenFile(m_recordingFileName);
+	}
+
+	//TODO: refactor. This thing resets playback time in time wnd.
+	PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
+		(LPARAM)m_SliderTime.m_hWnd);
 
 	m_nState = STOP_STATE;
-	if (g_stream_handle)
+	if (m_bMonitoringBtn)
+		MonitoringStart();
+
+
+	/*
+	m_nState = STOP_STATE;
+	if (m_bassPlaybackHandle)
 	{
 		KillTimer(1);
-		BOOL l_result = BASS_ChannelStop(g_stream_handle);
+		BOOL l_result = BASS_ChannelStop(m_bassPlaybackHandle);
 		ASSERT(l_result);
 
-		l_result = BASS_ChannelSetPosition(g_stream_handle,
-			BASS_ChannelSeconds2Bytes(g_stream_handle, 0), BASS_POS_BYTE);
+		l_result = BASS_ChannelSetPosition(m_bassPlaybackHandle,
+			BASS_ChannelSeconds2Bytes(m_bassPlaybackHandle, 0), BASS_POS_BYTE);
 		ASSERT(l_result);
 	}
 	if (g_record_handle)
 	{
-		::OutputDebugString(__FUNCTION__" ::2");
 		KillTimer(2);
 		BOOL l_result = BASS_ChannelStop(g_record_handle);
 		ASSERT(l_result);
 
-		::OutputDebugString(__FUNCTION__" ::3");
 		l_result = BASS_ChannelStop(g_loopback_handle);
 		ASSERT(l_result);
 
-		::OutputDebugString(__FUNCTION__" ::4");
 		g_loopback_handle = 0;
 		g_record_handle = 0;
 		m_loopback_hdsp = 0;
 		m_mute_hdsp = 0;
 		BASS_Free();
 		
-		::OutputDebugString(__FUNCTION__" ::5");
 		BASS_RecordFree();
 
-		::OutputDebugString(__FUNCTION__" ::6");
 		SAFE_DELETE(m_vista_loopback);
 		SAFE_DELETE(m_visualization_data);
 
@@ -1324,23 +1381,60 @@ void CMainFrame::OnBtnSTOP()
 		OpenFile(l_recorded_file);
 	}
 
-	::OutputDebugString(__FUNCTION__" ::7");
 	PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
 		(LPARAM)m_pMainFrame->m_SliderTime.m_hWnd);
 
 	if (m_bMonitoringBtn)
 		MonitoringStart();
 
-	::OutputDebugString(__FUNCTION__" ::8");
 	SetRecordingLine(m_conf.GetConfProg()->nRecLineID);
-	::OutputDebugString(__FUNCTION__" ::9");
+	*/
 }
 
 //===========================================================================
 void CMainFrame::OnBtnREC()
 {
-	::OutputDebugString(__FUNCTION__ " ::1");
+	if (m_recordingFileName.IsEmpty())
+	{
+		OnBtnOPEN();
+		if (m_recordingFileName.IsEmpty())
+			return;
+	}
 
+	if (m_bMonitoringBtn)
+		MonitoringStop();
+
+	if (m_recordingChain.IsEmpty())
+	{
+		WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+		ASSERT(!selectedDevices.empty());
+		const DWORD deviceID = selectedDevices[0].first;
+
+		const int bitrate = RegistryConfig::GetOption(_T("File types\\MP3\\Bitrate"), 128);
+		const int frequency = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
+		const int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
+
+		m_recordingChain.AddFilter(new CWasapiRecorder(deviceID, frequency, channels));
+		m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
+		m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
+	}
+
+	CWasapiRecorder* recorder = m_recordingChain.GetFilter<CWasapiRecorder>();
+	if (recorder->IsStarted())
+	{
+		recorder->Pause();
+		KillTimer(2);
+		m_nState = PAUSEREC_STATE;
+	}
+	else if (recorder->IsPaused() || recorder->IsStopped())
+	{
+		recorder->Start();
+		SetTimer(2, 1000, NULL);
+		m_nState = RECORD_STATE;
+	}
+
+
+	/*
 	// Data for the scheduler start
 	bool bIsSchedEnabled= m_conf.GetConfDialSH2()->bIsEnabled  != 0;
 	bool bSchedStart	= m_conf.GetConfDialSH2()->bSchedStart != 0;
@@ -1354,17 +1448,13 @@ void CMainFrame::OnBtnREC()
 			return;
 	}
 
-	::OutputDebugString(__FUNCTION__ " ::2");
 	MonitoringStop();
-	::OutputDebugString(__FUNCTION__ " ::3");
 
 	if (!g_record_handle)
 	{
-		::OutputDebugString(__FUNCTION__ " ::4");
 		if (!BASS_RecordInit(m_conf.GetConfDialGen()->nRecDevice)) //default device
 			return;
 
-		::OutputDebugString(__FUNCTION__ " ::5");
 		int l_bitrate = m_conf.GetConfDialMp3()->nBitrate;
 		int l_frequency = m_conf.GetConfDialMp3()->nFreq;
 		int l_channels = m_conf.GetConfDialMp3()->nStereo + 1;
@@ -1386,7 +1476,6 @@ void CMainFrame::OnBtnREC()
 			return;
 		}
 
-		::OutputDebugString(__FUNCTION__ " ::7");
 		SAFE_DELETE(m_visualization_data);
 		m_visualization_data = new VisualizationData(l_frequency, l_channels);
 
@@ -1394,13 +1483,11 @@ void CMainFrame::OnBtnREC()
 			MAKELONG(BASS_RECORD_PAUSE|BASS_SAMPLE_FLOAT, 25), (RECORDPROC *)&NewRecordProc, this);
 		if (FALSE == g_record_handle)
 		{
-			::OutputDebugString(__FUNCTION__ " ::8");
 			SAFE_DELETE(m_pEncoder);
 			g_record_handle = 0;
 			return;
 		}
 
-		::OutputDebugString(__FUNCTION__ " ::8");
 		// Creating the Loopback stream
 		//int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
 		//BASS_Init(deviceID <= 0 ? -1 : deviceID, l_frequency, 0, GetSafeHwnd(), NULL);
@@ -1409,19 +1496,14 @@ void CMainFrame::OnBtnREC()
 		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfDialGen()->nPlayDevice);
 		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
 
-		::OutputDebugString(__FUNCTION__ " ::9");
-
 		ASSERT(g_loopback_handle == 0);
 		g_loopback_handle = BASS_Mixer_StreamCreate(l_frequency, l_channels,
 			BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
 		ASSERT(g_loopback_handle);
 
-		::OutputDebugString(__FUNCTION__ " ::10");
-
 		BASS_Mixer_StreamAddChannel(g_loopback_handle, l_stream_handle,
 			BASS_MIXER_DOWNMIX);
 
-		::OutputDebugString(__FUNCTION__ " ::11");
 		if (m_recording_mixer == E_REC_LOOPBACK)
 		{
 			m_mute_hdsp = BASS_ChannelSetDSP(g_record_handle,
@@ -1434,7 +1516,6 @@ void CMainFrame::OnBtnREC()
 		}
 	}
 
-	::OutputDebugString(__FUNCTION__ " ::12");
 	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_record_handle);
 	switch (CHANNEL_STATE)
 	{
@@ -1466,7 +1547,7 @@ void CMainFrame::OnBtnREC()
 		m_nState = RECORD_STATE;
 		break;
 	}
-	::OutputDebugString(__FUNCTION__ " ::13");
+	*/
 }
 
 //===========================================================================
@@ -1488,11 +1569,45 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 {
 	CFrameWnd::OnTimer(nIDEvent);
 
+	double curSeconds = 0.0;
+	double allSeconds = 0.0;
+
+	if (nIDEvent == 1)
+	{
+		ASSERT(m_bassPlaybackHandle != NULL);
+
+		curSeconds = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetPosition(m_bassPlaybackHandle, BASS_POS_BYTE));
+		allSeconds = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetLength(m_bassPlaybackHandle, BASS_POS_BYTE));
+
+		//Autostop on file end.
+		if (BASS_ChannelIsActive(m_bassPlaybackHandle) == BASS_ACTIVE_STOPPED)
+			PostMessage(WM_COMMAND, IDB_BTNSTOP, LONG(this->m_BtnSTOP.m_hWnd));
+	}
+	else if (nIDEvent == 2)
+	{
+		ASSERT(!m_recordingChain.IsEmpty());
+		const int kbitSec = RegistryConfig::GetOption(_T("File types\\MP3\\Bitrate"), 128);
+		const int bytesSec = kbitSec * (1000/8);
+		const ULONGLONG fileSize = m_recordingChain.GetFilter<FileWriter>()->GetFileLength();
+
+		curSeconds = double(fileSize / bytesSec);
+		allSeconds = curSeconds;
+	}
+
+	if (!m_SliderTime.IsDragging())
+		m_SliderTime.SetCurPos(int(curSeconds/allSeconds * 1000));
+
+	m_TimeWnd.SetTime((UINT)curSeconds);
+	UpdateStatWindow();
+
+	/*
 	HSTREAM l_handle = 0;
 	switch (nIDEvent)
 	{
 	case 1:
-		l_handle = g_stream_handle;
+		l_handle = m_bassPlaybackHandle;
 		break;
 	case 2:
 		l_handle = (HSTREAM)g_record_handle;
@@ -1523,11 +1638,43 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 	{
 		PostMessage(WM_COMMAND, IDB_BTNSTOP, LONG(this->m_BtnSTOP.m_hWnd));
 	}
+	*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::UpdateStatWindow()
 {
+	int bitrate = RegistryConfig::GetOption(_T("File types\\MP3\\Bitrate"), 128);
+	int frequency = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
+	int stereo = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1);
+	ULONGLONG fileSize = 0;
+	double fileSeconds = 0.0;
+
+	if (m_bassPlaybackHandle != NULL)
+	{
+		BASS_CHANNELINFO channelInfo;
+		BASS_ChannelGetInfo(m_bassPlaybackHandle, &channelInfo);
+
+		fileSize = BASS_StreamGetFilePosition(m_bassPlaybackHandle, BASS_FILEPOS_END);
+		fileSeconds = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetLength(m_bassPlaybackHandle, BASS_POS_BYTE));
+
+		bitrate = int(fileSize / (125*fileSeconds) + 0.5); //to kbit/sec
+		frequency = channelInfo.freq;
+		stereo = (channelInfo.chans > 1) ? 1 : 0;
+	}
+	else if (!m_recordingChain.IsEmpty())
+	{
+		const int bytesSec = bitrate * (1000/8); //bitrate is kbit/sec
+		fileSize = m_recordingChain.GetFilter<FileWriter>()->GetFileLength();
+		fileSeconds = double(fileSize / bytesSec);
+	}
+
+	const CString strFileSeconds = Helpers::ToString_HMMSS(fileSeconds);
+	m_StatWnd.Set(frequency, bitrate, stereo);
+	m_StatWnd.Set(fileSize/1024, strFileSeconds);
+
+	/*
 	int l_stream_rate = m_conf.GetConfDialMp3()->nBitrate;
 	int l_stream_freq = m_conf.GetConfDialMp3()->nFreq;
 	int l_stream_mode = m_conf.GetConfDialMp3()->nStereo;
@@ -1535,16 +1682,16 @@ void CMainFrame::UpdateStatWindow()
 	QWORD l_size_bytes = 0;
 	double l_size_seconds = 0;
 
-	if (g_stream_handle)
+	if (m_bassPlaybackHandle)
 	{
 		BASS_CHANNELINFO l_channel_info;
-		BASS_ChannelGetInfo(g_stream_handle, &l_channel_info);
+		BASS_ChannelGetInfo(m_bassPlaybackHandle, &l_channel_info);
 
-		l_size_bytes = BASS_StreamGetFilePosition(g_stream_handle,
+		l_size_bytes = BASS_StreamGetFilePosition(m_bassPlaybackHandle,
 			BASS_FILEPOS_END);
 
-		l_size_seconds = BASS_ChannelBytes2Seconds(g_stream_handle,
-			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+		l_size_seconds = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetLength(m_bassPlaybackHandle, BASS_POS_BYTE));
 
 		l_stream_rate = int(l_size_bytes / (125* l_size_seconds) + 0.5); //Kbps
 		l_stream_freq = l_channel_info.freq;
@@ -1559,6 +1706,7 @@ void CMainFrame::UpdateStatWindow()
 	const CString allSeconds = Helpers::ToString_HMMSS(l_size_seconds);
 	m_StatWnd.Set(l_stream_freq, l_stream_rate, l_stream_mode);
 	m_StatWnd.Set((UINT)l_size_bytes/1024, allSeconds);
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -2039,10 +2187,10 @@ void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
 	double l_seconds_pos = 0;
 	double l_seconds_all = 0;
 
-	if (g_stream_handle)
+	if (m_bassPlaybackHandle)
 	{
-		l_seconds_all = BASS_ChannelBytes2Seconds(g_stream_handle,
-			BASS_ChannelGetLength(g_stream_handle, BASS_POS_BYTE));
+		l_seconds_all = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
+			BASS_ChannelGetLength(m_bassPlaybackHandle, BASS_POS_BYTE));
 		l_seconds_pos = l_seconds_all * nPos / 1000;
 	}
 
@@ -2053,15 +2201,15 @@ void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
 	else if (SB_THUMBPOSITION == nSBCode)
 	{
 		m_title->Restore();
-		if (g_stream_handle)
+		if (m_bassPlaybackHandle)
 		{
 			if (l_seconds_pos >= l_seconds_all - 0.3)
 			{
 				l_seconds_pos = max(l_seconds_all - 0.3, 0);
 			}
 			BOOL l_result = BASS_ChannelSetPosition(
-				g_stream_handle,
-				BASS_ChannelSeconds2Bytes(g_stream_handle, l_seconds_pos),
+				m_bassPlaybackHandle,
+				BASS_ChannelSeconds2Bytes(m_bassPlaybackHandle, l_seconds_pos),
 				BASS_POS_BYTE);
 			ASSERT(l_result);
 			m_TimeWnd.SetTime((UINT)l_seconds_pos);
@@ -2107,7 +2255,7 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		m_playback_volume = (float)nPercent / 100;
 
 		if (IsPlaying(m_nState))
-			BASS_ChannelSetAttribute(g_stream_handle, BASS_ATTRIB_VOL, m_playback_volume);
+			BASS_ChannelSetAttribute(m_bassPlaybackHandle, BASS_ATTRIB_VOL, m_playback_volume);
 	}
 
 	// Processing slider messages
@@ -2184,6 +2332,7 @@ void CMainFrame::OnVolDownA()
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnSched()
 {
+	/*
 #ifndef _DEBUG
 	// Button is disabled after the trial period is over
 	if(fsProtect_GetDaysLeft() <= 0)
@@ -2244,6 +2393,7 @@ void CMainFrame::OnBtnSched()
 	m_conf.GetConfDialSH2()->bIsEnabled = !bIsEnabled;
 	// Updating the "Record" button when scheduler started
 	//UpdateButtonState(IDB_BTNREC);
+	*/
 
 	/*
 	// Updating time window
@@ -2262,6 +2412,7 @@ void CMainFrame::OnBtnSched()
 //		1 - stop recording
 void Scheduler2Function(int nAction)
 {
+	/*
 	//CMainFrame* pMainWnd = (CMainFrame *)AfxGetMainWnd();
 	CMainFrame* pMainWnd = CMainFrame::m_pMainFrame;
 
@@ -2319,6 +2470,7 @@ void Scheduler2Function(int nAction)
 			}
 		}
 	}
+	*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2360,6 +2512,9 @@ bool CMainFrame::IsMonitoringOnly()
 //------------------------------------------------------------------------------
 bool CMainFrame::MonitoringStart()
 {
+	if (!m_monitoringChain.IsEmpty())
+		return true;
+
 	//TODO: add check if recording currently. Possible should avoid two
 	//CWasapiRecorders in one thread (BASS_Wasapi_Stop etc. can affect also main recorder).
 
@@ -2446,7 +2601,7 @@ void CMainFrame::MonitoringStop()
 		m_loopback_hdsp = 0;
 		m_mute_hdsp = 0;
 
-		if (!g_stream_handle && !g_loopback_handle)
+		if (!m_bassPlaybackHandle && !g_loopback_handle)
 			BASS_Free();
 		BASS_RecordFree();
 	}
@@ -2547,8 +2702,8 @@ void CMainFrame::UpdateInterface()
 	{
 	case PLAY_STATE:
 		///@bug Testing new functionality
-		g_update_handle = g_stream_handle;
-		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, NULL);
+		//g_update_handle = m_bassPlaybackHandle;
+		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, this);
 
 		m_BtnPLAY.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
@@ -2563,9 +2718,12 @@ void CMainFrame::UpdateInterface()
 		break;
 
 	case RECORD_STATE:
+		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi,
+			m_recordingChain.GetFilter<CWasapiRecorder>());
+
 		///@bug Testing new functionality
-		g_update_handle = g_record_handle;
-		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, NULL);
+		//g_update_handle = g_record_handle;
+		//m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, this);
 
 		m_BtnREC.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
@@ -2746,6 +2904,7 @@ void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnRecLoopbackMixSelect()
 {
+	/*
 	OutputDebugString(__FUNCTION__" :: setting rec. loopback mix flag\n");
 
 	OnRecLoopbackSelect();
@@ -2764,6 +2923,7 @@ void CMainFrame::OnRecLoopbackMixSelect()
 	}
 	m_mute_hdsp = 0;
 	m_conf.GetConfProg()->nRecLineID = ID_MIXITEM_REC_LOOPBACK_MIX;
+	*/
 }
 
 void CMainFrame::OnRecLoopbackSelect()
@@ -2786,6 +2946,7 @@ void CMainFrame::OnRecLoopbackSelect()
 	}
 	*/
 
+	/*
 	OutputDebugString(__FUNCTION__"\n");
 
 	// If we are in recording state, when set or remove DSP function,
@@ -2814,6 +2975,7 @@ void CMainFrame::OnRecLoopbackSelect()
 		}
 	}
 	m_conf.GetConfProg()->nRecLineID = ID_MIXITEM_REC_LOOPBACK;
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -2828,13 +2990,15 @@ void CMainFrame::OnPlayVolumeSelect()
 //------------------------------------------------------------------------------
 bool CMainFrame::CanPlay() const
 {
-	return (m_record_file.m_hFile == CFile::hFileNull);
+	return m_recordingFileName.IsEmpty();
+	//return (m_record_file.m_hFile == CFile::hFileNull);
 }
 
 //------------------------------------------------------------------------------
 bool CMainFrame::CanRecord() const
 {
-	return BASS_ChannelIsActive(g_stream_handle)==BASS_ACTIVE_STOPPED;
+	return !m_recordingFileName.IsEmpty();
+	//return BASS_ChannelIsActive(m_bassPlaybackHandle)==BASS_ACTIVE_STOPPED;
 }
 //------------------------------------------------------------------------------
 
