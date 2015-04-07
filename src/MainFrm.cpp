@@ -1398,12 +1398,15 @@ void CMainFrame::OnBtnREC()
 		ASSERT(!selectedDevices.empty());
 		const DWORD deviceID = selectedDevices[0].first;
 
-		const int bitrate = RegistryConfig::GetOption(_T("File types\\MP3\\Bitrate"), 128);
-		const int frequency = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
-		const int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
+		int bitrate = RegistryConfig::GetOption(_T("File types\\MP3\\Bitrate"), 128);
+		int frequency = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
+		int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
 
-		//TODO: use actual frequency and channels, returned by recorder.
-		m_recordingChain.AddFilter(new CWasapiRecorder(deviceID, frequency, channels));
+		CWasapiRecorder* recorder = new CWasapiRecorder(deviceID, frequency, channels);
+		frequency = recorder->GetActualFrequency();
+		channels = recorder->GetActualChannelCount();
+
+		m_recordingChain.AddFilter(recorder);
 		m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
 		m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
 	}
