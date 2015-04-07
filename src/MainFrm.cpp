@@ -865,72 +865,61 @@ void CMainFrame::OnFileClose()
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnFileClear() 
 {
-	/*
-	if (!g_record_handle && !m_bassPlaybackHandle &&
-		(m_record_file.m_hFile == CFile::hFileNull))
+	if (m_recordingFileName.IsEmpty() && !m_bassPlaybackHandle)
+		return;
+
+	const CString lastFilePath = RegistryConfig::GetOption(_T("General\\LastFile"), CString());
+	if (lastFilePath.IsEmpty())
+		return;
+
+	CString msgWarning;
+	AfxFormatString1(msgWarning, IDS_CLEAR_ASK, lastFilePath);
+	if (AfxMessageBox(msgWarning, MB_YESNO|MB_ICONWARNING) != IDYES)
+		return;
+
+	OnFileClose();
+	try
 	{
+		CFile file(lastFilePath, CFile::modeCreate);
+	}
+	catch (CException *e)
+	{
+		e->ReportError();
+		e->Delete();
 		return;
 	}
-	CString& l_last_path = m_conf.GetConfProg()->strLastFilePath;
-	CString& l_last_name = m_conf.GetConfProg()->strLastFileName;
-
-	CString l_str_warning  = "";
-	CString l_str_filename = l_last_path + '\\' + l_last_name;
-
-	AfxFormatString1(l_str_warning, IDS_CLEAR_ASK, l_str_filename);
-	if (AfxMessageBox(l_str_warning, MB_YESNO|MB_ICONWARNING) == IDYES)
-	{
-		OnFileClose();
-
-		CFileException e;
-		if (m_record_file.Open(l_str_filename, CFile::modeCreate, &e))
-		{
-			m_record_file.Close();
-		}
-		else
-		{
-			TCHAR szError[1024];
-			e.GetErrorMessage(szError, 1024);
-			AfxMessageBox(szError);
-		}
-		OpenFile(l_str_filename);
-	}
-	*/
+	OpenFile(lastFilePath);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnFileDelete() 
 {
-	/*
-	if (!g_record_handle && !m_bassPlaybackHandle &&
-		(m_record_file.m_hFile == CFile::hFileNull))
-	{
+	if (m_recordingFileName.IsEmpty() && !m_bassPlaybackHandle)
 		return;
-	}
-	CString& l_last_path = m_conf.GetConfProg()->strLastFilePath;
-	CString& l_last_name = m_conf.GetConfProg()->strLastFileName;
 
-	CString l_str_warning  = "";
-	CString l_str_filename = l_last_path + '\\' + l_last_name;
+	const CString lastFilePath = RegistryConfig::GetOption(_T("General\\LastFile"), CString());
+	if (lastFilePath.IsEmpty())
+		return;
 
-	AfxFormatString1(l_str_warning, IDS_DEL_ASK, l_str_filename);
-	if (AfxMessageBox(l_str_warning, MB_YESNO|MB_ICONWARNING) == IDYES)
-	{
-		OnFileClose();
+	//CString msgWarning;
+	//AfxFormatString1(msgWarning, IDS_DEL_ASK, lastFilePath);
+	//if (AfxMessageBox(msgWarning, MB_YESNO|MB_ICONWARNING) != IDYES)
+	//	return;
 
-		try
-		{
-			CFile::Remove(l_str_filename);
-		}
-		catch (CFileException* e)
-		{
-			TCHAR szError[1024];
-			e->GetErrorMessage(szError, 1024);
-			AfxMessageBox(szError);
-			e->Delete();
-		}
-	}
-	*/
+	OnFileClose();
+
+	TCHAR fromBuffer[MAX_PATH+2]; //String must be double-null terminated.
+	ZeroMemory(fromBuffer, sizeof(fromBuffer));
+	lstrcpy(fromBuffer, lastFilePath);
+
+	//Removing file to RecycleBin.
+	SHFILEOPSTRUCT fileOp;
+	ZeroMemory(&fileOp, sizeof(fileOp));
+	fileOp.wFunc = FO_DELETE;
+	fileOp.pFrom = fromBuffer;
+	fileOp.fFlags = FOF_ALLOWUNDO | FOF_SILENT;
+	
+	SHFileOperation(&fileOp);
 }
 
 //=======not from menu, but useful one :)===========================================
@@ -1014,10 +1003,8 @@ void CMainFrame::OpenFile(CString fileName)
 //===========================================================================
 void CMainFrame::OnFileFindfile() 
 {
-	CString filePath = m_conf.GetConfProg()->strLastFilePath + _T("\\") +
-		m_conf.GetConfProg()->strLastFileName;
-	
-	ShellExecute(NULL, "open", "explorer", "/select, """+filePath+"""",
+	const CString lastFilePath = RegistryConfig::GetOption(_T("General\\LastFile"), CString());
+	ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select, """)+lastFilePath+_T(""""),
 		NULL, SW_NORMAL);
 }
 
@@ -1322,9 +1309,10 @@ void CMainFrame::OnBtnSTOP()
 	{
 		ASSERT(!m_recordingFileName.IsEmpty());
 		KillTimer(2);
-		
+		m_GraphWnd.StopUpdate(); //need it here, before recorder chain is destroyed
+
 		m_recordingChain.GetFilter<CWasapiRecorder>()->Stop();
-		delete m_recordingChain.GetFilter<FileWriter>(); //must close file before writing VBR header
+		m_recordingChain.GetFilter<FileWriter>()->ForceClose();
 		m_recordingChain.GetFilter<CEncoder_MP3>()->WriteVBRHeader(m_recordingFileName);
 		m_recordingChain.Empty();
 
@@ -1414,6 +1402,7 @@ void CMainFrame::OnBtnREC()
 		const int frequency = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
 		const int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
 
+		//TODO: use actual frequency and channels, returned by recorder.
 		m_recordingChain.AddFilter(new CWasapiRecorder(deviceID, frequency, channels));
 		m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
 		m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));

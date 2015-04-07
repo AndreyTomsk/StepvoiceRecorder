@@ -17,8 +17,17 @@ FileWriter::FileWriter(const CString& fileName)
 
 FileWriter::~FileWriter()
 {
-	m_outputFile.Flush();
-	m_outputFile.Close();
+	ForceClose();
+}
+//---------------------------------------------------------------------------
+
+void FileWriter::ForceClose()
+{
+	if (m_outputFile.m_hFile != CFile::hFileNull)
+	{
+		m_outputFile.Flush();
+		m_outputFile.Close();
+	}
 }
 //---------------------------------------------------------------------------
 

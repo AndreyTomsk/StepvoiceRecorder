@@ -30,7 +30,6 @@
 #define IDS_FILEFILTER                  136
 #define IDS_FILENEWOPENTITLE            137
 #define IDS_SEEKTO                      138
-#define IDS_DEL_UNABLE                  141
 #define IDS_DEL_ASK                     142
 #define IDI_STOP                        149
 #define IDI_REC                         150

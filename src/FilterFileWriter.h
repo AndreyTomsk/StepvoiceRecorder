@@ -16,6 +16,8 @@ public:
 	
 	ULONGLONG GetFileLength() const; //in bytes
 
+	void ForceClose(); //need this method to let encoder write VBR header.
+
 protected:
 	virtual bool ProcessData(void* buffer, DWORD lengthBytes);
 	CFile m_outputFile;

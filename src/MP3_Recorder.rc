@@ -146,7 +146,7 @@ BEGIN
         MENUITEM "&Close",                      IDM_FILE_CLOSE,MFT_STRING,MFS_ENABLED
         MENUITEM MFT_SEPARATOR
         MENUITEM "Cle&ar\aCtrl - A",            IDM_FILE_CLEAR,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Delete",                     IDM_FILE_DELETE,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Delete to Recycle Bin",      IDM_FILE_DELETE,MFT_STRING,MFS_ENABLED
         MENUITEM MFT_SEPARATOR
         MENUITEM "&Find...\aCtrl - F",          IDM_FILE_FINDFILE,MFT_STRING,MFS_ENABLED
         MENUITEM MFT_SEPARATOR
@@ -592,13 +592,12 @@ BEGIN
     IDS_FILEFILTER          "MPEG audio files (*.MP3)|*.mp3|All files (*.*)|*.*||"
     IDS_FILENEWOPENTITLE    "Create/Open file"
     IDS_SEEKTO              "Seek To: %s/%s (%d%%)"
-    IDS_DEL_UNABLE          """%1""\nUnable to delete the file."
-    IDS_DEL_ASK             "Using this command will remove file PERMANENTLY from disk.\nDelete this file:\n""%1"" ?"
+    IDS_DEL_ASK             "Move file to Recycle Bin ?\n""%1"""
 END
 
 STRINGTABLE 
 BEGIN
-    IDS_CLEAR_ASK           "Using this command will remove PERMANENTLY all sounds from file.\nClear this file:\n""%1"""
+    IDS_CLEAR_ASK           "Clear file permanently ?\n""%1"""
     IDS_TT_OPEN             "Create/Open File (Ctrl - O)"
     IDS_TT_REC              "Record/Pause (Enter)"
     IDS_TT_STOP             "Stop (Shift - Space)"
