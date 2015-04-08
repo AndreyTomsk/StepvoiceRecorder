@@ -3119,10 +3119,19 @@ LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
 		const Parameter& param = m_filterNotifications[i];
 		if (param.name == _T("VAS.HandleSilence"))
 		{
-			const int icoWndIcon = param.valueInt == 1 ? ICON_RECVAS : ICON_REC;
-			const int trayIcon = param.valueInt == 1 ? IDI_TRAY_PAUSE : IDI_TRAY_REC;
-			m_IcoWnd.SetNewIcon(icoWndIcon);
-			m_TrayIcon.SetIcon(trayIcon);
+			const int vasAction = RegistryConfig::GetOption(_T("Tools\\VAS\\Action"), 0);
+			const bool stopOnSilence = vasAction == 1;
+			const bool isSilence = param.valueInt == 1;
+
+			if (isSilence && stopOnSilence)
+				OnBtnSTOP();
+			else
+			{
+				const int icoWndIcon = isSilence ? ICON_RECVAS : ICON_REC;
+				const int trayIcon = isSilence ? IDI_TRAY_PAUSE : IDI_TRAY_REC;
+				m_IcoWnd.SetNewIcon(icoWndIcon);
+				m_TrayIcon.SetIcon(trayIcon);
+			}
 			continue;
 		}
 
@@ -3138,5 +3147,5 @@ LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
 	m_filterNotifications.clear();
 	return 0;
 }
-
 //------------------------------------------------------------------------------
+
