@@ -10,25 +10,25 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 
 Parameter::Parameter(CString name, int value)
-	:m_name(name)
-	,m_type(eInteger)
-	,m_value_int(value)
+	:name(name)
+	,type(eInteger)
+	,valueInt(value)
 {
 }
 //---------------------------------------------------------------------------
 
 Parameter::Parameter(CString name, float value)
-	:m_name(name)
-	,m_type(eFloat)
-	,m_value_float(value)
+	:name(name)
+	,type(eFloat)
+	,valueFloat(value)
 {
 }
 //---------------------------------------------------------------------------
 
 Parameter::Parameter(CString name, CString value)
-	:m_name(name)
-	,m_type(eString)
-	,m_value_string(value)
+	:name(name)
+	,type(eString)
+	,valueString(value)
 {
 }
 

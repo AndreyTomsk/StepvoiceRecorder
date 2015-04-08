@@ -10,14 +10,14 @@ struct Parameter
 	Parameter(CString name, float value);
 	Parameter(CString name, CString value);
 
-	CString m_name;
+	CString name;
 
 	enum Type {eInteger, eFloat, eString};
-	Type m_type;
+	Type type;
 
-	int m_value_int;
-	float m_value_float;
-	CString m_value_string;
+	int valueInt;
+	float valueFloat;
+	CString valueString;
 };
 
 /////////////////////////////////////////////////////////////////////////////

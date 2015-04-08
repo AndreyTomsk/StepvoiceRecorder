@@ -20,10 +20,10 @@ static char THIS_FILE[] = __FILE__;
 #include <basswasapi.h>
 
 //#include "FilterChain.h"
-#include "FilterFileWriter.h"
-//#include "FilterFileWriterWAV.h"
 #include "WasapiRecorder.h"
+#include "VASFilter.h"
 #include "Encoder_MP3.h"
+#include "FilterFileWriter.h"
 
 HSTREAM m_bassPlaybackHandle = 0;   // Playback
 //HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
@@ -1398,6 +1398,10 @@ void CMainFrame::OnBtnREC()
 		ASSERT(!selectedDevices.empty());
 		const DWORD deviceID = selectedDevices[0].first;
 
+		const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
+		const int vasThresholdDB = RegistryConfig::GetOption(_T("Tools\\VAS\\Threshold"), -30);
+		const int vasWaitTimeMS = RegistryConfig::GetOption(_T("Tools\\VAS\\WaitTime"), 2000);
+
 		int bitrate = RegistryConfig::GetOption(_T("File types\\MP3\\Bitrate"), 128);
 		int frequency = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
 		int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
@@ -1407,6 +1411,7 @@ void CMainFrame::OnBtnREC()
 		channels = recorder->GetActualChannelCount();
 
 		m_recordingChain.AddFilter(recorder);
+		m_recordingChain.AddFilter(new VasFilter(vasThresholdDB, vasWaitTimeMS, vasEnabled));
 		m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
 		m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
 	}
@@ -1420,6 +1425,7 @@ void CMainFrame::OnBtnREC()
 	}
 	else if (recorder->IsPaused() || recorder->IsStopped())
 	{
+		m_recordingChain.GetFilter<VasFilter>()->ResetDetection();
 		recorder->Start();
 		SetTimer(2, 1000, NULL);
 		m_nState = RECORD_STATE;
@@ -3097,5 +3103,14 @@ LRESULT CMainFrame::OnRecSourceChanged(WPARAM wParam, LPARAM lParam)
 void CMainFrame::HandleFilterNotification(
 	const Filter* fromFilter, const Parameter& parameter, void* userData)
 {
+	CString debugString;
+	if (parameter.type == Parameter::eInteger)
+		debugString.Format(_T("%s :: '%s'=%d"), __FUNCTION__, parameter.name, parameter.valueInt);
+	if (parameter.type == Parameter::eFloat)
+		debugString.Format(_T("%s :: '%s'=%f"), __FUNCTION__, parameter.name, parameter.valueFloat);
+	if (parameter.type == Parameter::eString)
+		debugString.Format(_T("%s :: '%s'=%s"), __FUNCTION__, parameter.name, parameter.valueString);
+
+	::OutputDebugString(debugString);
 }
 //------------------------------------------------------------------------------

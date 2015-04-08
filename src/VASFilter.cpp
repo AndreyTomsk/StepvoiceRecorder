@@ -14,6 +14,8 @@ VasFilter::VasFilter(double tresholdDB, int durationMS, bool isEnabled)
 	:m_tresholdDB(tresholdDB)
 	,m_durationMS(durationMS)
 	,m_enabled(isEnabled)
+	,m_silenceStartMS(0)
+	,m_silenceState(false)
 {
 }
 //---------------------------------------------------------------------------
@@ -26,11 +28,36 @@ VasFilter::~VasFilter()
 void VasFilter::Enable(bool isEnabled)
 {
 	m_enabled = isEnabled;
+	ResetDetection();
+}
+//---------------------------------------------------------------------------
+
+void VasFilter::SetTreshold(double newTresholdDB)
+{
+	m_tresholdDB = newTresholdDB;
+	ResetDetection();
+}
+//---------------------------------------------------------------------------
+
+void VasFilter::SetDuration(int newDurationMS)
+{
+	m_durationMS = newDurationMS;
+	ResetDetection();
+}
+//---------------------------------------------------------------------------
+
+void VasFilter::ResetDetection()
+{
+	m_silenceStartMS = 0;
+	m_silenceState = false;
 }
 //---------------------------------------------------------------------------
 
 bool VasFilter::ProcessData(void* buffer, DWORD lengthBytes)
 {
+	if (!m_enabled)
+		return Filter::ProcessData(buffer, lengthBytes);
+
 	ASSERT(lengthBytes%sizeof(float) == 0); //base check we have float data
 
 	//Calculate max level of buffer (or check it is lower than treshold).
@@ -39,42 +66,37 @@ bool VasFilter::ProcessData(void* buffer, DWORD lengthBytes)
 	//If exceeded - send notification, don't pass data to next filter.
 	//Until max level in input buffer become higher than treshold.
 
-	static DWORD silenceStartMS = 0;
-	static bool silenceState = false;
-
-	if (!m_enabled)
-	{
-		silenceStartMS = 0;
-		silenceState = false;
-		return Filter::ProcessData(buffer, lengthBytes);
-	}
-
 	if (SilenceDetected((float*)buffer, lengthBytes/sizeof(float)))
 	{
-		const DWORD silenceCurMS = GetTickCount(); //TODO: replace by GetTickCount64
-
-		if (silenceStartMS == 0)
+		const ULONGLONG silenceCurMS = GetTickCount();
+		if (m_silenceStartMS == 0)
 		{
-			silenceStartMS = silenceCurMS;
+			m_silenceStartMS = silenceCurMS;
 		}
-		else if (!silenceState && (silenceCurMS - silenceStartMS > (unsigned)m_durationMS))
+		else
 		{
-			SendNotification(Parameter(_T("VAS.HandleSilence"), 1));
-			silenceState = true;
+			ULONGLONG diffMS;
+			if (m_silenceStartMS <= silenceCurMS) //normal state
+				diffMS = silenceCurMS - m_silenceStartMS;
+			else //DWORD overflow (DWORD is result from GetTickCount).
+				diffMS = UINT_MAX + silenceCurMS - m_silenceStartMS;
+
+			if ((diffMS >= m_durationMS) && !m_silenceState)
+			{
+				SendNotification(Parameter(_T("VAS.HandleSilence"), 1));
+				m_silenceState = true;
+			}
 		}
 	}
-	else
+	else //high signal
 	{
-		if (silenceState)
-		{
+		if (m_silenceState)
 			SendNotification(Parameter(_T("VAS.HandleSilence"), 0));
-			silenceState = false;
-		}
-		//We can also assign silence start, but recording became not silent.
-		silenceStartMS = 0;
+		m_silenceState = false;
+		m_silenceStartMS = 0;
 	}
 
-	if (!silenceState)
+	if (!m_silenceState)
 		return Filter::ProcessData(buffer, lengthBytes);
 	else
 		return true; //don't pass data to next filter.
