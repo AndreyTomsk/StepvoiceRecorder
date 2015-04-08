@@ -335,6 +335,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Debug.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Encoder_MP3.cpp"
 				>
 				<FileConfiguration
@@ -1147,6 +1151,10 @@
 			</File>
 			<File
 				RelativePath="CustomMenu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Debug.h"
 				>
 			</File>
 			<File

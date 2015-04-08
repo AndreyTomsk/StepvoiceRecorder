@@ -2,6 +2,8 @@
 #define FILTER_H
 #pragma once
 
+#include "Debug.h"
+
 /////////////////////////////////////////////////////////////////////////////
 
 struct Parameter
@@ -19,6 +21,8 @@ struct Parameter
 	float valueFloat;
 	CString valueString;
 };
+
+WriteDbg& operator <<(WriteDbg& writer, const Parameter& param);
 
 /////////////////////////////////////////////////////////////////////////////
 // Provides functionality for chain processing. Base class.

@@ -31,6 +31,20 @@ Parameter::Parameter(CString name, CString value)
 	,valueString(value)
 {
 }
+//---------------------------------------------------------------------------
+
+WriteDbg& operator <<(WriteDbg& writer, const Parameter& param)
+{
+	writer << "'" << param.name << "'=";
+	if (param.type == Parameter::eInteger)
+		writer << param.valueInt;
+	if (param.type == Parameter::eFloat)
+		writer << param.valueFloat;
+	if (param.type == Parameter::eString)
+		writer << param.valueString;
+
+	return writer;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 

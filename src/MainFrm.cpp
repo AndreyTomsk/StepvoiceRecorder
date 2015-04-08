@@ -24,6 +24,7 @@ static char THIS_FILE[] = __FILE__;
 #include "VASFilter.h"
 #include "Encoder_MP3.h"
 #include "FilterFileWriter.h"
+#include "Debug.h"
 
 HSTREAM m_bassPlaybackHandle = 0;   // Playback
 //HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
@@ -3135,14 +3136,7 @@ LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
 			continue;
 		}
 
-		CString debugString;
-		if (param.type == Parameter::eInteger)
-			debugString.Format(_T("%s :: '%s'=%d"), __FUNCTION__, param.name, param.valueInt);
-		if (param.type == Parameter::eFloat)
-			debugString.Format(_T("%s :: '%s'=%f"), __FUNCTION__, param.name, param.valueFloat);
-		if (param.type == Parameter::eString)
-			debugString.Format(_T("%s :: '%s'=%s"), __FUNCTION__, param.name, param.valueString);
-		::OutputDebugString(debugString);
+		WriteDbg() << "UNHANDLED PARAMETER: " << param;
 	}
 	m_filterNotifications.clear();
 	return 0;
