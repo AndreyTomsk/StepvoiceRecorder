@@ -42,6 +42,7 @@
 
 #include "Filter.h" //for NOTIFY_CALLBACK
 #include "FilterChain.h"
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
 enum ProgramState
@@ -260,6 +261,7 @@ protected:
 	LRESULT OnTrayNotification(WPARAM wParam, LPARAM lParam);
 	LRESULT OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam);
 	LRESULT OnRecSourceChanged(WPARAM wParam, LPARAM lParam);
+	LRESULT OnFilterNotify(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 
 private:
@@ -272,6 +274,8 @@ private:
 	//These parameters should be mutually exclusive:
 	CString m_recordingFileName; //Not empty name indicates that able to record.
 	HSTREAM m_bassPlaybackHandle;
+
+	std::vector<Parameter> m_filterNotifications;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

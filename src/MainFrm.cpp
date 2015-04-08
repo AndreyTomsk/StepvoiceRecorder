@@ -60,7 +60,8 @@ bool IsRecording(const ProgramState& a_state)
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-#define WM_ICON_NOTIFY WM_USER+10
+#define WM_ICON_NOTIFY   WM_USER+10
+#define WM_FILTER_NOTIFY WM_USER+11
 
 static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(
 	_T("UWM_ARE_YOU_ME-{B87861B4-8BE0-4dc7-A952-E8FFEEF48FD3}"));
@@ -205,6 +206,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_MIXITEM_REC_LOOPBACK_MIX, OnRecLoopbackMixSelect)
 	ON_COMMAND(ID_MIXITEM_PLAY_VOLUME, OnPlayVolumeSelect)
 	ON_MESSAGE(WM_ICON_NOTIFY, OnTrayNotification)
+	ON_MESSAGE(WM_FILTER_NOTIFY, OnFilterNotify)
 	ON_MESSAGE(WM_RECSOURCE_DLGCLOSED, OnRecSourceDialogClosed)
 	ON_MESSAGE(WM_RECSOURCE_CHANGED, OnRecSourceChanged)
 END_MESSAGE_MAP()
@@ -3101,16 +3103,40 @@ LRESULT CMainFrame::OnRecSourceChanged(WPARAM wParam, LPARAM lParam)
 //------------------------------------------------------------------------------
 
 void CMainFrame::HandleFilterNotification(
-	const Filter* fromFilter, const Parameter& parameter, void* userData)
+	const Filter* /*fromFilter*/, const Parameter& parameter, void* userData)
 {
-	CString debugString;
-	if (parameter.type == Parameter::eInteger)
-		debugString.Format(_T("%s :: '%s'=%d"), __FUNCTION__, parameter.name, parameter.valueInt);
-	if (parameter.type == Parameter::eFloat)
-		debugString.Format(_T("%s :: '%s'=%f"), __FUNCTION__, parameter.name, parameter.valueFloat);
-	if (parameter.type == Parameter::eString)
-		debugString.Format(_T("%s :: '%s'=%s"), __FUNCTION__, parameter.name, parameter.valueString);
-
-	::OutputDebugString(debugString);
+	//Request notification processing in main thread.
+	CMainFrame* mainFrame = static_cast<CMainFrame*>(userData);
+	mainFrame->m_filterNotifications.push_back(parameter);
+	mainFrame->PostMessage(WM_FILTER_NOTIFY, NULL, NULL);
 }
+//------------------------------------------------------------------------------
+
+LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
+{
+	for (size_t i = 0; i < m_filterNotifications.size(); i++)
+	{
+		const Parameter& param = m_filterNotifications[i];
+		if (param.name == _T("VAS.HandleSilence"))
+		{
+			const int icoWndIcon = param.valueInt == 1 ? ICON_RECVAS : ICON_REC;
+			const int trayIcon = param.valueInt == 1 ? IDI_TRAY_PAUSE : IDI_TRAY_REC;
+			m_IcoWnd.SetNewIcon(icoWndIcon);
+			m_TrayIcon.SetIcon(trayIcon);
+			continue;
+		}
+
+		CString debugString;
+		if (param.type == Parameter::eInteger)
+			debugString.Format(_T("%s :: '%s'=%d"), __FUNCTION__, param.name, param.valueInt);
+		if (param.type == Parameter::eFloat)
+			debugString.Format(_T("%s :: '%s'=%f"), __FUNCTION__, param.name, param.valueFloat);
+		if (param.type == Parameter::eString)
+			debugString.Format(_T("%s :: '%s'=%s"), __FUNCTION__, param.name, param.valueString);
+		::OutputDebugString(debugString);
+	}
+	m_filterNotifications.clear();
+	return 0;
+}
+
 //------------------------------------------------------------------------------
