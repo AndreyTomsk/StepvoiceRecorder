@@ -566,11 +566,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	UpdateTrayText();
 
 	// Setting up Monitoring
-	if (m_conf.GetConfProg()->bMonitoring)
-	{
-		m_bMonitoringBtn = false;
-		OnBtnMonitoring();
-	}
+	const bool monEnabled = RegistryConfig::GetOption(_T("General\\Sound Monitor"), 0);
+	m_StatWnd.m_btnMon.SetCheck(monEnabled);
+
+	//if (m_conf.GetConfProg()->bMonitoring)
+	//{
+	//	m_bMonitoringBtn = false;
+	//	OnBtnMonitoring();
+	//}
 
 	// Setting up Scheduler
 	m_sched2.SetCallbackFunc(Scheduler2Function);
@@ -581,10 +584,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	// Setting up Voice Activation System
-	if (m_conf.GetConfDialVAS()->bEnable)
-	{
-		OnBtnVas();
-	}
+	const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
+	m_StatWnd.m_btnVas.SetCheck(vasEnabled);
 
 	/*
 	// Adding device selection menu items. This feature is disabled, since
@@ -807,13 +808,8 @@ void CMainFrame::OnDestroy()
 {
 	CFrameWnd::OnDestroy();
 
-	if (m_bMonitoringBtn)
-	{
-		OnBtnMonitoring();
-		m_conf.GetConfProg()->bMonitoring = true;
-	}
 	OnFileClose();
-	m_GraphWnd.StopUpdate(); // Forcing stop to remove assertions in debug
+	MonitoringStop();
 
 	if (BASS_GetDevice())
 		BASS_Free();
@@ -1164,6 +1160,22 @@ void CMainFrame::OnOptCom()
 			OnBtnSched(); // On.
 		}
 
+
+		//Updating GUI and filter with new VAS parameters.
+
+		const bool isEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
+		const int vasThresholdDB = RegistryConfig::GetOption(_T("Tools\\VAS\\Threshold"), -30);
+		const int vasDurationMS = RegistryConfig::GetOption(_T("Tools\\VAS\\WaitTime"), 2000);
+
+		m_GraphWnd.ShowVASMark(isEnabled, vasThresholdDB);
+		if (!m_recordingChain.IsEmpty())
+		{
+			m_recordingChain.GetFilter<VasFilter>()->Enable(isEnabled);
+			m_recordingChain.GetFilter<VasFilter>()->SetTreshold(vasThresholdDB);
+			m_recordingChain.GetFilter<VasFilter>()->SetDuration(vasDurationMS);
+		}
+
+		/*
 		// Checking VAS
 		CONF_DIAL_VAS* pConfig = m_conf.GetConfDialVAS();
 		if((pConfig->bEnable != 0) != m_vas.IsRunning())
@@ -1173,6 +1185,7 @@ void CMainFrame::OnOptCom()
 			m_vas.InitVAS(pConfig->nThreshold, pConfig->nWaitTime);
 			m_GraphWnd.ShowVASMark(true, pConfig->nThreshold);
 		}
+		*/
 	}
 
 	m_conf.GetConfProg()->nDialogIndex = optDlg.m_nPageIndex;
@@ -2485,23 +2498,18 @@ void CMainFrame::OnBtnMonitoring()
 		return;
 #endif
 
-	if (!m_bMonitoringBtn)
-	{
-		if (m_nState == STOP_STATE && !MonitoringStart())
-		{
-			AfxMessageBox("Monitoring error!", MB_OK);
-			return;
-		}
-		m_bMonitoringBtn = true;
-		m_StatWnd.m_btnMon.SetState(BTN_PRESSED);
-	}
-	else
+	const bool monEnabled = m_StatWnd.m_btnMon.IsChecked();
+	RegistryConfig::SetOption(_T("General\\Sound Monitor"), monEnabled);
+
+	if (!monEnabled)
 	{
 		MonitoringStop();
-		m_bMonitoringBtn = false;
-		m_StatWnd.m_btnMon.SetState(BTN_NORMAL);
 	}
-	m_conf.GetConfProg()->bMonitoring = m_bMonitoringBtn;
+	else if (m_nState == STOP_STATE && !MonitoringStart())
+	{
+		AfxMessageBox("Monitoring error!", MB_OK);
+		m_StatWnd.m_btnMon.SetCheck(false);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -2581,8 +2589,11 @@ bool CMainFrame::MonitoringStart()
 void CMainFrame::MonitoringStop()
 {
 	m_GraphWnd.StopUpdate();
-	m_monitoringChain.GetFilter<CWasapiRecorder>()->Stop();
-	m_monitoringChain.Empty();
+	if (!m_monitoringChain.IsEmpty())
+	{
+		m_monitoringChain.GetFilter<CWasapiRecorder>()->Stop();
+		m_monitoringChain.Empty();
+	}
 
 
 	/*
@@ -2620,6 +2631,15 @@ void CMainFrame::OnBtnVas()
 		return;
 #endif
 
+	const bool vasEnabled = m_StatWnd.m_btnVas.IsChecked();
+	RegistryConfig::SetOption(_T("Tools\\VAS\\Enable"), vasEnabled);
+
+	const int vasThresholdDB = RegistryConfig::GetOption(_T("Tools\\VAS\\Threshold"), -30);
+	m_GraphWnd.ShowVASMark(vasEnabled, vasThresholdDB);
+	if (!m_recordingChain.IsEmpty())
+		m_recordingChain.GetFilter<VasFilter>()->Enable(vasEnabled);
+
+	/*
 	CONF_DIAL_VAS* pConfig = m_conf.GetConfDialVAS();
 
 	if(!m_vas.IsRunning())
@@ -2638,9 +2658,11 @@ void CMainFrame::OnBtnVas()
 		m_GraphWnd.ShowVASMark(false);
 	}
 	pConfig->bEnable = m_vas.IsRunning();
+	*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
 void CMainFrame::ProcessVAS(bool bVASResult)
 {
 	static bool bOldVASResult = false;
@@ -2667,7 +2689,7 @@ void CMainFrame::ProcessVAS(bool bVASResult)
 
 	bOldVASResult = bVASResult;
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::UpdateButtonState(UINT nID)
 {

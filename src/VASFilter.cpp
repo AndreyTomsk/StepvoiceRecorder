@@ -27,27 +27,38 @@ VasFilter::~VasFilter()
 
 void VasFilter::Enable(bool isEnabled)
 {
-	m_enabled = isEnabled;
-	ResetDetection();
+	if (m_enabled != isEnabled)
+	{
+		m_enabled = isEnabled;
+		ResetDetection();
+	}
 }
 //---------------------------------------------------------------------------
 
 void VasFilter::SetTreshold(double newTresholdDB)
 {
-	m_tresholdDB = newTresholdDB;
-	ResetDetection();
+	if (m_tresholdDB != newTresholdDB)
+	{
+		m_tresholdDB = newTresholdDB;
+		ResetDetection();
+	}
 }
 //---------------------------------------------------------------------------
 
 void VasFilter::SetDuration(int newDurationMS)
 {
-	m_durationMS = newDurationMS;
-	ResetDetection();
+	if (m_durationMS != newDurationMS)
+	{
+		m_durationMS = newDurationMS;
+		ResetDetection();
+	}
 }
 //---------------------------------------------------------------------------
 
 void VasFilter::ResetDetection()
 {
+	if (m_silenceState)
+		SendNotification(Parameter(_T("VAS.HandleSilence"), 0));
 	m_silenceStartMS = 0;
 	m_silenceState = false;
 }
@@ -90,10 +101,7 @@ bool VasFilter::ProcessData(void* buffer, DWORD lengthBytes)
 	}
 	else //high signal
 	{
-		if (m_silenceState)
-			SendNotification(Parameter(_T("VAS.HandleSilence"), 0));
-		m_silenceState = false;
-		m_silenceStartMS = 0;
+		ResetDetection();
 	}
 
 	if (!m_silenceState)

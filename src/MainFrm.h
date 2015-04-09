@@ -32,7 +32,7 @@
 #include "MixerPlay.h"
 
 #include "Scheduler2.h"
-#include "vas.h"
+//#include "vas.h"
 #include "TimerDlg.h"
 
 #include <bass.h>
@@ -150,7 +150,7 @@ class CMainFrame : public CFrameWnd
 
 public:
 	CScheduler2		m_sched2;	// планировщик
-	CVAS			m_vas;		// поддержка голосовой активации
+	//CVAS			m_vas;		// поддержка голосовой активации
 
 public:
 	CMainFrame();
@@ -198,7 +198,7 @@ protected:
 	//}}AFX_VIRTUAL
 
 protected:
-	void ProcessVAS(bool bVASResult);
+	//void ProcessVAS(bool bVASResult);
 	void MonitoringStop();
 	bool MonitoringStart();
 	void UpdateTrayText();

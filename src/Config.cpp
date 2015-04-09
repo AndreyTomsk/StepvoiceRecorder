@@ -270,4 +270,10 @@ void RegistryConfig::SetOption<CString>(const CString& initialPath, const CStrin
 }
 //--------------------------------------------------------------------
 
+template<>
+void RegistryConfig::SetOption<bool>(const CString& initialPath, const bool& value)
+{
+	SetOption<int>(initialPath, value ? 1 : 0);
+}
+//--------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////
