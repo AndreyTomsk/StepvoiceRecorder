@@ -3,6 +3,7 @@
 #pragma once
 
 /////////////////////////////////////////////////////////////////////////////
+// BN_CLICKED message posted on left button up, and on Check change.
 
 class CBitmapBtn : public CWnd
 {
@@ -35,6 +36,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
+	void PostClickedToParent() const;
+
 	CImageList m_btnIL;
 	bool m_mouseInside;
 	bool m_leftButtonPressed;

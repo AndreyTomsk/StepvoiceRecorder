@@ -107,13 +107,17 @@ void CBitmapBtn::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		m_leftButtonPressed = false;
 		SetCheck(!m_checked);
-
-		//Post "clicked" message to parent window.
-		const int buttonID = GetDlgCtrlID();
-		GetParent()->PostMessage(WM_COMMAND, MAKEWPARAM(buttonID, BN_CLICKED),
-			(LPARAM)GetSafeHwnd());
+		PostClickedToParent();
 	}
 	CWnd::OnLButtonUp(nFlags, point);
+}
+//===========================================================================
+
+void CBitmapBtn::PostClickedToParent() const
+{
+	const int buttonID = GetDlgCtrlID();
+	GetParent()->PostMessage(WM_COMMAND, MAKEWPARAM(buttonID, BN_CLICKED),
+		(LPARAM)GetSafeHwnd());
 }
 //===========================================================================
 
@@ -163,6 +167,7 @@ void CBitmapBtn::SetCheck(bool checked)
 	{
 		m_checked = checked;
 		Invalidate(FALSE);
+		PostClickedToParent();
 	}
 }
 //===========================================================================
