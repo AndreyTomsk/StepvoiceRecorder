@@ -106,18 +106,12 @@ int CStatWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 #ifndef _DEBUG
 	if(fsProtect_GetDaysLeft() <= 0)
 	{	// дизаблим кнопки
-		m_btnSched.SetState(BTN_NORMAL_D);
-		m_btnVas.SetState(BTN_NORMAL_D);
-		m_btnMon.SetState(BTN_NORMAL_D);
-		m_btnSched.ModifyStyle(WS_VISIBLE, WS_DISABLED);
-		m_btnVas.ModifyStyle(WS_VISIBLE, WS_DISABLED);
-		m_btnMon.ModifyStyle(WS_VISIBLE, WS_DISABLED);
-		//m_btnSched.ModifyStyle(0, WS_DISABLED);
-		//m_btnVas.ModifyStyle(0, WS_DISABLED);
-		//m_btnMon.ModifyStyle(0, WS_DISABLED);
-		m_btnSched.Invalidate(false);
-		m_btnVas.Invalidate(false);
-		m_btnMon.Invalidate(false);
+		m_btnSched.Enable(false);
+		m_btnVas.Enable(false);
+		m_btnMon.Enable(false);
+		//m_btnSched.ModifyStyle(WS_VISIBLE, WS_DISABLED);
+		//m_btnVas.ModifyStyle(WS_VISIBLE, WS_DISABLED);
+		//m_btnMon.ModifyStyle(WS_VISIBLE, WS_DISABLED);
 	}
 #endif
 	
