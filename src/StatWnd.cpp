@@ -250,8 +250,8 @@ void CStatWnd::OnBtnSched()
 #endif
 
 	// вызываем функцию обработки нажатия
-	CMainFrame* pMainWnd = (CMainFrame *)GetParent();
-	pMainWnd->OnBtnSched();
+	//CMainFrame* pMainWnd = (CMainFrame *)GetParent();
+	//pMainWnd->OnBtnSched();
 }
 
 /////////////////////////////////////////////////////////////////////////////

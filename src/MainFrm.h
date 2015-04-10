@@ -31,7 +31,7 @@
 #include "MixerRec.h"
 #include "MixerPlay.h"
 
-#include "Scheduler2.h"
+//#include "Scheduler2.h"
 //#include "vas.h"
 #include "TimerDlg.h"
 
@@ -65,8 +65,8 @@ enum ActiveSoundMixer
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-extern DWORD WINAPI SchedProc( LPVOID lpParam );
-extern void Scheduler2Function(int nAction);
+//extern DWORD WINAPI SchedProc( LPVOID lpParam );
+//extern void Scheduler2Function(int nAction);
 
 class CMainFrame : public CFrameWnd
 {
@@ -83,8 +83,8 @@ class CMainFrame : public CFrameWnd
 	static float PeaksCallback_Wasapi(int a_channel, void* userData);
 	static int   LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size, void* userData);
 
-	friend DWORD WINAPI SchedProc( LPVOID lpParam );
-	friend void Scheduler2Function(int nAction);
+	//friend DWORD WINAPI SchedProc( LPVOID lpParam );
+	//friend void Scheduler2Function(int nAction);
 	
 	///Callback function to process sample data
 	//static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer, DWORD a_length, void* a_user);
@@ -149,7 +149,7 @@ class CMainFrame : public CFrameWnd
 	CMySheet*		m_pOptDialog;	// указатель на запущенный диалог
 
 public:
-	CScheduler2		m_sched2;	// планировщик
+	//CScheduler2		m_sched2;	// планировщик
 	//CVAS			m_vas;		// поддержка голосовой активации
 
 public:
@@ -158,7 +158,7 @@ public:
 
 	void UpdateInterface();
 	bool IsMonitoringOnly();
-	void OnBtnSched();
+	//void OnBtnSched();
 	void OnBtnMonitoring();
 	void OnBtnVas();
 	BOOL ShowWindow();

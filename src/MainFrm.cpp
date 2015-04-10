@@ -575,6 +575,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//	OnBtnMonitoring();
 	//}
 
+	/*
 	// Setting up Scheduler
 	m_sched2.SetCallbackFunc(Scheduler2Function);
 	if (m_conf.GetConfDialSH2()->bIsEnabled)
@@ -582,6 +583,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_conf.GetConfDialSH2()->bIsEnabled = false;
 		OnBtnSched();
 	}
+	*/
 
 	// Setting up Voice Activation System
 	const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
@@ -1134,8 +1136,8 @@ void CMainFrame::OnOptCom()
 	m_pOptDialog = &optDlg;		// Saving dialog pointer for tray exit process
 
 	// Saving the scheduler state
-	bool bOldSchedState = m_conf.GetConfDialSH2()->bIsEnabled != 0;
-	bool bNewSchedState = bOldSchedState;
+	//bool bOldSchedState = m_conf.GetConfDialSH2()->bIsEnabled != 0;
+	//bool bNewSchedState = bOldSchedState;
 
 	if (optDlg.DoModal() == IDOK)
 	{
@@ -1148,6 +1150,7 @@ void CMainFrame::OnOptCom()
 		else
 			m_TrayIcon.HideIcon();
 
+		/*
 		// !!!!! Scheduler change check (SHR check)
 		bNewSchedState = m_conf.GetConfDialSH2()->bIsEnabled != 0;
 		if(bNewSchedState != bOldSchedState)
@@ -1159,6 +1162,7 @@ void CMainFrame::OnOptCom()
 			OnBtnSched(); // Off.
 			OnBtnSched(); // On.
 		}
+		*/
 
 
 		//Updating GUI and filter with new VAS parameters.
@@ -1875,7 +1879,7 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 		case IDW_STAT:			nID = IDS_TT_STATWND; break;
 		case IDB_MIX_SEL:		nID = IDS_TT_MIXSEL; break;
 		case IDS_SLIDERVOL:		nID = IDS_TT_VOLBAR; break;
-		case IDB_BTN_SCHED:		nID = IDS_TT_SCHEDULER; break;
+		//case IDB_BTN_SCHED:		nID = IDS_TT_SCHEDULER; break;
 		case IDB_BTN_VAS:		nID = IDS_TT_VAS;		break;
 		case IDB_BTN_MON:		nID = IDS_TT_MONITORING;break;
 		default:
@@ -2344,8 +2348,8 @@ void CMainFrame::OnVolDownA()
 ////////////////////////////////////////////////////////////////////////////////
 // SCHEDULER
 ////////////////////////////////////////////////////////////////////////////////
-void CMainFrame::OnBtnSched()
-{
+//void CMainFrame::OnBtnSched()
+//{
 	/*
 #ifndef _DEBUG
 	// Button is disabled after the trial period is over
@@ -2418,14 +2422,14 @@ void CMainFrame::OnBtnSched()
 	}
 	m_TimeWnd.SetTime(nRecTime);
 	*/
-}
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 // IN: nAction - planned action
 //		0 - start recording
 //		1 - stop recording
-void Scheduler2Function(int nAction)
-{
+//void Scheduler2Function(int nAction)
+//{
 	/*
 	//CMainFrame* pMainWnd = (CMainFrame *)AfxGetMainWnd();
 	CMainFrame* pMainWnd = CMainFrame::m_pMainFrame;
@@ -2485,7 +2489,7 @@ void Scheduler2Function(int nAction)
 		}
 	}
 	*/
-}
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Processing sound level monitoring
@@ -2699,11 +2703,11 @@ void CMainFrame::UpdateButtonState(UINT nID)
 	pBtn->ModifyStyle(WS_DISABLED, 0);	// Resetting button state
 	if (IDB_BTNREC == nID)
 	{
-		bool bSchedStart   = m_conf.GetConfDialSH2()->bSchedStart != 0;
-		bool bSchedEnabled = m_conf.GetConfDialSH2()->bIsEnabled != 0;
-		bool l_reserved_4shr = bSchedEnabled && bSchedStart && CanRecord();
+		//bool bSchedStart   = m_conf.GetConfDialSH2()->bSchedStart != 0;
+		//bool bSchedEnabled = m_conf.GetConfDialSH2()->bIsEnabled != 0;
+		//bool l_reserved_4shr = bSchedEnabled && bSchedStart && CanRecord();
 
-		if (l_reserved_4shr || IsPlaying(m_nState))
+		if (/*l_reserved_4shr ||*/IsPlaying(m_nState))
 			pBtn->ModifyStyle(0, WS_DISABLED);
 	}
 	else if (IDB_BTNPLAY == nID)
