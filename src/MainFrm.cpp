@@ -1168,16 +1168,16 @@ void CMainFrame::OnOptCom()
 		//Updating GUI and filter with new VAS parameters.
 
 		const bool isEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
-		const int vasThresholdDB = RegistryConfig::GetOption(_T("Tools\\VAS\\Threshold"), -30);
-		const int vasDurationMS = RegistryConfig::GetOption(_T("Tools\\VAS\\WaitTime"), 2000);
-
-		m_GraphWnd.ShowVASMark(isEnabled, vasThresholdDB);
-		if (!m_recordingChain.IsEmpty())
+		if (isEnabled && m_StatWnd.m_btnVas.IsChecked())
 		{
-			m_recordingChain.GetFilter<VasFilter>()->Enable(isEnabled);
-			m_recordingChain.GetFilter<VasFilter>()->SetTreshold(vasThresholdDB);
-			m_recordingChain.GetFilter<VasFilter>()->SetDuration(vasDurationMS);
+			//Button already pressed and VAS is running. Its
+			//parameters could be updated in options dialog.
+			//We should update VAS filter (from OnBtnVas handler).
+			m_StatWnd.m_btnVas.SetCheck(false);
+			m_StatWnd.m_btnVas.SetCheck(true);
 		}
+		else
+			m_StatWnd.m_btnVas.SetCheck(isEnabled);
 
 		/*
 		// Checking VAS
@@ -2639,9 +2639,15 @@ void CMainFrame::OnBtnVas()
 	RegistryConfig::SetOption(_T("Tools\\VAS\\Enable"), vasEnabled);
 
 	const int vasThresholdDB = RegistryConfig::GetOption(_T("Tools\\VAS\\Threshold"), -30);
+	const int vasDurationMS = RegistryConfig::GetOption(_T("Tools\\VAS\\WaitTime"), 2000);
+
 	m_GraphWnd.ShowVASMark(vasEnabled, vasThresholdDB);
 	if (!m_recordingChain.IsEmpty())
+	{
 		m_recordingChain.GetFilter<VasFilter>()->Enable(vasEnabled);
+		m_recordingChain.GetFilter<VasFilter>()->SetTreshold(vasThresholdDB);
+		m_recordingChain.GetFilter<VasFilter>()->SetDuration(vasDurationMS);
+	}
 
 	/*
 	CONF_DIAL_VAS* pConfig = m_conf.GetConfDialVAS();
@@ -3159,6 +3165,11 @@ LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
 				m_IcoWnd.SetNewIcon(icoWndIcon);
 				m_TrayIcon.SetIcon(trayIcon);
 			}
+			continue;
+		}
+		if (param.name == _T("Recorder.Stopped"))
+		{
+			OnBtnSTOP();
 			continue;
 		}
 
