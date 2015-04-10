@@ -98,6 +98,8 @@ class CMainFrame : public CFrameWnd
 	HDSP m_mute_hdsp;
 
 	float m_playback_volume;
+	float m_recording_volume;
+	void UpdateVolumeSlider(CSliderVol& slider, float volumeLevel);
 
 	ActiveSoundMixer m_active_mixer;
 	ActiveSoundMixer m_recording_mixer;

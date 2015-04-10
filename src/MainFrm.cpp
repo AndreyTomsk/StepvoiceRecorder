@@ -369,7 +369,8 @@ CMainFrame::CMainFrame()
 	,m_visualization_data(NULL)
 	,m_loopback_hdsp(0)
 	,m_mute_hdsp(0)
-	,m_playback_volume(0)
+	,m_playback_volume(1.0) //full volume
+	,m_recording_volume(1.0)
 	,m_active_mixer(E_REC_MIXER)
 	,m_recording_mixer(E_REC_MIXER)
 	,m_monitoringChain(HandleFilterNotification, this)
@@ -515,7 +516,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	OnOptTop(); OnOptTop();	// state is not changing
 
 	// Adjusting the mixer
-	m_playback_volume = min(1, abs((float)m_conf.GetConfProg()->nPlayVolume / 10000));
+	//m_playback_volume = min(1, abs((float)m_conf.GetConfProg()->nPlayVolume / 10000));
 	m_RecMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 	m_PlayMixer.Open(WAVE_MAPPER, GetSafeHwnd());
 
@@ -926,7 +927,7 @@ void CMainFrame::OnFileDelete()
 //=======not from menu, but useful one :)===========================================
 void CMainFrame::OpenFile(CString fileName)
 {
-	OnFileClose();
+	OnFileClose(); //updates m_recordingFileName and m_bassPlaybackHandle.
 
 	if (Helpers::IsSuitableForRecording(fileName))
 	{
@@ -1427,6 +1428,8 @@ void CMainFrame::OnBtnREC()
 		int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
 
 		CWasapiRecorder* recorder = new CWasapiRecorder(deviceID, frequency, channels);
+		recorder->SetVolume(m_recording_volume);
+
 		frequency = recorder->GetActualFrequency();
 		channels = recorder->GetActualChannelCount();
 
@@ -2242,15 +2245,33 @@ void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
 //------------------------------------------------------------------------------
 void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 {
+
    // Get the minimum and maximum scroll-bar positions.
    int minpos, maxpos, curpos;
    m_SliderVol.GetRange(minpos, maxpos);
    curpos = m_SliderVol.GetPos();
 
 	// Informing user
-	int nPercent = int(100.0 * curpos / (maxpos - minpos));
+	const int nPercent = int(100.0 * curpos / (maxpos - minpos));
 
 	CString strTitle;
+	if (!m_recordingFileName.IsEmpty() || m_nState == STOP_STATE)
+	{
+		strTitle.Format(IDS_VOLUME_TITLE, nPercent, CString(_T("recording")));
+		m_recording_volume = (float)nPercent / 100;
+		if (!m_recordingChain.IsEmpty())
+			m_recordingChain.GetFilter<CWasapiRecorder>()->SetVolume(m_recording_volume);
+		if (!m_monitoringChain.IsEmpty())
+			m_monitoringChain.GetFilter<CWasapiRecorder>()->SetVolume(m_recording_volume);
+	}
+	else if (m_bassPlaybackHandle != NULL)
+	{
+		strTitle.Format(IDS_VOLUME_TITLE, nPercent, CString(_T("playback")));
+		m_playback_volume = (float)nPercent / 100;
+		BASS_ChannelSetAttribute(m_bassPlaybackHandle, BASS_ATTRIB_VOL, m_playback_volume);
+	}
+
+	/*
 	if (m_active_mixer == E_PLAY_MIXER)
 	{
 		if(m_PlayMixer.GetLinesNum() == 0)
@@ -2275,6 +2296,7 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		if (IsPlaying(m_nState))
 			BASS_ChannelSetAttribute(m_bassPlaybackHandle, BASS_ATTRIB_VOL, m_playback_volume);
 	}
+	*/
 
 	// Processing slider messages
 	switch (nSBCode)
@@ -2289,10 +2311,10 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 	case SB_PAGERIGHT:
 	case SB_LINELEFT:
 	case SB_LINERIGHT:
-		if (m_active_mixer != E_PLAY_STREAM)
-		{
+		//if (m_active_mixer != E_PLAY_STREAM)
+		//{
 			m_title->SetTitleText(strTitle, 1200);
-		}
+		//}
 		break;
 	}
 }
@@ -2308,11 +2330,13 @@ BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 //------------------------------------------------------------------------------
 void CMainFrame::OnVolUpA() 
 {
+	/*
 	// Checking for mixer lines available
 	if (m_active_mixer == E_REC_MIXER && m_RecMixer.GetLinesNum() == 0)
 		return;
 	if (m_active_mixer == E_PLAY_MIXER && m_PlayMixer.GetLinesNum() == 0)
 		return;
+	*/
 
 	if (m_SliderVol.IsWindowEnabled())
 	{
@@ -2328,11 +2352,13 @@ void CMainFrame::OnVolUpA()
 //------------------------------------------------------------------------------
 void CMainFrame::OnVolDownA()
 {
+	/*
 	// Checking for mixer lines available
 	if (m_active_mixer == E_REC_MIXER && m_RecMixer.GetLinesNum() == 0)
 		return;
 	if (m_active_mixer == E_PLAY_MIXER && m_PlayMixer.GetLinesNum() == 0)
 		return;
+	*/
 
 	if (m_SliderVol.IsWindowEnabled())
 	{
@@ -2344,6 +2370,8 @@ void CMainFrame::OnVolDownA()
 			(LPARAM)m_SliderVol.GetSafeHwnd());
 	}
 }
+//------------------------------------------------------------------------------
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // SCHEDULER
@@ -2536,7 +2564,9 @@ bool CMainFrame::MonitoringStart()
 	const DWORD deviceID = selectedDevices[0].first;
 
 	CWasapiRecorder* recorder = new CWasapiRecorder(deviceID, 44100, 2);
-	m_monitoringChain.AddFilter(recorder); //will keep recorder object
+	recorder->SetVolume(m_recording_volume);
+
+	m_monitoringChain.AddFilter(recorder);
 	if (recorder->Start())
 	{
 		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, recorder);
@@ -2727,8 +2757,8 @@ void CMainFrame::UpdateButtonState(UINT nID)
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::UpdateInterface()
 {
-	static int l_current_state = -1;
-	if (l_current_state == m_nState)
+	static int g_currentState = -1;
+	if (g_currentState == m_nState)
 		return;
 
 	switch (m_nState)
@@ -2741,6 +2771,9 @@ void CMainFrame::UpdateInterface()
 		m_BtnPLAY.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
 		m_IcoWnd.SetNewIcon(ICON_PLAY);
+
+		if (!m_SliderVol.IsDragging())
+			UpdateVolumeSlider(m_SliderVol, m_playback_volume);
 		break;
 
 	case PAUSEPLAY_STATE:
@@ -2781,16 +2814,31 @@ void CMainFrame::UpdateInterface()
 		m_BtnPLAY.SetIcon(IDI_PLAY);
 		m_TrayIcon.SetIcon(IDI_TRAY_STOP);
 		m_IcoWnd.SetNewIcon(ICON_STOP);
+
+		if (!m_SliderVol.IsDragging())
+			UpdateVolumeSlider(m_SliderVol, m_recording_volume);
+
 		UpdateStatWindow();
 		break;
 	}
 
 	UpdateButtonState(IDB_BTNPLAY);
 	UpdateButtonState(IDB_BTNREC);
-	l_current_state = m_nState;
+	g_currentState = m_nState;
 }
-
 //------------------------------------------------------------------------------
+
+void CMainFrame::UpdateVolumeSlider(CSliderVol& slider, float volumeLevel)
+{
+	const int rangeMin = slider.GetRangeMin();
+	const int rangeMax = slider.GetRangeMax();
+
+	ASSERT(volumeLevel >= 0 && volumeLevel <= 1);
+	const int volumePos = rangeMin + (rangeMax-rangeMin) * volumeLevel;
+	slider.SetPos(volumePos);
+}
+//------------------------------------------------------------------------------
+
 void CMainFrame::SetRecordingLine(int nLineID)
 {
 	if (nLineID <= 0)
