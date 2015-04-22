@@ -614,7 +614,7 @@ BEGIN
     IDS_TT_STATWND          "File Information (right click to change MP3 settings)"
     IDS_REG_CAPTION         "OK"
     IDS_REG_TEXT_OK         "Thank you for registration! Please restart the program."
-    IDS_VOLUME_TITLE        "Volume: %d%%, Line: %s"
+    IDS_VOLUME_TITLE        "Volume: %d%% (%s)"
     IDS_TT_VOLBAR           "Volume Bar. Current line: "
     IDS_TT_MIXSEL           "Mixer Line Selection"
     IDS_TT_SCHEDULER        "Scheduler"

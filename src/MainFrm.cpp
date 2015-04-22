@@ -376,6 +376,7 @@ CMainFrame::CMainFrame()
 	,m_monitoringChain(HandleFilterNotification, this)
 	,m_recordingChain(HandleFilterNotification, this)
 	,m_bassPlaybackHandle(0)
+	,m_destroyingMainWindow(false)
 {
 	m_pEncoder	= NULL;
 	m_title		= NULL;
@@ -809,6 +810,7 @@ void CMainFrame::OnNcLButtonDown(UINT nHitTest, CPoint point)
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnDestroy() 
 {
+	m_destroyingMainWindow = true;
 	CFrameWnd::OnDestroy();
 
 	OnFileClose();
@@ -1287,8 +1289,7 @@ void CMainFrame::OnBtnPLAY()
 			return;
 	}
 
-	if (m_bMonitoringBtn)
-		MonitoringStop();
+	MonitoringStop();
 
 	BASS_ChannelSetAttribute(m_bassPlaybackHandle, BASS_ATTRIB_VOL, m_playback_volume);
 	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(m_bassPlaybackHandle);
@@ -1345,9 +1346,7 @@ void CMainFrame::OnBtnSTOP()
 		(LPARAM)m_SliderTime.m_hWnd);
 
 	m_nState = STOP_STATE;
-	if (m_bMonitoringBtn)
-		MonitoringStart();
-
+	MonitoringRestart();
 
 	/*
 	m_nState = STOP_STATE;
@@ -1410,8 +1409,7 @@ void CMainFrame::OnBtnREC()
 			return;
 	}
 
-	if (m_bMonitoringBtn)
-		MonitoringStop();
+	MonitoringStop();
 
 	if (m_recordingChain.IsEmpty())
 	{
@@ -2530,34 +2528,43 @@ void CMainFrame::OnBtnMonitoring()
 		return;
 #endif
 
-	const bool monEnabled = m_StatWnd.m_btnMon.IsChecked();
-	RegistryConfig::SetOption(_T("General\\Sound Monitor"), monEnabled);
+	const bool monitoringButtonChecked = m_StatWnd.m_btnMon.IsChecked();
+	RegistryConfig::SetOption(_T("General\\Sound Monitor"), monitoringButtonChecked);
 
-	if (!monEnabled)
+	if (!monitoringButtonChecked)
 	{
 		MonitoringStop();
 	}
-	else if (m_nState == STOP_STATE && !MonitoringStart())
+	else if ((m_nState == STOP_STATE) && !MonitoringStart())
 	{
 		AfxMessageBox("Monitoring error!", MB_OK);
 		m_StatWnd.m_btnMon.SetCheck(false);
 	}
 }
-
 //------------------------------------------------------------------------------
+
 bool CMainFrame::IsMonitoringOnly()
 {
 	return m_bMonitoringBtn && (m_nState == STOP_STATE);
 }
-
 //------------------------------------------------------------------------------
+
+bool CMainFrame::MonitoringRestart()
+{
+	if (m_StatWnd.m_btnMon.IsChecked() && m_nState == STOP_STATE && !m_destroyingMainWindow)
+	{
+		MonitoringStop();
+		return MonitoringStart();
+	}
+	return false;
+}
+//------------------------------------------------------------------------------
+
 bool CMainFrame::MonitoringStart()
 {
+	ASSERT(m_monitoringChain.IsEmpty());
 	if (!m_monitoringChain.IsEmpty())
-		return true;
-
-	//TODO: add check if recording currently. Possible should avoid two
-	//CWasapiRecorders in one thread (BASS_Wasapi_Stop etc. can affect also main recorder).
+		MonitoringStop();
 
 	WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
 	ASSERT(!selectedDevices.empty());
@@ -2625,6 +2632,7 @@ void CMainFrame::MonitoringStop()
 	m_GraphWnd.StopUpdate();
 	if (!m_monitoringChain.IsEmpty())
 	{
+		m_GraphWnd.StopUpdate();
 		m_monitoringChain.GetFilter<CWasapiRecorder>()->Stop();
 		m_monitoringChain.Empty();
 	}
@@ -2805,11 +2813,10 @@ void CMainFrame::UpdateInterface()
 
 	case STOP_STATE:
 	default:
-		m_SliderTime.SetCurPos(0);
-		if (!m_bMonitoringBtn)
-		{
+		if (!m_StatWnd.m_btnMon.IsChecked())
 			m_GraphWnd.StopUpdate();
-		}
+
+		m_SliderTime.SetCurPos(0);
 		m_BtnREC.SetIcon(IDI_REC);
 		m_BtnPLAY.SetIcon(IDI_PLAY);
 		m_TrayIcon.SetIcon(IDI_TRAY_STOP);
@@ -3086,6 +3093,8 @@ bool CMainFrame::CanRecord() const
 //!!!test
 LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 {
+	MonitoringRestart();
+
 	/*
 	FilterChain chain(NULL, NULL);
 	chain.AddFilter(new FileWriter(_T("d:\\test.mp3")));

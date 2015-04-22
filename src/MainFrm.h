@@ -203,6 +203,8 @@ protected:
 	//void ProcessVAS(bool bVASResult);
 	void MonitoringStop();
 	bool MonitoringStart();
+	bool MonitoringRestart();
+
 	void UpdateTrayText();
 	void CloseMixerWindows();
 	//{{AFX_MSG(CMainFrame)
@@ -278,6 +280,14 @@ private:
 	HSTREAM m_bassPlaybackHandle;
 
 	std::vector<Parameter> m_filterNotifications;
+	
+	//This flag helps to avoid monitoring start on window destruction. We have
+	//a CRecordingSourceDlg::GetInstance() call to get a selected devices. If
+	//this object was created during WM_DESTROY processing, PostNcDestroy not
+	//called in dialog -> not deleted -> memory leak. Monitoring is restarted
+	//from OnBtnSTOP handler.
+	bool m_destroyingMainWindow;
+	                          
 };
 
 ////////////////////////////////////////////////////////////////////////////////
