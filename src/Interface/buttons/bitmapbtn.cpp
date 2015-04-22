@@ -107,7 +107,6 @@ void CBitmapBtn::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		m_leftButtonPressed = false;
 		SetCheck(!m_checked);
-		PostClickedToParent();
 	}
 	CWnd::OnLButtonUp(nFlags, point);
 }
