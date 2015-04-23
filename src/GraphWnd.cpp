@@ -130,11 +130,9 @@ void CGraphWnd::OnRButtonDown(UINT nFlags, CPoint point)
 	
 	pGraphMenu->CheckMenuItem(markers[m_display_mode], MF_CHECKED);
 
-	CMainFrame* pMainWnd = static_cast<CMainFrame *>(GetParent());
-	if (pMainWnd->m_bMonitoringBtn)
-	{
+	CMainFrame* mainFrame = static_cast<CMainFrame *>(GetParent());
+	if (mainFrame->m_StatWnd.m_btnMon.IsChecked())
 		pGraphMenu->CheckMenuItem(ID_GRAPH_MONITORING, MF_CHECKED);
-	}
 
 	ClientToScreen(&point);
 	pGraphMenu->TrackPopupMenu(TPM_LEFTALIGN|TPM_LEFTBUTTON,
@@ -166,8 +164,10 @@ void CGraphWnd::OnGraphMenu(UINT nID)
 //------------------------------------------------------------------------------
 void CGraphWnd::OnGraphMonitoring()
 {
-	CMainFrame* pMainWnd = static_cast<CMainFrame *>(GetParent());
-	pMainWnd->OnBtnMonitoring();
+	CMainFrame* mainFrame = static_cast<CMainFrame *>(GetParent());
+
+	const bool buttonChecked = mainFrame->m_StatWnd.m_btnMon.IsChecked();
+	mainFrame->m_StatWnd.m_btnMon.SetCheck(!buttonChecked);
 }
 
 //------------------------------------------------------------------------------
