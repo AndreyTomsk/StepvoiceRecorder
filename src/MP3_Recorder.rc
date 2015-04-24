@@ -616,7 +616,7 @@ BEGIN
     IDS_REG_TEXT_OK         "Thank you for registration! Please restart the program."
     IDS_VOLUME_TITLE        "Volume: %d%% (%s)"
     IDS_TT_VOLBAR           "Volume Bar. Current line: "
-    IDS_TT_MIXSEL           "Mixer Line Selection"
+    IDS_TT_MIXSEL           "Input source"
     IDS_TT_SCHEDULER        "Scheduler"
     IDS_TT_VAS              "Voice Activation System"
     IDS_TT_MONITORING       "Input monitoring"

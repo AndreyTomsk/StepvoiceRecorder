@@ -2798,6 +2798,7 @@ void CMainFrame::UpdateInterface()
 		m_BtnPLAY.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
 		m_IcoWnd.SetNewIcon(ICON_PLAY);
+		m_BtnMIX_SEL.SetIcon(IDI_MIXLINE);
 
 		if (!m_SliderVol.IsDragging())
 			UpdateVolumeSlider(m_SliderVol, m_playback_volume);
@@ -2840,6 +2841,7 @@ void CMainFrame::UpdateInterface()
 		m_BtnPLAY.SetIcon(IDI_PLAY);
 		m_TrayIcon.SetIcon(IDI_TRAY_STOP);
 		m_IcoWnd.SetNewIcon(ICON_STOP);
+		m_BtnMIX_SEL.SetIcon(IDI_MIXLINE03);
 
 		if (!m_SliderVol.IsDragging())
 			UpdateVolumeSlider(m_SliderVol, m_recording_volume);
