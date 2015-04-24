@@ -172,11 +172,6 @@ BEGIN
         MENUITEM "&Preferences...\aCtrl - P",   IDM_OPT_COM,MFT_STRING,MFS_ENABLED
         MENUITEM "Always on &Top\aCtrl - T",    IDM_OPT_TOP,MFT_STRING,MFS_ENABLED
         MENUITEM MFT_SEPARATOR
-        POPUP "&System Mixer",                  65535,MFT_STRING,MFS_ENABLED
-        BEGIN
-            MENUITEM "&Recording control...\aCtrl - R", IDM_MIX_REC,MFT_STRING,MFS_ENABLED
-            MENUITEM "&Play control...\aCtrl - V",  IDM_MIX_PLAY,MFT_STRING,MFS_ENABLED
-        END
         MENUITEM "Sound &Devices...",           IDM_OPT_SNDDEV,MFT_STRING,MFS_ENABLED
     END
     POPUP "&Help",                          65535,MFT_STRING,MFS_ENABLED
@@ -562,8 +557,6 @@ BEGIN
     "A",            IDM_FILE_CLEAR,         VIRTKEY, CONTROL, NOINVERT
     "O",            IDM_FILE_CREATEOPEN,    VIRTKEY, CONTROL, NOINVERT
     "F",            IDM_FILE_FINDFILE,      VIRTKEY, CONTROL, NOINVERT
-    "V",            IDM_MIX_PLAY,           VIRTKEY, CONTROL, NOINVERT
-    "R",            IDM_MIX_REC,            VIRTKEY, CONTROL, NOINVERT
     "P",            IDM_OPT_COM,            VIRTKEY, CONTROL, NOINVERT
     "E",            IDM_OPT_EM,             VIRTKEY, CONTROL, NOINVERT
     "T",            IDM_OPT_TOP,            VIRTKEY, CONTROL, NOINVERT
@@ -602,8 +595,6 @@ BEGIN
     IDS_TT_REC              "Record/Pause (Enter)"
     IDS_TT_STOP             "Stop (Shift - Space)"
     IDS_TT_PLAY             "Play/Pause (Space)"
-    IDS_TT_MIXREC           "Windows mixer: Recording control... (Ctrl - R)"
-    IDS_TT_MIXPLAY          "Windows mixer: Volume control... (Ctrl - V)"
     IDS_TT_SEEKBAR          "Seeking Bar"
 END
 

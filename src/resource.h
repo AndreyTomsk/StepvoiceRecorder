@@ -15,8 +15,6 @@
 #define IDW_ICO                         119
 #define IDB_BTNSTOP                     120
 #define IDB_BTNOPEN                     121
-#define IDB_MIX_REC                     126
-#define IDB_MIX_PLAY                    127
 #define IDR_MAINFRAME                   128
 #define IDB_MIX_SEL                     129
 #define IDS_ERROR_DIRECTORY             129
@@ -40,9 +38,7 @@
 #define IDS_TT_REC                      154
 #define IDS_TT_STOP                     155
 #define IDS_TT_PLAY                     156
-#define IDS_TT_MIXREC                   157
 #define IDI_MIC                         158
-#define IDS_TT_MIXPLAY                  158
 #define IDS_TT_SEEKBAR                  159
 #define IDS_TT_WAVEWND                  160
 #define IDS_TT_TIMEWND                  161
@@ -207,8 +203,6 @@
 #define IDA_SOUND_REC                   32815
 #define IDA_SOUND_PLAY                  32816
 #define IDM_OPT_TOP                     32827
-#define IDM_MIX_PLAY                    32834
-#define IDM_MIX_REC                     32835
 #define IDM_FILE_CLOSE                  32839
 #define IDM_FILE_FINDTARGET             32840
 #define IDM_FILE_FINDFILE               32840

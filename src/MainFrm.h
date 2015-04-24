@@ -133,8 +133,6 @@ class CMainFrame : public CFrameWnd
 	CControlButton m_BtnSTOP;
 	CControlButton m_BtnREC;
 	CControlButton m_BtnMIX_SEL;
-	//CControlButton m_BtnMIX_REC;
-	//CControlButton m_BtnMIX_PLAY;
 
 	// Sliders
 	CWnd			m_SliderFrame;
@@ -216,12 +214,8 @@ protected:
 	afx_msg void OnBtnPLAY();
 	afx_msg void OnBtnSTOP();
 	afx_msg void OnBtnREC();
-	afx_msg void OnBtnMIX_REC();
-	afx_msg void OnBtnMIX_PLAY();
 	afx_msg void OnBtnMIX_SEL();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnMixRec();
-	afx_msg void OnMixPlay();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnMoving(UINT fwSide, LPRECT pRect);
 	afx_msg void OnNcLButtonDown(UINT nHitTest, CPoint point);

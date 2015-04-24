@@ -153,14 +153,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(IDM_OPT_TOP, OnOptTop)
 	ON_BN_CLICKED(IDB_BTNOPEN, OnBtnOPEN)
 	ON_BN_CLICKED(IDB_BTNPLAY, OnBtnPLAY)
-	ON_BN_CLICKED(IDB_BTNSTOP,  OnBtnSTOP)
+	ON_BN_CLICKED(IDB_BTNSTOP, OnBtnSTOP)
 	ON_BN_CLICKED(IDB_BTNREC,  OnBtnREC)
-	ON_BN_CLICKED(IDB_MIX_REC,  OnBtnMIX_REC)
-	ON_BN_CLICKED(IDB_MIX_PLAY, OnBtnMIX_PLAY)
 	ON_BN_CLICKED(IDB_MIX_SEL, OnBtnMIX_SEL)
 	ON_WM_LBUTTONDOWN()
-	ON_COMMAND(IDM_MIX_REC, OnMixRec)
-	ON_COMMAND(IDM_MIX_PLAY, OnMixPlay)
 	ON_WM_HSCROLL()
 	ON_WM_MOVING()
 	ON_WM_NCLBUTTONDOWN()
@@ -1231,37 +1227,6 @@ void CMainFrame::OnOptTop()
 }
 
 //===========================================================================
-void CMainFrame::OnMixPlay() 
-{
-	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
-	if (l_app->IsVistaOS())
-	{
-		WinExec("sndvol", SW_SHOW);
-	}
-	else
-	{
-		CloseMixerWindows();
-		WinExec("sndvol32", SW_SHOW);
-	}
-}
-
-//===========================================================================
-void CMainFrame::OnMixRec() 
-{
-	CMP3_RecorderApp* l_app = (CMP3_RecorderApp* )AfxGetApp();
-	if (l_app->IsVistaOS())
-	{
-		WinExec("control MMSYS.CPL,,1", SW_SHOW);
-	}
-	else
-	{
-		CloseMixerWindows();
-		WinExec("sndvol32 -r", SW_SHOW);
-	}
-}
-
-
-//===========================================================================
 // BUTTONS
 //===========================================================================
 void CMainFrame::OnBtnOPEN()
@@ -1588,18 +1553,6 @@ void CMainFrame::OnBtnREC()
 	*/
 }
 
-//===========================================================================
-void CMainFrame::OnBtnMIX_REC()
-{
-	OnMixRec();
-}
-
-//===========================================================================
-void CMainFrame::OnBtnMIX_PLAY()
-{
-	OnMixPlay();
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // WM_TIMER message handler
 ////////////////////////////////////////////////////////////////////////////////
@@ -1891,8 +1844,6 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 		case IDB_BTNREC:		nID = IDS_TT_REC;  break;
 		case IDB_BTNSTOP:		nID = IDS_TT_STOP; break;
 		case IDB_BTNPLAY:		nID = IDS_TT_PLAY; break;
-		case IDB_MIX_REC:		nID = IDS_TT_MIXREC;  break;
-		case IDB_MIX_PLAY:		nID = IDS_TT_MIXPLAY; break;
 		case IDS_SLIDERTIME:	nID = IDS_TT_SEEKBAR; break;
 		case IDW_GRAPH:			nID = IDS_TT_WAVEWND; break;
 		case IDW_TIME:			nID = IDS_TT_TIMEWND; break;
