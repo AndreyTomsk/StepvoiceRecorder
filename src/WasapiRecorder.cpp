@@ -5,6 +5,7 @@
 #include <basswasapi.h>
 #include "WasapiRecorder.h"
 #include "WasapiHelpers.h"
+#include "Debug.h"
 
 
 #ifdef _DEBUG
@@ -42,6 +43,8 @@ CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans)
 	if (!WasapiHelpers::GetDeviceActualData(device, freq, chans, m_actualFreq, m_actualChans))
 		return;
 
+	//WriteDbg() << __FUNCTION__ << " :: (BASS INIT)";
+
 	const bool isMono = (m_actualChans == 1);
 	if (!BASS_Init(0 /*no sound device*/, m_actualFreq, isMono ? BASS_DEVICE_MONO : 0, 0, NULL))
 		return;
@@ -63,6 +66,8 @@ CWasapiRecorder::~CWasapiRecorder()
 {
 	CurrentThreadDevice temp(m_deviceID);
 	BASS_WASAPI_Free();
+
+	//WriteDbg() << __FUNCTION__ << " :: (BASS FREE)";
 
 	BASS_SetDevice(0); //no sound device
 	BASS_Free();

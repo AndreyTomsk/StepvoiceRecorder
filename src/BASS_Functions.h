@@ -16,6 +16,9 @@ namespace Bass
 	bool IsPlaybackDeviceValid(int a_device);
 	bool IsRecordingDeviceValid(int a_device);
 
+	CString ErrorGetText();
+	void ShowErrorFrom(const CString& bassFunctionName);
+
 } // namespace Bass
 
 /////////////////////////////////////////////////////////////////////////////

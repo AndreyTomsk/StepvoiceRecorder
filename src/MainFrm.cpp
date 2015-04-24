@@ -429,7 +429,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	m_bMonitoringBtn = false;
+	//m_bMonitoringBtn = false;
 
 	// Removing the "Register" menu in registered mode
 	REG_CRYPT_BEGIN;
@@ -536,6 +536,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_strDir = GetProgramDir();
 
 	// Processing loader options
+	/*
 	CString strName = "";
 	switch (m_conf.GetConfDialGen()->nLoader)
 	{
@@ -547,7 +548,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			strName = m_conf.GetConfProg()->strLastFileName;
 			break;
 	}
+	*/
 	OnFileClose();
+	/*
 	if (!strName.IsEmpty())
 	{
 		CString strPath = m_conf.GetConfProg()->strLastFilePath;
@@ -557,6 +560,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		}
 		OpenFile(strPath + "\\" + strName);
 	}
+	*/
 
 	// Creating icon for the system tray
 	m_TrayIcon.Create(this, WM_ICON_NOTIFY, "Stepvoice Recorder",
@@ -815,9 +819,7 @@ void CMainFrame::OnDestroy()
 
 	OnFileClose();
 	MonitoringStop();
-
-	if (BASS_GetDevice())
-		BASS_Free();
+	BASS_Free();
 
 	CloseMixerWindows();
 
@@ -937,11 +939,21 @@ void CMainFrame::OpenFile(CString fileName)
 	}
 	else
 	{
-		BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
+		//WriteDbg() << __FUNCTION__ << " ::3 (BASS_Init)";
+
+		BOOL result = BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
+		if (!result)
+		{
+			//DWORD currentDeviceID = BASS_GetDevice();
+			//bool debug = true;
+			//Bass::ShowErrorFrom(_T("BASS_Init"));
+			//return;
+		}
 		m_bassPlaybackHandle = BASS_StreamCreateFile(false, fileName, 0, 0, 0);
 		if (!m_bassPlaybackHandle)
 		{
-			//ReportBassError(_T("Unable to open file."), BASS_ErrorGetCode());
+			DWORD currentDeviceID = BASS_GetDevice();
+			Bass::ShowErrorFrom(_T("BASS_StreamCreateFile"));
 			BASS_Free();
 			return;
 		}
@@ -1315,6 +1327,13 @@ void CMainFrame::OnBtnPLAY()
 //===========================================================================
 void CMainFrame::OnBtnSTOP()
 {
+	if (m_nState == STOP_STATE)
+		return;
+
+	//Setting stop state in the method beginning, to avoid extra OnBtnSTOP
+	//calls from OpenFile below (after recording finished).
+	m_nState = STOP_STATE;
+
 	if (m_bassPlaybackHandle)
 	{
 		ASSERT(m_recordingFileName.IsEmpty());
@@ -1345,8 +1364,8 @@ void CMainFrame::OnBtnSTOP()
 	PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
 		(LPARAM)m_SliderTime.m_hWnd);
 
-	m_nState = STOP_STATE;
-	MonitoringRestart();
+	//if (m_monitoringChain.IsEmpty()) //Removes multiple restart on stop processing.
+		MonitoringRestart();
 
 	/*
 	m_nState = STOP_STATE;
@@ -2543,10 +2562,10 @@ void CMainFrame::OnBtnMonitoring()
 }
 //------------------------------------------------------------------------------
 
-bool CMainFrame::IsMonitoringOnly()
-{
-	return m_bMonitoringBtn && (m_nState == STOP_STATE);
-}
+//bool CMainFrame::IsMonitoringOnly()
+//{
+//	return m_bMonitoringBtn && (m_nState == STOP_STATE);
+//}
 //------------------------------------------------------------------------------
 
 bool CMainFrame::MonitoringRestart()

@@ -114,7 +114,7 @@ class CMainFrame : public CFrameWnd
 	//CFile			m_record_file;
 
 	CString m_strDir;
-	int m_bMonitoringBtn;
+	//int m_bMonitoringBtn;
 
 	ProgramState	m_nState;
 
@@ -159,7 +159,7 @@ public:
 	virtual ~CMainFrame();
 
 	void UpdateInterface();
-	bool IsMonitoringOnly();
+	//bool IsMonitoringOnly();
 	//void OnBtnSched();
 	void OnBtnMonitoring();
 	void OnBtnVas();
