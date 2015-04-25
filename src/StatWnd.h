@@ -6,8 +6,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-//#include "ImageBtn.h"
-#include "Interface\Buttons\BitmapBtn.h"
+#include "BitmapBtn.h"
 
 /////////////////////////////////////////////////////////////////////////////
 class CStatWnd : public CWnd

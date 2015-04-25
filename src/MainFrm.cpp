@@ -12,7 +12,6 @@ static char THIS_FILE[] = __FILE__;
 #include "MP3_Recorder.h"
 #include "MainFrm.h"
 #include "MainFrm_Helpers.h"
-#include "Interface\Buttons\BitmapBtn.h" 
 #include "common.h"
 #include "system.h"
 #include "BASS_Functions.h"

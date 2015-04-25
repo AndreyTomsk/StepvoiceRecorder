@@ -247,26 +247,8 @@
 				>
 			</File>
 			<File
-				RelativePath="Interface\Buttons\bitmapbtn.cpp"
+				RelativePath=".\bitmapbtn.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="..\.."
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="..\.."
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="Config.cpp"
@@ -1134,7 +1116,7 @@
 				>
 			</File>
 			<File
-				RelativePath="Interface\Buttons\bitmapbtn.h"
+				RelativePath=".\bitmapbtn.h"
 				>
 			</File>
 			<File

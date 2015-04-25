@@ -1,8 +1,7 @@
 //===========================================================================
 #include "stdafx.h"
-#include "..\..\mp3_recorder.h"
-#include "..\..\Debug.h"
-#include "bitmapbtn.h"
+#include "BitmapBtn.h"
+#include "Debug.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
