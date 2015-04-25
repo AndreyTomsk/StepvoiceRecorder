@@ -118,4 +118,18 @@ BOOL FreeRecordingDevices(const DevicesArray& devices)
 
 /////////////////////////////////////////////////////////////////////////////
 
+CurrentThreadDevice::CurrentThreadDevice(int device)
+{
+	m_oldDevice = BASS_WASAPI_GetDevice();
+	BASS_WASAPI_SetDevice(device);
+}
+//---------------------------------------------------------------------------
+
+CurrentThreadDevice::~CurrentThreadDevice()
+{
+	BASS_WASAPI_SetDevice(m_oldDevice);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 } // namespace WasapiHelpers

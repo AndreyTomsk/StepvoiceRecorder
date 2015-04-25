@@ -1016,7 +1016,7 @@ void CMainFrame::OpenFile(CString fileName)
 void CMainFrame::OnFileFindfile() 
 {
 	const CString lastFilePath = RegistryConfig::GetOption(_T("General\\LastFile"), CString());
-	ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select, """)+lastFilePath+_T(""""),
+	ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select, \"")+lastFilePath+_T("\""),
 		NULL, SW_NORMAL);
 }
 
@@ -2599,7 +2599,6 @@ bool CMainFrame::MonitoringStart()
 //------------------------------------------------------------------------------
 void CMainFrame::MonitoringStop()
 {
-	m_GraphWnd.StopUpdate();
 	if (!m_monitoringChain.IsEmpty())
 	{
 		m_GraphWnd.StopUpdate();

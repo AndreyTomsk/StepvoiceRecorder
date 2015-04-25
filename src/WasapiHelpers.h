@@ -28,6 +28,23 @@ namespace WasapiHelpers
 	BOOL InitRecordingDevices(const DevicesArray& devices);
 	BOOL FreeRecordingDevices(const DevicesArray& devices);
 
+
+	class CurrentThreadDevice
+	{
+	public:
+		CurrentThreadDevice(int device);
+		//{
+		//	m_oldDevice = BASS_WASAPI_GetDevice();
+		//	BASS_WASAPI_SetDevice(device);
+		//}
+		~CurrentThreadDevice();
+		//{
+		//	BASS_WASAPI_SetDevice(m_oldDevice);
+		//}
+	private:
+		int m_oldDevice;
+	};
+
 } // namespace Bass
 
 /////////////////////////////////////////////////////////////////////////////
