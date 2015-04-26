@@ -16,6 +16,7 @@ static char THIS_FILE[] = __FILE__;
 CWasapiRecorderStream::CWasapiRecorderStream(int device, DWORD freq, DWORD chans)
 	:m_deviceID(device)
 	,m_isStarted(false)
+	,m_hStream(0)
 {
 	//BASS_Init for no-sound device and BASS_Free must be called from the
 	//multi-recorder.
@@ -23,9 +24,9 @@ CWasapiRecorderStream::CWasapiRecorderStream(int device, DWORD freq, DWORD chans
 	if (!WasapiHelpers::GetDeviceActualData(device, freq, chans, m_actualFreq, m_actualChans))
 		return;
 
-	m_hStream = BASS_StreamCreate(m_actualFreq, m_actualChans,
-		BASS_SAMPLE_FLOAT|BASS_STREAM_DECODE, STREAMPROC_PUSH, NULL);
-	ASSERT(m_hStream != 0);
+	//m_hStream = BASS_StreamCreate(m_actualFreq, m_actualChans,
+	//	BASS_SAMPLE_FLOAT|BASS_STREAM_DECODE, STREAMPROC_PUSH, NULL);
+	//ASSERT(m_hStream != 0);
 
 	BOOL result = BASS_WASAPI_Init(device, m_actualFreq, m_actualChans,
 		BASS_WASAPI_AUTOFORMAT, 0.5, 0,	OutputProc, this);
@@ -45,6 +46,36 @@ CWasapiRecorderStream::~CWasapiRecorderStream()
 
 	BASS_StreamFree(m_hStream);
 	m_hStream = 0;
+}
+//---------------------------------------------------------------------------
+
+int CWasapiRecorderStream::GetDeviceID() const
+{
+	return m_deviceID;
+}
+//---------------------------------------------------------------------------
+
+DWORD CWasapiRecorderStream::GetActualFrequency() const
+{
+	return m_actualFreq;
+}
+//---------------------------------------------------------------------------
+
+DWORD CWasapiRecorderStream::GetActualChannelCount() const
+{
+	return m_actualChans;
+}
+//---------------------------------------------------------------------------
+
+HSTREAM CWasapiRecorderStream::GetStreamHandle() const
+{
+	if (!m_hStream)
+	{
+		m_hStream = BASS_StreamCreate(m_actualFreq, m_actualChans,
+			BASS_SAMPLE_FLOAT|BASS_STREAM_DECODE, STREAMPROC_PUSH, NULL);
+		ASSERT(m_hStream != 0);
+	}
+	return m_hStream;
 }
 //---------------------------------------------------------------------------
 
@@ -69,12 +100,21 @@ BOOL CWasapiRecorderStream::SetVolume(float volume)
 }
 //---------------------------------------------------------------------------
 
+float CWasapiRecorderStream::GetPeakLevel(int channel) const
+{
+	const bool isMono = (m_actualChans == 1);
+	const float level = BASS_WASAPI_GetDeviceLevel(m_deviceID, isMono ? 0 : channel);
+	ASSERT(level != -1);
+	return level;
+}
+//---------------------------------------------------------------------------
+
 DWORD CALLBACK CWasapiRecorderStream::OutputProc(void* buffer, DWORD lengthBytes, void* user)
 {
 	CWasapiRecorderStream* recorder = static_cast<CWasapiRecorderStream*>(user);
 
 	CMyLock lock(recorder->m_sync_object);
-	if (recorder->m_isStarted)
+	if (recorder->m_isStarted && recorder->m_hStream != 0)
 		BASS_StreamPutData(recorder->m_hStream, buffer, lengthBytes);
 
 	return 1;

@@ -12,26 +12,36 @@
 //BASS_Init for a no-sound device (+BASS_Free) must be called from the
 //multi-recorder, before creating the CWasapiRecorderStream objects.
 
+//Action sequence:
+//  1. Create RecorderStream object;
+//  2. Retrieve actual frequency and channels;
+//  3. Get stream handle;
+//  4. Set started flag to put a recording data to stream;
+
 class CWasapiRecorderStream
 {
-	friend class CWasapiRecorderMulti;
+public:
+	typedef DWORD HSTREAM; //Sample stream handle (from bass.h).
 
-private:
 	CWasapiRecorderStream(int device, DWORD freq, DWORD chans);
-	virtual ~CWasapiRecorderStream();
+	~CWasapiRecorderStream();
 
-	//Notify CWasapiRecorderStream about started state, to begin
-	//push data to HSTREAM.
+	int GetDeviceID() const;
+	DWORD GetActualFrequency() const;
+	DWORD GetActualChannelCount() const;
+
+	HSTREAM GetStreamHandle() const;
 	void SetStarted(bool isStarted);
 
 	float GetVolume() const;
 	BOOL  SetVolume(float volume); //0..1
 
+	float GetPeakLevel(int channel) const; //0 = first channel, -1 = all channels
+
 private:
 	static DWORD CALLBACK OutputProc(void* buffer, DWORD lengthBytes, void* user);
 
-	typedef DWORD HSTREAM; //Sample stream handle (from bass.h).
-	HSTREAM m_hStream;     //Main thing, used by multi-recorder.
+	mutable HSTREAM m_hStream;
 
 	int m_deviceID;
 	DWORD m_actualFreq;

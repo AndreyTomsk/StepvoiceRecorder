@@ -4,6 +4,7 @@
 
 #include "Filter.h"
 #include "WasapiHelpers.h" //for a DevicesArray
+#include "SyncObjects.h"
 
 class CWasapiRecorderStream;
 
@@ -32,12 +33,20 @@ public:
 	DWORD GetChannelData(int channel, float* buffer, int bufferSize);
 
 private:
+	static void CALLBACK TimerCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
+
 	std::vector<CWasapiRecorderStream*> m_recorderStreams;
 	//static DWORD CALLBACK OutputProc(void* buffer, DWORD lengthBytes, void* user);
 	//virtual bool ProcessData(void* buffer, DWORD lengthBytes); //overridden
 
-	//DWORD m_actualFreq;
-	//DWORD m_actualChans;
+	DWORD m_actualFreq;
+	DWORD m_actualChans;
+
+	typedef DWORD HSTREAM; //Sample stream handle (from bass.h).
+	HSTREAM m_mixerStream;
+
+	HANDLE m_hTimer;
+	CMyCriticalSection m_sync_object;
 };
 
 /////////////////////////////////////////////////////////////////////////////
