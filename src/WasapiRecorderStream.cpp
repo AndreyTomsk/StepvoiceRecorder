@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <basswasapi.h>
+#include <Audiopolicy.h> //for IAudioSessionControl
 #include "WasapiRecorderStream.h"
 #include "WasapiHelpers.h" //for GetActiveDevice
 #include "Debug.h"
@@ -43,13 +44,6 @@ CWasapiRecorderStream::CWasapiRecorderStream(int device)
 		(void**)&m_capture_client));
 	EIF(m_audio_client->Start());
 
-	m_hStream = BASS_StreamCreate(
-		GetActualFrequency(),
-		GetActualChannelCount(),
-		BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE,
-		StreamProc,
-		this);
-
 Exit:
 	return;
 }
@@ -82,6 +76,26 @@ DWORD CWasapiRecorderStream::GetActualChannelCount() const
 
 HSTREAM CWasapiRecorderStream::GetStreamHandle() const
 {
+	if (m_hStream == 0)
+	{
+		CComPtr<IAudioSessionControl> sessionControl;
+		AudioSessionState sessionState;
+
+		HRESULT hr;
+		EIF(m_audio_client->GetService(__uuidof(IAudioSessionControl), (void**)&sessionControl));
+		EIF(sessionControl->GetState(&sessionState));
+		if (sessionState != AudioSessionStateActive)
+			return 0;
+
+		m_hStream = BASS_StreamCreate(
+			GetActualFrequency(),
+			GetActualChannelCount(),
+			BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE,
+			StreamProc,
+			(void*)this);
+	}
+
+Exit:
 	return m_hStream;
 }
 //---------------------------------------------------------------------------

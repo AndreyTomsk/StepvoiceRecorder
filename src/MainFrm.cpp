@@ -20,9 +20,11 @@ static char THIS_FILE[] = __FILE__;
 
 //#include "FilterChain.h"
 #include "WasapiRecorder.h"
+#include "WasapiRecorderMulti.h"
 #include "VASFilter.h"
 #include "Encoder_MP3.h"
 #include "FilterFileWriter.h"
+#include "FilterFileWriterWAV.h"
 #include "Debug.h"
 
 HSTREAM m_bassPlaybackHandle = 0;   // Playback
@@ -305,15 +307,15 @@ DWORD CALLBACK CMainFrame::WasapiRecordingProc(void *buffer, DWORD length, void 
 */
 float CMainFrame::PeaksCallback_Wasapi(int channel, void* userData)
 {
-	CWasapiRecorder* recorder = static_cast<CWasapiRecorder*>(userData);
-	return recorder->GetPeakLevel(channel);
+	CWasapiRecorderMulti* recorder = static_cast<CWasapiRecorderMulti*>(userData);
+	return (recorder != NULL) ? recorder->GetPeakLevel(channel) : 0;
 }
 //------------------------------------------------------------------------------
 
 int CMainFrame::LinesCallback_Wasapi(int channel, float* buffer, int bufferSize, void* userData)
 {
-	CWasapiRecorder* recorder = static_cast<CWasapiRecorder*>(userData);
-	return recorder->GetChannelData(channel, buffer, bufferSize);
+	CWasapiRecorderMulti* recorder = static_cast<CWasapiRecorderMulti*>(userData);
+	return (recorder != NULL) ? recorder->GetChannelData(channel, buffer, bufferSize) : 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1316,9 +1318,9 @@ void CMainFrame::OnBtnSTOP()
 		KillTimer(2);
 		m_GraphWnd.StopUpdate(); //need it here, before recorder chain is destroyed
 
-		m_recordingChain.GetFilter<CWasapiRecorder>()->Stop();
+		m_recordingChain.GetFilter<CWasapiRecorderMulti>()->Stop();
 		m_recordingChain.GetFilter<FileWriter>()->ForceClose();
-		m_recordingChain.GetFilter<CEncoder_MP3>()->WriteVBRHeader(m_recordingFileName);
+		//m_recordingChain.GetFilter<CEncoder_MP3>()->WriteVBRHeader(m_recordingFileName);
 		m_recordingChain.Empty();
 
 		OpenFile(m_recordingFileName);
@@ -1397,8 +1399,8 @@ void CMainFrame::OnBtnREC()
 	if (m_recordingChain.IsEmpty())
 	{
 		WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
-		ASSERT(!selectedDevices.empty());
-		const DWORD deviceID = selectedDevices[0].first;
+		//ASSERT(!selectedDevices.empty());
+		//const DWORD deviceID = selectedDevices[0].first;
 
 		const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
 		const int vasThresholdDB = RegistryConfig::GetOption(_T("Tools\\VAS\\Threshold"), -30);
@@ -1408,7 +1410,7 @@ void CMainFrame::OnBtnREC()
 		int frequency = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
 		int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
 
-		CWasapiRecorder* recorder = new CWasapiRecorder(deviceID, frequency, channels);
+		CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, frequency, channels);
 		recorder->SetVolume(m_recording_volume);
 
 		frequency = recorder->GetActualFrequency();
@@ -1416,11 +1418,12 @@ void CMainFrame::OnBtnREC()
 
 		m_recordingChain.AddFilter(recorder);
 		m_recordingChain.AddFilter(new VasFilter(vasThresholdDB, vasWaitTimeMS, vasEnabled));
-		m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
-		m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
+		//m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
+		//m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
+		m_recordingChain.AddFilter(new FileWriterWAV(m_recordingFileName, frequency, channels));
 	}
 
-	CWasapiRecorder* recorder = m_recordingChain.GetFilter<CWasapiRecorder>();
+	CWasapiRecorderMulti* recorder = m_recordingChain.GetFilter<CWasapiRecorderMulti>();
 	if (recorder->IsStarted())
 	{
 		recorder->Pause();
@@ -2227,9 +2230,9 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		strTitle.Format(IDS_VOLUME_TITLE, nPercent, CString(_T("recording")));
 		m_recording_volume = (float)nPercent / 100;
 		if (!m_recordingChain.IsEmpty())
-			m_recordingChain.GetFilter<CWasapiRecorder>()->SetVolume(m_recording_volume);
+			m_recordingChain.GetFilter<CWasapiRecorderMulti>()->SetVolume(m_recording_volume);
 		if (!m_monitoringChain.IsEmpty())
-			m_monitoringChain.GetFilter<CWasapiRecorder>()->SetVolume(m_recording_volume);
+			m_monitoringChain.GetFilter<CWasapiRecorderMulti>()->SetVolume(m_recording_volume);
 	}
 	else if (m_bassPlaybackHandle != NULL)
 	{
@@ -2536,10 +2539,7 @@ bool CMainFrame::MonitoringStart()
 		MonitoringStop();
 
 	WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
-	ASSERT(!selectedDevices.empty());
-	const DWORD deviceID = selectedDevices[0].first;
-
-	CWasapiRecorder* recorder = new CWasapiRecorder(deviceID, 44100, 2);
+	CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, 44100, 2);
 	recorder->SetVolume(m_recording_volume);
 
 	m_monitoringChain.AddFilter(recorder);
@@ -2601,7 +2601,7 @@ void CMainFrame::MonitoringStop()
 	if (!m_monitoringChain.IsEmpty())
 	{
 		m_GraphWnd.StopUpdate();
-		m_monitoringChain.GetFilter<CWasapiRecorder>()->Stop();
+		m_monitoringChain.GetFilter<CWasapiRecorderMulti>()->Stop();
 		m_monitoringChain.Empty();
 	}
 
@@ -2762,7 +2762,7 @@ void CMainFrame::UpdateInterface()
 
 	case RECORD_STATE:
 		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi,
-			m_recordingChain.GetFilter<CWasapiRecorder>());
+			m_recordingChain.GetFilter<CWasapiRecorderMulti>());
 
 		///@bug Testing new functionality
 		//g_update_handle = g_record_handle;

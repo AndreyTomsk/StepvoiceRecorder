@@ -40,7 +40,7 @@ private:
 	CComPtr<IAudioCaptureClient> m_capture_client;
 
 	int m_deviceID;
-	HSTREAM m_hStream;
+	mutable HSTREAM m_hStream;
 	WAVEFORMATEX* m_wfx;
 	
 	UINT32 m_src_offset;
