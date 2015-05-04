@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <basswasapi.h>
 #include "WasapiHelpers.h"
+#include "common.h" //for EIF,SAFE_RELEASE macro
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -114,6 +115,41 @@ BOOL FreeRecordingDevices(const DevicesArray& devices)
 		result = BASS_WASAPI_Free(); //frees device, currently set for this thread
 	}
 	return result;
+}
+//---------------------------------------------------------------------------
+
+HRESULT GetActiveDevice(const CString& strDeviceID, IAudioClient **audioClient)
+{
+	CComPtr<IMMDeviceEnumerator> deviceEnumerator;
+	CComPtr<IMMDeviceCollection> deviceCollection;
+	CComPtr<IMMDevice> device;
+
+	LPWSTR strDeviceIDfromWasapi = NULL;
+	UINT allDeviceCount = 0;
+
+	HRESULT hr = S_OK;
+	EIF(deviceEnumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator)));
+	EIF(deviceEnumerator->EnumAudioEndpoints(eAll, DEVICE_STATE_ACTIVE, &deviceCollection));
+	EIF(deviceCollection->GetCount(&allDeviceCount));
+
+	for (UINT i = 0; i < allDeviceCount; i++)
+	{
+		SAFE_RELEASE(device);
+		EIF(deviceCollection->Item(i, &device));
+		EIF(device->GetId(&strDeviceIDfromWasapi));
+
+		const bool deviceFound = CString(strDeviceIDfromWasapi) == strDeviceID;
+		CoTaskMemFree(strDeviceIDfromWasapi);
+		if (deviceFound)
+		{
+			EIF(device->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER,
+				NULL, reinterpret_cast<void**>(audioClient)));
+			break;
+		}
+	}
+	hr = (*audioClient != NULL);
+Exit:
+	return hr;
 }
 
 /////////////////////////////////////////////////////////////////////////////

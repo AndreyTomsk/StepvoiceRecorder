@@ -3,6 +3,8 @@
 #pragma once
 
 #include <vector>
+#include <MMDeviceApi.h> //for EDataFlow, etc.
+#include <Audioclient.h> //for IAudioClient, IAudioCaptureClient
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +46,8 @@ namespace WasapiHelpers
 	private:
 		int m_oldDevice;
 	};
+
+	HRESULT GetActiveDevice(const CString& strDeviceID, IAudioClient **audioClient);
 
 } // namespace Bass
 
