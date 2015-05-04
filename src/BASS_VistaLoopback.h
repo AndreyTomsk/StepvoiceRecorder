@@ -4,17 +4,20 @@
 #ifndef _BASS_VISTA_LOOPBACK_H
 #define _BASS_VISTA_LOOPBACK_H
 
-#include <bass.h>
 #include <MMDeviceApi.h>
-#include <Audioclient.h>
-#include <stdio.h>
+#include <Audioclient.h> //for IAudioClient, IAudioCaptureClient
 
 class BassVistaLoopback
 {
+	typedef DWORD HSTREAM; //Sample stream handle (from bass.h).
+
 public:
 	BassVistaLoopback(int a_device = 0);
 	virtual ~BassVistaLoopback();
 
+	DWORD GetActualFrequency() const;
+	DWORD GetActualChannelCount() const;
+	
 	static HRESULT GetPlaybackDevicesNames(CStringArray& arr);
 	HSTREAM GetLoopbackStream() const;
 

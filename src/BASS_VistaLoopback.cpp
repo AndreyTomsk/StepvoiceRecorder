@@ -2,8 +2,9 @@
 // Copyright (c) 2008 Andrew Firsov.
 
 #include "stdafx.h"
-#include "BASS_VistaLoopback.h"
+#include <basswasapi.h>
 #include <functiondiscoverykeys.h>
+#include "BASS_VistaLoopback.h"
 
 #define EIF(x) if (FAILED(hr=(x))) { goto Exit; }	// Exit If Failed.
 #define SAFE_RELEASE(x) { if (x != NULL) { x.Release(); x = NULL; } }
@@ -96,8 +97,8 @@ DWORD CALLBACK BassVistaLoopback::LoopbackStreamProc(HSTREAM /*a_handle*/,
 	}
 	return a_length;
 }
+//---------------------------------------------------------------------------
 
-////////////////////////////////////////////////////////////////////////////////
 BassVistaLoopback::BassVistaLoopback(int a_device)
 	:m_wfx(NULL)
 	,m_loopback_stream(0)
@@ -108,6 +109,7 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 	USES_CONVERSION;
 	HRESULT hr;
 
+	/*
 	if (a_device < 0)
 	{
 		EIF(GetDefaultDevice(eRender, &m_audio_client));
@@ -122,11 +124,20 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 
 		EIF(GetDevice(A2W(info.driver), eRender, &m_audio_client));
 	}
-	EIF(m_audio_client->GetMixFormat(&m_wfx));
-	EIF(m_audio_client->Initialize(
-		AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK,
-		500 * MFTIMES_PER_MILLISEC, 0, m_wfx, NULL));
+	*/
 
+	// Taking device, based on driver name, not ID (BASS enumeration doesn't
+	// equal with WASAPI's). Again, real device IDs starts from 1 in BASS.
+	BASS_WASAPI_DEVICEINFO info;
+	BOOL result = BASS_WASAPI_GetDeviceInfo(a_device, &info);
+	ASSERT(result);
+	EIF(GetDevice(A2W(info.id), eAll, &m_audio_client));
+
+	const DWORD streamFlags = (info.flags & BASS_DEVICE_LOOPBACK) ? AUDCLNT_STREAMFLAGS_LOOPBACK : 0;
+	const REFERENCE_TIME bufferDuration = 500 * MFTIMES_PER_MILLISEC;
+
+	EIF(m_audio_client->GetMixFormat(&m_wfx));
+	EIF(m_audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, bufferDuration, 0, m_wfx, NULL));
 	EIF(m_audio_client->GetBufferSize(&m_buffer_size)); //in frames
 
 	EIF(m_audio_client->GetService(__uuidof(IAudioCaptureClient),
@@ -134,20 +145,17 @@ BassVistaLoopback::BassVistaLoopback(int a_device)
 	EIF(m_audio_client->Start());
 
 	m_loopback_stream = BASS_StreamCreate(
-		m_wfx->nSamplesPerSec,
-		m_wfx->nChannels,
+		GetActualFrequency(),
+		GetActualChannelCount(),
 		BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE,
 		LoopbackStreamProc,
 		this);
 	
-	// Better behavior of stream buffer ?
-	//BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
-
 Exit:
 	return;
 }
+//---------------------------------------------------------------------------
 
-////////////////////////////////////////////////////////////////////////////////
 BassVistaLoopback::~BassVistaLoopback()
 {
 	if (m_audio_client)
@@ -159,14 +167,26 @@ BassVistaLoopback::~BassVistaLoopback()
 		CoTaskMemFree(m_wfx);
 	}
 }
+//---------------------------------------------------------------------------
 
-////////////////////////////////////////////////////////////////////////////////
+DWORD BassVistaLoopback::GetActualFrequency() const
+{
+	return (m_wfx != NULL) ? m_wfx->nSamplesPerSec : 0;
+}
+//---------------------------------------------------------------------------
+
+DWORD BassVistaLoopback::GetActualChannelCount() const
+{
+	return (m_wfx != NULL) ? m_wfx->nChannels : 0;
+}
+//---------------------------------------------------------------------------
+
 HSTREAM BassVistaLoopback::GetLoopbackStream() const
 {
 	return m_loopback_stream;
 }
+//---------------------------------------------------------------------------
 
-////////////////////////////////////////////////////////////////////////////////
 HRESULT BassVistaLoopback::GetDefaultDevice(EDataFlow a_flow, IAudioClient **a_client)
 {
 	CComPtr<IMMDeviceEnumerator> l_enumerator;
@@ -193,7 +213,7 @@ HRESULT BassVistaLoopback::GetDefaultDevice(EDataFlow a_flow, IAudioClient **a_c
 Exit:
 	return hr;
 }
-////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
 
 HRESULT BassVistaLoopback::GetDevice(LPCWSTR a_device_driver, EDataFlow a_flow,
 									 IAudioClient **a_client)
@@ -201,6 +221,7 @@ HRESULT BassVistaLoopback::GetDevice(LPCWSTR a_device_driver, EDataFlow a_flow,
 	CComPtr<IMMDeviceEnumerator> l_enumerator;
 	CComPtr<IMMDeviceCollection> l_device_collection;
 	CComPtr<IMMDevice> l_device;
+
 	LPWSTR l_device_driver = NULL;
 	UINT l_device_count = 0;
 	UINT l_device_id = -1;
@@ -229,7 +250,7 @@ HRESULT BassVistaLoopback::GetDevice(LPCWSTR a_device_driver, EDataFlow a_flow,
 Exit:
 	return hr;
 }
-////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
 
 HRESULT BassVistaLoopback::GetDevice(int a_device_id, EDataFlow a_flow,
 									 IAudioClient **a_client)
@@ -249,7 +270,7 @@ HRESULT BassVistaLoopback::GetDevice(int a_device_id, EDataFlow a_flow,
 Exit:
 	return hr;
 }
-////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------
 
 HRESULT BassVistaLoopback::GetPlaybackDevicesNames(CStringArray& arr)
 {
@@ -282,3 +303,4 @@ HRESULT BassVistaLoopback::GetPlaybackDevicesNames(CStringArray& arr)
 Exit:
 	return hr;
 }
+//---------------------------------------------------------------------------
