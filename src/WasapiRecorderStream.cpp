@@ -23,7 +23,9 @@ CWasapiRecorderStream::CWasapiRecorderStream(int device)
 	,m_src_offset(0)
 	,m_buffer_delay(false)
 	,m_buffer_size(0)
+	,m_packetOffsetBytes(0) //need to reset it on object construction (static variable not ok)
 {
+	//WriteDbg() << __FUNCTION__ << " ::1";
 	HRESULT hr;
 
 	// Taking device, based on driver name, not ID (BASS enumeration doesn't
@@ -44,21 +46,30 @@ CWasapiRecorderStream::CWasapiRecorderStream(int device)
 		(void**)&m_capture_client));
 	EIF(m_audio_client->Start());
 
+	//WriteDbg() << __FUNCTION__ << " ::2 (ALL OK)";
 Exit:
+	//WriteDbg() << __FUNCTION__ << " ::3";
 	return;
 }
 //---------------------------------------------------------------------------
 
 CWasapiRecorderStream::~CWasapiRecorderStream()
 {
+	//WriteDbg() << __FUNCTION__ << " ::1";
+
 	if (m_audio_client)
 	{
+	//WriteDbg() << __FUNCTION__ << " ::2";
+
 		HRESULT hr = m_audio_client->Stop();
 		ASSERT(!FAILED(hr));
+
+	//WriteDbg() << __FUNCTION__ << " ::3";
 
 		BASS_StreamFree(m_hStream);
 		CoTaskMemFree(m_wfx);
 	}
+	//WriteDbg() << __FUNCTION__ << " ::4";
 }
 //---------------------------------------------------------------------------
 
@@ -148,90 +159,78 @@ float CWasapiRecorderStream::GetPeakLevel(int channel) const
 //---------------------------------------------------------------------------
 
 DWORD CALLBACK CWasapiRecorderStream::StreamProc(HSTREAM,
-	void* a_buffer, DWORD a_length, void* a_user)
+	void* dstBuffer, DWORD dstBufferLengthBytes, void* userData)
 {
-	//TODO: refactor, looks overcomplicated.
+	CWasapiRecorderStream* rs = static_cast<CWasapiRecorderStream *>(userData);
+	HRESULT hr = S_OK;
 
-	CWasapiRecorderStream* l_this = static_cast<CWasapiRecorderStream *>(a_user);
-	ASSERT(l_this);
+//WriteDbg() << " ::0  , dstBufferLengthBytes=" << dstBufferLengthBytes << ", packetOffsetBytes=" << rs->m_packetOffsetBytes;
 
-	HRESULT hr;
+	//ENSURE WE HAVE ENOUGTH DATA TO FILL OUTPUT BUFFER
 
-	// Applying sound delay for 0.1 sec (currently).
+	UINT32 paddingFramesCount = 0;
+	EIF(rs->m_audio_client->GetCurrentPadding(&paddingFramesCount));
+	if ((paddingFramesCount * rs->m_wfx->nBlockAlign - rs->m_packetOffsetBytes) < dstBufferLengthBytes)
+		return 0;
+
+	/*
+//WriteDbg() << " ::0  , paddingFramesCount=" << paddingFramesCount << ", bytes=" << paddingFramesCount * rs->m_wfx->nBlockAlign;
+	int attemptsCount = 100;
+	while ((paddingFramesCount * rs->m_wfx->nBlockAlign - packetOffsetBytes) < dstBufferLengthBytes)
 	{
-		UINT32 paddingFrameCount;
-		hr = l_this->m_audio_client->GetCurrentPadding(&paddingFrameCount);
-		if (!paddingFrameCount || (paddingFrameCount < l_this->m_buffer_size/4 && !l_this->m_buffer_delay))
-		{
-			//if (addingFrameCount)
-			//	::OutputDebugString(__FUNCTION__ " ::Delaying (wait 1/4 buffer)");
-			//else
-			//	::OutputDebugString(__FUNCTION__ " ::Delaying (no frames in buffer");
+		::Sleep(10);
+		EIF(rs->m_audio_client->GetCurrentPadding(&paddingFramesCount));
+		if (--attemptsCount == 0)
+			return BASS_STREAMPROC_END;
+//WriteDbg() << " ::0  , paddingFramesCount=" << paddingFramesCount << ", bytes=" << paddingFramesCount * rs->m_wfx->nBlockAlign;
+	}
+	*/
 
-			l_this->m_buffer_delay = false;
-			ZeroMemory(a_buffer, a_length);
-			return a_length;
-		}
+//WriteDbg() << " ::2  , (endpoint buffer ready)";
+
+	//FILLING BUFFER
+
+	UINT32 bufferOffsetBytes = 0;
+	while (bufferOffsetBytes < dstBufferLengthBytes)
+	{
+
+//WriteDbg() << " ::3.1, bufferOffsetBytes=" << bufferOffsetBytes << ", packetOffsetBytes=" << rs->m_packetOffsetBytes;
+
+		BYTE* srcBuffer = NULL;
+		DWORD srcBufferFlags = 0;
+		UINT32 numFramesAvailable = 0;
+		EIF(rs->m_capture_client->GetBuffer(&srcBuffer, &numFramesAvailable, &srcBufferFlags, NULL, NULL));
+
+		const UINT32 numBytesAvailable = numFramesAvailable * rs->m_wfx->nBlockAlign;
+		const UINT32 copyBytesAvailable = numBytesAvailable - rs->m_packetOffsetBytes;
+		const UINT32 bytesToWrite = min(copyBytesAvailable, dstBufferLengthBytes - bufferOffsetBytes);
+		ASSERT(numBytesAvailable >= rs->m_packetOffsetBytes); //copyBytesAvailable overflow check
+
+//WriteDbg() << " ::3.2, numBytesAvailable=" << numBytesAvailable << ", copyBytesAvailable=" << copyBytesAvailable << ", bytesToWrite=" << bytesToWrite;
+
+		if (srcBufferFlags & AUDCLNT_BUFFERFLAGS_SILENT)
+			ZeroMemory((BYTE*)dstBuffer + bufferOffsetBytes, bytesToWrite);
 		else
-			l_this->m_buffer_delay = true;
+			memcpy((BYTE*)dstBuffer + bufferOffsetBytes, srcBuffer + rs->m_packetOffsetBytes, bytesToWrite);
+
+		bufferOffsetBytes += bytesToWrite;
+		rs->m_packetOffsetBytes += bytesToWrite;
+
+		//Check full packet has been read.
+		ASSERT(rs->m_packetOffsetBytes <= numBytesAvailable);
+		const bool fullPacketRead = (rs->m_packetOffsetBytes == numBytesAvailable);
+		if (fullPacketRead)
+		  rs->m_packetOffsetBytes = 0;
+
+//WriteDbg() << " ::3.3, fullPacketRead=" << fullPacketRead;
+
+		EIF(rs->m_capture_client->ReleaseBuffer(fullPacketRead ? numFramesAvailable : 0));
 	}
+//WriteDbg() << " ::4  , (DST BUFFER FILLED)";
+	return bufferOffsetBytes;
 
-	BYTE*  l_dst_buffer = (BYTE*)a_buffer;
-	UINT32 l_dst_length = a_length;
-
-	// NOTE: we fill the required buffer completely
-	while (l_dst_length)
-	{
-		// 1. Getting new chunk
-		// 2. If we don't have any sounds, then just making the remaining part
-		//      of the buffer silent and exit
-		// 3. Counting data length for copying
-		// 4. Filling destination buffer
-		// 5. Updating variables
-		// 6. If l_dst_length, then repeat
-
-		BYTE*   l_src_buffer = NULL;
-		DWORD   l_src_flags = 0;
-		UINT32  l_src_frames_available = 0;
-		UINT32& l_src_offset = l_this->m_src_offset;
-
-		hr = l_this->m_capture_client->GetBuffer(&l_src_buffer,
-			&l_src_frames_available, &l_src_flags, NULL, NULL);
-
-		if (!l_src_frames_available)
-		{
-			if (l_dst_length == a_length)
-				::OutputDebugString(__FUNCTION__ " ::Empty buffer");
-			else
-				::OutputDebugString(__FUNCTION__ " ::Empty buffer (partially filled)");
-
-			ZeroMemory(l_dst_buffer, l_dst_length);
-			hr = l_this->m_capture_client->ReleaseBuffer(l_src_frames_available);
-			// Return filled length if no more frames.
-			return (l_dst_length == a_length) ? a_length : a_length - l_dst_length;
-		}
-
-		UINT32 l_src_bytes_available = l_src_frames_available * l_this->m_wfx->nBlockAlign;
-
-		if (l_src_bytes_available > a_length)
-			::OutputDebugString(__FUNCTION__ " :: TOO MANY FRAMES!");
-
-		UINT32 l_bytes_4copy = min(l_dst_length, l_src_bytes_available - l_src_offset);
-
-		memcpy(l_dst_buffer, l_src_buffer + l_src_offset, l_bytes_4copy);
-
-		l_dst_length -= l_bytes_4copy;
-		l_dst_buffer += l_bytes_4copy;
-		l_src_offset += l_bytes_4copy;
-
-		ASSERT(l_src_offset <= l_src_bytes_available);
-		if (l_src_offset == l_src_bytes_available)
-			l_src_offset = 0;	// clearing offset if all copied
-
-		// Asking for same chunk (0) if it wasn't fully copied
-		hr = l_this->m_capture_client->ReleaseBuffer(
-			(l_src_offset) ? 0 : l_src_frames_available);
-	}
-	return a_length;
+Exit:
+//WriteDbg() << " ::5  , (DEVICE ERROR)";
+	return BASS_STREAMPROC_END; //case with invalid 'hr' variable
 }
 //---------------------------------------------------------------------------

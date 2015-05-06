@@ -24,7 +24,6 @@ static char THIS_FILE[] = __FILE__;
 #include "VASFilter.h"
 #include "Encoder_MP3.h"
 #include "FilterFileWriter.h"
-#include "FilterFileWriterWAV.h"
 #include "Debug.h"
 
 HSTREAM m_bassPlaybackHandle = 0;   // Playback
@@ -1320,7 +1319,7 @@ void CMainFrame::OnBtnSTOP()
 
 		m_recordingChain.GetFilter<CWasapiRecorderMulti>()->Stop();
 		m_recordingChain.GetFilter<FileWriter>()->ForceClose();
-		//m_recordingChain.GetFilter<CEncoder_MP3>()->WriteVBRHeader(m_recordingFileName);
+		m_recordingChain.GetFilter<CEncoder_MP3>()->WriteVBRHeader(m_recordingFileName);
 		m_recordingChain.Empty();
 
 		OpenFile(m_recordingFileName);
@@ -1418,9 +1417,8 @@ void CMainFrame::OnBtnREC()
 
 		m_recordingChain.AddFilter(recorder);
 		m_recordingChain.AddFilter(new VasFilter(vasThresholdDB, vasWaitTimeMS, vasEnabled));
-		//m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
-		//m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
-		m_recordingChain.AddFilter(new FileWriterWAV(m_recordingFileName, frequency, channels));
+		m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
+		m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
 	}
 
 	CWasapiRecorderMulti* recorder = m_recordingChain.GetFilter<CWasapiRecorderMulti>();

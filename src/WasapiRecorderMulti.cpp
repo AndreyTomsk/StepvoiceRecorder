@@ -40,10 +40,10 @@ CWasapiRecorderMulti::CWasapiRecorderMulti(
 
 	const DWORD flags = (m_actualChans == 1) ? BASS_DEVICE_MONO : 0;
 	const HWND mainWindowHandle = AfxGetApp()->GetMainWnd()->GetSafeHwnd();
-	BOOL result = BASS_Init(-1, m_actualFreq, flags, mainWindowHandle, NULL);
+	BOOL result = BASS_Init(0, m_actualFreq, flags, mainWindowHandle, NULL);
 
 	m_mixerStream = BASS_Mixer_StreamCreate(m_actualFreq, m_actualChans,
-		BASS_SAMPLE_FLOAT);//|BASS_STREAM_DECODE);
+		BASS_SAMPLE_FLOAT|BASS_STREAM_DECODE);
 	ASSERT(m_mixerStream != 0);
 
 	// Adding channels to stream.
@@ -57,26 +57,23 @@ CWasapiRecorderMulti::CWasapiRecorderMulti(
 		ASSERT(result);
 	}
 
-
 	// Creating thread for reading data from stream.
 
-	//m_streamEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL); //manual, not signaled
-	//m_streamThread = ::CreateThread(NULL, 0, ReadDataFromStreamProc, this, 0, 0);
-	//ASSERT(m_streamThread != NULL);
+	m_streamEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL); //manual, not signaled
+	m_streamThread = ::CreateThread(NULL, 0, ReadDataFromStreamProc, this, 0, 0);
+	ASSERT(m_streamThread != NULL);
 }
 //---------------------------------------------------------------------------
 
 CWasapiRecorderMulti::~CWasapiRecorderMulti()
 {
-	/*
-	//Closing working thread.
+	//Close working thread.
 	m_exitThread = true;
 	::SetEvent(m_streamEvent);
 	::WaitForSingleObject(m_streamThread, INFINITE);
 
 	::CloseHandle(m_streamEvent);
 	::CloseHandle(m_streamThread);
-	*/
 
 	for (unsigned i = 0; i < m_recorderStreams.size(); i++)
 		delete m_recorderStreams[i];
@@ -98,31 +95,26 @@ DWORD CWasapiRecorderMulti::GetActualChannelCount() const
 
 BOOL CWasapiRecorderMulti::Start()
 {
-	/*
 	BOOL result = ::SetEvent(m_streamEvent);
 	m_recorderState = eStarted;
 	return result;
-	*/
-	return BASS_ChannelPlay(m_mixerStream, FALSE);
+	//return BASS_ChannelPlay(m_mixerStream, FALSE);
 }
 //---------------------------------------------------------------------------
 
 BOOL CWasapiRecorderMulti::Pause()
 {
-	/*
 	CMyLock lock(m_sync_object);
 
 	BOOL result = ::ResetEvent(m_streamEvent);
 	m_recorderState = ePaused;
 	return result;
-	*/
-	return BASS_ChannelPause(m_mixerStream);
+	//return BASS_ChannelPause(m_mixerStream);
 }
 //---------------------------------------------------------------------------
 
 BOOL CWasapiRecorderMulti::Stop()
 {
-	/*
 	//Aqquire lock to ensure ProcessData in worker thread is finished. This is
 	//needed to let other filters close their resources (we have an example in
 	//MainFrm.cpp - ForceClose is called to file just after stopping recorder).
@@ -132,8 +124,7 @@ BOOL CWasapiRecorderMulti::Stop()
 	m_recorderState = eStopped;
 
 	return result;
-	*/
-	return BASS_ChannelStop(m_mixerStream);
+	//return BASS_ChannelStop(m_mixerStream);
 }
 //---------------------------------------------------------------------------
 
@@ -208,7 +199,7 @@ DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 		if (recorder->m_exitThread)
 			break;
 
-		::Sleep(20); //Letting data appear in mixer buffer.
+		::Sleep(100); //Letting data appear in mixer buffer (stream buffers are 500ms).
 		while (true)
 		{
 			CMyLock lock(recorder->m_sync_object);
@@ -220,7 +211,6 @@ DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 
 			if (bytesReceived == 0 || bytesReceived == -1)
 				break;
-
 			recorder->ProcessData(tempBuffer, bytesReceived);
 		}
 	}

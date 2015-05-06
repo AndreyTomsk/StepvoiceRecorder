@@ -46,6 +46,7 @@ private:
 	UINT32 m_src_offset;
 	bool m_buffer_delay;
 	UINT32 m_buffer_size;
+	UINT32 m_packetOffsetBytes;
 };
 
 /////////////////////////////////////////////////////////////////////////////
