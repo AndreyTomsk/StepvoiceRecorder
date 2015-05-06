@@ -1397,10 +1397,6 @@ void CMainFrame::OnBtnREC()
 
 	if (m_recordingChain.IsEmpty())
 	{
-		WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
-		//ASSERT(!selectedDevices.empty());
-		//const DWORD deviceID = selectedDevices[0].first;
-
 		const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
 		const int vasThresholdDB = RegistryConfig::GetOption(_T("Tools\\VAS\\Threshold"), -30);
 		const int vasWaitTimeMS = RegistryConfig::GetOption(_T("Tools\\VAS\\WaitTime"), 2000);
@@ -1409,6 +1405,7 @@ void CMainFrame::OnBtnREC()
 		int frequency = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
 		int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
 
+		WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
 		CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, frequency, channels);
 		recorder->SetVolume(m_recording_volume);
 
@@ -1656,6 +1653,10 @@ void CMainFrame::UpdateStatWindow()
 	}
 	else if (!m_recordingChain.IsEmpty())
 	{
+		CWasapiRecorderMulti* recorder = m_recordingChain.GetFilter<CWasapiRecorderMulti>();
+		frequency = recorder->GetActualFrequency();
+		stereo = recorder->GetActualChannelCount() > 0;
+
 		const int bytesSec = bitrate * (1000/8); //bitrate is kbit/sec
 		fileSize = m_recordingChain.GetFilter<FileWriter>()->GetFileLength();
 		fileSeconds = double(fileSize / bytesSec);

@@ -20,12 +20,8 @@ CWasapiRecorderStream::CWasapiRecorderStream(int device)
 	:m_deviceID(device)
 	,m_hStream(0)
 	,m_wfx(NULL)
-	,m_src_offset(0)
-	,m_buffer_delay(false)
-	,m_buffer_size(0)
 	,m_packetOffsetBytes(0) //need to reset it on object construction (static variable not ok)
 {
-	//WriteDbg() << __FUNCTION__ << " ::1";
 	HRESULT hr;
 
 	// Taking device, based on driver name, not ID (BASS enumeration doesn't
@@ -40,36 +36,24 @@ CWasapiRecorderStream::CWasapiRecorderStream(int device)
 
 	EIF(m_audio_client->GetMixFormat(&m_wfx));
 	EIF(m_audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, bufferDuration, 0, m_wfx, NULL));
-	EIF(m_audio_client->GetBufferSize(&m_buffer_size)); //in frames
-
-	EIF(m_audio_client->GetService(__uuidof(IAudioCaptureClient),
-		(void**)&m_capture_client));
+	EIF(m_audio_client->GetService(__uuidof(IAudioCaptureClient), (void**)&m_capture_client));
 	EIF(m_audio_client->Start());
 
-	//WriteDbg() << __FUNCTION__ << " ::2 (ALL OK)";
 Exit:
-	//WriteDbg() << __FUNCTION__ << " ::3";
 	return;
 }
 //---------------------------------------------------------------------------
 
 CWasapiRecorderStream::~CWasapiRecorderStream()
 {
-	//WriteDbg() << __FUNCTION__ << " ::1";
-
 	if (m_audio_client)
 	{
-	//WriteDbg() << __FUNCTION__ << " ::2";
-
 		HRESULT hr = m_audio_client->Stop();
 		ASSERT(!FAILED(hr));
-
-	//WriteDbg() << __FUNCTION__ << " ::3";
 
 		BASS_StreamFree(m_hStream);
 		CoTaskMemFree(m_wfx);
 	}
-	//WriteDbg() << __FUNCTION__ << " ::4";
 }
 //---------------------------------------------------------------------------
 
