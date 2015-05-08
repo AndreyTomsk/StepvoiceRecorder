@@ -1083,6 +1083,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\WasapiAudioClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WasapiCaptureBuffer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WasapiHelpers.cpp"
 				>
 			</File>
@@ -1353,6 +1361,14 @@
 			</File>
 			<File
 				RelativePath=".\VisualizationData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WasapiAudioClient.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WasapiCaptureBuffer.h"
 				>
 			</File>
 			<File
