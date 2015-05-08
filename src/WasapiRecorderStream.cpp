@@ -5,6 +5,7 @@
 #include "WasapiHelpers.h" //for GetActiveDevice
 #include "Debug.h"
 #include "common.h" //for EIF
+//#include <Wmcodecdsp.h> //supports auto gain control, echo cancellation, noise filter
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -148,29 +149,31 @@ DWORD CALLBACK CWasapiRecorderStream::StreamProc(HSTREAM,
 	CWasapiRecorderStream* rs = static_cast<CWasapiRecorderStream *>(userData);
 	HRESULT hr = S_OK;
 
-//WriteDbg() << " ::0  , dstBufferLengthBytes=" << dstBufferLengthBytes << ", packetOffsetBytes=" << rs->m_packetOffsetBytes;
+//WriteDbg() << " ::1  , dstBufferLengthBytes=" << dstBufferLengthBytes << ", packetOffsetBytes=" << rs->m_packetOffsetBytes;
 
 	//ENSURE WE HAVE ENOUGTH DATA TO FILL OUTPUT BUFFER
 
 	UINT32 paddingFramesCount = 0;
 	EIF(rs->m_audio_client->GetCurrentPadding(&paddingFramesCount));
-	if ((paddingFramesCount * rs->m_wfx->nBlockAlign - rs->m_packetOffsetBytes) < dstBufferLengthBytes)
-		return 0;
+	//if ((paddingFramesCount * rs->m_wfx->nBlockAlign - rs->m_packetOffsetBytes) < dstBufferLengthBytes)
+	//	return 0;
 
-	/*
-//WriteDbg() << " ::0  , paddingFramesCount=" << paddingFramesCount << ", bytes=" << paddingFramesCount * rs->m_wfx->nBlockAlign;
+//WriteDbg() << " ::1  , paddingFramesCount=" << paddingFramesCount << ", bytes=" << paddingFramesCount * rs->m_wfx->nBlockAlign;
 	int attemptsCount = 100;
-	while ((paddingFramesCount * rs->m_wfx->nBlockAlign - packetOffsetBytes) < dstBufferLengthBytes)
+	int zeroCheckCount = 10;
+	while ((paddingFramesCount * rs->m_wfx->nBlockAlign - rs->m_packetOffsetBytes) < dstBufferLengthBytes)
 	{
 		::Sleep(10);
+		if (--zeroCheckCount == 0 && paddingFramesCount == 0)
+			return 0;
 		EIF(rs->m_audio_client->GetCurrentPadding(&paddingFramesCount));
 		if (--attemptsCount == 0)
 			return BASS_STREAMPROC_END;
-//WriteDbg() << " ::0  , paddingFramesCount=" << paddingFramesCount << ", bytes=" << paddingFramesCount * rs->m_wfx->nBlockAlign;
+//WriteDbg() << " ::1  , paddingFramesCount=" << paddingFramesCount << ", bytes=" << paddingFramesCount * rs->m_wfx->nBlockAlign;
 	}
-	*/
 
 //WriteDbg() << " ::2  , (endpoint buffer ready)";
+
 
 	//FILLING BUFFER
 
