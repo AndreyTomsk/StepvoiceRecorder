@@ -3,10 +3,11 @@
 #pragma once
 
 #include "Filter.h"
+#include "WasapiHelpers.h" //for IWasapiRecorder
 
 /////////////////////////////////////////////////////////////////////////////
 
-class CWasapiRecorder : public Filter
+class CWasapiRecorder : public IWasapiRecorder, public Filter
 {
 public:
 	//typedef DWORD (CALLBACK OUTPUTPROC)(void* buffer, DWORD lengthBytes, void* user);
@@ -22,25 +23,23 @@ public:
 	CWasapiRecorder(int device, DWORD freq, DWORD chans);
 	virtual ~CWasapiRecorder();
 
-	DWORD GetActualFrequency() const;
-	DWORD GetActualChannelCount() const;
+	virtual DWORD GetActualFrequency() const;
+	virtual DWORD GetActualChannelCount() const;
 
-	BOOL Start();
-	BOOL Pause();
-	BOOL Stop();
-	BOOL IsStarted() const;
-	BOOL IsPaused() const;
-	BOOL IsStopped() const;
+	virtual BOOL Start();
+	virtual BOOL Pause();
+	virtual BOOL Stop();
+	virtual BOOL IsStarted() const;
+	virtual BOOL IsPaused() const;
+	virtual BOOL IsStopped() const;
 
-	BOOL  VolumeControlAvailable() const;
-	float GetVolume() const;
-	BOOL  SetVolume(float volume); //0..1
+	virtual BOOL  VolumeControlAvailable() const;
+	virtual float GetVolume() const;
+	virtual BOOL  SetVolume(float volume); //0..1
 
-	float GetPeakLevel(int channel) const; //0 = first channel, -1 = all channels
-	DWORD GetData(void* buffer, DWORD lengthBytes) const; //returns -1 if error
-
-	//For compatibility with GraphWnd callback
-	DWORD GetChannelData(int channel, float* buffer, int bufferSize);
+	virtual float GetPeakLevel(int channel) const; //0 = first channel, -1 = all channels
+	virtual DWORD GetData(void* buffer, DWORD lengthBytes) const; //returns -1 if error
+	virtual DWORD GetChannelData(int channel, float* buffer, int bufferSize);
 
 private:
 	static DWORD CALLBACK OutputProc(void* buffer, DWORD lengthBytes, void* user);
