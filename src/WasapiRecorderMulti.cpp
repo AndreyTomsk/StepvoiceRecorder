@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include <bassmix.h>
 #include <math.h> //for abs
+#include <memory> //for auto_ptr
+#include "SampleConverter.h"
 #include "WasapiRecorderMulti.h"
-#include "WasapiRecorderStream.h"
+#include "WasapiAudioClient.h"
 #include "WasapiHelpers.h"
 #include "BASS_Functions.h" //for Bass::ShowErrorFrom
 #include "Debug.h"
@@ -17,44 +19,26 @@ static char THIS_FILE[] = __FILE__;
 
 CWasapiRecorderMulti::CWasapiRecorderMulti(
 	WasapiHelpers::DevicesArray devices, DWORD freq, DWORD chans)
-	:m_actualFreq(0)
+	:m_actualFreq(INT_MAX)
 	,m_actualChans(0)
 	,m_exitThread(false)
 	,m_recorderState(eStopped)
 {
 	// Creating WASAPI recorders for each device. Calculating result freq and channels.
+	// For easier mixing, we get minimal frequency among all channels as result.
 
 	for (unsigned i = 0; i < devices.size(); i++)
 	{
 		const WasapiHelpers::DeviceIdNamePair& p = devices[i];
 		const int deviceID = p.first;
 
-		CWasapiRecorderStream* rs = new CWasapiRecorderStream(deviceID);
-		m_recorderStreams.push_back(rs);
+		CWasapiAudioClient* ac = new CWasapiAudioClient(deviceID);
+		m_audioClients.push_back(ac);
 
-		m_actualFreq = max(m_actualFreq, rs->GetActualFrequency());
-		m_actualChans = max(m_actualChans, rs->GetActualChannelCount());
-	}
-
-	// Creating mixer stream.
-
-	const DWORD flags = (m_actualChans == 1) ? BASS_DEVICE_MONO : 0;
-	const HWND mainWindowHandle = AfxGetApp()->GetMainWnd()->GetSafeHwnd();
-	BOOL result = BASS_Init(0, m_actualFreq, flags, mainWindowHandle, NULL);
-
-	m_mixerStream = BASS_Mixer_StreamCreate(m_actualFreq, m_actualChans,
-		BASS_SAMPLE_FLOAT|BASS_STREAM_DECODE);
-	ASSERT(m_mixerStream != 0);
-
-	// Adding channels to stream.
-
-	for (unsigned i = 0; i < m_recorderStreams.size(); i++)
-	{
-		CWasapiRecorderStream* rs = m_recorderStreams[i];
-		result = BASS_Mixer_StreamAddChannel(m_mixerStream, rs->GetStreamHandle(), BASS_MIXER_DOWNMIX);
-		if (!result)
-			Bass::ShowErrorFrom(_T("BASS_Mixer_StreamAddChannel"));
-		ASSERT(result);
+		//m_actualFreq = min(m_actualFreq, ac->GetActualFrequency());
+		m_actualChans = max(m_actualChans, ac->GetActualChannelCount());
+		m_actualFreq = 44100;
+		//m_actualChans = 1;
 	}
 
 	// Creating thread for reading data from stream.
@@ -75,9 +59,8 @@ CWasapiRecorderMulti::~CWasapiRecorderMulti()
 	::CloseHandle(m_streamEvent);
 	::CloseHandle(m_streamThread);
 
-	for (unsigned i = 0; i < m_recorderStreams.size(); i++)
-		delete m_recorderStreams[i];
-	BASS_Free();
+	for (unsigned i = 0; i < m_audioClients.size(); i++)
+		delete m_audioClients[i];
 }
 //---------------------------------------------------------------------------
 
@@ -95,10 +78,18 @@ DWORD CWasapiRecorderMulti::GetActualChannelCount() const
 
 BOOL CWasapiRecorderMulti::Start()
 {
-	BOOL result = ::SetEvent(m_streamEvent);
-	m_recorderState = eStarted;
-	return result;
-	//return BASS_ChannelPlay(m_mixerStream, FALSE);
+	CMyLock lock(m_sync_object);
+
+	BOOL atLeastOneStarted = FALSE;
+	for (unsigned i = 0; i < m_audioClients.size(); i++)
+		atLeastOneStarted |= m_audioClients[i]->Start();
+
+	if (atLeastOneStarted)
+	{
+		m_recorderState = eStarted;
+		::SetEvent(m_streamEvent);
+	}
+	return atLeastOneStarted;
 }
 //---------------------------------------------------------------------------
 
@@ -106,10 +97,16 @@ BOOL CWasapiRecorderMulti::Pause()
 {
 	CMyLock lock(m_sync_object);
 
-	BOOL result = ::ResetEvent(m_streamEvent);
-	m_recorderState = ePaused;
-	return result;
-	//return BASS_ChannelPause(m_mixerStream);
+	BOOL atLeastOnePaused = FALSE;
+	for (unsigned i = 0; i < m_audioClients.size(); i++)
+		atLeastOnePaused |= m_audioClients[i]->Pause();
+
+	if (atLeastOnePaused)
+	{
+		m_recorderState = ePaused;
+		::ResetEvent(m_streamEvent);
+	}
+	return atLeastOnePaused;
 }
 //---------------------------------------------------------------------------
 
@@ -120,11 +117,12 @@ BOOL CWasapiRecorderMulti::Stop()
 	//MainFrm.cpp - ForceClose is called to file just after stopping recorder).
 	CMyLock lock(m_sync_object);
 
+	for (unsigned i = 0; i < m_audioClients.size(); i++)
+		m_audioClients[i]->Stop();
+
 	BOOL result = ::ResetEvent(m_streamEvent);
 	m_recorderState = eStopped;
-
 	return result;
-	//return BASS_ChannelStop(m_mixerStream);
 }
 //---------------------------------------------------------------------------
 
@@ -146,10 +144,16 @@ BOOL CWasapiRecorderMulti::IsStopped() const
 }
 //---------------------------------------------------------------------------
 
+BOOL CWasapiRecorderMulti::VolumeControlAvailable() const
+{
+	return TRUE;
+}
+//---------------------------------------------------------------------------
+
 float CWasapiRecorderMulti::GetVolume() const
 {
-	if (!m_recorderStreams.empty())
-		return m_recorderStreams[0]->GetVolume();
+	if (!m_audioClients.empty())
+		return m_audioClients[0]->GetVolume();
 	else
 		return 1.0;
 }
@@ -157,8 +161,8 @@ float CWasapiRecorderMulti::GetVolume() const
 
 BOOL CWasapiRecorderMulti::SetVolume(float volume)
 {
-	for (unsigned i = 0; i < m_recorderStreams.size(); i++)
-		m_recorderStreams[i]->SetVolume(volume);
+	for (unsigned i = 0; i < m_audioClients.size(); i++)
+		m_audioClients[i]->SetVolume(volume);
 	return TRUE;
 }
 //---------------------------------------------------------------------------
@@ -166,9 +170,9 @@ BOOL CWasapiRecorderMulti::SetVolume(float volume)
 float CWasapiRecorderMulti::GetPeakLevel(int channel) const
 {
 	float maxLevel = 0;
-	for (unsigned i = 0; i < m_recorderStreams.size(); i++)
+	for (unsigned i = 0; i < m_audioClients.size(); i++)
 	{
-		const float streamLevel = abs(m_recorderStreams[i]->GetPeakLevel(channel));
+		const float streamLevel = abs(m_audioClients[i]->GetPeakLevel(channel));
 		maxLevel = max(maxLevel, streamLevel);
 	}
 	return maxLevel;
@@ -189,29 +193,56 @@ DWORD CWasapiRecorderMulti::GetChannelData(int channel, float* buffer, int buffe
 
 DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 {
-	const DWORD TEMP_BUFFER_SIZE = 8192;
-	static float tempBuffer[TEMP_BUFFER_SIZE];
-
 	CWasapiRecorderMulti* recorder = static_cast<CWasapiRecorderMulti*>(lpParam);
+	
+	const DWORD TEMP_BUFFER_SIZE = 81920;
+	static float tempBufferInternal[TEMP_BUFFER_SIZE];
+
+	const int actualFreq = recorder->GetActualFrequency();
+	const int actualChans = recorder->GetActualChannelCount();
+	const int sampleSizeBytes = sizeof(float)*actualChans;
+	SampleBuffer tempBuffer(actualFreq, actualChans, tempBufferInternal);
+	tempBuffer.maxSamples = TEMP_BUFFER_SIZE/actualChans;
+
 	while (true)
 	{
 		::WaitForSingleObject(recorder->m_streamEvent, INFINITE);
 		if (recorder->m_exitThread)
 			break;
 
-		::Sleep(100); //Letting data appear in mixer buffer (stream buffers are 500ms).
+		::Sleep(100); //Letting data appear in recorders.
 		while (true)
 		{
 			CMyLock lock(recorder->m_sync_object);
 			if (recorder->m_recorderState != eStarted)
 				break;
 
-			const DWORD bytesReceived = BASS_ChannelGetData(
-				recorder->m_mixerStream, tempBuffer, TEMP_BUFFER_SIZE);
+			bool newDataAvailable = false;
+			for (unsigned i = 0; i < recorder->m_audioClients.size(); i++)
+			{
+				std::auto_ptr<CWasapiCaptureBuffer> buffer(
+					recorder->m_audioClients[i]->GetCaptureBuffer());
 
-			if (bytesReceived == 0 || bytesReceived == -1)
+				if (buffer->GetBytesAvailable())
+				{
+	//WriteDbg() << __FUNCTION__ << " ::2, stream" << i << ", bytes available=" << buffer->GetBytesAvailable();
+
+					newDataAvailable = true;
+					//recorder->ProcessData(buffer->GetBuffer(), buffer->GetBytesAvailable());
+
+					const int actualFreq = recorder->m_audioClients[i]->GetActualFrequency();
+					const int actualChans2 = recorder->m_audioClients[i]->GetActualChannelCount();
+					SampleBuffer sourceBuffer(actualFreq, actualChans2, (float*)buffer->GetBuffer());
+					sourceBuffer.curSamples = buffer->GetBytesAvailable()/sampleSizeBytes;
+					sourceBuffer.maxSamples = sourceBuffer.curSamples;
+
+					ConvertSamples(sourceBuffer, tempBuffer);
+					recorder->ProcessData(tempBuffer.data, tempBuffer.curSamples*sampleSizeBytes);
+				}
+			}
+
+			if (!newDataAvailable)
 				break;
-			recorder->ProcessData(tempBuffer, bytesReceived);
 		}
 	}
 

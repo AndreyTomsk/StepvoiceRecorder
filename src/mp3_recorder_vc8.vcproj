@@ -831,6 +831,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SampleConverter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Scheduler2.cpp"
 				>
 				<FileConfiguration
@@ -1051,6 +1055,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Utility.cpp"
+				>
 			</File>
 			<File
 				RelativePath="VAS.cpp"
@@ -1292,6 +1300,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SampleConverter.h"
+				>
+			</File>
+			<File
 				RelativePath="Scheduler.h"
 				>
 			</File>
@@ -1349,6 +1361,10 @@
 			</File>
 			<File
 				RelativePath="UrlWnd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Utility.h"
 				>
 			</File>
 			<File

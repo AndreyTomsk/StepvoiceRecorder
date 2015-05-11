@@ -24,6 +24,7 @@ static char THIS_FILE[] = __FILE__;
 #include "VASFilter.h"
 #include "Encoder_MP3.h"
 #include "FilterFileWriter.h"
+#include "FilterFileWriterWAV.h"
 #include "Debug.h"
 
 HSTREAM m_bassPlaybackHandle = 0;   // Playback
@@ -510,7 +511,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableToolTips(true);
 
 	// "Always on Top" option
-	OnOptTop(); OnOptTop();	// state is not changing
+	//OnOptTop(); OnOptTop();	// state is not changing
 
 	// Adjusting the mixer
 	//m_playback_volume = min(1, abs((float)m_conf.GetConfProg()->nPlayVolume / 10000));
@@ -1406,8 +1407,8 @@ void CMainFrame::OnBtnREC()
 		int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
 
 		WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
-		//CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices[0].first, frequency, channels);
-		CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, 48000, 1);//frequency, channels);
+		CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, frequency, channels);
+		//CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, frequency, channels);
 		recorder->SetVolume(m_recording_volume);
 
 		frequency = recorder->GetActualFrequency();
@@ -1417,6 +1418,7 @@ void CMainFrame::OnBtnREC()
 		m_recordingChain.AddFilter(new VasFilter(vasThresholdDB, vasWaitTimeMS, vasEnabled));
 		m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
 		m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
+		//m_recordingChain.AddFilter(new FileWriterWAV(m_recordingFileName, frequency, channels));
 	}
 
 	IWasapiRecorder* recorder = m_recordingChain.GetFilter<IWasapiRecorder>();
@@ -2539,8 +2541,8 @@ bool CMainFrame::MonitoringStart()
 		MonitoringStop();
 
 	WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
-	//CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, 44100, 2);
-	CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, 44100, 2);
+	CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, 44100, 2);
+	//CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, 44100, 2);
 	recorder->SetVolume(m_recording_volume);
 
 	m_monitoringChain.AddFilter(recorder);

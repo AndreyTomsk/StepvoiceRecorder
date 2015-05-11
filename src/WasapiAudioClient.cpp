@@ -16,7 +16,8 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 
 CWasapiAudioClient::CWasapiAudioClient(int device)
-	:m_wfx(NULL)
+	:m_deviceID(device)
+	,m_wfx(NULL)
 	,m_audioState(eStopped)
 {
 	HRESULT hr;
@@ -43,6 +44,12 @@ Exit:
 CWasapiAudioClient::~CWasapiAudioClient()
 {
 	Stop();
+}
+//---------------------------------------------------------------------------
+
+int CWasapiAudioClient::GetDeviceID() const
+{
+	return m_deviceID;
 }
 //---------------------------------------------------------------------------
 
@@ -91,6 +98,24 @@ BOOL CWasapiAudioClient::Stop()
 }
 //---------------------------------------------------------------------------
 
+BOOL CWasapiAudioClient::IsStarted() const
+{
+	return m_audioState == eStarted;
+}
+//---------------------------------------------------------------------------
+
+BOOL CWasapiAudioClient::IsPaused() const
+{
+	return m_audioState == ePaused;
+}
+//---------------------------------------------------------------------------
+
+BOOL CWasapiAudioClient::IsStopped() const
+{
+	return m_audioState == eStopped;
+}
+//---------------------------------------------------------------------------
+
 float CWasapiAudioClient::GetVolume() const
 {
 	float resultVolume = 0;
@@ -132,11 +157,20 @@ Exit:
 }
 //---------------------------------------------------------------------------
 
-std::auto_ptr<CWasapiCaptureBuffer> CWasapiAudioClient::GetCaptureBuffer() const
+float CWasapiAudioClient::GetPeakLevel(int channel) const //0 = first channel, -1 = all channels
+{
+	//TODO: rewrite without using BASS wasapi (see Get/SetVolume).
+	const bool isMono = (GetActualChannelCount() == 1);
+	const float level = BASS_WASAPI_GetDeviceLevel(m_deviceID, isMono ? 0 : channel);
+	return (level >= 0) ? level : 0;
+}
+//---------------------------------------------------------------------------
+
+CWasapiCaptureBuffer* CWasapiAudioClient::GetCaptureBuffer() const
 {
 	//This method is likely called from another thread.
 	CMyLock lock(m_sync_object);
-	if (m_audioState == eStarted)
+	if (IsStarted())
 		return new CWasapiCaptureBuffer(m_captureClient, m_wfx->nBlockAlign);
 	else
 		return new CWasapiCaptureBuffer(NULL, 0);

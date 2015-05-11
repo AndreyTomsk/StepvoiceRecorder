@@ -6,7 +6,7 @@
 #include "WasapiHelpers.h" //for a DevicesArray
 #include "SyncObjects.h"
 
-class CWasapiRecorderStream;
+class CWasapiAudioClient;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -26,6 +26,7 @@ public:
 	virtual BOOL IsPaused() const;
 	virtual BOOL IsStopped() const;
 
+	virtual BOOL  VolumeControlAvailable() const;
 	virtual float GetVolume() const;
 	virtual BOOL  SetVolume(float volume); //0..1
 
@@ -34,12 +35,9 @@ public:
 	virtual DWORD GetChannelData(int channel, float* buffer, int bufferSize);
 
 private:
-	std::vector<CWasapiRecorderStream*> m_recorderStreams;
+	std::vector<CWasapiAudioClient*> m_audioClients;
 	DWORD m_actualFreq;
 	DWORD m_actualChans;
-
-	typedef DWORD HSTREAM; //Sample stream handle (from bass.h).
-	HSTREAM m_mixerStream;
 
 	static DWORD WINAPI ReadDataFromStreamProc(LPVOID lpParam);
 	HANDLE m_streamEvent;
@@ -47,7 +45,6 @@ private:
 	bool m_exitThread;
 
 	CMyCriticalSection m_sync_object;
-
 	enum RecorderState { eStopped, ePaused, eStarted} m_recorderState;
 };
 
