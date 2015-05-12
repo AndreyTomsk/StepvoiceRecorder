@@ -20,6 +20,46 @@ SampleBuffer::SampleBuffer(int freq, int chans, float* buffer)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+class SampleCopier
+{
+	int m_srcChannels;
+	int m_dstChannels;
+
+public:
+	SampleCopier(int srcChannels, int dstChannels)
+		:m_srcChannels(srcChannels)
+		,m_dstChannels(dstChannels)
+	{
+		ASSERT(m_srcChannels > 0 && m_srcChannels <= 2);
+		ASSERT(m_dstChannels > 0 && m_dstChannels <= 2);
+	}
+	void CopySample(float* srcBuffer, float* dstBuffer)
+	{
+		if (m_dstChannels == 1) //Mono->Mono; Stereo->Mono;
+		{
+			*dstBuffer = *srcBuffer;
+		}
+		else
+		if (m_dstChannels == 2) //Mono->Stereo; Stereo->Stereo;
+		{
+			*dstBuffer = *srcBuffer;
+			*(dstBuffer+1) = (m_srcChannels > 1) ? *(srcBuffer+1) : *srcBuffer;
+		}
+	}
+	void CopySample(int index, float* srcBuffer, float* dstBuffer)
+	{
+		CopySample(index, srcBuffer, index, dstBuffer);
+	}
+	void CopySample(int sampleIndexSrc, float* srcBuffer, int sampleIndexDst, float* dstBuffer)
+	{
+		const int srcOffset = sampleIndexSrc*m_srcChannels;
+		const int dstOffset = sampleIndexDst*m_dstChannels;
+		CopySample(srcBuffer + srcOffset, dstBuffer + dstOffset);
+	}
+};
+
+/////////////////////////////////////////////////////////////////////////////
 /*
 int ConvertSamples(float* buffer, int size, int freqIn, int freqOut)
 {
@@ -38,12 +78,13 @@ void ConvertSamples(const SampleBuffer& in, SampleBuffer& out)
 {
 	ASSERT(in.frequency >= out.frequency);
 	ASSERT(in.maxSamples <= out.maxSamples);
-	ASSERT(in.channels == out.channels);
-	const int sampleSizeBytes = sizeof(float) * in.channels;
 
 	if (in.frequency == out.frequency)
 	{
-		memcpy(out.data, in.data, in.curSamples * sampleSizeBytes);
+		SampleCopier sc(in.channels, out.channels);
+		for (unsigned i = 0; i < in.curSamples; i++)
+			sc.CopySample(i, in.data, out.data);
+
 		out.curSamples = in.curSamples;
 		return; //just exit, nothing to convert
 	}
@@ -53,30 +94,13 @@ void ConvertSamples(const SampleBuffer& in, SampleBuffer& out)
 	const int skipIndex = in.frequency / (in.frequency - out.frequency);
 
 	int skippedSamples = 0;
+	SampleCopier sc(in.channels, out.channels);
 	for (unsigned i = 0; i < in.curSamples; i++)
 	{
 		if ((i % skipIndex) == 0)
-		{
 			skippedSamples++;
-			continue;
-		}
-
-		const int inOffset = i*in.channels;
-		const int outOffset = (i-skippedSamples)*in.channels;
-		if (in.channels == 1)
-		{
-			out.data[outOffset] = in.data[inOffset];
-		}
 		else
-		if (in.channels == 2)
-		{
-			out.data[outOffset] = in.data[inOffset];
-			out.data[outOffset+1] = in.data[inOffset+1];
-		}
-		else
-		{
-			memcpy(out.data+outOffset, in.data+inOffset, sampleSizeBytes);
-		}
+			sc.CopySample(i, in.data, i-skippedSamples, out.data);
 	}
 
 	//Finalizing 'out' buffer:
