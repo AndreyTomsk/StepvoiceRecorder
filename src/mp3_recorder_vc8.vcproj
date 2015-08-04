@@ -1099,6 +1099,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\WasapiCaptureBuffer2.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WasapiHelpers.cpp"
 				>
 			</File>
@@ -1385,6 +1389,10 @@
 			</File>
 			<File
 				RelativePath=".\WasapiCaptureBuffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WasapiCaptureBuffer2.h"
 				>
 			</File>
 			<File

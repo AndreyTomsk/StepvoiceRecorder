@@ -11,3 +11,6 @@
 #define SAFE_RELEASE(x) { if (x != NULL) { x.Release(); x = NULL; } }
 
 #endif
+
+//Intended to use in header - declares (empty) class copy constructor and assignment operator.
+#define NON_COPYABLE(class) class(const class&); class& operator=(const class&);
