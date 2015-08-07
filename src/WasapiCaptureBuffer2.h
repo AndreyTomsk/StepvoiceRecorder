@@ -23,6 +23,7 @@ public:
 	~CWasapiCaptureBuffer2();
 
 	bool FillBuffer(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError);
+	bool FillBuffer2(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError);
 
 private:
 	IAudioClient* m_audioClient;

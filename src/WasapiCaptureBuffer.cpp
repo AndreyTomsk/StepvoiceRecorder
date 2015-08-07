@@ -89,6 +89,18 @@ CWasapiCaptureBufferSimple::~CWasapiCaptureBufferSimple()
 }
 //---------------------------------------------------------------------------
 
+bool CWasapiCaptureBufferSimple::IsError() const
+{
+	return m_isError;
+}
+//---------------------------------------------------------------------------
+
+bool CWasapiCaptureBufferSimple::IsSilent() const
+{
+	return m_isSilent;
+}
+//---------------------------------------------------------------------------
+
 UINT32 CWasapiCaptureBufferSimple::GetFramesAvailable() const
 {
 	return m_framesInNextPacket;

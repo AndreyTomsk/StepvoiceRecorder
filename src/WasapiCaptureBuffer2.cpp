@@ -43,7 +43,7 @@ bool CWasapiCaptureBuffer2::FillBuffer(BYTE* destBuffer, const UINT32& destBuffe
 
 	UINT32 framesAvailable = 0;
 	streamError = m_audioClient->GetCurrentPadding(&framesAvailable) != S_OK;
-	if (streamError || framesAvailable < UINT32(destBufferSize/m_frameSize))
+	if (streamError || (framesAvailable*m_frameSize-m_captureBufferOffset) < destBufferSize)
 		return false;
 
 	UINT32 destBufferOffset = 0;
@@ -52,7 +52,12 @@ bool CWasapiCaptureBuffer2::FillBuffer(BYTE* destBuffer, const UINT32& destBuffe
 		CWasapiCaptureBufferSimple captureBuffer(m_captureClient);
 		streamError = captureBuffer.IsError();
 		if (streamError || !captureBuffer.GetFramesAvailable())
+		{
+			UINT32 framesAvailable2 = 0;
+			m_audioClient->GetCurrentPadding(&framesAvailable2);
+			WriteDbg() << "streamError=" << streamError << ", or no frames available. fA=" << framesAvailable << ", real fA=" << framesAvailable2;
 			return false;
+		}
 
 		const size_t bytesAvailable = captureBuffer.GetFramesAvailable()*m_frameSize - m_captureBufferOffset;
 		const size_t bytesNeeded = destBufferSize - destBufferOffset;
@@ -66,11 +71,30 @@ bool CWasapiCaptureBuffer2::FillBuffer(BYTE* destBuffer, const UINT32& destBuffe
 			const void* readPos = captureBuffer.GetBuffer() + m_captureBufferOffset;
 			memcpy(writePos, readPos, bytesToFill);
 		}
-		m_captureBufferOffset = bytesAvailable - bytesToFill;
-		captureBuffer.SetPacketFullRead(m_captureBufferOffset == 0);
+
+		const bool fullPacketRead = (bytesAvailable == bytesToFill);
+		if (fullPacketRead)
+			m_captureBufferOffset = 0;
+		else
+			m_captureBufferOffset += bytesToFill;
+		captureBuffer.SetPacketFullRead(fullPacketRead);
 		destBufferOffset += bytesToFill;
 	}
 	return true;
 }
 //---------------------------------------------------------------------------
 
+bool CWasapiCaptureBuffer2::FillBuffer2(BYTE* destBuffer, const UINT32& destBufferSize, bool& streamError)
+{
+	//Version 2 of the function. Motivation: in v1 we need to specify a small
+	//dest buffer so GetCurrentPadding can report that all current packets fit
+	//into dest. This data hardcoding is not good. Besides, sometimes i see the
+	//"streamError=0, or no frames available" error. Produces glitch.
+
+	//0. Until dest buffer is filled:
+	//1. Get next packet size from capture client.
+	//2. If no error, but size is empty - sleep for some time. Goto 1.
+	//3. Fill buffer from current packet data.
+	return false;
+}
+//---------------------------------------------------------------------------
