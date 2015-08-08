@@ -2,6 +2,8 @@
 #include <bassmix.h>
 #include <math.h> //for abs
 #include <memory> //for auto_ptr
+#include <vector>
+#include <algorithm>
 #include "SampleConverter.h"
 #include "WasapiRecorderMulti.h"
 #include "WasapiAudioClient.h"
@@ -35,10 +37,8 @@ CWasapiRecorderMulti::CWasapiRecorderMulti(
 		CWasapiAudioClient* ac = new CWasapiAudioClient(deviceID);
 		m_audioClients.push_back(ac);
 
-		//m_actualFreq = min(m_actualFreq, ac->GetActualFrequency());
-		//m_actualChans = max(m_actualChans, ac->GetActualChannelCount());
-		m_actualFreq = 44100;
-		m_actualChans = 2;
+		m_actualFreq = min(m_actualFreq, ac->GetActualFrequency());
+		m_actualChans = max(m_actualChans, ac->GetActualChannelCount());
 	}
 
 	// Creating thread for reading data from stream.
@@ -191,26 +191,21 @@ DWORD CWasapiRecorderMulti::GetChannelData(int channel, float* buffer, int buffe
 }
 //---------------------------------------------------------------------------
 
+static float MixChannels(float a, float b)
+{
+	return (float)max(-1.0, min(a + b, 1.0));
+}
+
 DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 {
-	//New algorithm:
-	//1. Making large temprorary buffer.
-	//2. Putting all data from a channel to buffer.
-	//3. Getting all data from another channel, re-sampling
-	//   and mixing it with existing data in buffer.
-	//4. If all channels silent, then determining amount of empty samples.
-	//5. Passing buffer data to next filter.
-
 	CWasapiRecorderMulti* recorder = static_cast<CWasapiRecorderMulti*>(lpParam);
-	
-	const DWORD TEMP_BUFFER_SIZE = 81920;
-	static float tempBufferInternal[TEMP_BUFFER_SIZE];
+	const DWORD BUFFER_SIZE = 2048;
+	const DWORD BUFFER_SIZE_BYTES = BUFFER_SIZE*sizeof(float);
 
-	const int actualFreq = recorder->GetActualFrequency();
-	const int actualChans = recorder->GetActualChannelCount();
-	const int sampleSizeBytes = sizeof(float)*actualChans;
-	SampleBuffer tempBuffer(actualFreq, actualChans, tempBufferInternal);
-	tempBuffer.maxSamples = TEMP_BUFFER_SIZE/actualChans;
+	std::vector<float> vDst;
+	std::vector<float> vTmp;
+	vDst.resize(BUFFER_SIZE);
+	vTmp.resize(BUFFER_SIZE);
 
 	while (true)
 	{
@@ -225,32 +220,27 @@ DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 			if (recorder->m_recorderState != eStarted)
 				break;
 
-			bool newDataAvailable = false;
-			for (unsigned i = 0; i < recorder->m_audioClients.size(); i++)
+			// 1. Clear result buffer;
+			// 2. Get stream buffer;
+			// 3. Mix with result.
+			// 4. Goto 2, until all buffers mixed.
+
+			std::fill(vDst.begin(), vDst.end(), float(0));
+
+			bool vDstFilled = false;
+			for (size_t i = 0; i < recorder->m_audioClients.size(); i++)
 			{
-				std::auto_ptr<CWasapiCaptureBuffer> buffer(
-					recorder->m_audioClients[i]->GetCaptureBuffer());
-
-				if (buffer->GetBytesAvailable())
-				{
-	//WriteDbg() << __FUNCTION__ << " ::2, stream" << i << ", bytes available=" << buffer->GetBytesAvailable();
-
-					newDataAvailable = true;
-					//recorder->ProcessData(buffer->GetBuffer(), buffer->GetBytesAvailable());
-
-					const int actualFreq = recorder->m_audioClients[i]->GetActualFrequency();
-					const int actualChans2 = recorder->m_audioClients[i]->GetActualChannelCount();
-					SampleBuffer sourceBuffer(actualFreq, actualChans2, (float*)buffer->GetBuffer());
-					sourceBuffer.curSamples = buffer->GetBytesAvailable()/(sizeof(float)*actualChans2);
-					sourceBuffer.maxSamples = sourceBuffer.curSamples;
-
-					ConvertSamples(sourceBuffer, tempBuffer);
-					recorder->ProcessData(tempBuffer.data, tempBuffer.curSamples*sampleSizeBytes);
-				}
+				bool streamError = false;
+				CWasapiCaptureBuffer2* cb = recorder->m_audioClients[i]->m_captureBuffer2;
+				if (!cb->FillBuffer((BYTE*)&vTmp.front(), BUFFER_SIZE_BYTES, streamError))
+					break;
+				std::transform(vDst.begin(), vDst.end(), vTmp.begin(), vDst.begin(), MixChannels);
+				vDstFilled = true;
 			}
-
-			if (!newDataAvailable)
+			if (!vDstFilled)
 				break;
+
+			recorder->ProcessData(&vDst.front(), BUFFER_SIZE_BYTES);
 		}
 	}
 
