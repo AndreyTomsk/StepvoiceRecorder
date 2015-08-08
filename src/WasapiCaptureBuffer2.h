@@ -22,14 +22,14 @@ public:
 	CWasapiCaptureBuffer2(IAudioClient* ac);
 	~CWasapiCaptureBuffer2();
 
-	bool FillBuffer(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError);
-	bool FillBuffer2(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError);
+	bool FillBuffer(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError) const;
+	bool FillBuffer2(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError) const;
 
 private:
 	IAudioClient* m_audioClient;
 	IAudioCaptureClient* m_captureClient;
 	int m_frameSize;
-	int m_captureBufferOffset;
+	mutable int m_captureBufferOffset;
 };
 
 /////////////////////////////////////////////////////////////////////////////

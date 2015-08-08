@@ -33,7 +33,8 @@ CWasapiCaptureBuffer2::~CWasapiCaptureBuffer2()
 }
 //---------------------------------------------------------------------------
 
-bool CWasapiCaptureBuffer2::FillBuffer(BYTE* destBuffer, const UINT32& destBufferSize, bool& streamError)
+bool CWasapiCaptureBuffer2::FillBuffer(BYTE* destBuffer,
+	const UINT32& destBufferSize, bool& streamError) const
 {
 	//0. ensure we have enougth data to fill the buffer.
 	//1. calculate offsets
@@ -53,9 +54,13 @@ bool CWasapiCaptureBuffer2::FillBuffer(BYTE* destBuffer, const UINT32& destBuffe
 		streamError = captureBuffer.IsError();
 		if (streamError || !captureBuffer.GetFramesAvailable())
 		{
-			UINT32 framesAvailable2 = 0;
-			m_audioClient->GetCurrentPadding(&framesAvailable2);
-			WriteDbg() << "streamError=" << streamError << ", or no frames available. fA=" << framesAvailable << ", real fA=" << framesAvailable2;
+			UINT32 realframesAvailable = 0;
+			m_audioClient->GetCurrentPadding(&realframesAvailable);
+			WriteDbg() << "streamError=" << streamError
+				       << ", or no frames available. fA=" << framesAvailable
+					   << ", real fA=" << realframesAvailable
+					   << ". captureOffset=" << m_captureBufferOffset
+					   << ", destBufferSize" << destBufferSize;
 			return false;
 		}
 
@@ -84,7 +89,8 @@ bool CWasapiCaptureBuffer2::FillBuffer(BYTE* destBuffer, const UINT32& destBuffe
 }
 //---------------------------------------------------------------------------
 
-bool CWasapiCaptureBuffer2::FillBuffer2(BYTE* destBuffer, const UINT32& destBufferSize, bool& streamError)
+bool CWasapiCaptureBuffer2::FillBuffer2(BYTE* destBuffer,
+	const UINT32& destBufferSize, bool& streamError) const
 {
 	//Version 2 of the function. Motivation: in v1 we need to specify a small
 	//dest buffer so GetCurrentPadding can report that all current packets fit

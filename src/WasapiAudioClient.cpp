@@ -19,6 +19,7 @@ CWasapiAudioClient::CWasapiAudioClient(int device)
 	:m_deviceID(device)
 	,m_wfx(NULL)
 	,m_audioState(eStopped)
+	,m_captureBuffer2(NULL)
 {
 	HRESULT hr;
 
@@ -29,12 +30,16 @@ CWasapiAudioClient::CWasapiAudioClient(int device)
 	ASSERT(result);
 	EIF(WasapiHelpers::GetActiveDevice(CString(info.id), &m_audioClient));
 
+	WriteDbg() << __FUNCTION__ << " ::device=" << device << ", name=" << info.name;
+
 	const DWORD streamFlags = (info.flags & BASS_DEVICE_LOOPBACK) ? AUDCLNT_STREAMFLAGS_LOOPBACK : 0;
 	const REFERENCE_TIME bufferDuration = 500 * MFTIMES_PER_MILLISEC;
 
 	EIF(m_audioClient->GetMixFormat(&m_wfx));
 	EIF(m_audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, bufferDuration, 0, m_wfx, NULL));
 	EIF(m_audioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&m_captureClient));
+
+	m_captureBuffer2 = new CWasapiCaptureBuffer2(m_audioClient);
 
 Exit:
 	return;
@@ -44,6 +49,7 @@ Exit:
 CWasapiAudioClient::~CWasapiAudioClient()
 {
 	Stop();
+	SAFE_DELETE(m_captureBuffer2);
 }
 //---------------------------------------------------------------------------
 

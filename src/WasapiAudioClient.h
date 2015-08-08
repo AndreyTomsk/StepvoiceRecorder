@@ -4,6 +4,7 @@
 
 #include <Audioclient.h>    //for IAudioClient, IAudioCaptureClient
 #include "WasapiCaptureBuffer.h"
+#include "WasapiCaptureBuffer2.h"
 #include "SyncObjects.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +31,8 @@ public:
 
 	CWasapiCaptureBuffer* GetCaptureBuffer() const; //Must be deleted by caller.
 	float GetPeakLevel(int channel) const; //0 = first channel, -1 = all channels
+
+	CWasapiCaptureBuffer2* m_captureBuffer2;
 
 private:
 	int m_deviceID;
