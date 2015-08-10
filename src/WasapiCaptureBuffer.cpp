@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "WasapiCaptureBuffer.h"
+#include "WasapiCaptureBufferSimple.h"
 #include "Debug.h"
 
 #ifdef _DEBUG
@@ -10,111 +11,96 @@ static char THIS_FILE[] = __FILE__;
 
 /////////////////////////////////////////////////////////////////////////////
 
-CWasapiCaptureBuffer::CWasapiCaptureBuffer(IAudioCaptureClient* cc, UINT32 frameSize)
-	:m_captureClient(cc)
-	,m_frameSize(frameSize)
-	,m_framesInNextPacket(0)
-	,m_buffer(NULL)
+CWasapiCaptureBuffer::CWasapiCaptureBuffer(IAudioClient* ac)
+	:m_audioClient(ac)
+	,m_captureClient(NULL)
+	,m_frameSize(0)
+	,m_captureBufferOffset(0)
 {
-	if (m_captureClient != NULL &&
-		m_captureClient->GetNextPacketSize(&m_framesInNextPacket) == S_OK &&
-		m_framesInNextPacket > 0)
-	{
-		DWORD bufferFlags;
-		if (m_captureClient->GetBuffer(&m_buffer, &m_framesInNextPacket, &bufferFlags, NULL, NULL) == S_OK)
-		{
-			if (bufferFlags & AUDCLNT_BUFFERFLAGS_SILENT)
-				m_captureClient->ReleaseBuffer(m_framesInNextPacket);
-			else
-				return;	//Everighing ok!
-		}
-		m_buffer = NULL;
-		m_framesInNextPacket = 0;
-	}
+	ASSERT(m_audioClient != NULL);
+	m_audioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&m_captureClient);
+	ASSERT(m_captureClient != NULL);
+
+	WAVEFORMATEX* wfx = NULL;
+	m_audioClient->GetMixFormat(&wfx);
+	m_frameSize = wfx->nBlockAlign;
+	CoTaskMemFree(wfx);
 }
 //---------------------------------------------------------------------------
 
 CWasapiCaptureBuffer::~CWasapiCaptureBuffer()
 {
- 	if (m_framesInNextPacket > 0)
-	{
-		m_captureClient->ReleaseBuffer(m_framesInNextPacket);
-	}
 }
 //---------------------------------------------------------------------------
 
-UINT32 CWasapiCaptureBuffer::GetBytesAvailable() const
+bool CWasapiCaptureBuffer::FillBuffer(BYTE* destBuffer,
+	const UINT32& destBufferSize, bool& streamError) const
 {
-	return m_framesInNextPacket * m_frameSize;
-}
-//---------------------------------------------------------------------------
+	//0. ensure we have enougth data to fill the buffer.
+	//1. calculate offsets
+	//2. read frames from packet
+	//3. if need more, goto 1.
+	//4. If packet not fully read, save its offset and re-read next time.
 
-BYTE* CWasapiCaptureBuffer::GetBuffer() const
-{
-	return m_buffer;
-}
+	UINT32 framesAvailable = 0;
+	streamError = m_audioClient->GetCurrentPadding(&framesAvailable) != S_OK;
+	if (streamError || (framesAvailable*m_frameSize-m_captureBufferOffset) < destBufferSize)
+		return false;
 
-/////////////////////////////////////////////////////////////////////////////
-
-CWasapiCaptureBufferSimple::CWasapiCaptureBufferSimple(IAudioCaptureClient* cc)
-	:m_captureClient(cc)
-	,m_framesInNextPacket(0)
-	,m_buffer(NULL)
-	,m_isError(false)
-	,m_isSilent(false)
-	,m_fullRead(true)
-{
-	ASSERT(m_captureClient != NULL);
-	if (m_captureClient->GetNextPacketSize(&m_framesInNextPacket) == S_OK)
+	UINT32 destBufferOffset = 0;
+	while (destBufferOffset < destBufferSize)
 	{
-		if (m_framesInNextPacket == 0)
-			return;
-
-		DWORD bufferFlags;
-		if (m_captureClient->GetBuffer(&m_buffer, &m_framesInNextPacket, &bufferFlags, NULL, NULL) == S_OK)
+		CWasapiCaptureBufferSimple captureBuffer(m_captureClient);
+		streamError = captureBuffer.IsError();
+		if (streamError || !captureBuffer.GetFramesAvailable())
 		{
-			if (bufferFlags & AUDCLNT_BUFFERFLAGS_SILENT)
-				m_isSilent = true;
-			return;
+			UINT32 realframesAvailable = 0;
+			m_audioClient->GetCurrentPadding(&realframesAvailable);
+			WriteDbg() << "streamError=" << streamError
+				       << ", or no frames available. fA=" << framesAvailable
+					   << ", real fA=" << realframesAvailable
+					   << ". captureOffset=" << m_captureBufferOffset
+					   << ", destBufferSize" << destBufferSize;
+			return false;
 		}
+
+		const size_t bytesAvailable = captureBuffer.GetFramesAvailable()*m_frameSize - m_captureBufferOffset;
+		const size_t bytesNeeded = destBufferSize - destBufferOffset;
+		const size_t bytesToFill = min(bytesAvailable, bytesNeeded);
+
+		void* writePos = destBuffer + destBufferOffset;
+		if (captureBuffer.IsSilent())
+			memset(writePos, 0, bytesToFill);
+		else
+		{
+			const void* readPos = captureBuffer.GetBuffer() + m_captureBufferOffset;
+			memcpy(writePos, readPos, bytesToFill);
+		}
+
+		const bool fullPacketRead = (bytesAvailable == bytesToFill);
+		if (fullPacketRead)
+			m_captureBufferOffset = 0;
+		else
+			m_captureBufferOffset += bytesToFill;
+		captureBuffer.SetPacketFullRead(fullPacketRead);
+		destBufferOffset += bytesToFill;
 	}
-	m_isError = true;
+	return true;
 }
 //---------------------------------------------------------------------------
 
-CWasapiCaptureBufferSimple::~CWasapiCaptureBufferSimple()
-{
- 	if (!m_isError && m_framesInNextPacket > 0)
-		m_captureClient->ReleaseBuffer(m_fullRead ? m_framesInNextPacket : 0);
-}
-//---------------------------------------------------------------------------
+//bool CWasapiCaptureBuffer::FillBuffer2(BYTE* destBuffer,
+//	const UINT32& destBufferSize, bool& streamError) const
+//{
+	//Version 2 of the function. Motivation: in v1 we need to specify a small
+	//dest buffer so GetCurrentPadding can report that all current packets fit
+	//into dest. This data hardcoding is not good. Besides, sometimes i see the
+	//"streamError=0, or no frames available" error. Produces glitch.
 
-bool CWasapiCaptureBufferSimple::IsError() const
-{
-	return m_isError;
-}
-//---------------------------------------------------------------------------
-
-bool CWasapiCaptureBufferSimple::IsSilent() const
-{
-	return m_isSilent;
-}
-//---------------------------------------------------------------------------
-
-UINT32 CWasapiCaptureBufferSimple::GetFramesAvailable() const
-{
-	return m_framesInNextPacket;
-}
-//---------------------------------------------------------------------------
-
-BYTE* CWasapiCaptureBufferSimple::GetBuffer() const
-{
-	return m_buffer;
-}
-//---------------------------------------------------------------------------
-
-void CWasapiCaptureBufferSimple::SetPacketFullRead(bool fullRead)
-{
-	m_fullRead = fullRead;
-}
+	//0. Until dest buffer is filled:
+	//1. Get next packet size from capture client.
+	//2. If no error, but size is empty - sleep for some time. Goto 1.
+	//3. Fill buffer from current packet data.
+	//return false;
+//}
 //---------------------------------------------------------------------------

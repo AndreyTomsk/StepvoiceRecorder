@@ -1,54 +1,36 @@
-#ifndef WASAPI_CAPTURE_BUFFER_H
-#define WASAPI_CAPTURE_BUFFER_H
+#ifndef WASAPI_CAPTURE_BUFFER2_H
+#define WASAPI_CAPTURE_BUFFER2_H
 #pragma once
 
 #include <Audioclient.h> //for IAudioCaptureClient
 #include "common.h"
 
 /////////////////////////////////////////////////////////////////////////////
-//Destroy this object as quickly as possible - it locks a WASAPI stream buffer.
+//This class is used for requesting a custom amount of frames from WASAPI
+//stream. The problem is that a stream gives a fixed frames count (packet).
+//So, if a requested frames count != packet frames count - we should keep a
+//frame offset between sequential FillBuffer calls.
+
+//Note: frames == samples.
+//Note: using IAudioClient to determine all frames available.
 
 class CWasapiCaptureBuffer
 {
 	NON_COPYABLE(CWasapiCaptureBuffer);
 
 public:
-	CWasapiCaptureBuffer(IAudioCaptureClient* cc, UINT32 frameSize);
+	CWasapiCaptureBuffer(IAudioClient* ac);
 	~CWasapiCaptureBuffer();
 
-	UINT32 GetBytesAvailable() const;
-	BYTE* GetBuffer() const;
+	bool FillBuffer(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError) const;
+	//bool FillBuffer2(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError) const;
 
 private:
+	IAudioClient* m_audioClient;
 	IAudioCaptureClient* m_captureClient;
-	UINT32 m_frameSize;
-	UINT32 m_framesInNextPacket;
-	BYTE* m_buffer;
-};
-
-//---------------------------------------------------------------------------
-
-class CWasapiCaptureBufferSimple
-{
-	NON_COPYABLE(CWasapiCaptureBufferSimple);
-public:
-	CWasapiCaptureBufferSimple(IAudioCaptureClient* cc);
-	~CWasapiCaptureBufferSimple();
-
-	bool IsError() const;
-	bool IsSilent() const;
-	UINT32 GetFramesAvailable() const;
-	BYTE* GetBuffer() const;
-	void SetPacketFullRead(bool fullRead);
-
-private:
-	IAudioCaptureClient* m_captureClient;
-	UINT32 m_framesInNextPacket;
-	BYTE* m_buffer;
-	bool m_isError;
-	bool m_isSilent;
-	bool m_fullRead;
+	int m_frameSize;
+	mutable int m_captureBufferOffset;
 };
 
 /////////////////////////////////////////////////////////////////////////////
-#endif // WASAPI_CAPTURE_BUFFER_H
+#endif // WASAPI_CAPTURE_BUFFER2_H

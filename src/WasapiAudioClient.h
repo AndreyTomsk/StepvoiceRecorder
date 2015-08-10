@@ -4,7 +4,6 @@
 
 #include <Audioclient.h>    //for IAudioClient, IAudioCaptureClient
 #include "WasapiCaptureBuffer.h"
-#include "WasapiCaptureBuffer2.h"
 #include "SyncObjects.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -29,10 +28,7 @@ public:
 	float GetVolume() const;
 	BOOL  SetVolume(float volume); //0..1
 
-	CWasapiCaptureBuffer* GetCaptureBuffer() const; //Must be deleted by caller.
 	float GetPeakLevel(int channel) const; //0 = first channel, -1 = all channels
-
-	CWasapiCaptureBuffer2* m_captureBuffer2;
 
 	//Destination freq MUST be <= m_wfx freq (downsampling).
 	void SetResampleParams(int destFreq, int destChannels);
@@ -47,6 +43,7 @@ private:
 	mutable CMyCriticalSection m_sync_object;
 	enum RecorderState { eStopped, ePaused, eStarted } m_audioState;
 
+	CWasapiCaptureBuffer* m_captureBuffer;
 	int m_resampleFreq;
 	int m_resampleChans;
 };

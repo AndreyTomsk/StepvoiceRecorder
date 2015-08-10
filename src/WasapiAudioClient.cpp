@@ -20,7 +20,7 @@ CWasapiAudioClient::CWasapiAudioClient(int device)
 	:m_deviceID(device)
 	,m_wfx(NULL)
 	,m_audioState(eStopped)
-	,m_captureBuffer2(NULL)
+	,m_captureBuffer(NULL)
 	,m_resampleFreq(0)
 	,m_resampleChans(0)
 {
@@ -42,7 +42,7 @@ CWasapiAudioClient::CWasapiAudioClient(int device)
 	EIF(m_audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, bufferDuration, 0, m_wfx, NULL));
 	EIF(m_audioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&m_captureClient));
 
-	m_captureBuffer2 = new CWasapiCaptureBuffer2(m_audioClient);
+	m_captureBuffer = new CWasapiCaptureBuffer(m_audioClient);
 	m_resampleFreq = m_wfx->nSamplesPerSec;
 	m_resampleChans = m_wfx->nChannels;
 
@@ -54,7 +54,7 @@ Exit:
 CWasapiAudioClient::~CWasapiAudioClient()
 {
 	Stop();
-	SAFE_DELETE(m_captureBuffer2);
+	SAFE_DELETE(m_captureBuffer);
 }
 //---------------------------------------------------------------------------
 
@@ -177,17 +177,6 @@ float CWasapiAudioClient::GetPeakLevel(int channel) const //0 = first channel, -
 }
 //---------------------------------------------------------------------------
 
-CWasapiCaptureBuffer* CWasapiAudioClient::GetCaptureBuffer() const
-{
-	//This method is likely called from another thread.
-	CMyLock lock(m_sync_object);
-	if (IsStarted())
-		return new CWasapiCaptureBuffer(m_captureClient, m_wfx->nBlockAlign);
-	else
-		return new CWasapiCaptureBuffer(NULL, 0);
-}
-//---------------------------------------------------------------------------
-
 void CWasapiAudioClient::SetResampleParams(int destFreq, int destChannels)
 {
 	ASSERT(m_wfx != NULL);
@@ -240,7 +229,7 @@ bool CWasapiAudioClient::GetData(BYTE* destBuffer,
 {
 	//Check resampling not needed.
 	if (m_wfx->nSamplesPerSec == m_resampleFreq && m_wfx->nChannels == m_resampleChans)
-		return m_captureBuffer2->FillBuffer(destBuffer, bufferSize, streamError);
+		return m_captureBuffer->FillBuffer(destBuffer, bufferSize, streamError);
 
 	//Calculating a required sample count, to get from wasapi stream.
 
@@ -257,7 +246,7 @@ bool CWasapiAudioClient::GetData(BYTE* destBuffer,
 
 	//Receiving samples.
 
-	if (!m_captureBuffer2->FillBuffer((BYTE*)srcBuffer, srcBufferSize, streamError))
+	if (!m_captureBuffer->FillBuffer((BYTE*)srcBuffer, srcBufferSize, streamError))
 	{
 		//if (streamError)
 		//{

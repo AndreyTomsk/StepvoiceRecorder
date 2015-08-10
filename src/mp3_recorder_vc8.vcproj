@@ -1099,7 +1099,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\WasapiCaptureBuffer2.cpp"
+				RelativePath=".\WasapiCaptureBufferSimple.cpp"
 				>
 			</File>
 			<File
@@ -1392,7 +1392,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\WasapiCaptureBuffer2.h"
+				RelativePath=".\WasapiCaptureBufferSimple.h"
 				>
 			</File>
 			<File
