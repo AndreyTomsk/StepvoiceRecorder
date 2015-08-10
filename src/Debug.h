@@ -9,6 +9,10 @@
 //or not strings mixing is done automatically by wstringstream.
 //Example:  WriteDbg() << L"pi=" << 3.14 << ", result=" << true;
 
+//Note: you can extend WriteDbg to support custom types
+//WriteDbg& operator <<(WriteDbg& writer, const Parameter& param); //etc.
+
+
 class WriteDbg
 {
 public:

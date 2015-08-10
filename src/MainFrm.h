@@ -79,7 +79,6 @@ class CMainFrame : public CFrameWnd
 
 	static float PeaksCallback(int a_channel, void* userData);
 	static int   LinesCallback(int a_channel, float* a_buffer, int a_size, void* userData);
-
 	static float PeaksCallback_Wasapi(int a_channel, void* userData);
 	static int   LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size, void* userData);
 
@@ -92,10 +91,10 @@ class CMainFrame : public CFrameWnd
 	//static DWORD CALLBACK WasapiRecordingProc(void *buffer, DWORD length, void *user);
 
 
-	VisualizationData* m_visualization_data;
-	BassVistaLoopback* m_vista_loopback;
-	HDSP m_loopback_hdsp;
-	HDSP m_mute_hdsp;
+	//VisualizationData* m_visualization_data;
+	//BassVistaLoopback* m_vista_loopback;
+	//HDSP m_loopback_hdsp;
+	//HDSP m_mute_hdsp;
 
 	float m_playback_volume;
 	float m_recording_volume;

@@ -328,10 +328,10 @@ float CMainFrame::PeaksCallback(int channel, void* userData)
 {
 	CMainFrame* mainFrame = static_cast<CMainFrame*>(userData);
 
-	if (mainFrame->m_visualization_data && (
-		mainFrame->m_recording_mixer == E_REC_LOOPBACK ||
-		mainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
-		return mainFrame->m_visualization_data->GetPeaksLevel(channel);
+	//if (mainFrame->m_visualization_data && (
+	//	mainFrame->m_recording_mixer == E_REC_LOOPBACK ||
+	//	mainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
+	//	return mainFrame->m_visualization_data->GetPeaksLevel(channel);
 
 	DWORD peakLevel = BASS_ChannelGetLevel(mainFrame->m_bassPlaybackHandle);
 	if (peakLevel == -1 || channel < 0 || channel > 1)
@@ -346,10 +346,10 @@ int CMainFrame::LinesCallback(int channel, float* buffer, int bufferSize, void* 
 {
 	CMainFrame* mainFrame = static_cast<CMainFrame*>(userData);
 
-	if (mainFrame->m_visualization_data && (
-		mainFrame->m_recording_mixer == E_REC_LOOPBACK ||
-		mainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
-		return mainFrame->m_visualization_data->GetLinesLevel(channel, buffer, bufferSize);
+	//if (mainFrame->m_visualization_data && (
+	//	mainFrame->m_recording_mixer == E_REC_LOOPBACK ||
+	//	mainFrame->m_recording_mixer == E_REC_LOOPBACK_MIX))
+	//	return mainFrame->m_visualization_data->GetLinesLevel(channel, buffer, bufferSize);
 
 	float* l_buffer_ptr = buffer + channel;
 	const int l_bytes_2_copy = (bufferSize - channel) * sizeof(float);
@@ -362,11 +362,11 @@ int CMainFrame::LinesCallback(int channel, float* buffer, int bufferSize, void* 
 
 ////////////////////////////////////////////////////////////////////////////////
 CMainFrame::CMainFrame()
-	:m_vista_loopback(NULL)
-	,m_visualization_data(NULL)
-	,m_loopback_hdsp(0)
-	,m_mute_hdsp(0)
-	,m_playback_volume(1.0) //full volume
+	//:m_vista_loopback(NULL)
+	//,m_visualization_data(NULL)
+	//,m_loopback_hdsp(0)
+	//,m_mute_hdsp(0)
+	:m_playback_volume(1.0) //full volume
 	,m_recording_volume(1.0)
 	,m_active_mixer(E_REC_MIXER)
 	,m_recording_mixer(E_REC_MIXER)
@@ -416,7 +416,7 @@ CMainFrame::~CMainFrame()
 	BASS_WASAPI_Free();
 
 	SAFE_DELETE(m_title);
-	SAFE_DELETE(m_visualization_data);
+	//SAFE_DELETE(m_visualization_data);
 }
 
 /////////////////////////////////////////////////////////////////////////////
