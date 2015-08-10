@@ -4,6 +4,7 @@
 #include "WasapiHelpers.h" //for GetActiveDevice
 #include "Debug.h"
 #include "common.h" //for EIF
+#include "SampleConverter.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -20,6 +21,8 @@ CWasapiAudioClient::CWasapiAudioClient(int device)
 	,m_wfx(NULL)
 	,m_audioState(eStopped)
 	,m_captureBuffer2(NULL)
+	,m_resampleFreq(0)
+	,m_resampleChans(0)
 {
 	HRESULT hr;
 
@@ -40,6 +43,8 @@ CWasapiAudioClient::CWasapiAudioClient(int device)
 	EIF(m_audioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&m_captureClient));
 
 	m_captureBuffer2 = new CWasapiCaptureBuffer2(m_audioClient);
+	m_resampleFreq = m_wfx->nSamplesPerSec;
+	m_resampleChans = m_wfx->nChannels;
 
 Exit:
 	return;
@@ -180,5 +185,105 @@ CWasapiCaptureBuffer* CWasapiAudioClient::GetCaptureBuffer() const
 		return new CWasapiCaptureBuffer(m_captureClient, m_wfx->nBlockAlign);
 	else
 		return new CWasapiCaptureBuffer(NULL, 0);
+}
+//---------------------------------------------------------------------------
+
+void CWasapiAudioClient::SetResampleParams(int destFreq, int destChannels)
+{
+	ASSERT(m_wfx != NULL);
+	ASSERT(destFreq <= m_wfx->nSamplesPerSec);
+	m_resampleFreq  = destFreq;
+	m_resampleChans = destChannels;
+
+	//WriteDbg() << "streamFreq=" << m_wfx->nSamplesPerSec
+	//		   << ", streamChans=" << m_wfx->nChannels
+	//		   << ", m_resampleFreq=" << m_resampleFreq
+	//		   << ", m_resampleChans=" << m_resampleChans;
+}
+//---------------------------------------------------------------------------
+
+static int GetSrcSampleCount(int srcFreq, int dstFreq, int dstSampleCount)
+{
+	ASSERT(srcFreq != dstFreq);
+
+	//Resampling formula:
+	//  requiredSampleCount = dstSampleCount * srcFreq / dstFreq;
+	//is not exact due to float->integer truncating. Better:
+	//    dstSampleCount = requiredSampleCount - (requiredSampleCount/skipIndex);
+	//(!) requiredSampleCount = destSampleCount * skipIndex / (skipIndex - 1);
+
+	//Using resampling formula from SampleConverter.cpp
+	const int skipIndex = srcFreq / (srcFreq - dstFreq);
+	return dstSampleCount * skipIndex / (skipIndex - 1) + 1; //+1 - passing VerifyDstSampleCount
+}
+//---------------------------------------------------------------------------
+
+static bool VerifyDstSampleCount(int srcFreq, int srcSampleCount, int dstFreq, int testDstSampleCount)
+{
+	const int skipIndex = srcFreq / (srcFreq - dstFreq);
+	//const int dstSampleCount = srcSampleCount - (srcSampleCount/skipIndex);
+
+	int skippedSamples = 0;
+	for (int i = 0; i < srcSampleCount; i++)
+	{
+		if ((i % skipIndex) == 0)
+			skippedSamples++;
+	}
+
+	const int dstSampleCount = srcSampleCount - skippedSamples;
+	return (testDstSampleCount == dstSampleCount);
+}
+//---------------------------------------------------------------------------
+
+bool CWasapiAudioClient::GetData(BYTE* destBuffer,
+	const UINT32& bufferSize, bool& streamError) const
+{
+	//Check resampling not needed.
+	if (m_wfx->nSamplesPerSec == m_resampleFreq && m_wfx->nChannels == m_resampleChans)
+		return m_captureBuffer2->FillBuffer(destBuffer, bufferSize, streamError);
+
+	//Calculating a required sample count, to get from wasapi stream.
+
+	const int srcFreq = m_wfx->nSamplesPerSec;
+	const int dstFreq = m_resampleFreq;
+	const int dstSampleCount = bufferSize / (m_resampleChans * sizeof(float));
+	const int srcSampleCount = GetSrcSampleCount(srcFreq, dstFreq, dstSampleCount);
+	ASSERT(VerifyDstSampleCount(srcFreq, srcSampleCount, dstFreq, dstSampleCount));
+
+	const DWORD TEMP_BUFFER_SIZE = 20480;
+	static float srcBuffer[TEMP_BUFFER_SIZE];
+	const int srcBufferSize = srcSampleCount * (m_wfx->nChannels * sizeof(float));
+	ASSERT(srcBufferSize <= TEMP_BUFFER_SIZE);
+
+	//Receiving samples.
+
+	if (!m_captureBuffer2->FillBuffer((BYTE*)srcBuffer, srcBufferSize, streamError))
+	{
+		//if (streamError)
+		//{
+		//WriteDbg() << "OOPS! unable to fill buffer." << destSampleCount
+		//		   << "destSamples=" << dstSampleCount
+		//		   << ", reqSamples=" << srcSampleCount
+		//		   << ", reqByteSize=" << srcBufferSize;
+		//}
+		return false;
+	}
+
+	//Converting samples.
+
+	SampleBuffer requestSB(srcFreq, m_wfx->nChannels, srcBuffer);
+	requestSB.curSamples = srcSampleCount;
+
+	SampleBuffer destSB(dstFreq, m_resampleChans, (float*)destBuffer);
+	memset(destBuffer, 0, bufferSize);
+
+	ConvertSamples(requestSB, destSB);
+
+	//WriteDbg() << "destSamples=" << dstSampleCount
+	//		   << ", reqSamples=" << srcSampleCount
+	//		   << ", reqByteSize=" << srcBufferSize
+	//		   << ", samplesWritten=" << destSB.curSamples;
+
+	return true;
 }
 //---------------------------------------------------------------------------

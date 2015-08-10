@@ -34,6 +34,10 @@ public:
 
 	CWasapiCaptureBuffer2* m_captureBuffer2;
 
+	//Destination freq MUST be <= m_wfx freq (downsampling).
+	void SetResampleParams(int destFreq, int destChannels);
+	bool GetData(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError) const;
+
 private:
 	int m_deviceID;
 	CComPtr<IAudioClient> m_audioClient;
@@ -42,6 +46,9 @@ private:
 
 	mutable CMyCriticalSection m_sync_object;
 	enum RecorderState { eStopped, ePaused, eStarted } m_audioState;
+
+	int m_resampleFreq;
+	int m_resampleChans;
 };
 
 /////////////////////////////////////////////////////////////////////////////

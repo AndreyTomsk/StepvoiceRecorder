@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include <bassmix.h>
 #include <math.h> //for abs
-#include <memory> //for auto_ptr
 #include <vector>
 #include <algorithm>
 #include "SampleConverter.h"
@@ -40,6 +39,12 @@ CWasapiRecorderMulti::CWasapiRecorderMulti(
 		m_actualFreq = min(m_actualFreq, ac->GetActualFrequency());
 		m_actualChans = max(m_actualChans, ac->GetActualChannelCount());
 	}
+
+	//Not forget resampling. Getting fixed data count from each stream - 
+	//should mix all sounds at one sample rate and stereo mode.
+
+	for (size_t i = 0; i < m_audioClients.size(); i++)
+		m_audioClients[i]->SetResampleParams(m_actualFreq, m_actualChans);
 
 	// Creating thread for reading data from stream.
 
@@ -231,8 +236,8 @@ DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 			for (size_t i = 0; i < recorder->m_audioClients.size(); i++)
 			{
 				bool streamError = false;
-				CWasapiCaptureBuffer2* cb = recorder->m_audioClients[i]->m_captureBuffer2;
-				if (!cb->FillBuffer((BYTE*)&vTmp.front(), BUFFER_SIZE_BYTES, streamError))
+				CWasapiAudioClient* ac = recorder->m_audioClients[i];
+				if (!ac->GetData((BYTE*)&vTmp.front(), BUFFER_SIZE_BYTES, streamError))
 					break;
 				std::transform(vDst.begin(), vDst.end(), vTmp.begin(), vDst.begin(), MixChannels);
 				vDstFilled = true;
