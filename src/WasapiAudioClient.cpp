@@ -177,7 +177,7 @@ float CWasapiAudioClient::GetPeakLevel(int channel) const //0 = first channel, -
 }
 //---------------------------------------------------------------------------
 
-void CWasapiAudioClient::SetResampleParams(int destFreq, int destChannels)
+void CWasapiAudioClient::SetResampleParams(unsigned destFreq, unsigned destChannels)
 {
 	ASSERT(m_wfx != NULL);
 	ASSERT(destFreq <= m_wfx->nSamplesPerSec);
@@ -191,42 +191,11 @@ void CWasapiAudioClient::SetResampleParams(int destFreq, int destChannels)
 }
 //---------------------------------------------------------------------------
 
-static int GetSrcSampleCount(int srcFreq, int dstFreq, int dstSampleCount)
-{
-	ASSERT(srcFreq != dstFreq);
-
-	//Resampling formula:
-	//  requiredSampleCount = dstSampleCount * srcFreq / dstFreq;
-	//is not exact due to float->integer truncating. Better:
-	//    dstSampleCount = requiredSampleCount - (requiredSampleCount/skipIndex);
-	//(!) requiredSampleCount = destSampleCount * skipIndex / (skipIndex - 1);
-
-	//Using resampling formula from SampleConverter.cpp
-	const int skipIndex = srcFreq / (srcFreq - dstFreq);
-	return dstSampleCount * skipIndex / (skipIndex - 1) + 1; //+1 - passing VerifyDstSampleCount
-}
-//---------------------------------------------------------------------------
-
-static bool VerifyDstSampleCount(int srcFreq, int srcSampleCount, int dstFreq, int testDstSampleCount)
-{
-	const int skipIndex = srcFreq / (srcFreq - dstFreq);
-	//const int dstSampleCount = srcSampleCount - (srcSampleCount/skipIndex);
-
-	int skippedSamples = 0;
-	for (int i = 0; i < srcSampleCount; i++)
-	{
-		if ((i % skipIndex) == 0)
-			skippedSamples++;
-	}
-
-	const int dstSampleCount = srcSampleCount - skippedSamples;
-	return (testDstSampleCount == dstSampleCount);
-}
-//---------------------------------------------------------------------------
-
 bool CWasapiAudioClient::GetData(BYTE* destBuffer,
 	const UINT32& bufferSize, bool& streamError) const
 {
+	using namespace SampleConverter;
+
 	//Check resampling not needed.
 	if (m_wfx->nSamplesPerSec == m_resampleFreq && m_wfx->nChannels == m_resampleChans)
 		return m_captureBuffer->FillBuffer(destBuffer, bufferSize, streamError);

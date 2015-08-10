@@ -8,6 +8,43 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+namespace SampleConverter
+{
+//---------------------------------------------------------------------------
+
+int GetSrcSampleCount(int srcFreq, int dstFreq, int dstSampleCount)
+{
+	ASSERT(srcFreq != dstFreq);
+
+	//Resampling formula:
+	//    srcSampleCount = dstSampleCount * srcFreq / dstFreq;
+	//is not exact due to float->integer truncating. BETTER:
+	//    dstSampleCount = requiredSampleCount - (requiredSampleCount/skipIndex);
+	//So: srcSampleCount = destSampleCount * skipIndex / (skipIndex - 1);
+
+	//Using resampling formula as in the ConvertSamples function.
+	const int skipIndex = srcFreq / (srcFreq - dstFreq);
+	return dstSampleCount * skipIndex / (skipIndex - 1) + 1; //+1 - passing VerifyDstSampleCount :)
+}
+//---------------------------------------------------------------------------
+
+bool VerifyDstSampleCount(int srcFreq, int srcSampleCount, int dstFreq,
+	int testDstSampleCount)
+{
+	const int skipIndex = srcFreq / (srcFreq - dstFreq);
+	//const int dstSampleCount = srcSampleCount - (srcSampleCount/skipIndex);
+
+	int skippedSamples = 0;
+	for (int i = 0; i < srcSampleCount; i++)
+	{
+		if ((i % skipIndex) == 0)
+			skippedSamples++;
+	}
+
+	const int dstSampleCount = srcSampleCount - skippedSamples;
+	return (testDstSampleCount == dstSampleCount);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 SampleBuffer::SampleBuffer(int freq, int chans, float* buffer)
@@ -106,5 +143,7 @@ void ConvertSamples(const SampleBuffer& in, SampleBuffer& out)
 	//Finalizing 'out' buffer:
 	out.curSamples = in.curSamples - skippedSamples;
 }
-//---------------------------------------------------------------------------
 
+/////////////////////////////////////////////////////////////////////////////
+
+} //namespace SampleConverter

@@ -31,7 +31,7 @@ public:
 	float GetPeakLevel(int channel) const; //0 = first channel, -1 = all channels
 
 	//Destination freq MUST be <= m_wfx freq (downsampling).
-	void SetResampleParams(int destFreq, int destChannels);
+	void SetResampleParams(unsigned int destFreq, unsigned int destChannels);
 	bool GetData(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError) const;
 
 private:
@@ -44,8 +44,8 @@ private:
 	enum RecorderState { eStopped, ePaused, eStarted } m_audioState;
 
 	CWasapiCaptureBuffer* m_captureBuffer;
-	int m_resampleFreq;
-	int m_resampleChans;
+	unsigned int m_resampleFreq;
+	unsigned int m_resampleChans;
 };
 
 /////////////////////////////////////////////////////////////////////////////

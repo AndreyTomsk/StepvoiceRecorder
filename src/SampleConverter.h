@@ -2,6 +2,19 @@
 #define _SAMPLE_CONVERTER_H
 #pragma once
 
+namespace SampleConverter
+{
+//For a resampling srcFreq-->dstFreq, this function calculates a source
+//sample count, based on a required sample count in destination. Currently
+//implemented for cases when srcFreq > dstFreq. Example:
+//  1118 samples at 48kHz equals to 1024 at 44.1. (so function returns 1118).
+int GetSrcSampleCount(int srcFreq, int dstFreq, int dstSampleCount);
+
+//Just verifying that resampling will produce exacly testDstSampleCount
+//samples. Using the same countin algorithm as in the ConvertSamples func.
+bool VerifyDstSampleCount(int srcFreq, int srcSampleCount, int dstFreq,
+	int testDstSampleCount);
+
 /////////////////////////////////////////////////////////////////////////////
 
 struct SampleBuffer
@@ -38,5 +51,6 @@ private:
 */
 
 /////////////////////////////////////////////////////////////////////////////
+} //namespace SampleConverter
 
 #endif // _SAMPLE_CONVERTER_H
