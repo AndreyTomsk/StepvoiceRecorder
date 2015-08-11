@@ -16,7 +16,7 @@ static char THIS_FILE[] = __FILE__;
 
 /////////////////////////////////////////////////////////////////////////////
 
-CWasapiAudioClient::CWasapiAudioClient(int device)
+CWasapiAudioClient::CWasapiAudioClient(int device, DWORD freq, DWORD chans)
 	:m_deviceID(device)
 	,m_wfx(NULL)
 	,m_audioState(eStopped)
@@ -38,7 +38,7 @@ CWasapiAudioClient::CWasapiAudioClient(int device)
 	const DWORD streamFlags = (info.flags & BASS_DEVICE_LOOPBACK) ? AUDCLNT_STREAMFLAGS_LOOPBACK : 0;
 	const REFERENCE_TIME bufferDuration = 500 * MFTIMES_PER_MILLISEC;
 
-	EIF(m_audioClient->GetMixFormat(&m_wfx));
+	EIF(InitMixFormat(m_audioClient, freq, chans, &m_wfx));
 	EIF(m_audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, bufferDuration, 0, m_wfx, NULL));
 	EIF(m_audioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&m_captureClient));
 
@@ -55,6 +55,7 @@ CWasapiAudioClient::~CWasapiAudioClient()
 {
 	Stop();
 	SAFE_DELETE(m_captureBuffer);
+	CoTaskMemFree(m_wfx);
 }
 //---------------------------------------------------------------------------
 
@@ -243,5 +244,40 @@ bool CWasapiAudioClient::GetData(BYTE* destBuffer,
 	//		   << ", samplesWritten=" << destSB.curSamples;
 
 	return true;
+}
+//---------------------------------------------------------------------------
+
+HRESULT CWasapiAudioClient::InitMixFormat(IAudioClient* ac,
+	DWORD freq, DWORD chans, WAVEFORMATEX** deviceFormat)
+{
+	WAVEFORMATEX wfx = {0};
+	wfx.wFormatTag = WAVE_FORMAT_PCM;
+	wfx.nChannels = WORD(chans);
+	wfx.nSamplesPerSec = freq;
+	wfx.wBitsPerSample = 32; //float
+	wfx.nBlockAlign = wfx.wBitsPerSample/8 * wfx.nChannels;
+	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
+	wfx.cbSize = 0;
+
+	WAVEFORMATEX* closestMatchWfx = NULL;
+
+	const HRESULT hr = ac->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, &wfx, &closestMatchWfx);
+	if (hr == S_OK)
+	{
+		//Using CoTaskMemAlloc - pointer should be freed by CoTaskMemFree
+		//(from docs). So all these 3 branches return similar allocated memory.
+		*deviceFormat = static_cast<WAVEFORMATEX*>(CoTaskMemAlloc(sizeof(wfx)));
+		memcpy(*deviceFormat, &wfx, sizeof(wfx));
+		return S_OK;
+	}
+	else if (hr == S_FALSE)
+	{
+		*deviceFormat = closestMatchWfx;
+		return S_OK;
+	}
+	else
+	{
+		return ac->GetMixFormat(deviceFormat);
+	}
 }
 //---------------------------------------------------------------------------

@@ -33,7 +33,7 @@ CWasapiRecorderMulti::CWasapiRecorderMulti(
 		const WasapiHelpers::DeviceIdNamePair& p = devices[i];
 		const int deviceID = p.first;
 
-		CWasapiAudioClient* ac = new CWasapiAudioClient(deviceID);
+		CWasapiAudioClient* ac = new CWasapiAudioClient(deviceID, freq, chans);
 		m_audioClients.push_back(ac);
 
 		m_actualFreq = min(m_actualFreq, ac->GetActualFrequency());
@@ -200,6 +200,7 @@ static float MixChannels(float a, float b)
 {
 	return (float)max(-1.0, min(a + b, 1.0));
 }
+//---------------------------------------------------------------------------
 
 DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 {

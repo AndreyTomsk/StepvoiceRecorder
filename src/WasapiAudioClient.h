@@ -11,7 +11,7 @@
 class CWasapiAudioClient
 {
 public:
-	CWasapiAudioClient(int device);
+	CWasapiAudioClient(int device, DWORD freq, DWORD chans);
 	~CWasapiAudioClient();
 
 	int GetDeviceID() const;
@@ -35,6 +35,9 @@ public:
 	bool GetData(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError) const;
 
 private:
+	HRESULT InitMixFormat(IAudioClient* ac, DWORD freq, DWORD chans,
+		WAVEFORMATEX** deviceFormat);
+
 	int m_deviceID;
 	CComPtr<IAudioClient> m_audioClient;
 	CComPtr<IAudioCaptureClient> m_captureClient;
