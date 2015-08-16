@@ -2,10 +2,11 @@
 #ifndef _STRUCT_H_
 #define _STRUCT_H_
 
+
 /********************************************************************/
 // ERRORS
 /********************************************************************/
-
+/*
 // windows WAV recording errors
 #define MOD_REC					0
 #define MOD_REC_ERR_DEVICE		1
@@ -35,7 +36,7 @@
 #define MOD_FILE_ERR_REWRITE	3
 #define MOD_FILE_ERR_READ		4
 #define MOD_FILE_ERR_WRITE		5
-
+*/
 
 /////////////////////////////////////////////////////////////////////////////
 // ГЛОБАЛЬНЫЕ НАСТРОЙКИ ПРОГРАММЫ (СОХРАНЯЮТСЯ В РЕЕСТРЕ)
@@ -59,13 +60,13 @@ typedef struct
 } CONF_PROG;
 
 // Настройки микшера
-typedef struct
-{	int		nRecSrcLineID;
-	int		nRecSrcLineLevel;
-	int		nPlaySrcLineID;
-	int		nPlaySrcLineLevel;
-	CString strMixShortName;
-} CONF_MIXER;
+//typedef struct
+//{	int		nRecSrcLineID;
+//	int		nRecSrcLineLevel;
+//	int		nPlaySrcLineID;
+//	int		nPlaySrcLineLevel;
+//	CString strMixShortName;
+//} CONF_MIXER;
 
 // Настройки диалога "General"
 typedef struct
@@ -129,7 +130,7 @@ typedef struct
 /////////////////////////////////////////////////////////////////////////////
 // ПАРАМЕТРЫ ЗАПИСИ/ВОСПРОИЗВЕДЕНИЯ
 /////////////////////////////////////////////////////////////////////////////
-
+/*
 // параметры открытия устройств записи/воспроизведения
 typedef struct
 {	int nBitrate;
@@ -167,19 +168,19 @@ typedef struct // !!!! test
 
 	int framesize;
 } MPEG_HEADER;
-
+*/
 /////////////////////////////////////////////////////////////////////////////
 // РАБОТА С ФАЙЛАМИ
 /////////////////////////////////////////////////////////////////////////////
 
 // позиционирование в файле
-#define SND_FILE_BEGIN	 0
-#define SND_FILE_CURRENT 1
-#define SND_FILE_END	 2
+//#define SND_FILE_BEGIN	 0
+//#define SND_FILE_CURRENT 1
+//#define SND_FILE_END	 2
 
 // получение длины файла
-#define IN_SECONDS	0
-#define IN_KBYTES	1
+//#define IN_SECONDS	0
+//#define IN_KBYTES	1
 
 /////////////////////////////////////////////////////////////////////////////
 #endif
