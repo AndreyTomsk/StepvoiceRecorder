@@ -56,10 +56,10 @@ END_MESSAGE_MAP()
 // Dialogs configure
 /////////////////////////////////////////////////////////////////////////////
 
-void CMySheet::SetConfig(CONF_DIAL_GEN* pconfig)
-{
-	m_pc.SetConfig( pconfig );
-}
+//void CMySheet::SetConfig(CONF_DIAL_GEN* pconfig)
+//{
+//	m_pc.SetConfig( pconfig );
+//}
 
 void CMySheet::SetConfig(CONF_DIAL_MP3* pconfig)
 {

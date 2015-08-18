@@ -15,26 +15,18 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CPageCom, CPropertyPage)
 
 BEGIN_MESSAGE_MAP(CPageCom, CPropertyPage)
-	//{{AFX_MSG_MAP(CPageCom)
 	ON_WM_HELPINFO()
-	//}}AFX_MSG_MAP
 	ON_BN_CLICKED(IDB_OUTPUT_FOLDER, &CPageCom::OnBnClickedOutputFolder)
+	ON_STN_CLICKED(IDC_DEFAULT_TEMPLATE, &CPageCom::OnStnClickedDefaultTemplate)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 
 CPageCom::CPageCom()
 	:CPropertyPage(CPageCom::IDD)
+	,m_TrayIcon(FALSE)
+	,m_TrayMin(FALSE)
 {
-	//{{AFX_DATA_INIT(CPageCom)
-	m_Loader	= FALSE;
-	m_AutoRun	= FALSE;
-	m_Minimized	= FALSE;
-	m_ToolTipEnable = TRUE;
-	m_TrayIcon = FALSE;
-	m_TrayMin = FALSE;
-	//m_MInstances = FALSE;
-	//}}AFX_DATA_INIT
 }
 //---------------------------------------------------------------------------
  
@@ -46,15 +38,9 @@ CPageCom::~CPageCom()
 void CPageCom::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CPageCom)
-	//DDX_Radio(pDX, IDR_OPT_BLANK,	m_Loader);
-	//DDX_Check(pDX, IDC_AUTORUN,		m_AutoRun);
-	//DDX_Check(pDX, IDC_MINIMIZED,	m_Minimized);
-	//DDX_Check(pDX, IDC_TOOLTIP_ENABLE, m_ToolTipEnable);
+
 	DDX_Check(pDX, IDC_TRAYICON, m_TrayIcon);
 	DDX_Check(pDX, IDC_TRAYMIN, m_TrayMin);
-	//DDX_Check(pDX, IDC_GEN_MINSTANCES, m_MInstances);
-	//}}AFX_DATA_MAP
 	DDX_Text(pDX, IDE_OUTPUT_FOLDER, m_outputFolder);
 	DDX_Text(pDX, IDE_OUTPUT_FILE_TEMPLATE, m_outputFileTemplate);
 }
@@ -68,22 +54,6 @@ void CPageCom::OnOK()
 	RegistryConfig::SetOption(_T("General\\Minimize to tray"), m_TrayMin);
 
 	CPropertyPage::OnOK();
-}
-//---------------------------------------------------------------------------
-
-void CPageCom::SetConfig(CONF_DIAL_GEN* pconf_dial_gen)
-{
-	/*
-	pconfig			= pconf_dial_gen;
-
-	m_Loader		= pconfig->nLoader;
-	m_AutoRun		= pconfig->bAutoRun;
-	m_Minimized		= pconfig->bMinimized;
-	m_ToolTipEnable	= pconfig->bToolTips;
-	m_TrayIcon		= pconfig->bTrayIcon;
-	m_TrayMin		= pconfig->bTrayMin;
-	m_MInstances	= pconfig->bMInstances;
-	*/
 }
 //---------------------------------------------------------------------------
 
@@ -103,6 +73,11 @@ BOOL CPageCom::OnHelpInfo(HELPINFO* pHelpInfo)
 
 BOOL CPageCom::OnInitDialog()
 {
+	//Changing cursor style to arror (on the default name template label).
+	CStatic* pStatic = static_cast<CStatic *>(GetDlgItem(IDC_DEFAULT_TEMPLATE));
+	SetClassLong(pStatic->GetSafeHwnd(), GCL_HCURSOR,
+		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_HAND2)));
+
 	const CString defaultOutputFolder = ShellUtils::GetSpecialFolderPath(CSIDL_MYDOCUMENTS);
 	const CString defaultFileTemplate = _T("%b%d_%H%M");
 
@@ -120,5 +95,11 @@ void CPageCom::OnBnClickedOutputFolder()
 {
 	if (ShellUtils::DialogPickupFolder(m_outputFolder))
 		GetDlgItem(IDE_OUTPUT_FOLDER)->SetWindowTextA(m_outputFolder);
+}
+//---------------------------------------------------------------------------
+
+void CPageCom::OnStnClickedDefaultTemplate()
+{
+	GetDlgItem(IDE_OUTPUT_FILE_TEMPLATE)->SetWindowTextA(_T("%b%d_%H%M"));
 }
 //---------------------------------------------------------------------------
