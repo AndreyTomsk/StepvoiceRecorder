@@ -1,8 +1,8 @@
-/////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "MP3_Recorder.h"
 #include "PageCom.h"
-#include <bass.h>
+#include "Config.h"
+#include "ShellUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -11,15 +11,20 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
+
 IMPLEMENT_DYNCREATE(CPageCom, CPropertyPage)
 
+BEGIN_MESSAGE_MAP(CPageCom, CPropertyPage)
+	//{{AFX_MSG_MAP(CPageCom)
+	ON_WM_HELPINFO()
+	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDB_OUTPUT_FOLDER, &CPageCom::OnBnClickedOutputFolder)
+END_MESSAGE_MAP()
+
 /////////////////////////////////////////////////////////////////////////////
+
 CPageCom::CPageCom()
 	:CPropertyPage(CPageCom::IDD)
-	,m_playbackDeviceID(0)
-	,m_recordingDeviceID(0)
-	,m_default_play_id(0)
-	,m_default_rec_id(0)
 {
 	//{{AFX_DATA_INIT(CPageCom)
 	m_Loader	= FALSE;
@@ -28,17 +33,16 @@ CPageCom::CPageCom()
 	m_ToolTipEnable = TRUE;
 	m_TrayIcon = FALSE;
 	m_TrayMin = FALSE;
-	m_MInstances = FALSE;
+	//m_MInstances = FALSE;
 	//}}AFX_DATA_INIT
-
-	pconfig = NULL;
 }
+//---------------------------------------------------------------------------
  
 CPageCom::~CPageCom()
 {
 }
+//---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
 void CPageCom::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
@@ -49,103 +53,72 @@ void CPageCom::DoDataExchange(CDataExchange* pDX)
 	//DDX_Check(pDX, IDC_TOOLTIP_ENABLE, m_ToolTipEnable);
 	DDX_Check(pDX, IDC_TRAYICON, m_TrayIcon);
 	DDX_Check(pDX, IDC_TRAYMIN, m_TrayMin);
-	DDX_Check(pDX, IDC_GEN_MINSTANCES, m_MInstances);
-	DDX_CBIndex(pDX, IDC_PLAYBACK_DEVICE, m_playbackDeviceID);
-	DDX_CBIndex(pDX, IDC_RECORDING_DEVICE, m_recordingDeviceID);
+	//DDX_Check(pDX, IDC_GEN_MINSTANCES, m_MInstances);
 	//}}AFX_DATA_MAP
+	DDX_Text(pDX, IDE_OUTPUT_FOLDER, m_outputFolder);
+	DDX_Text(pDX, IDE_OUTPUT_FILE_TEMPLATE, m_outputFileTemplate);
 }
+//---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
 void CPageCom::OnOK() 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	if (pconfig)
-	{
-		pconfig->nLoader	= m_Loader;
-		pconfig->bAutoRun	= m_AutoRun;
-		pconfig->bMinimized	= m_Minimized;
-		pconfig->bToolTips	= m_ToolTipEnable;
-		//pconfig->nShowIn	= m_ShowIn;
-		pconfig->bTrayIcon	= m_TrayIcon;
-		pconfig->bTrayMin	= m_TrayMin;
-		pconfig->bMInstances = m_MInstances;
+	RegistryConfig::SetOption(_T("General\\OutputFolder"), m_outputFolder);
+	RegistryConfig::SetOption(_T("General\\OutputFileTemplate"), m_outputFileTemplate);
+	RegistryConfig::SetOption(_T("General\\Show icon in tray"), m_TrayIcon);
+	RegistryConfig::SetOption(_T("General\\Minimize to tray"), m_TrayMin);
 
-		pconfig->nPlayDevice = (m_playbackDeviceID != m_default_play_id) ?
-			m_playbackDeviceID : -1;
-		pconfig->nRecDevice  = (m_recordingDeviceID != m_default_rec_id) ?
-			m_recordingDeviceID : -1;
-	}
 	CPropertyPage::OnOK();
 }
+//---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-BEGIN_MESSAGE_MAP(CPageCom, CPropertyPage)
-	//{{AFX_MSG_MAP(CPageCom)
-	ON_WM_HELPINFO()
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
 void CPageCom::SetConfig(CONF_DIAL_GEN* pconf_dial_gen)
 {
+	/*
 	pconfig			= pconf_dial_gen;
 
-	//m_Loader		= pconfig->nLoader;
-	//m_AutoRun		= pconfig->bAutoRun;
-	//m_Minimized	= pconfig->bMinimized;
-	//m_ToolTipEnable	= pconfig->bToolTips;
+	m_Loader		= pconfig->nLoader;
+	m_AutoRun		= pconfig->bAutoRun;
+	m_Minimized		= pconfig->bMinimized;
+	m_ToolTipEnable	= pconfig->bToolTips;
 	m_TrayIcon		= pconfig->bTrayIcon;
 	m_TrayMin		= pconfig->bTrayMin;
 	m_MInstances	= pconfig->bMInstances;
-
-	m_playbackDeviceID  = pconfig->nPlayDevice;
-	m_recordingDeviceID = pconfig->nRecDevice;
+	*/
 }
+//---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
 BOOL CPageCom::PreCreateWindow(CREATESTRUCT& cs) 
 {
 	cs.dwExStyle |= WS_EX_CONTEXTHELP;
 	return CPropertyPage::PreCreateWindow(cs);
 }
+//---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
 BOOL CPageCom::OnHelpInfo(HELPINFO* pHelpInfo) 
 {
 	GetParent()->SendMessage(WM_COMMAND, IDHELP, (LPARAM)GetSafeHwnd());
 	return CPropertyPage::OnHelpInfo(pHelpInfo);
 }
+//---------------------------------------------------------------------------
 
 BOOL CPageCom::OnInitDialog()
 {
-	CComboBox* cPlaybackDevice = static_cast<CComboBox*>(GetDlgItem(IDC_PLAYBACK_DEVICE));
-	CComboBox* cRecordingDevice = static_cast<CComboBox*>(GetDlgItem(IDC_RECORDING_DEVICE));
+	const CString defaultOutputFolder = ShellUtils::GetSpecialFolderPath(CSIDL_MYDOCUMENTS);
+	const CString defaultFileTemplate = _T("%b%d_%H%M");
 
-	BASS_DEVICEINFO info;
+	m_outputFolder = RegistryConfig::GetOption(_T("General\\OutputFolder"), defaultOutputFolder);
+	m_outputFileTemplate = RegistryConfig::GetOption(_T("General\\OutputFileTemplate"), defaultFileTemplate);
+	m_TrayIcon = RegistryConfig::GetOption(_T("General\\Show icon in tray"), FALSE);
+	m_TrayMin  = RegistryConfig::GetOption(_T("General\\Minimize to tray"), FALSE);
 
-	for (int i = 1; BASS_GetDeviceInfo(i, &info); i++) // 0 - "No sound" device
-	{
-		if (info.flags&BASS_DEVICE_ENABLED) // device is enabled
-			cPlaybackDevice->AddString(info.name);
-		if (info.flags&BASS_DEVICE_DEFAULT)
-			m_default_play_id = i;
-	}
-	for (int i = 0; BASS_RecordGetDeviceInfo(i, &info); i++)
-	{
-		if (info.flags&BASS_DEVICE_ENABLED) // device is enabled
-			cRecordingDevice->AddString(info.name);
-		if (info.flags&BASS_DEVICE_DEFAULT)
-			m_default_rec_id = i;
-	}
-
-	m_default_play_id--; // BASS starts devices from 1
-	if (m_playbackDeviceID == -1) // default
-		m_playbackDeviceID = m_default_play_id;
-	if (m_recordingDeviceID == -1) // default
-		m_recordingDeviceID = m_default_rec_id;
-
-	// This functions internally calls also DoDataExchange, so prepared
-	// a selected item IDSs above.
-	CPropertyPage::OnInitDialog();
+	CPropertyPage::OnInitDialog(); //internally calls DoDataExchange
 	return TRUE;
 }
+//---------------------------------------------------------------------------
+
+void CPageCom::OnBnClickedOutputFolder()
+{
+	if (ShellUtils::DialogPickupFolder(m_outputFolder))
+		GetDlgItem(IDE_OUTPUT_FOLDER)->SetWindowTextA(m_outputFolder);
+}
+//---------------------------------------------------------------------------

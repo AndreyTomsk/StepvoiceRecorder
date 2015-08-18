@@ -12,16 +12,15 @@
 class CPageCom : public CPropertyPage
 {
 	DECLARE_DYNCREATE(CPageCom)
-
-private:
 	CONF_DIAL_GEN* pconfig;
-	int m_default_play_id;
-	int m_default_rec_id;
+	CString m_outputFolder;
+	CString m_outputFileTemplate;
 
 public:
 	CPageCom();
-	~CPageCom();
+	virtual ~CPageCom();
 
+	virtual BOOL OnInitDialog();
 	void SetConfig(CONF_DIAL_GEN* pconf_dial_gen);
 
 // Dialog Data
@@ -34,8 +33,6 @@ public:
 	BOOL	m_TrayIcon;
 	BOOL	m_TrayMin;
 	BOOL	m_MInstances;
-	int		m_playbackDeviceID;
-	int		m_recordingDeviceID;
 	//}}AFX_DATA
 
 // Overrides
@@ -53,9 +50,8 @@ protected:
 	afx_msg BOOL OnHelpInfo(HELPINFO* pHelpInfo);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
-
 public:
-	virtual BOOL OnInitDialog();
+	afx_msg void OnBnClickedOutputFolder();
 };
 
 //{{AFX_INSERT_LOCATION}}

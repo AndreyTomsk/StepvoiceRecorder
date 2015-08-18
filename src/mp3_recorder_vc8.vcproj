@@ -857,6 +857,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ShellUtils.cpp"
+				>
+			</File>
+			<File
 				RelativePath="SliderVol.cpp"
 				>
 				<FileConfiguration
@@ -1313,6 +1317,10 @@
 			</File>
 			<File
 				RelativePath="Scheduler2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ShellUtils.h"
 				>
 			</File>
 			<File
