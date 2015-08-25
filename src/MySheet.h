@@ -12,7 +12,7 @@
 #include "PageAN.h"
 //#include "PageSH.h"
 #include "PageVAS.h"
-#include "PageSH2.h"
+//#include "PageSH2.h"
 
 /////////////////////////////////////////////////////////////////////////////
 class CMySheet : public CPropertySheet
@@ -28,14 +28,14 @@ public:
 	CPageRec	m_pr;
 	CPageAN		m_pa;
 	CPageVAS	m_pv;
-	CPageSH2	m_ps2;
+	//CPageSH2	m_ps2;
 
 	int			m_nPageIndex;
 
 	//void SetConfig(CONF_DIAL_GEN* pconfig);
 	void SetConfig(CONF_DIAL_MP3* pconfig);
 	//void SetConfig(CONF_DIAL_SH*  pconfig);
-	void SetConfig(CONF_DIAL_SH2* pconfig);
+	//void SetConfig(CONF_DIAL_SH2* pconfig);
 	void SetConfig(CONF_DIAL_VAS* pconfig);
 	void SetConfig(CONF_DIAL_AN*  pconfig);
 
