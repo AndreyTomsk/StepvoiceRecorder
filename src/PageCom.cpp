@@ -18,6 +18,7 @@ BEGIN_MESSAGE_MAP(CPageCom, CPropertyPage)
 	ON_WM_HELPINFO()
 	ON_BN_CLICKED(IDB_OUTPUT_FOLDER, &CPageCom::OnBnClickedOutputFolder)
 	ON_STN_CLICKED(IDC_DEFAULT_TEMPLATE, &CPageCom::OnStnClickedDefaultTemplate)
+	ON_EN_CHANGE(IDE_OUTPUT_FILE_TEMPLATE, &CPageCom::OnEnChangeOutputFileTemplate)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -43,10 +44,26 @@ void CPageCom::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_TRAYMIN, m_TrayMin);
 	DDX_Text(pDX, IDE_OUTPUT_FOLDER, m_outputFolder);
 	DDX_Text(pDX, IDE_OUTPUT_FILE_TEMPLATE, m_outputFileTemplate);
+
+	DDV_MaxChars(pDX, m_outputFileTemplate, 64);
 }
 //---------------------------------------------------------------------------
 
-void CPageCom::OnOK() 
+BOOL CPageCom::OnKillActive()
+{
+	UpdateData();
+	if (!ShellUtils::FolderExists(m_outputFolder))
+	{
+		CString msg;
+		msg.Format(_T("Folder '%s' does not exist or not accessible."), m_outputFolder);
+		AfxMessageBox(msg);
+		return FALSE;
+	}
+	return TRUE;
+}
+//---------------------------------------------------------------------------
+
+void CPageCom::OnOK()
 {
 	RegistryConfig::SetOption(_T("General\\OutputFolder"), m_outputFolder);
 	RegistryConfig::SetOption(_T("General\\OutputFileTemplate"), m_outputFileTemplate);
@@ -101,5 +118,11 @@ void CPageCom::OnBnClickedOutputFolder()
 void CPageCom::OnStnClickedDefaultTemplate()
 {
 	GetDlgItem(IDE_OUTPUT_FILE_TEMPLATE)->SetWindowTextA(_T("%b%d_%H%M"));
+}
+//---------------------------------------------------------------------------
+
+void CPageCom::OnEnChangeOutputFileTemplate()
+{
+	// TODO:  Add your control notification handler code here
 }
 //---------------------------------------------------------------------------

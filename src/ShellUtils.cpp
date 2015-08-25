@@ -44,6 +44,15 @@ bool DialogPickupFolder(CString& inOutFolderPath)
 Exit:
 	return hr == S_OK;
 }
+//---------------------------------------------------------------------------
+
+bool FolderExists(const CString& path)
+{
+  const DWORD dwAttrib = GetFileAttributes(path);
+
+  return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
+         (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
 
 /////////////////////////////////////////////////////////////////////////////
 

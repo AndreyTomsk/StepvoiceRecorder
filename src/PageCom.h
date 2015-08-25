@@ -27,6 +27,7 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual BOOL OnKillActive();
 	virtual void OnOK();
 
 	afx_msg void OnBnClickedOutputFolder();
@@ -34,6 +35,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnStnClickedDefaultTemplate();
+public:
+	afx_msg void OnEnChangeOutputFileTemplate();
 };
 
 #endif

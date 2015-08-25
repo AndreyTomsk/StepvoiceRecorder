@@ -11,6 +11,8 @@ namespace ShellUtils
 
 	//Displays a "select folder" dialog.
 	bool DialogPickupFolder(CString& folderPath); //[in/out]
+
+	bool FolderExists(const CString& path);
 }
 
 #endif // _SHELL_UTILS_H
