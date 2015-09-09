@@ -3,6 +3,7 @@
 #include "PageCom.h"
 #include "Config.h"
 #include "ShellUtils.h"
+#include "Autoname.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -104,6 +105,7 @@ BOOL CPageCom::OnInitDialog()
 	m_TrayMin  = RegistryConfig::GetOption(_T("General\\Minimize to tray"), FALSE);
 
 	CPropertyPage::OnInitDialog(); //internally calls DoDataExchange
+	OnEnChangeOutputFileTemplate();
 	return TRUE;
 }
 //---------------------------------------------------------------------------
@@ -123,6 +125,13 @@ void CPageCom::OnStnClickedDefaultTemplate()
 
 void CPageCom::OnEnChangeOutputFileTemplate()
 {
-	// TODO:  Add your control notification handler code here
+	CWnd* wndTemplate = (CWnd *)GetDlgItem(IDE_OUTPUT_FILE_TEMPLATE);
+	CWnd* wndResult = (CWnd *)GetDlgItem(IDC_RESULT_NAME);
+
+	CString strTemplate, strResult;
+	wndTemplate->GetWindowText(strTemplate);
+	strResult = GetAutoName(strTemplate, _T("mp3"));
+
+	wndResult->SetWindowText(strResult);
 }
 //---------------------------------------------------------------------------
