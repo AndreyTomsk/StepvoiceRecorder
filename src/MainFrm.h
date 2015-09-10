@@ -176,7 +176,7 @@ protected:
 	void UpdateButtonState(UINT nID);
 	void UpdateMixerState();
 	void UpdateWindowTitle_SeekTo(double curSeconds, double allSeconds, int displayTimeMs);
-	CString GetAutoName(CString& strPattern);
+	//CString GetAutoName(CString& strPattern);
 
 	/**
 	 * Parses string, replacing patterns by real values. Currently supports:

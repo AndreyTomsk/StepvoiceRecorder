@@ -239,10 +239,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\Autoname.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Bass_Functions.cpp"
 				>
 			</File>
@@ -1133,10 +1129,6 @@
 			>
 			<File
 				RelativePath="AfStack.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Autoname.h"
 				>
 			</File>
 			<File

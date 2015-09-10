@@ -1230,22 +1230,27 @@ void CMainFrame::OnOptTop()
 //===========================================================================
 // BUTTONS
 //===========================================================================
+
 void CMainFrame::OnBtnOPEN()
 {
-	CString dialogTitle, filesFilter;
-	dialogTitle.LoadString(IDS_FILENEWOPENTITLE);
-	filesFilter.LoadString(IDS_FILEFILTER);
-
-	const CString generatedName = GetAutoName(CString("")); // Name like 08jun_05.mp3
+	const CString generatedName = Helpers::GetMp3AutonameFromConfig();
 	
 	const CString lastFileName = RegistryConfig::GetOption(_T("General\\LastFile"), CString());
 	const int slashPos = lastFileName.ReverseFind(_T('\\'));
 	const CString lastFilePath = (slashPos != -1) ? lastFileName.Left(slashPos) : CString();
 
+	const CString outputFolder = RegistryConfig::GetOption(_T("General\\OutputFolder"), CString());
+	const bool storeInOutputFolder = RegistryConfig::GetOption(_T("General\\StoreInOutputFolder"), 0);
+
 	// Creating a standard file open dialog
+
+	CString dialogTitle, filesFilter;
+	dialogTitle.LoadString(IDS_FILENEWOPENTITLE);
+	filesFilter.LoadString(IDS_FILEFILTER);
+
 	CFileDialog openDialog(true, "mp3", generatedName, OFN_HIDEREADONLY | OFN_EXPLORER, filesFilter);
 	openDialog.m_ofn.lpstrTitle= dialogTitle;
-	openDialog.m_ofn.lpstrInitialDir = lastFilePath;	
+	openDialog.m_ofn.lpstrInitialDir = storeInOutputFolder ? outputFolder : lastFilePath;
 
 	if (openDialog.DoModal() == IDOK)
 	{	
@@ -1777,7 +1782,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 
 	::DragFinish(hDropInfo);
 }
-
+/*
 ////////////////////////////////////////////////////////////////////////////////
 CString CMainFrame::GetAutoName( CString& strPattern )
 {
@@ -1794,7 +1799,7 @@ CString CMainFrame::GetAutoName( CString& strPattern )
 
 	return s;
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
@@ -2901,7 +2906,7 @@ CString CMainFrame::ParseFileName(CString a_file_name)
 	TCHAR l_path[2 * MAX_PATH] = {0};
 	std::map<CString, CString> l_patterns;
 
-	CString l_auto_name = GetAutoName(CString(_T("")));
+	CString l_auto_name = Helpers::GetMp3AutonameFromConfig();
 	l_auto_name.Replace(_T(".mp3"), _T(""));	// Removing extension from name
 	l_patterns[_T("{Autoname}")] = l_auto_name;
 

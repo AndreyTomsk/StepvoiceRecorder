@@ -5,7 +5,6 @@
 
 #include "MainFrm.h"
 #include <htmlhelp.h>
-#include "Autoname.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -20,8 +19,6 @@ IMPLEMENT_DYNAMIC(CMySheet, CPropertySheet)
 CMySheet::CMySheet(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
 	:CPropertySheet(nIDCaption, pParentWnd, iSelectPage)
 {
-	//CString result = GetAutonameRegEx(CString(), CString());
-
 	//m_pc.m_psp.dwFlags |= PSP_HASHELP;
 	//m_pr.m_psp.dwFlags |= PSP_HASHELP;
 	AddPage(&m_pc);
@@ -34,8 +31,6 @@ CMySheet::CMySheet(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
 CMySheet::CMySheet(LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
 	:CPropertySheet(pszCaption, pParentWnd, iSelectPage)
 {
-	//CString result = GetAutonameRegEx(CString(), CString());
-
 	//m_pc.m_psp.dwFlags |= PSP_HASHELP;
 	//m_pr.m_psp.dwFlags |= PSP_HASHELP;
 	AddPage(&m_pc);

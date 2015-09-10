@@ -3,7 +3,6 @@
 #include "PageCom.h"
 #include "Config.h"
 #include "ShellUtils.h"
-#include "Autoname.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -45,7 +44,7 @@ void CPageCom::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_TRAYICON, m_TrayIcon);
 	DDX_Check(pDX, IDC_TRAYMIN, m_TrayMin);
 	DDX_Check(pDX, IDC_GEN_MINSTANCES, m_multipleInstances);
-	DDX_Check(pDX, IDC_CUSTOM_OUTPUT_FOLDER, m_storeInOutputFolder);
+	DDX_Check(pDX, IDC_STORE_IN_OUTPUT_FOLDER, m_storeInOutputFolder);
 	DDX_Text(pDX, IDE_OUTPUT_FOLDER, m_outputFolder);
 }
 //---------------------------------------------------------------------------
