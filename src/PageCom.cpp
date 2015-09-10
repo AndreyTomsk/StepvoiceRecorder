@@ -18,8 +18,7 @@ IMPLEMENT_DYNCREATE(CPageCom, CPropertyPage)
 BEGIN_MESSAGE_MAP(CPageCom, CPropertyPage)
 	ON_WM_HELPINFO()
 	ON_BN_CLICKED(IDB_OUTPUT_FOLDER, &CPageCom::OnBnClickedOutputFolder)
-	ON_STN_CLICKED(IDC_DEFAULT_TEMPLATE, &CPageCom::OnStnClickedDefaultTemplate)
-	ON_EN_CHANGE(IDE_OUTPUT_FILE_TEMPLATE, &CPageCom::OnEnChangeOutputFileTemplate)
+	ON_BN_CLICKED(IDC_STORE_IN_OUTPUT_FOLDER, &CPageCom::OnBnClickedStoreInOutputFolder)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -28,6 +27,8 @@ CPageCom::CPageCom()
 	:CPropertyPage(CPageCom::IDD)
 	,m_TrayIcon(FALSE)
 	,m_TrayMin(FALSE)
+	,m_multipleInstances(FALSE)
+	,m_storeInOutputFolder(FALSE)
 {
 }
 //---------------------------------------------------------------------------
@@ -43,10 +44,9 @@ void CPageCom::DoDataExchange(CDataExchange* pDX)
 
 	DDX_Check(pDX, IDC_TRAYICON, m_TrayIcon);
 	DDX_Check(pDX, IDC_TRAYMIN, m_TrayMin);
+	DDX_Check(pDX, IDC_GEN_MINSTANCES, m_multipleInstances);
+	DDX_Check(pDX, IDC_CUSTOM_OUTPUT_FOLDER, m_storeInOutputFolder);
 	DDX_Text(pDX, IDE_OUTPUT_FOLDER, m_outputFolder);
-	DDX_Text(pDX, IDE_OUTPUT_FILE_TEMPLATE, m_outputFileTemplate);
-
-	DDV_MaxChars(pDX, m_outputFileTemplate, 64);
 }
 //---------------------------------------------------------------------------
 
@@ -67,9 +67,10 @@ BOOL CPageCom::OnKillActive()
 void CPageCom::OnOK()
 {
 	RegistryConfig::SetOption(_T("General\\OutputFolder"), m_outputFolder);
-	RegistryConfig::SetOption(_T("General\\OutputFileTemplate"), m_outputFileTemplate);
+	RegistryConfig::SetOption(_T("General\\StoreInOutputFolder"), m_storeInOutputFolder);
 	RegistryConfig::SetOption(_T("General\\Show icon in tray"), m_TrayIcon);
 	RegistryConfig::SetOption(_T("General\\Minimize to tray"), m_TrayMin);
+	RegistryConfig::SetOption(_T("General\\Multiple instances"), m_multipleInstances);
 
 	CPropertyPage::OnOK();
 }
@@ -91,21 +92,16 @@ BOOL CPageCom::OnHelpInfo(HELPINFO* pHelpInfo)
 
 BOOL CPageCom::OnInitDialog()
 {
-	//Changing cursor style to arror (on the default name template label).
-	CStatic* pStatic = static_cast<CStatic *>(GetDlgItem(IDC_DEFAULT_TEMPLATE));
-	SetClassLong(pStatic->GetSafeHwnd(), GCL_HCURSOR,
-		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_HAND2)));
-
-	const CString defaultOutputFolder = ShellUtils::GetSpecialFolderPath(CSIDL_MYDOCUMENTS);
-	const CString defaultFileTemplate = _T("%b%d_%H%M");
+	const CString defaultOutputFolder = ShellUtils::GetSpecialFolderPath(CSIDL_DESKTOP);
 
 	m_outputFolder = RegistryConfig::GetOption(_T("General\\OutputFolder"), defaultOutputFolder);
-	m_outputFileTemplate = RegistryConfig::GetOption(_T("General\\OutputFileTemplate"), defaultFileTemplate);
+	m_storeInOutputFolder = RegistryConfig::GetOption(_T("General\\StoreInOutputFolder"), FALSE);
 	m_TrayIcon = RegistryConfig::GetOption(_T("General\\Show icon in tray"), FALSE);
 	m_TrayMin  = RegistryConfig::GetOption(_T("General\\Minimize to tray"), FALSE);
+	m_multipleInstances = RegistryConfig::GetOption(_T("General\\Multiple instances"), FALSE);
 
 	CPropertyPage::OnInitDialog(); //internally calls DoDataExchange
-	OnEnChangeOutputFileTemplate();
+	OnBnClickedStoreInOutputFolder();
 	return TRUE;
 }
 //---------------------------------------------------------------------------
@@ -117,21 +113,12 @@ void CPageCom::OnBnClickedOutputFolder()
 }
 //---------------------------------------------------------------------------
 
-void CPageCom::OnStnClickedDefaultTemplate()
+void CPageCom::OnBnClickedStoreInOutputFolder()
 {
-	GetDlgItem(IDE_OUTPUT_FILE_TEMPLATE)->SetWindowTextA(_T("%b%d_%H%M"));
-}
-//---------------------------------------------------------------------------
+	CButton* cbStore = static_cast<CButton*>(GetDlgItem(IDC_STORE_IN_OUTPUT_FOLDER));
+	const bool doStore = cbStore->GetCheck() == BST_CHECKED;
 
-void CPageCom::OnEnChangeOutputFileTemplate()
-{
-	CWnd* wndTemplate = (CWnd *)GetDlgItem(IDE_OUTPUT_FILE_TEMPLATE);
-	CWnd* wndResult = (CWnd *)GetDlgItem(IDC_RESULT_NAME);
-
-	CString strTemplate, strResult;
-	wndTemplate->GetWindowText(strTemplate);
-	strResult = GetAutoName(strTemplate, _T("mp3"));
-
-	wndResult->SetWindowText(strResult);
+	GetDlgItem(IDE_OUTPUT_FOLDER)->EnableWindow(doStore);
+	GetDlgItem(IDB_OUTPUT_FOLDER)->EnableWindow(doStore);
 }
 //---------------------------------------------------------------------------

@@ -192,6 +192,7 @@
 #define IDC_DEFAULT_TEMPLATE            1179
 #define IDC_EXAMPLE_NAME                1180
 #define IDC_RESULT_NAME                 1180
+#define IDC_STORE_IN_OUTPUT_FOLDER      1181
 #define ID_MIXITEM_LOOPBACK_DEVICE      3688
 #define ID_MIXITEM_PLAY_VOLUME          3697
 #define ID_MIXITEM_REC_LOOPBACK         3698
@@ -249,7 +250,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        249
 #define _APS_NEXT_COMMAND_VALUE         32927
-#define _APS_NEXT_CONTROL_VALUE         1181
+#define _APS_NEXT_CONTROL_VALUE         1182
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
 #endif

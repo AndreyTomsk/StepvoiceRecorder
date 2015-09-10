@@ -15,9 +15,10 @@ class CPageCom : public CPropertyPage
 	enum { IDD = IDD_COMMON };
 
 	CString m_outputFolder;
-	CString m_outputFileTemplate;
 	BOOL	m_TrayIcon;
 	BOOL	m_TrayMin;
+	BOOL	m_multipleInstances;
+	BOOL	m_storeInOutputFolder;
 
 public:
 	CPageCom();
@@ -31,12 +32,9 @@ protected:
 	virtual void OnOK();
 
 	afx_msg void OnBnClickedOutputFolder();
+	afx_msg void OnBnClickedStoreInOutputFolder();
 	afx_msg BOOL OnHelpInfo(HELPINFO* pHelpInfo);
 	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnStnClickedDefaultTemplate();
-public:
-	afx_msg void OnEnChangeOutputFileTemplate();
 };
 
 #endif
