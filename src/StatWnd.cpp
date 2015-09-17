@@ -82,15 +82,16 @@ int CStatWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// ***** Создаем кнопки *****
 	CBitmap btnBmp;
-	CImageList schedIL, vasIL, monIL;
+	//CImageList schedIL, vasIL, monIL;
+	CImageList vasIL, monIL;
 
-	schedIL.Create(42, 11, ILC_COLOR24, 0, 6);
-	vasIL.Create(&schedIL);
-	monIL.Create(20, 11, ILC_COLOR24, 0, 6);
+	//schedIL.Create(42, 11, ILC_COLOR24, 0, 6);
+	vasIL.Create(42, 11, ILC_COLOR24, 0, 6);
+	monIL.Create(&vasIL);
 
-	btnBmp.LoadBitmap(IDB_BTN_SCHED);
-	schedIL.Add(&btnBmp, RGB(255, 0, 255));
-	btnBmp.DeleteObject();
+	//btnBmp.LoadBitmap(IDB_BTN_SCHED);
+	//schedIL.Add(&btnBmp, RGB(255, 0, 255));
+	//btnBmp.DeleteObject();
 
 	btnBmp.LoadBitmap(IDB_BTN_VAS);
 	vasIL.Add(&btnBmp, RGB(255, 0, 255));
@@ -99,14 +100,14 @@ int CStatWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	btnBmp.LoadBitmap(IDB_BTN_MON);
 	monIL.Add(&btnBmp, RGB(255, 0, 255));
 
-	m_btnSched.Create(&schedIL, CPoint(0, 3), this, IDB_BTN_SCHED);
-	m_btnVas.Create(&vasIL, CPoint(44, 3), this, IDB_BTN_VAS);
-	m_btnMon.Create(&monIL, CPoint(154, 3), this, IDB_BTN_MON);
+	//m_btnSched.Create(&schedIL, CPoint(0, 3), this, IDB_BTN_SCHED);
+	m_btnVas.Create(&vasIL, CPoint(88, 3), this, IDB_BTN_VAS);
+	m_btnMon.Create(&monIL, CPoint(132, 3), this, IDB_BTN_MON);
 
 #ifndef _DEBUG
 	if(fsProtect_GetDaysLeft() <= 0)
 	{	// дизаблим кнопки
-		m_btnSched.Enable(false);
+		//m_btnSched.Enable(false);
 		m_btnVas.Enable(false);
 		m_btnMon.Enable(false);
 		//m_btnSched.ModifyStyle(WS_VISIBLE, WS_DISABLED);

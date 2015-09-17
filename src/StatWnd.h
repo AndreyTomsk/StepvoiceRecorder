@@ -20,7 +20,7 @@ class CStatWnd : public CWnd
 	CBitmap m_statbmp;
 
 public:
-	CBitmapBtn m_btnSched;
+	//CBitmapBtn m_btnSched;
 	CBitmapBtn m_btnVas;
 	CBitmapBtn m_btnFlr;
 	CBitmapBtn m_btnMon;
