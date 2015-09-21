@@ -1663,7 +1663,7 @@ void CMainFrame::UpdateStatWindow()
 	{
 		IWasapiRecorder* recorder = m_recordingChain.GetFilter<IWasapiRecorder>();
 		frequency = recorder->GetActualFrequency();
-		stereo = recorder->GetActualChannelCount() > 0;
+		stereo = recorder->GetActualChannelCount() > 1;
 
 		const int bytesSec = bitrate * (1000/8); //bitrate is kbit/sec
 		fileSize = m_recordingChain.GetFilter<FileWriter>()->GetFileLength();
