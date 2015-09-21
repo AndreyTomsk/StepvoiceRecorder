@@ -195,13 +195,12 @@ void CWasapiAudioClient::SetResampleParams(unsigned destFreq, unsigned destChann
 bool CWasapiAudioClient::GetData(BYTE* destBuffer,
 	const UINT32& bufferSize, bool& streamError) const
 {
-	using namespace SampleConverter;
-
 	//Check resampling not needed.
 	if (m_wfx->nSamplesPerSec == m_resampleFreq && m_wfx->nChannels == m_resampleChans)
 		return m_captureBuffer->FillBuffer(destBuffer, bufferSize, streamError);
 
 	//Calculating a required sample count, to get from wasapi stream.
+	using namespace SampleConverter;
 
 	const int srcFreq = m_wfx->nSamplesPerSec;
 	const int dstFreq = m_resampleFreq;
@@ -251,7 +250,7 @@ HRESULT CWasapiAudioClient::InitMixFormat(IAudioClient* ac,
 	DWORD freq, DWORD chans, WAVEFORMATEX** deviceFormat)
 {
 	WAVEFORMATEX wfx = {0};
-	wfx.wFormatTag = WAVE_FORMAT_PCM;
+	wfx.wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
 	wfx.nChannels = WORD(chans);
 	wfx.nSamplesPerSec = freq;
 	wfx.wBitsPerSample = 32; //float
