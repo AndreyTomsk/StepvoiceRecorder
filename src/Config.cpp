@@ -115,6 +115,8 @@ void CConfig::ValidateRead()
 
 bool CConfig::RegisterWrite()
 {
+	return false;
+	/*
 	CWinApp* App = AfxGetApp();
 
 	App->WriteProfileInt( "General", "Always on Top",	conf_prog.bAlwaysOnTop );
@@ -173,6 +175,7 @@ bool CConfig::RegisterWrite()
 	//int b = App->WriteProfileString( "Autoname", "Default template", "%Y%m%d_%H%M" );
 
 	return ( b != 0 );
+	*/
 }
 
 //====================================================================

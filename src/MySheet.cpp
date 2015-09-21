@@ -61,10 +61,10 @@ END_MESSAGE_MAP()
 //	m_pc.SetConfig( pconfig );
 //}
 
-void CMySheet::SetConfig(CONF_DIAL_MP3* pconfig)
-{
-	m_pr.SetConfig( pconfig );
-}
+//void CMySheet::SetConfig(CONF_DIAL_MP3* pconfig)
+//{
+//	m_pr.SetConfig( pconfig );
+//}
 
 //void CMySheet::SetConfig(CONF_DIAL_SH *pconfig)
 //{

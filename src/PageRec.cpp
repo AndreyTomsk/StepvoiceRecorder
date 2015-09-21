@@ -11,105 +11,118 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
+
 IMPLEMENT_DYNCREATE(CPageRec, CPropertyPage)
 
 BEGIN_MESSAGE_MAP(CPageRec, CPropertyPage)
-	//{{AFX_MSG_MAP(CPageRec)
 	ON_BN_CLICKED(IDC_AUTOFREQ, OnAutofreq)
 	ON_WM_HSCROLL()
 	ON_WM_HELPINFO()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 const int BITRATE[] = {8, 16, 24, 32, 48, 64, 96, 128, 160, 192, 256};
 const int FREQ[] = {8000, 11025, 22050, 44100};
 
-//===========================================================================
-CPageRec::CPageRec() : CPropertyPage(CPageRec::IDD)
+/////////////////////////////////////////////////////////////////////////////
+
+CPageRec::CPageRec()
+	:CPropertyPage(CPageRec::IDD)
+	,m_bitrateIndex(7)
+	,m_frequencyIndex(3)
+	,m_autoFrequency(FALSE)
+	,m_isStereo(1)
 {
-	//{{AFX_DATA_INIT(CPageRec)
-	m_bAutoFreq		= FALSE;
-	m_nSampleFreq	= 2;
-	m_nStereo		= 0;
-	//}}AFX_DATA_INIT
-
-	pconfig			= NULL;
-	m_nBitrate		= 4;
 }
+//---------------------------------------------------------------------------
 
-//===========================================================================
 void CPageRec::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
 
-	//{{AFX_DATA_MAP(CPageRec)
-	DDX_Check(pDX, IDC_AUTOFREQ,	m_bAutoFreq);
-	DDX_Radio(pDX, IDC_SAMPLEFREQ,	m_nSampleFreq);
-	DDX_Radio(pDX, IDC_MONO,		m_nStereo);
-	//}}AFX_DATA_MAP
+	DDX_Check(pDX, IDC_AUTOFREQ,	m_autoFrequency);
+	DDX_Radio(pDX, IDC_SAMPLEFREQ,	m_frequencyIndex);
+	DDX_Radio(pDX, IDC_MONO,		m_isStereo);
 }
+//---------------------------------------------------------------------------
 
-//===========================================================================
+BOOL CPageRec::PreCreateWindow(CREATESTRUCT& cs) 
+{
+	cs.dwExStyle |= WS_EX_CONTEXTHELP;
+	return CPropertyPage::PreCreateWindow(cs);
+}
+//---------------------------------------------------------------------------
+
+BOOL CPageRec::OnHelpInfo(HELPINFO* pHelpInfo) 
+{
+	GetParent()->SendMessage(WM_COMMAND, IDHELP, (LPARAM)GetSafeHwnd());
+	return CPropertyPage::OnHelpInfo(pHelpInfo);
+}
+//---------------------------------------------------------------------------
+
 BOOL CPageRec::OnInitDialog() 
 {
-	CPropertyPage::OnInitDialog();
+	const int configBitrate = RegistryConfig::GetOption(_T("File types\\MP3\\Bitrate"), 128);
+	const int configFreq = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
+	m_autoFrequency = RegistryConfig::GetOption(_T("File types\\MP3\\AutoFreq"), 1);
+	m_isStereo = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1);
 
-	// настраиваем параметры и положение слайдера выбора битрейта
-	CSliderCtrl* brs = (CSliderCtrl *)GetDlgItem(IDC_SLIDER1);
-	brs->SetRange(0, 10);
-	brs->SetLineSize(1);
-	brs->SetPageSize(1);
+	m_bitrateIndex = int(std::find(BITRATE, BITRATE+11, configBitrate) - BITRATE);
+	m_bitrateIndex = (m_bitrateIndex >= 0 && m_bitrateIndex < 11) ? m_bitrateIndex : 4;
+
+	m_frequencyIndex = int(std::find(FREQ, FREQ+4, configFreq) - FREQ);
+	m_frequencyIndex = (m_frequencyIndex >= 0 && m_frequencyIndex < 4) ? m_frequencyIndex : 2;
+
+	CPropertyPage::OnInitDialog(); //internally calls DoDataExchange
+
+	CSliderCtrl* bitrateSlider = static_cast<CSliderCtrl *>(GetDlgItem(IDC_SLIDER1));
+	bitrateSlider->SetRange(0, 10);
+	bitrateSlider->SetLineSize(1);
+	bitrateSlider->SetPageSize(1);
 	SendMessage(WM_HSCROLL, MAKEWPARAM(SB_THUMBPOSITION,
-		m_nBitrate), (long)brs->GetSafeHwnd());
+		m_bitrateIndex), (long)bitrateSlider->GetSafeHwnd());
 
-	// меняем вид выбора частоты в зависимости от флага Autofreq
 	OnAutofreq();
-	
 	return TRUE;
 }
+//---------------------------------------------------------------------------
 
-//===========================================================================
 void CPageRec::OnOK() 
 {
-	CSliderCtrl* brs = (CSliderCtrl *)GetDlgItem(IDC_SLIDER1);
+	CSliderCtrl* bitrateSlider = static_cast<CSliderCtrl *>(GetDlgItem(IDC_SLIDER1));
 
-	// меняем MP3 настройки
-	ASSERT(pconfig);
-	pconfig->nBitrate	= BITRATE[brs->GetPos()];
-	pconfig->nFreq		= FREQ[m_nSampleFreq];
-	pconfig->nStereo	= m_nStereo;
-	pconfig->bAutoFreq	= m_bAutoFreq;
+	RegistryConfig::SetOption(_T("File types\\MP3\\Bitrate"), BITRATE[bitrateSlider->GetPos()]);
+	RegistryConfig::SetOption(_T("File types\\MP3\\Freq"),    FREQ[m_frequencyIndex]);
+	RegistryConfig::SetOption(_T("File types\\MP3\\Stereo"),  m_isStereo);
+	RegistryConfig::SetOption(_T("File types\\MP3\\AutoFreq"),m_autoFrequency);
 
 	CPropertyPage::OnOK();
 }
+//---------------------------------------------------------------------------
 
-//===========================================================================
 void CPageRec::OnAutofreq() 
 {
-// Обработка выбора чекбокса Autofreq.
 // В зависимости от него меняем состояние рамки "Выбор частоты" и всех
 // (или только части) групбоксов, находящихся в ней.
 
 	// получаем указатели слайдера битрейта и рамки выбора частоты
-	CSliderCtrl* brs = (CSliderCtrl *)GetDlgItem(IDC_SLIDER1);
-	CStatic* group	 = (CStatic *)GetDlgItem(IDC_GROUP_FREQ);
+	CSliderCtrl* bitrateSlider = static_cast<CSliderCtrl *>(GetDlgItem(IDC_SLIDER1));
+	const int configBitrate = BITRATE[bitrateSlider->GetPos()];
 
-	int nChecked= IsDlgButtonChecked(IDC_AUTOFREQ);
-	if(nChecked)
+	if (IsDlgButtonChecked(IDC_AUTOFREQ))
 	{
-		EnableFreqSel(false, false);		// делаем все групбоксы disabled
-		//group->ModifyStyle(0, WS_DISABLED);	// делаем рамку тоже disabled :)
-		SetFreq(BITRATE[brs->GetPos()]);	// автоматич. устанавливаем частоту
+		EnableFreqSel(false, false);	// делаем все групбоксы disabled
+		SetFreq(configBitrate);			// автоматич. устанавливаем частоту
 	}
 	else
 	{
-		EnableFreqSel(BITRATE[brs->GetPos()]);	// меняем состояние отдельных groupbox
-		//group->ModifyStyle(WS_DISABLED, 0);	// убираем disabled c рамки
+		EnableFreqSel(configBitrate);	// меняем состояние отдельных groupbox
 	}
-	group->Invalidate(true);				// перерисовываем рамку
-}
 
-//===========================================================================
+	CStatic* frequencyGroup = static_cast<CStatic *>(GetDlgItem(IDC_GROUP_FREQ));
+	frequencyGroup->Invalidate(true);
+}
+//---------------------------------------------------------------------------
+
 void CPageRec::EnableFreqSel(int nBitBITRATE)
 {
 	int i;
@@ -148,8 +161,8 @@ void CPageRec::EnableFreqSel(int nBitBITRATE)
 			SetFreq(128);
 	}
 }
+//---------------------------------------------------------------------------
 
-//===========================================================================
 void CPageRec::EnableFreqSel(bool bmpg2freq, bool bmpg1freq)
 {
 	int i;
@@ -171,8 +184,8 @@ void CPageRec::EnableFreqSel(bool bmpg2freq, bool bmpg1freq)
 		btn->Invalidate(false);
 	}
 }
+//---------------------------------------------------------------------------
 
-//===========================================================================
 void CPageRec::SetFreq(int nBitBITRATE)
 {
 	int i = 0;
@@ -184,27 +197,27 @@ void CPageRec::SetFreq(int nBitBITRATE)
 		else
 			if(nBitBITRATE <= 64) i = 2;
 			else i = 3;
-	CButton* btn = (CButton *)GetDlgItem(nID[i]);
+	//CButton* btn = (CButton *)GetDlgItem(nID[i]);
 	for(int j = 0; j<4; j++)
 		if(j == i) CheckDlgButton(nID[i], BST_CHECKED);
 		else CheckDlgButton(nID[j], BST_UNCHECKED);
 }
+//---------------------------------------------------------------------------
 
-//===========================================================================
 void CPageRec::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
 {
-	char  szText[100];
-	char* szQuality[] = {/*8*/  "Phone-",   /*16*/ "Phone", /*24*/ "MW-EU",
-						 /*32*/ "AM radio", /*48*/ "MW-US", /*64*/ "Voice",
-						 /*96*/ "FM radio", /*128*/"Tape",  /*160*/"HiFi",
-						 /*192*/"near CD",       /*256*/"CD"};
+	const CString strQuality[] = {
+		 /*8*/_T("Phone-"),   /*16*/_T("Phone"), /*24*/_T("MW-EU"),
+		/*32*/_T("AM radio"), /*48*/_T("MW-US"), /*64*/_T("Voice"),
+		/*96*/_T("FM radio"), /*128*/_T("Tape"), /*160*/_T("HiFi"),
+		/*192*/_T("near CD"), /*256*/_T("CD")
+	};
 
 	// получаем указатели слайдера и строки описания битрейта
-	CStatic*     sbrd = (CStatic *)GetDlgItem(IDC_BITRATE_DESCR);
 	CSliderCtrl* brs  = (CSliderCtrl *)pScrollBar;
 
 	// обрабатываем сообщение от слайдера
-	int curpos	= brs->GetPos();
+	int curpos = brs->GetPos();
 	switch (nSBCode) {
 	case SB_THUMBPOSITION:
 	case SB_THUMBTRACK:
@@ -213,11 +226,12 @@ void CPageRec::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	}
 	brs->SetPos(curpos);
 
-	// отображаем строку, поясняющую качество записи при таком битрейте
-	float fMinMb = (float)BITRATE[curpos]/8 * 60 / 1024; // переводим в Mb
-	sprintf(szText, "1 minute record - %3.2f Mb, 1 hour - %3.1f Mb (%s quality);",
-		fMinMb, fMinMb*60, szQuality[curpos]);
-	sbrd->SetWindowText(szText);
+	const float fMinMb = (float)BITRATE[curpos]/8 * 60 / 1024; // переводим в Mb
+	CString bitrateInfo;
+	bitrateInfo.Format(_T("1 minute record - %3.2f Mb, 1 hour - %3.1f Mb (%s quality);"),
+		fMinMb, fMinMb*60, strQuality[curpos]);
+
+	GetDlgItem(IDC_BITRATE_DESCR)->SetWindowTextA(bitrateInfo);
 
 	// если флаг авточастоты включен...
 	if(IsDlgButtonChecked(IDC_AUTOFREQ))
@@ -231,38 +245,4 @@ void CPageRec::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	}
 	CPropertyPage::OnHScroll(nSBCode, nPos, pScrollBar);
 }
-
-//===========================================================================
-void CPageRec::SetConfig(CONF_DIAL_MP3* pconf_dial_mp3)
-{
-// Получить положение элементов диалога.
-// Вход: указатель на структуру настроек MP3.
-
-	// сохраняем указатель (пригодится при сохранении настроек)
-	pconfig	= pconf_dial_mp3;
-
-	// находим порядковый номер частоты (исп. для группы чекбоксов)
-	m_nSampleFreq = int(std::find(FREQ, FREQ+4, pconfig->nFreq) - FREQ);
-	m_nSampleFreq = (m_nSampleFreq < 4) ? m_nSampleFreq : 2;
-
-	m_nBitrate    = int(std::find(BITRATE, BITRATE+11, pconfig->nBitrate) - BITRATE);
-	m_nBitrate    = (m_nBitrate < 11) ? m_nBitrate : 4;
-
-	m_nStereo	  = pconfig->nStereo;
-	m_bAutoFreq	  = pconfig->bAutoFreq;
-
-}
-
-//===========================================================================
-BOOL CPageRec::PreCreateWindow(CREATESTRUCT& cs) 
-{
-	cs.dwExStyle |= WS_EX_CONTEXTHELP;
-	return CPropertyPage::PreCreateWindow(cs);
-}
-
-BOOL CPageRec::OnHelpInfo(HELPINFO* pHelpInfo) 
-{
-	// TODO: Add your message handler code here and/or call default
-	GetParent()->SendMessage(WM_COMMAND, IDHELP, (LPARAM)GetSafeHwnd());
-	return CPropertyPage::OnHelpInfo(pHelpInfo);
-}
+//---------------------------------------------------------------------------

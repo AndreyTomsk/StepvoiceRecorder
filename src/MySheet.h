@@ -33,7 +33,7 @@ public:
 	int			m_nPageIndex;
 
 	//void SetConfig(CONF_DIAL_GEN* pconfig);
-	void SetConfig(CONF_DIAL_MP3* pconfig);
+	//void SetConfig(CONF_DIAL_MP3* pconfig);
 	//void SetConfig(CONF_DIAL_SH*  pconfig);
 	//void SetConfig(CONF_DIAL_SH2* pconfig);
 	void SetConfig(CONF_DIAL_VAS* pconfig);

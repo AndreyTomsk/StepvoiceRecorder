@@ -1140,7 +1140,7 @@ void CMainFrame::OnOptCom()
 
 	optDlg.m_psh.dwFlags |= PSH_NOAPPLYNOW;
 	//optDlg.SetConfig( m_conf.GetConfDialGen() );
-	optDlg.SetConfig( m_conf.GetConfDialMp3() );
+	//optDlg.SetConfig( m_conf.GetConfDialMp3() );
 	//optDlg.SetConfig( m_conf.GetConfDialSH2() );
 	optDlg.SetConfig( m_conf.GetConfDialVAS() );
 	optDlg.SetConfig( m_conf.GetConfDialAN()  );
@@ -1153,7 +1153,7 @@ void CMainFrame::OnOptCom()
 
 	if (optDlg.DoModal() == IDOK)
 	{
-		m_conf.saveConfig();		
+		//m_conf.saveConfig();		
 		UpdateStatWindow();
 
 		// Checking tray options
