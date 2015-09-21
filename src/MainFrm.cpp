@@ -1248,7 +1248,7 @@ void CMainFrame::OnBtnOPEN()
 	dialogTitle.LoadString(IDS_FILENEWOPENTITLE);
 	filesFilter.LoadString(IDS_FILEFILTER);
 
-	CFileDialog openDialog(true, "mp3", generatedName, OFN_HIDEREADONLY | OFN_EXPLORER, filesFilter);
+	CFileDialog openDialog(true, _T("mp3"), generatedName, OFN_HIDEREADONLY | OFN_EXPLORER, filesFilter);
 	openDialog.m_ofn.lpstrTitle= dialogTitle;
 	openDialog.m_ofn.lpstrInitialDir = storeInOutputFolder ? outputFolder : lastFilePath;
 
