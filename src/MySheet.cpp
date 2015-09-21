@@ -77,10 +77,10 @@ END_MESSAGE_MAP()
 //}
 
 
-void CMySheet::SetConfig(CONF_DIAL_VAS* pconfig)
-{
-	m_pv.SetConfig( pconfig );
-}
+//void CMySheet::SetConfig(CONF_DIAL_VAS* pconfig)
+//{
+//	m_pv.SetConfig( pconfig );
+//}
 
 void CMySheet::SetConfig(CONF_DIAL_AN *pconfig)
 {

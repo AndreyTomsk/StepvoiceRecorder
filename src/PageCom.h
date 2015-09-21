@@ -6,9 +6,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "struct.h"
-
 /////////////////////////////////////////////////////////////////////////////
+
 class CPageCom : public CPropertyPage
 {
 	DECLARE_DYNCREATE(CPageCom)

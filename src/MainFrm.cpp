@@ -1142,7 +1142,7 @@ void CMainFrame::OnOptCom()
 	//optDlg.SetConfig( m_conf.GetConfDialGen() );
 	//optDlg.SetConfig( m_conf.GetConfDialMp3() );
 	//optDlg.SetConfig( m_conf.GetConfDialSH2() );
-	optDlg.SetConfig( m_conf.GetConfDialVAS() );
+	//optDlg.SetConfig( m_conf.GetConfDialVAS() );
 	optDlg.SetConfig( m_conf.GetConfDialAN()  );
 
 	m_pOptDialog = &optDlg;		// Saving dialog pointer for tray exit process
