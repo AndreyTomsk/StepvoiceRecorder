@@ -1,12 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////
-#if !defined(AFX_PAGEREC_H__C53484A7_1FFB_4740_A0FB_9F50E2C37386__INCLUDED_)
-#define AFX_PAGEREC_H__C53484A7_1FFB_4740_A0FB_9F50E2C37386__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-
-/////////////////////////////////////////////////////////////////////////////
 
 class CPageRec : public CPropertyPage
 {
@@ -36,6 +28,3 @@ private:
 	void EnableFreqSel(bool bmpg2freq, bool bmpg1freq);
 	void SetFreq(int nBitrate);
 };
-
-/////////////////////////////////////////////////////////////////////////////
-#endif

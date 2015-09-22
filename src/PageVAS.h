@@ -1,11 +1,4 @@
-#if !defined(AFX_PAGEVAS_H__47251355_3516_4D39_AC4E_FCE43C04C65A__INCLUDED_)
-#define AFX_PAGEVAS_H__47251355_3516_4D39_AC4E_FCE43C04C65A__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-
-/////////////////////////////////////////////////////////////////////////////
 
 class CPageVAS : public CPropertyPage
 {
@@ -32,6 +25,3 @@ protected:
 	afx_msg BOOL OnHelpInfo(HELPINFO* pHelpInfo);
 	DECLARE_MESSAGE_MAP()
 };
-
-/////////////////////////////////////////////////////////////////////////////
-#endif

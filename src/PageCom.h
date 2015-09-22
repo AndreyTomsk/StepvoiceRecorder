@@ -1,12 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////
-#if !defined(AFX_PAGECOM_H__189B5FC7_2E15_4E20_BA3C_82EADCA86D62__INCLUDED_)
-#define AFX_PAGECOM_H__189B5FC7_2E15_4E20_BA3C_82EADCA86D62__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-
-/////////////////////////////////////////////////////////////////////////////
 
 class CPageCom : public CPropertyPage
 {
@@ -35,5 +27,3 @@ protected:
 	afx_msg BOOL OnHelpInfo(HELPINFO* pHelpInfo);
 	DECLARE_MESSAGE_MAP()
 };
-
-#endif

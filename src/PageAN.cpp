@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "PageAN.h"
-#include "Config.h"
 #include "MainFrm_Helpers.h" //for FilterTemplate
 
 #ifdef _DEBUG

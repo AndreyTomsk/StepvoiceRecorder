@@ -1,7 +1,5 @@
 #include "stdafx.h"
-#include "MP3_Recorder.h"
 #include "PageCom.h"
-#include "Config.h"
 #include "ShellUtils.h"
 
 #ifdef _DEBUG

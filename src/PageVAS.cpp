@@ -1,7 +1,6 @@
 #include "stdafx.h"
-#include "mp3_recorder.h"
-#include "MainFrm.h"
 #include "PageVAS.h"
+#include "MainFrm.h" //for GetProgramDir. TODO: refactor.
 #include <algorithm>
 #include <htmlhelp.h>
 
