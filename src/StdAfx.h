@@ -26,6 +26,8 @@
 
 #include "asprotect.h"
 #include "protect.h"
+#include "resource.h"
+#include "Config.h"
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
