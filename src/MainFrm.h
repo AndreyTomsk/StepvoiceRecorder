@@ -179,7 +179,6 @@ protected:
 	//}}AFX_VIRTUAL
 
 protected:
-	//void ProcessVAS(bool bVASResult);
 	void MonitoringStop();
 	bool MonitoringStart();
 	bool MonitoringRestart();

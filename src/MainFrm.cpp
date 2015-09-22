@@ -13,7 +13,6 @@ static char THIS_FILE[] = __FILE__;
 #include "MainFrm.h"
 #include "MainFrm_Helpers.h"
 #include "common.h"
-#include "system.h"
 #include "BASS_Functions.h"
 #include "RecordingSourceDlg.h"
 #include <basswasapi.h>
@@ -210,103 +209,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_MESSAGE(WM_RECSOURCE_DLGCLOSED, OnRecSourceDialogClosed)
 	ON_MESSAGE(WM_RECSOURCE_CHANGED, OnRecSourceChanged)
 END_MESSAGE_MAP()
-/*
-////////////////////////////////////////////////////////////////////////////////
-BOOL CALLBACK CMainFrame::MonitoringProc(HRECORD , void* a_buffer,
-										DWORD a_length, void* a_user)
-{
-	CMainFrame* l_main_window = (CMainFrame *)a_user;
-	ASSERT(l_main_window);
-
-	// Updating monitoring buffer for StereoMix levels in Vista (can't get it
-	// from bass lib, because it doesn't show sound after DSP).
-	if (l_main_window->m_visualization_data)
-		l_main_window->m_visualization_data->SetSourceBuffer((float*)a_buffer, a_length);
-
-	return TRUE;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-BOOL CALLBACK CMainFrame::NewRecordProc(HRECORD a_handle, void* a_buffer,
-										DWORD a_length, void* a_user)
-{
-	static char pBufOut[128 * 1024] = {0}; //128k buffer
 
-	CMainFrame* l_main_window = (CMainFrame *)a_user;
-	ASSERT(l_main_window);
-
-	VisualizationData* l_vis_data = l_main_window->m_visualization_data;
-	if (l_vis_data)
-		l_vis_data->SetSourceBuffer((float*)a_buffer, a_length);
-
-	if (l_main_window->m_vas.IsRunning())
-	{
-		if (l_vis_data)
-		{
-			double l_peak_float = max(l_vis_data->GetPeaksLevel(0),
-				l_vis_data->GetPeaksLevel(1));
-			l_main_window->m_vas.ProcessThreshold(20 * log10(l_peak_float));
-		}
-		else
-		{
-			l_main_window->m_vas.ProcessThreshold(Bass::GetMaxPeakDB(a_handle));
-		}
-		if (l_main_window->m_vas.CheckVAS()) 
-		{
-			l_main_window->ProcessVAS(true); 
-			return TRUE;
-		}
-		else
-		{
-			l_main_window->ProcessVAS(false);
-		}
-	}
-
-	try
-	{
-		int l_encoded_bytes_count = 0;
-		bool result = l_main_window->m_pEncoder->EncodeChunkFloat(
-			(float*)a_buffer, a_length / sizeof(float), pBufOut, l_encoded_bytes_count);
-		if (!result)
-		{
-			//TODO: logging, not all data were encoded.
-		}
-
-		l_main_window->m_record_file.Write(pBufOut, l_encoded_bytes_count);
-	}
-	catch (CException *e)
-	{
-		// Possible, the disk is full, etc.
-		e->ReportError();
-		e->Delete();
-		l_main_window->PostMessage(WM_COMMAND, IDB_BTNSTOP,
-			LONG(l_main_window->m_BtnSTOP.m_hWnd));
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Bass WASAPI routine
-
-//!!!test
-DWORD CALLBACK CMainFrame::WasapiRecordingProc(void *buffer, DWORD length, void *user)
-{
-	OutputDebugString(__FUNCTION__"\n");
-
-	CMainFrame* l_main_window = static_cast<CMainFrame *>(user);
-	ASSERT(l_main_window);
-
-	// Updating monitoring buffer for StereoMix levels in Vista (can't get it
-	// from bass lib, because it doesn't show sound after DSP).
-	if (l_main_window->m_visualization_data)
-		l_main_window->m_visualization_data->SetSourceBuffer((float*)buffer, length);
-
-	return 1; //0 stops a device
-}
-//------------------------------------------------------------------------------
-*/
 float CMainFrame::PeaksCallback_Wasapi(int channel, void* userData)
 {
 	IWasapiRecorder* recorder = static_cast<IWasapiRecorder*>(userData);
@@ -1684,7 +1589,7 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 		case IDW_STAT:			nID = IDS_TT_STATWND; break;
 		case IDB_MIX_SEL:		nID = IDS_TT_MIXSEL; break;
 		case IDS_SLIDERVOL:		nID = IDS_TT_VOLBAR; break;
-		case IDB_BTN_VAS:		nID = IDS_TT_VAS;		break;
+		case IDB_BTN_VAS:		nID = IDS_TT_VAS;	break;
 		case IDB_BTN_MON:		nID = IDS_TT_MONITORING;break;
 		default:
 			return true;
@@ -2314,10 +2219,8 @@ void CMainFrame::MonitoringStop()
 	}
 	*/
 }
+//------------------------------------------------------------------------------
 
-////////////////////////////////////////////////////////////////////////////////
-// VAS 
-////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnVas()
 {
 #ifndef _DEBUG
@@ -2339,58 +2242,8 @@ void CMainFrame::OnBtnVas()
 		m_recordingChain.GetFilter<VasFilter>()->SetTreshold(vasThresholdDB);
 		m_recordingChain.GetFilter<VasFilter>()->SetDuration(vasDurationMS);
 	}
-
-	/*
-	CONF_DIAL_VAS* pConfig = m_conf.GetConfDialVAS();
-
-	if(!m_vas.IsRunning())
-	{
-		m_vas.InitVAS(pConfig->nThreshold, pConfig->nWaitTime);
-		m_StatWnd.m_btnVas.SetState(BTN_PRESSED);
-		m_GraphWnd.ShowVASMark(true, pConfig->nThreshold);
-	}
-	else
-	{
-		m_vas.StopVAS();
-		m_StatWnd.m_btnVas.SetState(BTN_NORMAL);
-		if(m_nState == RECORD_STATE)
-			m_TrayIcon.SetIcon(IDI_TRAY_REC);
-		
-		m_GraphWnd.ShowVASMark(false);
-	}
-	pConfig->bEnable = m_vas.IsRunning();
-	*/
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/*
-void CMainFrame::ProcessVAS(bool bVASResult)
-{
-	static bool bOldVASResult = false;
-
-	if (bVASResult == true)
-	{
-		switch (m_conf.GetConfDialVAS()->nAction)
-		{
-		case 0:
-			m_IcoWnd.SetNewIcon(ICON_RECVAS);
-			m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
-			break;
-		case 1:
-			this->PostMessage(WM_COMMAND, IDB_BTNSTOP,
-				LONG(this->m_BtnSTOP.m_hWnd));
-			break;
-		}
-	}
-	else if ((bVASResult == false) && (bOldVASResult == true))
-	{	// Going out of VAS area ?
-		m_IcoWnd.SetNewIcon(ICON_REC);
-		m_TrayIcon.SetIcon(IDI_TRAY_REC);
-	}
-
-	bOldVASResult = bVASResult;
-}
-*/
 ////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::UpdateButtonState(UINT nID)
 {

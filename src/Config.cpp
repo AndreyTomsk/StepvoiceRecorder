@@ -77,11 +77,6 @@ void CConfig::RegisterRead()
 	conf_dial_mp3.nStereo	= App->GetProfileInt( "File types\\MP3", "Stereo", 1 );
 	conf_dial_mp3.bAutoFreq	= App->GetProfileInt( "File types\\MP3", "AutoFreq", 1 );
 
-	conf_dial_vas.bEnable	= App->GetProfileInt( "Tools\\VAS", "Enable", 0 );
-	conf_dial_vas.nThreshold= App->GetProfileInt( "Tools\\VAS", "Threshold", -30 );
-	conf_dial_vas.nWaitTime = App->GetProfileInt( "Tools\\VAS", "WaitTime", 2000 );
-	conf_dial_vas.nAction	= App->GetProfileInt( "Tools\\VAS", "Action", 0 );
-
 	conf_dial_an.strAutoName = App->GetProfileString( "Autoname", "Current template", "%b%d_%H%M" );
 	conf_dial_an.strTDefault = App->GetProfileString( "Autoname", "Default template", "%b%d_%H%M" );
 }
@@ -130,11 +125,6 @@ bool CConfig::RegisterWrite()
 	App->WriteProfileInt( "File types\\MP3", "Stereo",	conf_dial_mp3.nStereo );
 	App->WriteProfileInt( "File types\\MP3", "AutoFreq",conf_dial_mp3.bAutoFreq );
 
-	App->WriteProfileInt( "Tools\\VAS", "Enable",	 conf_dial_vas.bEnable );
-	App->WriteProfileInt( "Tools\\VAS", "Threshold", conf_dial_vas.nThreshold );
-	App->WriteProfileInt( "Tools\\VAS", "WaitTime",  conf_dial_vas.nWaitTime );
-	App->WriteProfileInt( "Tools\\VAS", "Action",    conf_dial_vas.nAction );
-	
 	App->WriteProfileString( "Autoname", "Current template", conf_dial_an.strAutoName );
 	int b = App->WriteProfileString( "Autoname", "Default template", conf_dial_an.strTDefault );
 	//int b = App->WriteProfileString( "Autoname", "Default template", "%b%d_%H%M" );

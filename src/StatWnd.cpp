@@ -100,8 +100,6 @@ int CStatWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{	// дизаблим кнопки
 		m_btnVas.Enable(false);
 		m_btnMon.Enable(false);
-		//m_btnVas.ModifyStyle(WS_VISIBLE, WS_DISABLED);
-		//m_btnMon.ModifyStyle(WS_VISIBLE, WS_DISABLED);
 	}
 #endif
 	
@@ -226,10 +224,6 @@ void CStatWnd::OnRButtonUp(UINT nFlags, CPoint point)
 	GetParent()->SendMessage(WM_RBUTTONUP, 0, MAKELPARAM(point.x, point.y));
 	CWnd::OnRButtonUp(nFlags, point);
 }
-
-//===========================================================================
-// КНОПКИ (SHR, VAS, M)
-//===========================================================================
 
 /////////////////////////////////////////////////////////////////////////////
 void CStatWnd::OnBtnMon()

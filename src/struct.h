@@ -89,14 +89,6 @@ typedef struct
 	int bAutoFreq;	// Автоустановка частоты в диалоге
 } CONF_DIAL_MP3;
 
-// Настройки диалога "VAS"
-typedef struct
-{	int bEnable;	// VAS включен ?
-	int nThreshold;	// Пороговый уровень
-	int nWaitTime;	// Время ожидания срабатывания
-	int nAction;	// Действие на срабатывание VAS
-} CONF_DIAL_VAS;
-
 // Настройки диалога "File Names"
 typedef struct
 {	CString strAutoName;	// Шаблон имени файла

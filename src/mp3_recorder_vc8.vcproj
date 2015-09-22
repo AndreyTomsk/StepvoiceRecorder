@@ -885,28 +885,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="system.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="SystemTray.cpp"
 				>
 				<FileConfiguration
@@ -1019,28 +997,6 @@
 			<File
 				RelativePath=".\Utility.cpp"
 				>
-			</File>
-			<File
-				RelativePath="VAS.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\VASFilter.cpp"
@@ -1296,10 +1252,6 @@
 				>
 			</File>
 			<File
-				RelativePath="system.h"
-				>
-			</File>
-			<File
 				RelativePath="SystemTray.h"
 				>
 			</File>
@@ -1321,10 +1273,6 @@
 			</File>
 			<File
 				RelativePath=".\Utility.h"
-				>
-			</File>
-			<File
-				RelativePath="VAS.h"
 				>
 			</File>
 			<File
