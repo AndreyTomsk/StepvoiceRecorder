@@ -1,26 +1,14 @@
-////////////////////////////////////////////////////////////////////////////////
-// MP3_Recorder.h : main header file for the MP3_RECORDER application
-//
-#if !defined(AFX_MP3_RECORDER_H__837D6DC4_C6B3_11D7_BC33_444553540000__INCLUDED_)
-#define AFX_MP3_RECORDER_H__837D6DC4_C6B3_11D7_BC33_444553540000__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-
 #ifndef __AFXWIN_H__
 	#error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "resource.h" // main symbols
-#include "config.h" //for RegistryConfig class, must make it friend to access CWinApp->SetRegistryKey
+/////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
 class CMP3_RecorderApp : public CWinApp
 {
 public:
 	CMP3_RecorderApp();
-	CString GetProgramDir();
 	bool IsVistaOS() { return m_is_vista; }
 
 	// ClassWizard generated virtual function overrides
@@ -55,8 +43,3 @@ private:
 public:
 	virtual BOOL OnIdle(LONG lCount);
 };
-
-////////////////////////////////////////////////////////////////////////////////
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert add. declarations before the previous line.
-#endif //AFX_MP3_RECORDER_H__837D6DC4_C6B3_11D7_BC33_444553540000__INCLUDED_)

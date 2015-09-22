@@ -7,7 +7,9 @@ namespace ShellUtils
 	//Returns a path to known windows folders. Check:
 	//https://msdn.microsoft.com/en-us/library/windows/desktop/bb762494%28v=vs.85%29.aspx
 	//for a list of known folder ids (CSIDL_MYDOCUMENTS, etc.).
-	CString GetSpecialFolderPath(int csidl);
+	CString GetSpecialFolder(int csidl);
+
+	CString GetProgramFolder();
 
 	//Displays a "select folder" dialog.
 	bool DialogPickupFolder(CString& folderPath); //[in/out]

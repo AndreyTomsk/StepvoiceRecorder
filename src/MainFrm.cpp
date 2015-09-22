@@ -27,6 +27,7 @@ static char THIS_FILE[] = __FILE__;
 #include "FilterFileWriterWAV.h"
 #include "Debug.h"
 #include "MySheet.h"
+#include "ShellUtils.h"
 
 HSTREAM m_bassPlaybackHandle = 0;   // Playback
 //HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
@@ -380,7 +381,6 @@ CMainFrame::CMainFrame()
 	m_title		= NULL;
 
 	m_nState    = STOP_STATE;
-	m_strDir    = ((CMP3_RecorderApp*)AfxGetApp())->GetProgramDir();
 
 	//m_pMainFrame = this;
 	m_bAutoMenuEnable = false;
@@ -528,8 +528,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	m_title = new CTitleText(this->GetSafeHwnd());
-
-	m_strDir = GetProgramDir();
 
 	// Processing loader options
 	/*

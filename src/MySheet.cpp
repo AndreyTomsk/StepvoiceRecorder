@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "MySheet.h"
-
-#include "MainFrm.h" //for GetProgramDir. TODO: refactor.
+#include "ShellUtils.h"
 #include <htmlhelp.h>
 
 #ifdef _DEBUG
@@ -40,8 +39,7 @@ BOOL CMySheet::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	if (LOWORD(wParam == IDHELP))
 	{
-		CMainFrame* pFrame = (CMainFrame *)GetParent();
-		CString strFile = pFrame->GetProgramDir();
+		CString strFile = ShellUtils::GetProgramFolder();
 		strFile += _T("\\svrec.chm::/how_to_use/preferences.html");
 		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 	}

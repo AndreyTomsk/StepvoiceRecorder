@@ -10,6 +10,7 @@
 
 #include "UrlWnd.h"
 #include "version.h"
+#include "ShellUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -218,18 +219,6 @@ CMP3_RecorderApp::CMP3_RecorderApp()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-CString CMP3_RecorderApp::GetProgramDir()
-{
-	CString l_exe_name;
-
-	GetModuleFileName(AfxGetInstanceHandle(),
-		l_exe_name.GetBuffer(MAX_PATH), MAX_PATH);
-	l_exe_name.ReleaseBuffer();
-
-	return l_exe_name.Left(l_exe_name.ReverseFind(_T('\\')));
-}
-
-////////////////////////////////////////////////////////////////////////////////
 static const UINT UWM_ARE_YOU_ME = ::RegisterWindowMessage(
 	_T("UWM_ARE_YOU_ME-{B87861B4-8BE0-4dc7-A952-E8FFEEF48FD3}"));
 
@@ -401,7 +390,7 @@ void CMP3_RecorderApp::OnHelpDoc()
 {
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
 
-	CString l_help_file = GetProgramDir() + _T("\\svrec.chm::/stepvoice_recorder/overview.html");
+	CString l_help_file = ShellUtils::GetProgramFolder() + _T("\\svrec.chm::/stepvoice_recorder/overview.html");
 	::HtmlHelp(GetDesktopWindow(), l_help_file, HH_DISPLAY_TOPIC, NULL);
 }
 
@@ -409,7 +398,7 @@ void CMP3_RecorderApp::OnHelpHowto()
 {
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
 
-	CString l_help_file = GetProgramDir() + _T("\\svrec.chm::/stepvoice_recorder/how_to_register.html");
+	CString l_help_file = ShellUtils::GetProgramFolder() + _T("\\svrec.chm::/stepvoice_recorder/how_to_register.html");
 	::HtmlHelp(GetDesktopWindow(), l_help_file, HH_DISPLAY_TOPIC, NULL);
 }
 

@@ -2,9 +2,9 @@
 //
 
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "PageSH2.h"
 #include "MainFrm.h"
+#include "ShellUtils.h"
 #include <htmlhelp.h>
 
 #ifdef _DEBUG
@@ -425,9 +425,8 @@ BOOL CPageSH2::OnCommand(WPARAM wParam, LPARAM lParam)
 	if(nID == IDC_DLG_TRIALNOTE && (nCode == BN_CLICKED || nCode == BN_DOUBLECLICKED))
 	{
 		// отображаем "How To Order" страницу
-		CMainFrame* pFrame = (CMainFrame *)AfxGetMainWnd();
-		CString strFile = pFrame->GetProgramDir();
-		strFile += "\\svrec.chm::/stepvoice_recorder/how_to_register.html";
+		CString strFile = ShellUtils::GetProgramFolder();
+		strFile += _T("\\svrec.chm::/stepvoice_recorder/how_to_register.html");
 		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 	}
 	

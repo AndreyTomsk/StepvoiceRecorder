@@ -12,11 +12,21 @@ namespace ShellUtils
 {
 //---------------------------------------------------------------------------
 
-CString GetSpecialFolderPath(int csidl)
+CString GetSpecialFolder(int csidl)
 {
 	TCHAR szBuffer[MAX_PATH*2] = {0};
 	SHGetSpecialFolderPath(NULL, szBuffer, csidl, FALSE);
 	return CString(szBuffer);
+}
+//---------------------------------------------------------------------------
+
+CString GetProgramFolder()
+{
+	TCHAR exeName[MAX_PATH*2] = {0};
+	GetModuleFileName(AfxGetInstanceHandle(), exeName, MAX_PATH*2);
+
+	CString programPath(exeName);
+	return programPath.Left(programPath.ReverseFind(_T('\\')));
 }
 //---------------------------------------------------------------------------
 

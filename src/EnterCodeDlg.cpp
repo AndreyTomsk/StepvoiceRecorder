@@ -1,7 +1,6 @@
 // EnterCodeDlg.cpp : implementation file
 //
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "EnterCodeDlg.h"
 #include "HtmlHelp.h"
 

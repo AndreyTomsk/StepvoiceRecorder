@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "mp3_recorder.h" //for GetProgramDir
 #include "Encoder_MP3.h"
+#include "ShellUtils.h"
 #include "common.h"
 
 #ifdef _DEBUG
@@ -41,8 +41,7 @@ CEncoder_MP3::~CEncoder_MP3()
   
 void CEncoder_MP3::LoadLameLibrary()
 {
-	const CString appDir = ((CMP3_RecorderApp*)AfxGetApp())->GetProgramDir();
-	const CString lameFullPath = appDir + _T("\\lame_enc.dll");
+	const CString lameFullPath = ShellUtils::GetProgramFolder() + _T("\\lame_enc.dll");
 
 	m_hDll = ::LoadLibrary(lameFullPath);
 	if (m_hDll == NULL)

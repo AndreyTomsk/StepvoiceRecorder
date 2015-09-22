@@ -110,7 +110,6 @@ class CMainFrame : public CFrameWnd
 	CTitleText*		m_title;
 	//CFile			m_record_file;
 
-	CString m_strDir;
 	//int m_bMonitoringBtn;
 
 	ProgramState	m_nState;
@@ -157,7 +156,6 @@ public:
 	void OnBtnMonitoring();
 	void OnBtnVas();
 	BOOL ShowWindow();
-	CString GetProgramDir() { return m_strDir; }
 	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
 
 protected:

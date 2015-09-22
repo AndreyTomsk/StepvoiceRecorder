@@ -89,7 +89,7 @@ BOOL CPageCom::OnHelpInfo(HELPINFO* pHelpInfo)
 
 BOOL CPageCom::OnInitDialog()
 {
-	const CString defaultOutputFolder = ShellUtils::GetSpecialFolderPath(CSIDL_DESKTOP);
+	const CString defaultOutputFolder = ShellUtils::GetSpecialFolder(CSIDL_DESKTOP);
 
 	m_outputFolder = RegistryConfig::GetOption(_T("General\\OutputFolder"), defaultOutputFolder);
 	m_storeInOutputFolder = RegistryConfig::GetOption(_T("General\\StoreInOutputFolder"), FALSE);
