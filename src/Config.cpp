@@ -77,23 +77,6 @@ void CConfig::RegisterRead()
 	conf_dial_mp3.nStereo	= App->GetProfileInt( "File types\\MP3", "Stereo", 1 );
 	conf_dial_mp3.bAutoFreq	= App->GetProfileInt( "File types\\MP3", "AutoFreq", 1 );
 
-	conf_dial_sh2.bIsEnabled= App->GetProfileInt( "Tools\\Scheduler", "Enable",	0 );
-	conf_dial_sh2.t_start.h	= App->GetProfileInt( "Tools\\Scheduler", "StartH",	0 );
-	conf_dial_sh2.t_start.m	= App->GetProfileInt( "Tools\\Scheduler", "StartM",	0 );
-	conf_dial_sh2.t_start.s	= App->GetProfileInt( "Tools\\Scheduler", "StartS",	0 );
-	conf_dial_sh2.t_stop.h	= App->GetProfileInt( "Tools\\Scheduler", "StopH", 1 );
-	conf_dial_sh2.t_stop.m	= App->GetProfileInt( "Tools\\Scheduler", "StopM", 30);
-	conf_dial_sh2.t_stop.s	= App->GetProfileInt( "Tools\\Scheduler", "StopS", 0 );
-	conf_dial_sh2.t_rec.h	= App->GetProfileInt( "Tools\\Scheduler", "RecH", 0 );
-	conf_dial_sh2.t_rec.m	= App->GetProfileInt( "Tools\\Scheduler", "RecM", 5 );
-	conf_dial_sh2.t_rec.s	= App->GetProfileInt( "Tools\\Scheduler", "RecS", 0 );
-	conf_dial_sh2.bSchedStart = App->GetProfileInt( "Tools\\Scheduler", "SchedStart", 0 );
-	conf_dial_sh2.bRunExternal= App->GetProfileInt( "Tools\\Scheduler", "RunExternal", 0 );
-	conf_dial_sh2.nStopByID	  = App->GetProfileInt( "Tools\\Scheduler", "StopByID",	0 );
-	conf_dial_sh2.strFileName = App->GetProfileString( "Tools\\Scheduler", "FileToRun", "" );
-	conf_dial_sh2.action.shutDown = App->GetProfileInt( "Tools\\Scheduler", "ActShutDown", 0 );
-	conf_dial_sh2.action.closeAll = App->GetProfileInt( "Tools\\Scheduler", "ActCloseAll", 0 );
-
 	conf_dial_vas.bEnable	= App->GetProfileInt( "Tools\\VAS", "Enable", 0 );
 	conf_dial_vas.nThreshold= App->GetProfileInt( "Tools\\VAS", "Threshold", -30 );
 	conf_dial_vas.nWaitTime = App->GetProfileInt( "Tools\\VAS", "WaitTime", 2000 );
@@ -146,23 +129,6 @@ bool CConfig::RegisterWrite()
 	App->WriteProfileInt( "File types\\MP3", "Freq",	conf_dial_mp3.nFreq );
 	App->WriteProfileInt( "File types\\MP3", "Stereo",	conf_dial_mp3.nStereo );
 	App->WriteProfileInt( "File types\\MP3", "AutoFreq",conf_dial_mp3.bAutoFreq );
-
-	App->WriteProfileInt( "Tools\\Scheduler", "Enable",		 conf_dial_sh2.bIsEnabled );
-	App->WriteProfileInt( "Tools\\Scheduler", "StartH",		 conf_dial_sh2.t_start.h );
-	App->WriteProfileInt( "Tools\\Scheduler", "StartM",		 conf_dial_sh2.t_start.m );
-	App->WriteProfileInt( "Tools\\Scheduler", "StartS",		 conf_dial_sh2.t_start.s );
-	App->WriteProfileInt( "Tools\\Scheduler", "StopH",		 conf_dial_sh2.t_stop.h );
-	App->WriteProfileInt( "Tools\\Scheduler", "StopM",		 conf_dial_sh2.t_stop.m );
-	App->WriteProfileInt( "Tools\\Scheduler", "StopS",		 conf_dial_sh2.t_stop.s );
-	App->WriteProfileInt( "Tools\\Scheduler", "RecH",		 conf_dial_sh2.t_rec.h );
-	App->WriteProfileInt( "Tools\\Scheduler", "RecM",		 conf_dial_sh2.t_rec.m );
-	App->WriteProfileInt( "Tools\\Scheduler", "RecS",		 conf_dial_sh2.t_rec.s );
-	App->WriteProfileInt( "Tools\\Scheduler", "SchedStart",	 conf_dial_sh2.bSchedStart );
-	App->WriteProfileInt( "Tools\\Scheduler", "RunExternal", conf_dial_sh2.bRunExternal );
-	App->WriteProfileString( "Tools\\Scheduler","FileToRun", conf_dial_sh2.strFileName );
-	App->WriteProfileInt( "Tools\\Scheduler", "StopByID",	 conf_dial_sh2.nStopByID );
-	App->WriteProfileInt( "Tools\\Scheduler", "ActShutDown", conf_dial_sh2.action.shutDown );
-	App->WriteProfileInt( "Tools\\Scheduler", "ActCloseAll", conf_dial_sh2.action.closeAll );
 
 	App->WriteProfileInt( "Tools\\VAS", "Enable",	 conf_dial_vas.bEnable );
 	App->WriteProfileInt( "Tools\\VAS", "Threshold", conf_dial_vas.nThreshold );

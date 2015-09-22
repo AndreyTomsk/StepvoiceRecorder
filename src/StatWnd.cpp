@@ -20,7 +20,6 @@ BEGIN_MESSAGE_MAP(CStatWnd, CWnd)
 	ON_WM_LBUTTONDBLCLK()
 	ON_WM_RBUTTONUP()
 	//}}AFX_MSG_MAP
-	ON_BN_CLICKED(IDB_BTN_SCHED, OnBtnSched)
 	ON_BN_CLICKED(IDB_BTN_MON, OnBtnMon)
 	ON_BN_CLICKED(IDB_BTN_VAS, OnBtnVas)
 	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTW, 0, 0xFFFF, OnToolTipNotify)
@@ -82,16 +81,10 @@ int CStatWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// ***** Создаем кнопки *****
 	CBitmap btnBmp;
-	//CImageList schedIL, vasIL, monIL;
 	CImageList vasIL, monIL;
 
-	//schedIL.Create(42, 11, ILC_COLOR24, 0, 6);
 	vasIL.Create(42, 11, ILC_COLOR24, 0, 6);
 	monIL.Create(&vasIL);
-
-	//btnBmp.LoadBitmap(IDB_BTN_SCHED);
-	//schedIL.Add(&btnBmp, RGB(255, 0, 255));
-	//btnBmp.DeleteObject();
 
 	btnBmp.LoadBitmap(IDB_BTN_VAS);
 	vasIL.Add(&btnBmp, RGB(255, 0, 255));
@@ -100,17 +93,14 @@ int CStatWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	btnBmp.LoadBitmap(IDB_BTN_MON);
 	monIL.Add(&btnBmp, RGB(255, 0, 255));
 
-	//m_btnSched.Create(&schedIL, CPoint(0, 3), this, IDB_BTN_SCHED);
 	m_btnVas.Create(&vasIL, CPoint(88, 3), this, IDB_BTN_VAS);
 	m_btnMon.Create(&monIL, CPoint(132, 3), this, IDB_BTN_MON);
 
 #ifndef _DEBUG
 	if(fsProtect_GetDaysLeft() <= 0)
 	{	// дизаблим кнопки
-		//m_btnSched.Enable(false);
 		m_btnVas.Enable(false);
 		m_btnMon.Enable(false);
-		//m_btnSched.ModifyStyle(WS_VISIBLE, WS_DISABLED);
 		//m_btnVas.ModifyStyle(WS_VISIBLE, WS_DISABLED);
 		//m_btnMon.ModifyStyle(WS_VISIBLE, WS_DISABLED);
 	}
@@ -241,19 +231,6 @@ void CStatWnd::OnRButtonUp(UINT nFlags, CPoint point)
 //===========================================================================
 // КНОПКИ (SHR, VAS, M)
 //===========================================================================
-/////////////////////////////////////////////////////////////////////////////
-void CStatWnd::OnBtnSched()
-{
-#ifndef _DEBUG
-	// дизаблим после завершения триального периода
-	if(fsProtect_GetDaysLeft() <= 0)
-		return;
-#endif
-
-	// вызываем функцию обработки нажатия
-	//CMainFrame* pMainWnd = (CMainFrame *)GetParent();
-	//pMainWnd->OnBtnSched();
-}
 
 /////////////////////////////////////////////////////////////////////////////
 void CStatWnd::OnBtnMon()

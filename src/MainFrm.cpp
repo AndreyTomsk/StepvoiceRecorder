@@ -575,16 +575,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//	OnBtnMonitoring();
 	//}
 
-	/*
-	// Setting up Scheduler
-	m_sched2.SetCallbackFunc(Scheduler2Function);
-	if (m_conf.GetConfDialSH2()->bIsEnabled)
-	{
-		m_conf.GetConfDialSH2()->bIsEnabled = false;
-		OnBtnSched();
-	}
-	*/
-
 	// Setting up Voice Activation System
 	const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
 	m_StatWnd.m_btnVas.SetCheck(vasEnabled);
@@ -1391,122 +1381,6 @@ void CMainFrame::OnBtnREC()
 		SetTimer(2, 1000, NULL);
 		m_nState = RECORD_STATE;
 	}
-
-
-	/*
-	// Data for the scheduler start
-	bool bIsSchedEnabled= m_conf.GetConfDialSH2()->bIsEnabled  != 0;
-	bool bSchedStart	= m_conf.GetConfDialSH2()->bSchedStart != 0;
-	SHR_TIME* ptRec		= &m_conf.GetConfDialSH2()->t_rec;
-	SHR_TIME* ptStop	= &m_conf.GetConfDialSH2()->t_stop;
-
-	if (m_record_file.m_hFile == CFile::hFileNull)
-	{
-		OnBtnOPEN();
-		if (m_record_file.m_hFile == CFile::hFileNull)
-			return;
-	}
-
-	MonitoringStop();
-
-	if (!g_record_handle)
-	{
-		if (!BASS_RecordInit(m_conf.GetConfDialGen()->nRecDevice)) //default device
-			return;
-
-		int l_bitrate = m_conf.GetConfDialMp3()->nBitrate;
-		int l_frequency = m_conf.GetConfDialMp3()->nFreq;
-		int l_channels = m_conf.GetConfDialMp3()->nStereo + 1;
-
-		int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
-		BASS_Init(deviceID <= 0 ? -1 : deviceID, l_frequency, 0, GetSafeHwnd(), NULL);
-
-		::OutputDebugString(__FUNCTION__ " ::6");
-		try
-		{
-			SAFE_DELETE(m_pEncoder);
-			m_pEncoder = new CEncoder_MP3(l_bitrate, l_frequency, l_channels);
-		}
-		catch (CString& e)
-		{
-			SAFE_DELETE(m_pEncoder);
-			BASS_RecordFree();
-			AfxMessageBox(e, MB_OK | MB_ICONSTOP);
-			return;
-		}
-
-		SAFE_DELETE(m_visualization_data);
-		m_visualization_data = new VisualizationData(l_frequency, l_channels);
-
-		g_record_handle = BASS_RecordStart(l_frequency, l_channels,
-			MAKELONG(BASS_RECORD_PAUSE|BASS_SAMPLE_FLOAT, 25), (RECORDPROC *)&NewRecordProc, this);
-		if (FALSE == g_record_handle)
-		{
-			SAFE_DELETE(m_pEncoder);
-			g_record_handle = 0;
-			return;
-		}
-
-		// Creating the Loopback stream
-		//int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
-		//BASS_Init(deviceID <= 0 ? -1 : deviceID, l_frequency, 0, GetSafeHwnd(), NULL);
-
-		SAFE_DELETE(m_vista_loopback);
-		m_vista_loopback = new BassVistaLoopback(m_conf.GetConfDialGen()->nPlayDevice);
-		HSTREAM l_stream_handle = m_vista_loopback->GetLoopbackStream();
-
-		ASSERT(g_loopback_handle == 0);
-		g_loopback_handle = BASS_Mixer_StreamCreate(l_frequency, l_channels,
-			BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE);
-		ASSERT(g_loopback_handle);
-
-		BASS_Mixer_StreamAddChannel(g_loopback_handle, l_stream_handle,
-			BASS_MIXER_DOWNMIX);
-
-		if (m_recording_mixer == E_REC_LOOPBACK)
-		{
-			m_mute_hdsp = BASS_ChannelSetDSP(g_record_handle,
-				Bass::StreamMuteDSP, NULL, 0xFF); //higher priority called 1st
-		}
-		if (m_recording_mixer == E_REC_LOOPBACK || m_recording_mixer == E_REC_LOOPBACK_MIX)
-		{
-			m_loopback_hdsp = BASS_ChannelSetDSP(g_record_handle,
-				Bass::LoopbackStreamDSP, &g_loopback_handle, 0xFE);
-		}
-	}
-
-	const DWORD CHANNEL_STATE = BASS_ChannelIsActive(g_record_handle);
-	switch (CHANNEL_STATE)
-	{
-	case BASS_ACTIVE_PLAYING:
-		BASS_ChannelPause(g_record_handle);
-		KillTimer(2);
-		m_nState = PAUSEREC_STATE;
-		break;
-
-	case BASS_ACTIVE_PAUSED:
-	case BASS_ACTIVE_STOPPED:
-		BASS_ChannelPlay(g_record_handle, false);
-		SetTimer(2, 1000, NULL);
-
-		// Running the scheduler
-		if (bIsSchedEnabled && (!bSchedStart))
-		{
-			if (m_conf.GetConfDialSH2()->nStopByID == 1)
-			{
-				m_sched2.SetRecTime(ptRec, NULL);
-			}
-			else
-			{
-				m_sched2.SetStopTime(ptStop, NULL);
-			}
-			TRACE0("==> OnBtnREC: trying to run the scheduler ...\n");
-			m_sched2.Start();
-		}
-		m_nState = RECORD_STATE;
-		break;
-	}
-	*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1810,7 +1684,6 @@ BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 		case IDW_STAT:			nID = IDS_TT_STATWND; break;
 		case IDB_MIX_SEL:		nID = IDS_TT_MIXSEL; break;
 		case IDS_SLIDERVOL:		nID = IDS_TT_VOLBAR; break;
-		//case IDB_BTN_SCHED:		nID = IDS_TT_SCHEDULER; break;
 		case IDB_BTN_VAS:		nID = IDS_TT_VAS;		break;
 		case IDB_BTN_MON:		nID = IDS_TT_MONITORING;break;
 		default:
@@ -2303,156 +2176,6 @@ void CMainFrame::OnVolDownA()
 }
 //------------------------------------------------------------------------------
 
-
-////////////////////////////////////////////////////////////////////////////////
-// SCHEDULER
-////////////////////////////////////////////////////////////////////////////////
-//void CMainFrame::OnBtnSched()
-//{
-	/*
-#ifndef _DEBUG
-	// Button is disabled after the trial period is over
-	if(fsProtect_GetDaysLeft() <= 0)
-		return;
-#endif
-
-	bool bIsEnabled		= m_conf.GetConfDialSH2()->bIsEnabled  != 0;
-	bool bSchedStart	= m_conf.GetConfDialSH2()->bSchedStart != 0;
-	SHR_TIME* ptStart	= &m_conf.GetConfDialSH2()->t_start;
-	SHR_TIME* ptRec		= &m_conf.GetConfDialSH2()->t_rec;
-	SHR_TIME* ptStop	= &m_conf.GetConfDialSH2()->t_stop;
-
-	if (!bIsEnabled)
-	{	// If the start time is not set, run the scheduler after recording started
-		if (bSchedStart)
-		{
-			if (m_conf.GetConfDialSH2()->nStopByID == 1)
-			{
-				m_sched2.SetRecTime(ptRec, ptStart);
-				TRACE("==> OnBtnSched: SetRecTime(%d:%d:%d, %d:%d:%d)\n",
-					ptRec->h, ptRec->m, ptRec->s, ptStart->h, ptStart->m, ptStart->s);
-			}
-			else
-			{
-				m_sched2.SetStopTime(ptStop, ptStart);
-				TRACE("==> OnBtnSched: SetStopTime(%d:%d:%d, %d:%d:%d)\n",
-					ptStop->h, ptStop->m, ptStop->s, ptStart->h, ptStart->m, ptStart->s);
-			}
-			if (!m_sched2.Start())
-			{
-				return;
-			}
-		}
-		// If recording, when starting scheduler
-		else if (BASS_ACTIVE_PLAYING == BASS_ChannelIsActive(g_record_handle))
-		{
-			if (m_conf.GetConfDialSH2()->nStopByID == 1)
-			{
-				m_sched2.SetRecTime(ptRec, NULL);
-			}
-			else
-			{
-				m_sched2.SetStopTime(ptStop, NULL);
-			}
-			if (!m_sched2.Start())
-			{
-				return;
-			}
-		}
-		m_StatWnd.m_btnSched.SetState(BTN_PRESSED);
-	}
-	else
-	{
-		m_sched2.Stop();
-		m_StatWnd.m_btnSched.SetState(BTN_NORMAL);
-	}
-
-	m_conf.GetConfDialSH2()->bIsEnabled = !bIsEnabled;
-	// Updating the "Record" button when scheduler started
-	//UpdateButtonState(IDB_BTNREC);
-	*/
-
-	/*
-	// Updating time window
-	int nRecTime = 0;
-	if (m_conf.GetConfDialSH2()->bIsEnabled)
-	{
-		nRecTime = m_sched2.GetRecTimeInSec();
-	}
-	m_TimeWnd.SetTime(nRecTime);
-	*/
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-// IN: nAction - planned action
-//		0 - start recording
-//		1 - stop recording
-//void Scheduler2Function(int nAction)
-//{
-	/*
-	//CMainFrame* pMainWnd = (CMainFrame *)AfxGetMainWnd();
-	CMainFrame* pMainWnd = CMainFrame::m_pMainFrame;
-
-	if (nAction == 0)
-	{
-		if (pMainWnd->m_conf.GetConfDialSH2()->bRunExternal)
-		{
-			ShellExecute(0, NULL, pMainWnd->m_conf.GetConfDialSH2()->strFileName,
-				NULL, NULL, SW_SHOWNORMAL);
-		}
-
-		if (pMainWnd->m_record_file.m_hFile == CFile::hFileNull)
-		{
-			CString strName = pMainWnd->GetAutoName(CString(""));
-			CString strPath = pMainWnd->m_conf.GetConfProg()->strLastFilePath;
-			if (strPath.IsEmpty())
-			{
-				strPath = pMainWnd->m_strDir;
-			}
-			strName = strPath + "\\" + strName;
-			TRACE1("==> Scheduler2Function: trying to open file: %s\n", strName);
-			pMainWnd->OpenFile(strName);
-		}
-		
-		if (BASS_ChannelIsActive(g_record_handle) != BASS_ACTIVE_PLAYING)
-		{
-			TRACE0("==> Scheduler2Function: call OnBtnREC to start recording\n");
-			//pMainWnd->OnBtnSTOP();
-			pMainWnd->OnBtnREC();
-			//pMainWnd->UpdateButtonState(IDB_BTNREC);
-		}
-	}
-	else if (nAction == 1)
-	{
-		TRACE0("==> Scheduler2Function: call OnBtnSTOP\n");
-		pMainWnd->OnBtnSTOP();
-
-		if (pMainWnd->m_conf.GetConfDialSH2()->action.shutDown)
-		{
-			CTimerDlg dlg;
-			dlg.m_tdi.strDlgText = "Recording complete. Shutdown computer?";
-			if (dlg.DoModal() == IDOK)
-			{
-				ShutDownComputer();
-			}
-			return;
-		}
-		else if (pMainWnd->m_conf.GetConfDialSH2()->action.closeAll)
-		{
-			CTimerDlg dlg;
-			dlg.m_tdi.strDlgText = "Recording complete. Close the program?";
-			if (dlg.DoModal() == IDOK)
-			{
-				CloseAllPrograms();
-			}
-		}
-	}
-	*/
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-// Processing sound level monitoring
-////////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnBtnMonitoring()
 {
 #ifndef _DEBUG
@@ -2677,11 +2400,7 @@ void CMainFrame::UpdateButtonState(UINT nID)
 	pBtn->ModifyStyle(WS_DISABLED, 0);	// Resetting button state
 	if (IDB_BTNREC == nID)
 	{
-		//bool bSchedStart   = m_conf.GetConfDialSH2()->bSchedStart != 0;
-		//bool bSchedEnabled = m_conf.GetConfDialSH2()->bIsEnabled != 0;
-		//bool l_reserved_4shr = bSchedEnabled && bSchedStart && CanRecord();
-
-		if (/*l_reserved_4shr ||*/IsPlaying(m_nState))
+		if (IsPlaying(m_nState))
 			pBtn->ModifyStyle(0, WS_DISABLED);
 	}
 	else if (IDB_BTNPLAY == nID)

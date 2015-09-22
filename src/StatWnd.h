@@ -20,9 +20,7 @@ class CStatWnd : public CWnd
 	CBitmap m_statbmp;
 
 public:
-	//CBitmapBtn m_btnSched;
 	CBitmapBtn m_btnVas;
-	CBitmapBtn m_btnFlr;
 	CBitmapBtn m_btnMon;
 
 // Overrides
@@ -43,7 +41,6 @@ protected:
 	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
 	//{{AFX_MSG(CStatWnd)
 	afx_msg void OnBtnVas();
-	afx_msg void OnBtnSched();
 	afx_msg void OnBtnMon();
 	afx_msg void OnPaint();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

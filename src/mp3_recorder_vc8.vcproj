@@ -757,28 +757,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="PageSH2.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="PageVAS.cpp"
 				>
 				<FileConfiguration
@@ -833,28 +811,6 @@
 			<File
 				RelativePath=".\SampleConverter.cpp"
 				>
-			</File>
-			<File
-				RelativePath="Scheduler2.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\ShellUtils.cpp"
@@ -1284,10 +1240,6 @@
 				>
 			</File>
 			<File
-				RelativePath="PageSH2.h"
-				>
-			</File>
-			<File
 				RelativePath="PageVAS.h"
 				>
 			</File>
@@ -1309,14 +1261,6 @@
 			</File>
 			<File
 				RelativePath=".\SampleConverter.h"
-				>
-			</File>
-			<File
-				RelativePath="Scheduler.h"
-				>
-			</File>
-			<File
-				RelativePath="Scheduler2.h"
 				>
 			</File>
 			<File

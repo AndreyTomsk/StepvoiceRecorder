@@ -89,30 +89,6 @@ typedef struct
 	int bAutoFreq;	// Автоустановка частоты в диалоге
 } CONF_DIAL_MP3;
 
-// Настройки диалога "Scheduler 2"
-typedef struct
-{	int h;	// час
-	int m;	// мин.
-	int s;	// сек.
-} SHR_TIME;
-
-typedef struct
-{	int shutDown;
-	int closeAll;
-} SHR_ACTION;
-
-typedef struct
-{	int bIsEnabled;		// шедулер включен
-	SHR_TIME t_start;	// время включения записи
-	SHR_TIME t_stop;	// время выкл. записи
-	SHR_TIME t_rec;		// общее время записи
-	int bSchedStart;	// флаг запранированного старта записи
-	int bRunExternal;	// флаг запуска при старте файла
-	CString strFileName;// имя запускаемого файла
-	int nStopByID;		// тип времени выключения (общ. зап, или определ. время)
-	SHR_ACTION	action;	// действия при останове
-} CONF_DIAL_SH2;
-
 // Настройки диалога "VAS"
 typedef struct
 {	int bEnable;	// VAS включен ?
