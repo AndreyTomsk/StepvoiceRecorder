@@ -1135,15 +1135,7 @@ void CMainFrame::OnStatPref()
 
 void CMainFrame::OnOptCom()
 {
-	int nDialogIndex = m_conf.GetConfProg()->nDialogIndex;
-	CMySheet optDlg("Preferences", this, nDialogIndex);
-
-	optDlg.m_psh.dwFlags |= PSH_NOAPPLYNOW;
-	//optDlg.SetConfig( m_conf.GetConfDialGen() );
-	//optDlg.SetConfig( m_conf.GetConfDialMp3() );
-	//optDlg.SetConfig( m_conf.GetConfDialSH2() );
-	//optDlg.SetConfig( m_conf.GetConfDialVAS() );
-	//optDlg.SetConfig( m_conf.GetConfDialAN()  );
+	CMySheet optDlg;
 
 	m_pOptDialog = &optDlg;		// Saving dialog pointer for tray exit process
 
@@ -1204,7 +1196,7 @@ void CMainFrame::OnOptCom()
 		*/
 	}
 
-	m_conf.GetConfProg()->nDialogIndex = optDlg.m_nPageIndex;
+	//m_conf.GetConfProg()->nDialogIndex = optDlg.m_nPageIndex;
 
 	m_pOptDialog = NULL;	// No dialog is open (pointer is for tray)
 }
@@ -1959,6 +1951,18 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case IDM_TRAY_EXIT:
+		/*
+		{
+			CWnd* test1 = AfxGetApp()->GetMainWnd()->GetTopLevelParent();
+			CWnd* test2 = AfxGetApp()->GetMainWnd()->GetTopWindow();
+			CWnd* test3 = AfxGetApp()->GetMainWnd()->GetActiveWindow();
+			CWnd* test4 = AfxGetApp()->GetMainWnd()->GetWindow(GW_HWNDLAST);
+			//AfxGetApp()->Get
+			CMySheet* optionsDialog = dynamic_cast<CMySheet*>(test4);
+			if (optionsDialog != NULL)
+				optionsDialog->PostMessage(WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
+		}
+		*/
 		if (m_pOptDialog)
 		{
 			m_pOptDialog->PostMessage(WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
