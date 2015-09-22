@@ -3,7 +3,6 @@
 //
 
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "NagScreenDlg.h"
 #include "EnterCodeDlg.h"
 #include "HtmlHelp.h"

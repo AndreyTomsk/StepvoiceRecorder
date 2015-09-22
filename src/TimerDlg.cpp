@@ -1,8 +1,4 @@
-// TimerDlg.cpp : implementation file
-//
-
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "TimerDlg.h"
 
 #ifdef _DEBUG

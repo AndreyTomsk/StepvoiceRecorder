@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "MP3_Recorder.h"
 #include "GraphWnd.h"
-#include "mainfrm.h"
+#include "MainFrm.h"
 #include <math.h>
 
 #ifdef _DEBUG

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "MP3_Recorder.h"
 #include "MySlider.h"
 
 #ifdef _DEBUG

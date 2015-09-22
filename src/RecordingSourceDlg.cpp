@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "RecordingSourceDlg.h"
 #include <algorithm> //for std::find
 #include <basswasapi.h>

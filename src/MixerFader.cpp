@@ -3,8 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-
-#include "mp3_recorder.h"
 #include "MixerFader.h"
 #include "common.h"
 

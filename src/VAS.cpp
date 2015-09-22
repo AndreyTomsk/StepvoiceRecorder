@@ -1,8 +1,4 @@
-//===========================================================================
-// VAS.cpp: implementation of the CVAS class.
-
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "VAS.h"
 #include <mmsystem.h>
 

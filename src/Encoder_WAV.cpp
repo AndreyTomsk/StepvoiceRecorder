@@ -1,6 +1,5 @@
 //////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "Encoder_WAV.h"
 
 #ifdef _DEBUG

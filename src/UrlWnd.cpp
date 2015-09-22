@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "UrlWnd.h"
 
 #ifdef _DEBUG

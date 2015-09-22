@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "ControlMux.h"
 #include "common.h"
 

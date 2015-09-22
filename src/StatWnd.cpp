@@ -1,8 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "MP3_Recorder.h"
 #include "StatWnd.h"
-#include "mainfrm.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
