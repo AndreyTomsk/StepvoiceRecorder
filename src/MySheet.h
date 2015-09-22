@@ -37,7 +37,7 @@ public:
 	//void SetConfig(CONF_DIAL_SH*  pconfig);
 	//void SetConfig(CONF_DIAL_SH2* pconfig);
 	//void SetConfig(CONF_DIAL_VAS* pconfig);
-	void SetConfig(CONF_DIAL_AN*  pconfig);
+	//void SetConfig(CONF_DIAL_AN*  pconfig);
 
 // Overrides
 	// ClassWizard generated virtual function overrides

@@ -231,7 +231,7 @@ void CPageRec::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	bitrateInfo.Format(_T("1 minute record - %3.2f Mb, 1 hour - %3.1f Mb (%s quality);"),
 		fMinMb, fMinMb*60, strQuality[curpos]);
 
-	GetDlgItem(IDC_BITRATE_DESCR)->SetWindowTextA(bitrateInfo);
+	SetDlgItemText(IDC_BITRATE_DESCR, bitrateInfo);
 
 	// если флаг авточастоты включен...
 	if(IsDlgButtonChecked(IDC_AUTOFREQ))

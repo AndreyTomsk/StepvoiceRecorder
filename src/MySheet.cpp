@@ -82,10 +82,10 @@ END_MESSAGE_MAP()
 //	m_pv.SetConfig( pconfig );
 //}
 
-void CMySheet::SetConfig(CONF_DIAL_AN *pconfig)
-{
-	m_pa.SetConfig( pconfig );
-}
+//void CMySheet::SetConfig(CONF_DIAL_AN *pconfig)
+//{
+//	m_pa.SetConfig( pconfig );
+//}
 
 /////////////////////////////////////////////////////////////////////////////
 BOOL CMySheet::OnCommand(WPARAM wParam, LPARAM lParam) 

@@ -14,6 +14,7 @@ namespace Helpers
 	bool IsSuitableForRecording(const CString& filePath, DWORD* outErrorCode = NULL);
 
 	//strTemplate - string template, passed to CTime.Format method.
+	CString FilterTemplate(CString strTemplate);
 	CString GetAutoname(CString strTemplate, CString fileExtension);
 	CString GetMp3AutonameFromConfig();
 	//CString GetAutonameRegEx(CString strTemplate, CString fileExtension);

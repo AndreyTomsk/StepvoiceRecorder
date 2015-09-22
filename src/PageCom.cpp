@@ -108,7 +108,7 @@ BOOL CPageCom::OnInitDialog()
 void CPageCom::OnBnClickedOutputFolder()
 {
 	if (ShellUtils::DialogPickupFolder(m_outputFolder))
-		GetDlgItem(IDE_OUTPUT_FOLDER)->SetWindowTextA(m_outputFolder);
+		SetDlgItemText(IDE_OUTPUT_FOLDER, m_outputFolder);
 }
 //---------------------------------------------------------------------------
 

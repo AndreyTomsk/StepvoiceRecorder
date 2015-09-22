@@ -55,7 +55,7 @@ bool IsSuitableForRecording(const CString& filePath, DWORD* outErrorCode)
 }
 //------------------------------------------------------------------------------
 
-static CString FilterTemplate(CString a_template)
+CString FilterTemplate(CString a_template)
 {
 	const CString ALLOWED_CHARS(_T("BbdHjMmSYy%"));
 	CString l_template = a_template;

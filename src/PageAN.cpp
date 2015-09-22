@@ -1,9 +1,7 @@
-// PageAN.cpp : implementation file
-//
-
 #include "stdafx.h"
-#include "mp3_recorder.h"
 #include "PageAN.h"
+#include "Config.h"
+#include "MainFrm_Helpers.h" //for FilterTemplate
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -11,136 +9,99 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-#define TEMPLATE_LIMIT 40
+const int TEMPLATE_LIMIT = 40;
 
 /////////////////////////////////////////////////////////////////////////////
-// CPageAN property page
 
 IMPLEMENT_DYNCREATE(CPageAN, CPropertyPage)
 
-CPageAN::CPageAN() : CPropertyPage(CPageAN::IDD)
-{
-	m_pconfig = NULL;
-
-	m_BoldFont.CreateFont (-8, 0, 0, 0, FW_BOLD,  0, 0, 0, 0, 0, 0, 0, 0,
-		"MS Sans Serif");
-
-	//{{AFX_DATA_INIT(CPageAN)
-	m_strTemplate = _T("");
-	//}}AFX_DATA_INIT
-}
-
-CPageAN::~CPageAN()
-{
-}
-
-void CPageAN::DoDataExchange(CDataExchange* pDX)
-{
-	CPropertyPage::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CPageAN)
-	DDX_Text(pDX, IDE_NAMETEMPLATE, m_strTemplate);
-	//}}AFX_DATA_MAP
-}
-
 BEGIN_MESSAGE_MAP(CPageAN, CPropertyPage)
-	//{{AFX_MSG_MAP(CPageAN)
 	ON_EN_CHANGE(IDE_NAMETEMPLATE, OnChangeNametemplate)
 	ON_WM_CTLCOLOR()
 	ON_WM_DESTROY()
 	ON_WM_HELPINFO()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-void CPageAN::SetConfig(CONF_DIAL_AN *pconfig)
+
+CPageAN::CPageAN()
+	:CPropertyPage(CPageAN::IDD)
 {
-	m_pconfig = pconfig;
-	m_strTemplate = m_pconfig->strAutoName;
+	m_BoldFont.CreateFont (-8, 0, 0, 0, FW_BOLD,  0, 0, 0, 0, 0, 0, 0, 0,
+		"MS Sans Serif");
 }
+//---------------------------------------------------------------------------
 
-void CPageAN::OnChangeNametemplate() 
+CPageAN::~CPageAN()
 {
-	CWnd* l_wnd_template = (CWnd *)GetDlgItem(IDE_NAMETEMPLATE);
-	CWnd* l_wnd_result = (CWnd *)GetDlgItem(IDC_AN_EXTEXT);
-
-	CString l_format_string;
-	l_wnd_template->GetWindowText(l_format_string);
-	l_format_string = FilterTemplate(l_format_string);
-
-	CTime l_time = CTime::GetCurrentTime();
-	CString l_result_string = l_time.Format(l_format_string);
-
-	if (l_result_string.IsEmpty())
-	{
-		l_result_string = _T("Empty");
-	}
-
-	l_result_string += _T(".mp3");
-	l_wnd_result->SetWindowText(l_result_string);
 }
+//---------------------------------------------------------------------------
 
-CString CPageAN::FilterTemplate(CString a_template)
+void CPageAN::DoDataExchange(CDataExchange* pDX)
 {
-	const CString ALLOWED_CHARS(_T("BbdHjMmSYy%"));
-	CString l_template = a_template;
-	CString l_char_str;
-
-	l_template.TrimRight('%'); // important! the algorithm below using this
-
-	int l_pos = 0;
-	while (l_pos < l_template.GetLength())
-	{
-		if (l_template.Mid(l_pos, 1) != _T("%"))
-		{
-			l_pos++;	// ordinary char, jump to next symbol
-			continue;
-		}
-		
-		l_char_str = l_template.Mid(l_pos + 1, 1);
-		if (ALLOWED_CHARS.Find(l_char_str) == -1)
-		{
-			l_template.Delete(l_pos, 2);
-			continue;	// checking the updated string from same position
-		}
-
-		l_pos += 2;		// char is correct, jump over 2 symbols
-	}
-
-	return l_template;
+	CPropertyPage::DoDataExchange(pDX);
+	DDX_Text(pDX, IDE_NAMETEMPLATE, m_strTemplate);
 }
-
-void CPageAN::OnOK() 
-{
-	if(m_pconfig)
-	{
-		m_pconfig->strAutoName = FilterTemplate(m_strTemplate);
-	}
-	
-	CPropertyPage::OnOK();
-}
+//---------------------------------------------------------------------------
 
 BOOL CPageAN::OnInitDialog() 
 {
-	CPropertyPage::OnInitDialog();
+	m_defaultTemplate = _T("%b%d_%H%M");
+	m_defaultTemplate = RegistryConfig::GetOption(_T("Autoname\\Default template"), m_defaultTemplate);
+	m_strTemplate     = RegistryConfig::GetOption(_T("Autoname\\Current template"), m_defaultTemplate);
+
+	CPropertyPage::OnInitDialog(); //internally calls DoDataExchange
 
 	// пишем название шаблона по-умолчанию
-	CString strDefText = "";
-	strDefText.Format("(default: %s):", m_pconfig->strTDefault);
+	CString strDefText;
+	strDefText.Format(_T("(default: %s):"), m_defaultTemplate);
 	SetDlgItemText(IDC_AN_TDEFAULT, strDefText);
 	
 	// ограничиваем максимальную длину текста
-	CEdit* pETemplate = (CEdit *)GetDlgItem(IDE_NAMETEMPLATE);
-	pETemplate->LimitText(TEMPLATE_LIMIT);
+	static_cast<CEdit*>(GetDlgItem(IDE_NAMETEMPLATE))->LimitText(TEMPLATE_LIMIT);
 	OnChangeNametemplate();
 
 	// изменяем курсор в группе template codes
-	CStatic* pStatic = (CStatic *)GetDlgItem(IDC_STATIC0_0);
-	SetClassLong(pStatic->GetSafeHwnd(), GCL_HCURSOR,
+	SetClassLong(GetDlgItem(IDC_STATIC0_0)->GetSafeHwnd(), GCL_HCURSOR,
 		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_HAND2))); //вместо IDC_HAND
 	
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+	return TRUE;
 }
+//---------------------------------------------------------------------------
+
+void CPageAN::OnOK() 
+{
+	RegistryConfig::SetOption(_T("Autoname\\Current template"),
+		Helpers::FilterTemplate(m_strTemplate));
+
+	CPropertyPage::OnOK();
+}
+//---------------------------------------------------------------------------
+
+void CPageAN::OnDestroy() 
+{
+	CPropertyPage::OnDestroy();
+	
+	// изменяем курсор в группе template codes на стардартный
+	SetClassLong(GetDlgItem(IDC_STATIC0_0)->GetSafeHwnd(), GCL_HCURSOR,
+		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_ARROW))); //вместо IDC_HAND
+}
+//---------------------------------------------------------------------------
+
+void CPageAN::OnChangeNametemplate() 
+{
+	UpdateData();
+	m_strTemplate = Helpers::FilterTemplate(m_strTemplate);
+
+	const CTime curTime = CTime::GetCurrentTime();
+	CString exampleString = curTime.Format(m_strTemplate);
+	if (exampleString.IsEmpty())
+		exampleString = _T("Empty");
+
+	exampleString += _T(".mp3");
+	SetDlgItemText(IDC_AN_EXTEXT, exampleString);
+}
+//---------------------------------------------------------------------------
 
 HBRUSH CPageAN::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
 {
@@ -160,6 +121,7 @@ HBRUSH CPageAN::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	// TODO: Return a different brush if the default is not desired
 	return hbr;
 }
+//---------------------------------------------------------------------------
 
 BOOL CPageAN::OnCommand(WPARAM wParam, LPARAM lParam) 
 {
@@ -205,28 +167,18 @@ BOOL CPageAN::OnCommand(WPARAM wParam, LPARAM lParam)
 		}
 		else
 		{	// очищаем весь шаблон
-			CString strTemplate = m_pconfig->strTDefault;
-			SetDlgItemText(IDE_NAMETEMPLATE, strTemplate);
-			pETemplate->SetSel(0, strTemplate.GetLength(), false);
+			SetDlgItemText(IDE_NAMETEMPLATE, m_defaultTemplate);
+			pETemplate->SetSel(0, m_defaultTemplate.GetLength(), false);
 		}
 	}
 
 	return CPropertyPage::OnCommand(wParam, lParam);
 }
-
-void CPageAN::OnDestroy() 
-{
-	CPropertyPage::OnDestroy();
-	
-	// изменяем курсор в группе template codes на стардартный
-	CStatic* pStatic = (CStatic *)GetDlgItem(IDC_STATIC0_0);
-	SetClassLong(pStatic->GetSafeHwnd(), GCL_HCURSOR,
-		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_ARROW))); //вместо IDC_HAND
-}
+//---------------------------------------------------------------------------
 
 BOOL CPageAN::OnHelpInfo(HELPINFO* pHelpInfo) 
 {
-	GetParent()->SendMessage(WM_COMMAND, IDHELP, (LPARAM)GetSafeHwnd());
-	
+	GetParent()->SendMessage(WM_COMMAND, IDHELP, (LPARAM)GetSafeHwnd());	
 	return CPropertyPage::OnHelpInfo(pHelpInfo);
 }
+//---------------------------------------------------------------------------
