@@ -3,6 +3,7 @@
 #include "GraphWnd.h"
 #include "MainFrm.h"
 #include <math.h>
+#include <mmsystem.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

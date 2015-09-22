@@ -59,15 +59,6 @@ typedef struct
 	int nRecLineID;		// Last selected item ID in rec. devices menu.
 } CONF_PROG;
 
-// Настройки микшера
-//typedef struct
-//{	int		nRecSrcLineID;
-//	int		nRecSrcLineLevel;
-//	int		nPlaySrcLineID;
-//	int		nPlaySrcLineLevel;
-//	CString strMixShortName;
-//} CONF_MIXER;
-
 // Настройки диалога "General"
 typedef struct
 {	int nLoader;	// Действия с файлами при загрузке программы

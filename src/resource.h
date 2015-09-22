@@ -177,14 +177,6 @@
 #define IDC_EXAMPLE_NAME                1180
 #define IDC_RESULT_NAME                 1180
 #define IDC_STORE_IN_OUTPUT_FOLDER      1181
-#define ID_MIXITEM_LOOPBACK_DEVICE      3688
-#define ID_MIXITEM_PLAY_VOLUME          3697
-#define ID_MIXITEM_REC_LOOPBACK         3698
-#define ID_MIXITEM_REC_LOOPBACK_MIX     3699
-#define ID_MIXITEM_REC0                 3700
-#define ID_MIXITEM_REC50                3750
-#define ID_MIXITEM_PLAY0                3751
-#define ID_MIXITEM_PLAY1                3752
 #define IDW_RECORDING_ITEM              5000
 #define IDM_FILE_NEW                    32773
 #define IDM_FILE_OPEN                   32774
