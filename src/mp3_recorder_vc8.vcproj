@@ -451,28 +451,6 @@
 				>
 			</File>
 			<File
-				RelativePath="MappedMP3.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="MP3_Recorder.cpp"
 				>
 				<FileConfiguration
@@ -930,10 +908,6 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="AfStack.h"
-				>
-			</File>
-			<File
 				RelativePath=".\BASS_Functions.h"
 				>
 			</File>
@@ -1030,15 +1004,7 @@
 				>
 			</File>
 			<File
-				RelativePath="MappedMP3.h"
-				>
-			</File>
-			<File
 				RelativePath="MP3_Recorder.h"
-				>
-			</File>
-			<File
-				RelativePath="mpglibdll.h"
 				>
 			</File>
 			<File
