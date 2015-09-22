@@ -26,6 +26,7 @@ static char THIS_FILE[] = __FILE__;
 #include "FilterFileWriter.h"
 #include "FilterFileWriterWAV.h"
 #include "Debug.h"
+#include "MySheet.h"
 
 HSTREAM m_bassPlaybackHandle = 0;   // Playback
 //HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
@@ -380,8 +381,6 @@ CMainFrame::CMainFrame()
 
 	m_nState    = STOP_STATE;
 	m_strDir    = ((CMP3_RecorderApp*)AfxGetApp())->GetProgramDir();
-
-	m_pOptDialog = NULL;
 
 	//m_pMainFrame = this;
 	m_bAutoMenuEnable = false;
@@ -1136,69 +1135,31 @@ void CMainFrame::OnStatPref()
 void CMainFrame::OnOptCom()
 {
 	CMySheet optDlg;
+	if (optDlg.DoModal() != IDOK)
+		return
 
-	m_pOptDialog = &optDlg;		// Saving dialog pointer for tray exit process
+	UpdateStatWindow();
 
-	// Saving the scheduler state
-	//bool bOldSchedState = m_conf.GetConfDialSH2()->bIsEnabled != 0;
-	//bool bNewSchedState = bOldSchedState;
+	// Checking tray options
 
-	if (optDlg.DoModal() == IDOK)
+	if(RegistryConfig::GetOption(_T("General\\Show icon in tray"), 0))
+		m_TrayIcon.ShowIcon();
+	else
+		m_TrayIcon.HideIcon();
+
+	//Updating GUI and filter with new VAS parameters.
+
+	const bool isEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
+	if (isEnabled && m_StatWnd.m_btnVas.IsChecked())
 	{
-		//m_conf.saveConfig();		
-		UpdateStatWindow();
-
-		// Checking tray options
-		if(m_conf.GetConfDialGen()->bTrayIcon) //Taskbar only
-			m_TrayIcon.ShowIcon();
-		else
-			m_TrayIcon.HideIcon();
-
-		/*
-		// !!!!! Scheduler change check (SHR check)
-		bNewSchedState = m_conf.GetConfDialSH2()->bIsEnabled != 0;
-		if(bNewSchedState != bOldSchedState)
-		{	// Inverting the scheduler state (by pressing the button)
-			m_conf.GetConfDialSH2()->bIsEnabled = !bNewSchedState;
-			OnBtnSched();
-		}
-		else if(bNewSchedState) {	// Restarting the scheduler
-			OnBtnSched(); // Off.
-			OnBtnSched(); // On.
-		}
-		*/
-
-
-		//Updating GUI and filter with new VAS parameters.
-
-		const bool isEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
-		if (isEnabled && m_StatWnd.m_btnVas.IsChecked())
-		{
-			//Button already pressed and VAS is running. Its
-			//parameters could be updated in options dialog.
-			//We should update VAS filter (from OnBtnVas handler).
-			m_StatWnd.m_btnVas.SetCheck(false);
-			m_StatWnd.m_btnVas.SetCheck(true);
-		}
-		else
-			m_StatWnd.m_btnVas.SetCheck(isEnabled);
-
-		/*
-		// Checking VAS
-		CONF_DIAL_VAS* pConfig = m_conf.GetConfDialVAS();
-		if((pConfig->bEnable != 0) != m_vas.IsRunning())
-			OnBtnVas();
-		if(m_vas.IsRunning())
-		{
-			m_vas.InitVAS(pConfig->nThreshold, pConfig->nWaitTime);
-			m_GraphWnd.ShowVASMark(true, pConfig->nThreshold);
-		}
-		*/
+		//Button already pressed and VAS is running. Its
+		//parameters could be updated in options dialog.
+		//We should update VAS filter (from OnBtnVas handler).
+		m_StatWnd.m_btnVas.SetCheck(false);
+		m_StatWnd.m_btnVas.SetCheck(true);
 	}
-
-	//m_conf.GetConfProg()->nDialogIndex = optDlg.m_nPageIndex;
-
-	m_pOptDialog = NULL;	// No dialog is open (pointer is for tray)
+	else
+		m_StatWnd.m_btnVas.SetCheck(isEnabled);
 }
 
 //===========================================================================
@@ -1951,22 +1912,13 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case IDM_TRAY_EXIT:
-		/*
 		{
-			CWnd* test1 = AfxGetApp()->GetMainWnd()->GetTopLevelParent();
-			CWnd* test2 = AfxGetApp()->GetMainWnd()->GetTopWindow();
-			CWnd* test3 = AfxGetApp()->GetMainWnd()->GetActiveWindow();
-			CWnd* test4 = AfxGetApp()->GetMainWnd()->GetWindow(GW_HWNDLAST);
-			//AfxGetApp()->Get
-			CMySheet* optionsDialog = dynamic_cast<CMySheet*>(test4);
-			if (optionsDialog != NULL)
-				optionsDialog->PostMessage(WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
-		}
-		*/
-		if (m_pOptDialog)
-		{
-			m_pOptDialog->PostMessage(WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
-			m_pOptDialog = NULL;
+			CWnd* wndFound = this->FindWindow(NULL, CMySheet::GetWindowTitle());
+			if (wndFound != NULL)
+			{
+				CMySheet* optionsDialog = dynamic_cast<CMySheet*>(wndFound);
+				optionsDialog->SendMessage(WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
+			}
 		}
 		PostMessage(WM_CLOSE);
 		break;

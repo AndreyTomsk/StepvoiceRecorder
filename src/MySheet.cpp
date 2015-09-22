@@ -15,7 +15,7 @@ IMPLEMENT_DYNAMIC(CMySheet, CPropertySheet)
 /////////////////////////////////////////////////////////////////////////////
 
 CMySheet::CMySheet()
-	:CPropertySheet( _T("Preferences"), AfxGetApp()->GetMainWnd(),
+	:CPropertySheet(GetWindowTitle(), AfxGetApp()->GetMainWnd(),
 		RegistryConfig::GetOption(_T("General\\DialogIndex"), 0))
 {
 	this->m_psh.dwFlags |= PSH_NOAPPLYNOW;
@@ -24,6 +24,12 @@ CMySheet::CMySheet()
 	AddPage(&m_pr);
 	AddPage(&m_pv);
 	AddPage(&m_pa);	
+}
+//---------------------------------------------------------------------------
+
+CString CMySheet::GetWindowTitle()
+{
+	return _T("Preferences");
 }
 //---------------------------------------------------------------------------
 

@@ -9,6 +9,7 @@ class CMySheet : public CPropertySheet
 {
 public:
 	CMySheet();
+	static CString GetWindowTitle();
 
 private:
 	DECLARE_DYNAMIC(CMySheet)

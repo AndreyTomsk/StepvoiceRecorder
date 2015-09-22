@@ -17,8 +17,6 @@
 #include "MySlider.h"
 #include "SliderVol.h"
 
-#include "MySheet.h"
-
 #include "Encoder_MP3.h"
 #include "MappedMP3.h"
 
@@ -144,8 +142,6 @@ class CMainFrame : public CFrameWnd
 	SIZE			m_szMoveOffset;
 
 	CSystemTray		m_TrayIcon;
-
-	CMySheet*		m_pOptDialog;	// указатель на запущенный диалог
 
 public:
 	//CScheduler2		m_sched2;	// планировщик
