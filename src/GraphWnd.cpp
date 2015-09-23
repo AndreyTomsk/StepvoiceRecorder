@@ -1,9 +1,8 @@
-////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "GraphWnd.h"
 #include "MainFrm.h"
 #include <math.h>
-#include <mmsystem.h>
+#include <mmsystem.h> //for multimedia timer
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -11,29 +10,28 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
 const int MAXPEAK_TIMER_ID = 123;
 const int PLAY_BUFFER_SIZE = 2048;
+static float g_play_buffer[PLAY_BUFFER_SIZE];
 
-float g_play_buffer[PLAY_BUFFER_SIZE];
+/////////////////////////////////////////////////////////////////////////////
 
-enum Channels {LEFT_CHANNEL, RIGHT_CHANNEL};
-
-////////////////////////////////////////////////////////////////////////////////
 BEGIN_MESSAGE_MAP(CGraphWnd, CWnd)
-	//{{AFX_MSG_MAP(CGraphWnd)
 	ON_WM_PAINT()
 	ON_WM_CREATE()
+	ON_WM_DESTROY()
 	ON_WM_RBUTTONDOWN()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_TIMER()
 	ON_COMMAND(ID_GRAPH_MONITORING, OnGraphMonitoring)
-	//}}AFX_MSG_MAP
 	ON_COMMAND_RANGE(ID_GRAPH_PEAKMETER, ID_GRAPH_NONE, OnGraphMenu)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_GRAPH_PEAKMETER, ID_GRAPH_NONE, OnUpdateGraphMenu)
 END_MESSAGE_MAP()
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
 CGraphWnd::CGraphWnd()
 	:m_bShowVASMark(false)
 	,m_bMaxpeaks(true)
@@ -45,15 +43,13 @@ CGraphWnd::CGraphWnd()
 	,m_userData(NULL)
 {
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 CGraphWnd::~CGraphWnd()
 {
-	RegistryConfig::SetOption(_T("General\\Graph Type"), int(m_display_mode));
-	RegistryConfig::SetOption(_T("General\\Show max peaks"), m_bMaxpeaks);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 int CGraphWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) 
 {
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
@@ -87,18 +83,20 @@ int CGraphWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	ResetMaxpeakMarks();
 	Clear();
 
-	// Loading settings.
-
 	m_bMaxpeaks = RegistryConfig::GetOption(_T("General\\Show max peaks"), 1) ? true : false;
-
-	int dm = RegistryConfig::GetOption(_T("General\\Graph Type"), 0);
-	dm = max(E_DISPLAY_PEAKS, min(dm, E_DISPLAY_NONE));
-	SetDisplayMode(DisplayMode(dm));
-
+	SetDisplayMode(RegistryConfig::GetOption(_T("General\\Graph Type"), 0));
 	return 0;
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
+void CGraphWnd::OnDestroy() 
+{
+	RegistryConfig::SetOption(_T("General\\Graph Type"), int(m_display_mode));
+	RegistryConfig::SetOption(_T("General\\Show max peaks"), m_bMaxpeaks);
+	CWnd::OnDestroy();
+}
+//---------------------------------------------------------------------------
+
 void CGraphWnd::OnPaint() 
 {
 	CMyLock lock(m_sync_object);
@@ -106,30 +104,30 @@ void CGraphWnd::OnPaint()
 	CPaintDC dc(this); // device context for painting
 	dc.BitBlt(0, 0, m_wndsize.cx, m_wndsize.cy, &m_memDC, 0, 0, SRCCOPY);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 BOOL CGraphWnd::PreTranslateMessage(MSG* pMsg) 
 {
 	if (pMsg->message == WM_LBUTTONDBLCLK)
-	{
 		pMsg->message = WM_LBUTTONDOWN;
-	}
+
 	return CWnd::PreTranslateMessage(pMsg);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	// Rotating display mode
+	// Rotating displays
+
 	DisplayMode l_new_mode = DisplayMode(m_display_mode + 1);
-	if (l_new_mode > sizeof(DisplayMode) - 1)
+	if (l_new_mode > E_DISPLAY_NONE)
 		l_new_mode = E_DISPLAY_PEAKS;
 
 	SetDisplayMode(l_new_mode);
 	CWnd::OnLButtonDown(nFlags, point);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::OnRButtonDown(UINT nFlags, CPoint point) 
 {
 	const int markers[] = {ID_GRAPH_PEAKMETER, ID_GRAPH_PEAKMETERDB,
@@ -151,8 +149,8 @@ void CGraphWnd::OnRButtonDown(UINT nFlags, CPoint point)
 	
 	CWnd::OnRButtonDown(nFlags, point);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::OnGraphMenu(UINT nID)
 {
 	switch (nID)
@@ -171,8 +169,8 @@ void CGraphWnd::OnGraphMenu(UINT nID)
 		break;
 	}
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::OnGraphMonitoring()
 {
 	CMainFrame* mainFrame = static_cast<CMainFrame *>(GetParent());
@@ -180,14 +178,14 @@ void CGraphWnd::OnGraphMonitoring()
 	const bool buttonChecked = mainFrame->m_StatWnd.m_btnMon.IsChecked();
 	mainFrame->m_StatWnd.m_btnMon.SetCheck(!buttonChecked);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::OnUpdateGraphMenu(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetCheck(TRUE);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::Update(char* /*pSndBuf*/, int /*nBufSize*/)
 {
 	ClearWindow();
@@ -205,8 +203,8 @@ void CGraphWnd::Update(char* /*pSndBuf*/, int /*nBufSize*/)
 	}
 	InvalidateRect(NULL);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::ClearWindow()
 {
 	CMyLock lock(m_sync_object);
@@ -218,26 +216,27 @@ void CGraphWnd::ClearWindow()
 	m_memDC.BitBlt(0, 0, r.Width(), r.Height(), &m_skinDC, 0, 0, SRCCOPY);
 	DrawVASMark();
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::Clear()
 {
 	ClearWindow();
 	InvalidateRect(NULL);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 float CGraphWnd::GetPeakLevel(int a_channel) const
 {
 	return m_peaks_func ? m_peaks_func(a_channel, m_userData) : 0;
 }
+//---------------------------------------------------------------------------
 
 int CGraphWnd::GetLinesLevel(int a_channel, float* a_buffer, int a_size)
 {
 	return m_lines_func ? m_lines_func(a_channel, a_buffer, a_size, m_userData) : 0;
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::DrawPeaks()
 {
 	const int START_Y[2] = {5, m_wndsize.cy/2 + 10};
@@ -290,8 +289,8 @@ void CGraphWnd::DrawPeaks()
 		DrawVASMark();
 	}
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::DrawLines()
 {
 	for (int channel = 0; channel < 2; channel++)
@@ -316,8 +315,8 @@ void CGraphWnd::DrawLines()
 		}
 	}
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::ShowVASMark(bool a_enabled, double a_threshold)
 {
 	if (a_threshold)
@@ -335,14 +334,8 @@ void CGraphWnd::ShowVASMark(bool a_enabled, double a_threshold)
 	m_bShowVASMark = a_enabled;
 	Clear();
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-bool CGraphWnd::VASMarkVisible() const
-{
-	return m_bShowVASMark;
-}
-
-//------------------------------------------------------------------------------
 void CGraphWnd::DrawVASMark()
 {
 	CMyLock lock(m_sync_object);
@@ -368,8 +361,8 @@ void CGraphWnd::DrawVASMark()
 	}
 	m_memDC.SelectObject(pOldPen);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::OnTimer(UINT nIDEvent) 
 {
 	if (nIDEvent == MAXPEAK_TIMER_ID)
@@ -378,28 +371,16 @@ void CGraphWnd::OnTimer(UINT nIDEvent)
 	}
 	CWnd::OnTimer(nIDEvent);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::ResetMaxpeakMarks()
 {
 	m_max_peaks[0] = 3;	// peaks window relative
 	m_max_peaks[1] = 3;
 	KillTimer(MAXPEAK_TIMER_ID);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-void CGraphWnd::ShowMaxpeaks(bool bEnabled)
-{
-	m_bMaxpeaks = bEnabled;
-}
-
-//------------------------------------------------------------------------------
-bool CGraphWnd::MaxpeaksVisible() const
-{
-	return m_bMaxpeaks;
-}
-
-//------------------------------------------------------------------------------
 bool CGraphWnd::StartUpdate(
 	PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_func, void* userData)
 {
@@ -415,8 +396,8 @@ bool CGraphWnd::StartUpdate(
 		(DWORD_PTR)this, TIME_PERIODIC);
 	return (m_timer_id != 0);
 }
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CGraphWnd::StopUpdate()
 {
 	if (m_timer_id)
@@ -428,15 +409,13 @@ void CGraphWnd::StopUpdate()
 	m_lines_func = NULL;
 	Clear();
 }
-//------------------------------------------------------------------------------
-bool CGraphWnd::SetDisplayMode(DisplayMode a_new_mode)
+//---------------------------------------------------------------------------
+
+bool CGraphWnd::SetDisplayMode(int a_new_mode)
 {
 	CMyLock lock(m_sync_object);
 
-	if (a_new_mode >= sizeof(DisplayMode))
-	{
-		return false;
-	}
+	a_new_mode = max(E_DISPLAY_PEAKS, min(a_new_mode, E_DISPLAY_NONE));
 	m_skinDC.SelectObject(&m_bgbmp[a_new_mode]);
 
 	// Checking peak bitmap changed.
@@ -445,20 +424,15 @@ bool CGraphWnd::SetDisplayMode(DisplayMode a_new_mode)
 		m_peakDC.SelectObject(
 			(a_new_mode == E_DISPLAY_PEAKS) ? &m_pmbmp[0] : &m_pmbmp[1]);
 	}
-	m_display_mode = a_new_mode;
+	m_display_mode = DisplayMode(a_new_mode);
 	m_old_peaks[0] = 0;
 	m_old_peaks[1] = 0;
 	ResetMaxpeakMarks();
 	Clear();
 	return true;
 }
-//------------------------------------------------------------------------------
-int CGraphWnd::GetDisplayMode() const
-{
-	return m_display_mode;
-}
+//---------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 void CALLBACK CGraphWnd::UpdateVisualization(UINT /*a_timer_id*/,UINT /*a_msg*/,
 	DWORD_PTR a_user_ptr, DWORD_PTR /*a_dw1*/, DWORD_PTR /*a_dw2*/)
 {
@@ -468,3 +442,4 @@ void CALLBACK CGraphWnd::UpdateVisualization(UINT /*a_timer_id*/,UINT /*a_msg*/,
 	CMyLock lock(l_graph_wnd->m_sync_object);
 	l_graph_wnd->Update(NULL, 0);
 }
+//---------------------------------------------------------------------------

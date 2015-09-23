@@ -1,12 +1,7 @@
-/////////////////////////////////////////////////////////////////////////////
-#if !defined(AFX_GRAPHWND_H__0750808D_BAB1_4092_A8C2_3D8EAB4D7D3D__INCLUDED_)
-#define AFX_GRAPHWND_H__0750808D_BAB1_4092_A8C2_3D8EAB4D7D3D__INCLUDED_
-
-#include <bass.h>
-#include "struct.h"
+#pragma once
 #include "SyncObjects.h"
 
-///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 // The main idea here is to work only with float data. And having one format
 //   of data, we could simplify the work.
 // Peaks callback function returns peak value from [0, 1] interval.
@@ -16,54 +11,41 @@
 typedef float (*PEAKS_CALLBACK)(int a_channel, void* userData);
 typedef int   (*LINES_CALLBACK)(int a_channel, float* a_buffer, int a_size, void* userData);
 
-///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
 class CGraphWnd : public CWnd
 {
-public:
-	enum DisplayMode
-	{
-		E_DISPLAY_PEAKS,	// Linear peaks
-		E_DISPLAY_PEAKS_DB, // Logarithmic peaks
-		E_DISPLAY_LINES,    // Line meter
-		E_DISPLAY_NONE
-	};
 public:
 	CGraphWnd();
 	~CGraphWnd();
 
-	void ShowMaxpeaks(bool a_enabled);
-	bool MaxpeaksVisible() const;
-
 	void ShowVASMark(bool a_enabled, double a_threshold = 0);
-	bool VASMarkVisible() const;
-
-	bool SetDisplayMode(DisplayMode a_new_mode);
-	int  GetDisplayMode() const;
-
 	bool StartUpdate(PEAKS_CALLBACK a_peaks_func, LINES_CALLBACK a_lines_func, void* userData);
 	void StopUpdate();
 	
-public:
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CGraphWnd)
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	//}}AFX_VIRTUAL
-
 protected:
-	// Generated message map functions
-	//{{AFX_MSG(CGraphWnd)
 	afx_msg void OnPaint();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnDestroy();
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnGraphMonitoring();
-	//}}AFX_MSG
 	afx_msg void OnGraphMenu(UINT nID);
 	afx_msg void OnUpdateGraphMenu(CCmdUI* pCmdUI);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	DECLARE_MESSAGE_MAP()
 
 private:
+	enum DisplayMode
+	{
+		E_DISPLAY_PEAKS,    // Linear peaks
+		E_DISPLAY_PEAKS_DB, // Logarithmic peaks
+		E_DISPLAY_LINES,    // Line meter
+		E_DISPLAY_NONE
+	};
+
+	bool SetDisplayMode(int a_new_mode);
 	float GetPeakLevel(int a_channel) const;
 	int GetLinesLevel(int a_channel, float* a_buffer, int a_size);
 
@@ -107,7 +89,3 @@ private:
 	DisplayMode m_display_mode;
 	CMyCriticalSection m_sync_object;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-//{{AFX_INSERT_LOCATION}}
-#endif // !defined(AFX_GRAPHWND_H__0750808D_BAB1_4092_A8C2_3D8EAB4D7D3D__INCLUDED_)
