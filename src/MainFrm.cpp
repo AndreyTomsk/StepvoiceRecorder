@@ -1,10 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 #include "stdafx.h"
 #include <map>
 #include <math.h>
@@ -28,16 +21,11 @@ static char THIS_FILE[] = __FILE__;
 #include "MySheet.h"
 #include "ShellUtils.h"
 
-HSTREAM m_bassPlaybackHandle = 0;   // Playback
-//HSTREAM g_update_handle = 0;   // Graph window update (used by callback func)
-//HSTREAM g_loopback_handle = 0; // Handle for Loopback stream in Vista
-
-//HRECORD g_record_handle = 0; 
-//HRECORD g_monitoring_handle = 0;
-
-//static CWasapiRecorder* g_wasapi_recorder = NULL;
-//static FileWriter* g_fileWriter = NULL;
-//static CEncoder_MP3* g_mp3Encoder = NULL;
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // shared data
@@ -221,10 +209,6 @@ int CMainFrame::LinesCallback_Wasapi(int channel, float* buffer, int bufferSize,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-//CMainFrame* CMainFrame::m_pMainFrame = NULL;
-
-//------------------------------------------------------------------------------
 float CMainFrame::PeaksCallback(int channel, void* userData)
 {
 	CMainFrame* mainFrame = static_cast<CMainFrame*>(userData);
@@ -253,10 +237,6 @@ int CMainFrame::LinesCallback(int channel, float* buffer, int bufferSize, void* 
 
 ////////////////////////////////////////////////////////////////////////////////
 CMainFrame::CMainFrame()
-	//:m_vista_loopback(NULL)
-	//,m_visualization_data(NULL)
-	//,m_loopback_hdsp(0)
-	//,m_mute_hdsp(0)
 	:m_playback_volume(1.0) //full volume
 	,m_recording_volume(1.0)
 	,m_monitoringChain(HandleFilterNotification, this)
@@ -264,12 +244,10 @@ CMainFrame::CMainFrame()
 	,m_bassPlaybackHandle(0)
 	,m_destroyingMainWindow(false)
 {
-	m_pEncoder	= NULL;
 	m_title		= NULL;
 
 	m_nState    = STOP_STATE;
 
-	//m_pMainFrame = this;
 	m_bAutoMenuEnable = false;
 
 	// Init window snapping
@@ -288,21 +266,11 @@ CMainFrame::CMainFrame()
 //====================================================================
 CMainFrame::~CMainFrame()
 {
-	//if (g_wasapi_recorder != NULL)
-	//	g_wasapi_recorder->Stop();
-	//if (g_mp3Encoder != NULL)
-	//	g_mp3Encoder->WriteVBRHeader(_T("d:\\test.mp3"));
-
-	//SAFE_DELETE(g_wasapi_recorder);
-	//SAFE_DELETE(g_fileWriter);
-	//SAFE_DELETE(g_mp3Encoder);
-
 	//!!!test
 	BASS_WASAPI_Stop(TRUE);
 	BASS_WASAPI_Free();
 
 	SAFE_DELETE(m_title);
-	//SAFE_DELETE(m_visualization_data);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -311,8 +279,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
-	//m_bMonitoringBtn = false;
 
 	// Removing the "Register" menu in registered mode
 	REG_CRYPT_BEGIN;
@@ -349,12 +315,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_TimeWnd.ShowWindow(SW_SHOW);  m_TimeWnd.UpdateWindow();
 	m_GraphWnd.ShowWindow(SW_SHOW); m_GraphWnd.UpdateWindow();
 	m_StatWnd.ShowWindow(SW_SHOW);  m_StatWnd.UpdateWindow();
-
-	// Setting graphs display mode
-	//const int graphType = RegistryConfig::GetOption(_T("General\\Graph Type"), 0);
-	//const bool maxPeaks = RegistryConfig::GetOption(_T("General\\Show max peaks"), 1);
-	//m_GraphWnd.SetDisplayMode(CGraphWnd::DisplayMode(graphType));
-	//m_GraphWnd.ShowMaxpeaks(maxPeaks);
 
 	// Adjusting the position and volume sliders
 	CRect rT(106, 55, 286, 78);
@@ -415,12 +375,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	const bool monEnabled = RegistryConfig::GetOption(_T("General\\Sound Monitor"), 0);
 	m_StatWnd.m_btnMon.SetCheck(monEnabled);
 
-	//if (m_conf.GetConfProg()->bMonitoring)
-	//{
-	//	m_bMonitoringBtn = false;
-	//	OnBtnMonitoring();
-	//}
-
 	// Setting up Voice Activation System
 	const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
 	m_StatWnd.m_btnVas.SetCheck(vasEnabled);
@@ -468,25 +422,11 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 	return TRUE;
 }
-/*
-/////////////////////////////////////////////////////////////////////////////
-BOOL CMainFrame::ShowWindow()
-{	
-	///@note Called by MP3_RecorderApp
 
-	int nCmdShow = (m_conf.GetConfDialGen()->bMinimized) ? SW_MINIMIZE : SW_SHOW;
-	if (nCmdShow == SW_MINIMIZE && m_conf.GetConfDialGen()->bTrayMin)
-	{
-		nCmdShow = SW_HIDE;
-		m_TrayIcon.ShowIcon();
-	}
-
-	return CFrameWnd::ShowWindow(nCmdShow);
-}
-*/
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame message handlers
 /////////////////////////////////////////////////////////////////////////////
+
 LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
 {
 	if (message == WM_DISPLAYCHANGE)
@@ -573,8 +513,6 @@ void CMainFrame::OnDestroy()
 		RegistryConfig::SetOption(_T("General\\Xcoord"), r.left);
 		RegistryConfig::SetOption(_T("General\\Ycoord"), r.top);
 	}
-	//RegistryConfig::SetOption(_T("General\\Graph Type"), m_GraphWnd.GetDisplayMode());
-	//RegistryConfig::SetOption(_T("General\\Show max peaks"), m_GraphWnd.MaxpeaksVisible());
 	RegistryConfig::SetOption(_T("General\\Playback volume"), int(m_playback_volume * 10000));
 }
 
@@ -700,47 +638,6 @@ void CMainFrame::OpenFile(CString fileName)
 	}
 
 	RegistryConfig::SetOption(_T("General\\LastFile"), fileName);
-
-	/*
-	// Storing last opened file name and path.
-	CString& l_last_path = m_conf.GetConfProg()->strLastFilePath;
-	CString& l_last_name = m_conf.GetConfProg()->strLastFileName;
-
-	int l_slash_pos = str.ReverseFind('\\');
-	if (l_slash_pos == -1)
-	{
-		l_last_name = str;
-	}
-	else
-	{	
-		l_last_path = str.Left(l_slash_pos);
-		l_last_name = str.Right(str.GetLength() - l_slash_pos - 1);
-	}
-
-	if (Helpers::IsSuitableForRecording(str))
-	{
-		UINT l_open_flags = CFile::modeCreate | CFile::modeReadWrite |
-			CFile::typeBinary | CFile::shareDenyWrite;
-		if (!m_record_file.Open(str, l_open_flags, NULL))
-			return;
-	}
-	else
-	{
-		if (BASS_GetDevice() == -1)
-		{
-			int deviceID = m_conf.GetConfDialGen()->nPlayDevice + 1; // BASS starts devices from 1
-			BASS_Init(deviceID <= 0 ? -1 : deviceID, 44100, 0, GetSafeHwnd(), NULL);
-		}
-
-		m_bassPlaybackHandle = BASS_StreamCreateFile(false, str, 0, 0, 0);
-		if (!m_bassPlaybackHandle)
-		{
-			// Not calling BASS_Free, because it can be used by monitoring
-			//BASS_Free();
-			return;
-		}
-	}
-	*/
 
 	// Modifying window caption to "<FILE> - StepVoice Recorder".
 
@@ -872,7 +769,6 @@ void CMainFrame::OnSoundEnd()
 //===========================================================================
 void CMainFrame::OnStatPref() 
 {
-	//m_conf.GetConfProg()->nDialogIndex = -1; // Selecting tab sheet for display
 	OnOptCom();
 }
 
@@ -1034,54 +930,6 @@ void CMainFrame::OnBtnSTOP()
 
 	//if (m_monitoringChain.IsEmpty()) //Removes multiple restart on stop processing.
 		MonitoringRestart();
-
-	/*
-	m_nState = STOP_STATE;
-	if (m_bassPlaybackHandle)
-	{
-		KillTimer(1);
-		BOOL l_result = BASS_ChannelStop(m_bassPlaybackHandle);
-		ASSERT(l_result);
-
-		l_result = BASS_ChannelSetPosition(m_bassPlaybackHandle,
-			BASS_ChannelSeconds2Bytes(m_bassPlaybackHandle, 0), BASS_POS_BYTE);
-		ASSERT(l_result);
-	}
-	if (g_record_handle)
-	{
-		KillTimer(2);
-		BOOL l_result = BASS_ChannelStop(g_record_handle);
-		ASSERT(l_result);
-
-		l_result = BASS_ChannelStop(g_loopback_handle);
-		ASSERT(l_result);
-
-		g_loopback_handle = 0;
-		g_record_handle = 0;
-		m_loopback_hdsp = 0;
-		m_mute_hdsp = 0;
-		BASS_Free();
-		
-		BASS_RecordFree();
-
-		SAFE_DELETE(m_vista_loopback);
-		SAFE_DELETE(m_visualization_data);
-
-		CString l_recorded_file = m_record_file.GetFilePath();
-		m_record_file.Flush();
-		m_record_file.Close();
-
-		m_pEncoder->WriteVBRHeader(l_recorded_file);
-		SAFE_DELETE(m_pEncoder);
-		OpenFile(l_recorded_file);
-	}
-
-	PostMessage(WM_HSCROLL,  MAKEWPARAM(SB_THUMBPOSITION, 0),
-		(LPARAM)m_pMainFrame->m_SliderTime.m_hWnd);
-
-	if (m_bMonitoringBtn)
-		MonitoringStart();
-	*/
 }
 
 //===========================================================================
@@ -1176,44 +1024,6 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 
 	m_TimeWnd.SetTime((UINT)curSeconds);
 	UpdateStatWindow();
-
-	/*
-	HSTREAM l_handle = 0;
-	switch (nIDEvent)
-	{
-	case 1:
-		l_handle = m_bassPlaybackHandle;
-		break;
-	case 2:
-		l_handle = (HSTREAM)g_record_handle;
-		break;
-	default:
-		return;
-	}
-
-	double l_seconds_all = BASS_ChannelBytes2Seconds(l_handle,
-		BASS_ChannelGetLength(l_handle, BASS_POS_BYTE));
-	double l_seconds_cur = BASS_ChannelBytes2Seconds(l_handle,
-		BASS_ChannelGetPosition(l_handle, BASS_POS_BYTE));
-
-	if (l_handle == g_record_handle)
-	{
-		int l_stream_rate = m_conf.GetConfDialMp3()->nBitrate;
-		QWORD l_size_bytes = (QWORD)m_record_file.GetLength();
-		l_seconds_cur = (double)l_size_bytes / (l_stream_rate * 125);
-	}
-	if (!m_SliderTime.IsDragging())
-	{
-		m_SliderTime.SetCurPos(int(l_seconds_cur / l_seconds_all * 1000));
-	}
-	m_TimeWnd.SetTime((UINT)l_seconds_cur);
-	UpdateStatWindow();
-
-	if (BASS_ACTIVE_STOPPED == BASS_ChannelIsActive(l_handle))
-	{
-		PostMessage(WM_COMMAND, IDB_BTNSTOP, LONG(this->m_BtnSTOP.m_hWnd));
-	}
-	*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1252,40 +1062,6 @@ void CMainFrame::UpdateStatWindow()
 	const CString strFileSeconds = Helpers::ToString_HMMSS(fileSeconds);
 	m_StatWnd.Set(frequency, bitrate, stereo);
 	m_StatWnd.Set(fileSize/1024, strFileSeconds);
-
-	/*
-	int l_stream_rate = m_conf.GetConfDialMp3()->nBitrate;
-	int l_stream_freq = m_conf.GetConfDialMp3()->nFreq;
-	int l_stream_mode = m_conf.GetConfDialMp3()->nStereo;
-
-	QWORD l_size_bytes = 0;
-	double l_size_seconds = 0;
-
-	if (m_bassPlaybackHandle)
-	{
-		BASS_CHANNELINFO l_channel_info;
-		BASS_ChannelGetInfo(m_bassPlaybackHandle, &l_channel_info);
-
-		l_size_bytes = BASS_StreamGetFilePosition(m_bassPlaybackHandle,
-			BASS_FILEPOS_END);
-
-		l_size_seconds = BASS_ChannelBytes2Seconds(m_bassPlaybackHandle,
-			BASS_ChannelGetLength(m_bassPlaybackHandle, BASS_POS_BYTE));
-
-		l_stream_rate = int(l_size_bytes / (125* l_size_seconds) + 0.5); //Kbps
-		l_stream_freq = l_channel_info.freq;
-		l_stream_mode = (l_channel_info.chans > 1) ? 1 : 0;
-	}
-	else if (g_record_handle)
-	{
-		l_size_bytes   = (QWORD)m_record_file.GetLength();
-		l_size_seconds = (double)l_size_bytes / (l_stream_rate * 125);
-	}
-
-	const CString allSeconds = Helpers::ToString_HMMSS(l_size_seconds);
-	m_StatWnd.Set(l_stream_freq, l_stream_rate, l_stream_mode);
-	m_StatWnd.Set((UINT)l_size_bytes/1024, allSeconds);
-	*/
 }
 
 //------------------------------------------------------------------------------
@@ -1359,24 +1135,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 
 	::DragFinish(hDropInfo);
 }
-/*
-////////////////////////////////////////////////////////////////////////////////
-CString CMainFrame::GetAutoName( CString& strPattern )
-{
-	// Removing all '%' symbols from the end of string
-	if( strPattern.Right(1) == "%")
-		strPattern.TrimRight('%');
 
-	CTime t = CTime::GetCurrentTime();
-	CString s = t.Format( m_conf.GetConfDialAN()->strAutoName );
-	s += ".mp3";
-
-	if( s == ".mp3" )
-		s = "Empty.mp3";
-
-	return s;
-}
-*/
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
@@ -1411,9 +1170,6 @@ void CMainFrame::OnOptSnddev()
 /////////////////////////////////////////////////////////////////////////////
 BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
-	//if(!m_conf.GetConfDialGen()->bToolTips)
-	//	return true;
-
 	// need to handle both ANSI and UNICODE versions of the message
 	TOOLTIPTEXTA* pTTTA = (TOOLTIPTEXTA*)pNMHDR;
 	TOOLTIPTEXTW* pTTTW = (TOOLTIPTEXTW*)pNMHDR;
@@ -1603,7 +1359,6 @@ void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
 //------------------------------------------------------------------------------
 void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 {
-
    // Get the minimum and maximum scroll-bar positions.
    int minpos, maxpos, curpos;
    m_SliderVol.GetRange(minpos, maxpos);
@@ -1707,12 +1462,6 @@ void CMainFrame::OnBtnMonitoring()
 }
 //------------------------------------------------------------------------------
 
-//bool CMainFrame::IsMonitoringOnly()
-//{
-//	return m_bMonitoringBtn && (m_nState == STOP_STATE);
-//}
-//------------------------------------------------------------------------------
-
 bool CMainFrame::MonitoringRestart()
 {
 	if (m_StatWnd.m_btnMon.IsChecked() && m_nState == STOP_STATE && !m_destroyingMainWindow)
@@ -1753,30 +1502,6 @@ void CMainFrame::MonitoringStop()
 		m_monitoringChain.GetFilter<IWasapiRecorder>()->Stop();
 		m_monitoringChain.Empty();
 	}
-
-
-	/*
-	if (g_monitoring_handle)
-	{
-		m_GraphWnd.StopUpdate();
-
-		BOOL l_result = BASS_ChannelStop(g_monitoring_handle);
-		ASSERT(l_result);
-		l_result = BASS_ChannelStop(g_loopback_handle);
-		ASSERT(l_result);
-
-		SAFE_DELETE(m_vista_loopback);
-		SAFE_DELETE(m_visualization_data);
-		g_loopback_handle = 0;
-		g_monitoring_handle = 0;
-		m_loopback_hdsp = 0;
-		m_mute_hdsp = 0;
-
-		if (!m_bassPlaybackHandle && !g_loopback_handle)
-			BASS_Free();
-		BASS_RecordFree();
-	}
-	*/
 }
 //------------------------------------------------------------------------------
 
@@ -1833,8 +1558,6 @@ void CMainFrame::UpdateInterface()
 	switch (m_nState)
 	{
 	case PLAY_STATE:
-		///@bug Testing new functionality
-		//g_update_handle = m_bassPlaybackHandle;
 		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, this);
 
 		m_BtnPLAY.SetIcon(IDI_PAUSE);
@@ -1856,10 +1579,6 @@ void CMainFrame::UpdateInterface()
 	case RECORD_STATE:
 		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi,
 			m_recordingChain.GetFilter<IWasapiRecorder>());
-
-		///@bug Testing new functionality
-		//g_update_handle = g_record_handle;
-		//m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, this);
 
 		m_BtnREC.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
@@ -1952,44 +1671,6 @@ CString CMainFrame::ParseFileName(CString a_file_name)
 	return a_file_name;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/*
-void CALLBACK CMainFrame::LoopbackStreamDSP(HDSP a_handle, DWORD a_channel,
-	void *a_buffer, DWORD a_length, void *a_user)
-{
-	// Loopback is a decoding stream and have same parameters (freq, channels)
-	// as a main recording stream, for direct copying.
-
-	//1. Fill buffer with required length from Loopback stream (a_user)
-	const int BUFFER_LENGTH = 256 * 1024;
-	ASSERT(a_length <= BUFFER_LENGTH);
-	ASSERT(a_user);
-
-	static char l_src_buffer[BUFFER_LENGTH] = {0}; //256k buffer
-	HSTREAM l_src_stream = *((HSTREAM*)a_user);
-
-	DWORD l_length = BASS_ChannelGetData(l_src_stream, l_src_buffer, a_length);
-	if (l_length == -1)
-	{
-		int l_error_code = BASS_ErrorGetCode();
-		return;
-	}
-	ASSERT(l_length == a_length);
-
-	//2. Replace data in the recording buffer (assuming we have float samples).
-	float* l_dst_buffer = (float*)a_buffer;
-	float* l_src_buffer_float = (float*)l_src_buffer;
-	for (int i = 0; i < a_length / sizeof(float); i++)
-		l_dst_buffer[i] = max(-1.0, min((l_dst_buffer[i] + l_src_buffer_float[i]), 1.0));
-
-	/*
-	char* l_dst_buffer = (char*)a_buffer;
-	for (DWORD i = 0; i < a_length; i++)
-		l_dst_buffer[i] = l_src_buffer[i];
-	*/
-//}
-//*/
-
 //------------------------------------------------------------------------------
 bool CMainFrame::CanPlay() const
 {
@@ -2001,100 +1682,12 @@ bool CMainFrame::CanPlay() const
 bool CMainFrame::CanRecord() const
 {
 	return !m_recordingFileName.IsEmpty();
-	//return BASS_ChannelIsActive(m_bassPlaybackHandle)==BASS_ACTIVE_STOPPED;
 }
 //------------------------------------------------------------------------------
 
 LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 {
 	MonitoringRestart();
-
-	/*
-	FilterChain chain(NULL, NULL);
-	chain.AddFilter(new FileWriter(_T("d:\\test.mp3")));
-	chain.AddFilter(new CEncoder_MP3(128, 44100, 2));
-
-	FileWriter* curWriter = chain.GetFilter<FileWriter>();
-	FileWriterWAV* curWriterWav = chain.GetFilter<FileWriterWAV>();
-	CEncoder_MP3* curEncoder = chain.GetFilter<CEncoder_MP3>();
-	CWasapiRecorder* curRecorder = chain.GetFilter<CWasapiRecorder>();
-
-	bool debug = true;
-	*/
-
-	//NEW version, commented.
-	/*
-	OutputDebugString(__FUNCTION__"\n");
-	m_GraphWnd.StopUpdate();
-
-	WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
-	ASSERT(!selectedDevices.empty());
-	const DWORD deviceID = selectedDevices[0].first;
-
-	try
-	{
-		SAFE_DELETE(g_wasapi_recorder);
-		SAFE_DELETE(g_fileWriter);
-		SAFE_DELETE(g_mp3Encoder);
-
-		g_wasapi_recorder = new CWasapiRecorder(deviceID, 44100, 2);//, NULL, NULL);
-		const int actualFreq = g_wasapi_recorder->GetActualFrequency();
-		const int actualChannels = g_wasapi_recorder->GetActualChannelCount();
-
-		g_mp3Encoder = new CEncoder_MP3(128, actualFreq, actualChannels);
-		g_wasapi_recorder->SetChildFilter(g_mp3Encoder);
-
-		g_fileWriter = new FileWriter(_T("d:\\test.mp3"));
-		g_mp3Encoder->SetChildFilter(g_fileWriter);
-	}
-	catch (CException* e)
-	{
-		SAFE_DELETE(g_wasapi_recorder);
-		SAFE_DELETE(g_fileWriter);
-		SAFE_DELETE(g_mp3Encoder);
-		throw;
-	}
-	catch (...)
-	{
-		AfxMessageBox(_T("Unknown exception occured."));
-	}
-
-	if (!g_wasapi_recorder->Start())
-		return 0;
-
-	m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, g_wasapi_recorder);
-	*/
-
-
-	/*
-	BOOL result = BASS_WASAPI_Stop(TRUE);
-	result = BASS_WASAPI_Free();
-	m_GraphWnd.StopUpdate();
-	SAFE_DELETE(m_visualization_data);
-
-	//graph_wnd start update with our test stream.
-	
-	WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
-	ASSERT(!selectedDevices.empty());
-	const DWORD deviceID = selectedDevices[0].first;
-	DWORD errorCode = 0;
-
-	result = BASS_WASAPI_Init(deviceID, 44100, 2, BASS_WASAPI_AUTOFORMAT, 0.5, 0, WasapiRecordingProc, this);
-	if (result)
-	{
-		OutputDebugString(__FUNCTION__" ::SUCCESS!\n");
-		result = BASS_WASAPI_Start();
-	}
-	else
-	{
-		OutputDebugString(__FUNCTION__" ::ERROR!\n");
-		errorCode = BASS_ErrorGetCode();
-		return 0;
-	}
-
-	m_visualization_data = new VisualizationData(44100, 2);
-	m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi);
-	*/
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -2150,4 +1743,3 @@ LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 //------------------------------------------------------------------------------
-

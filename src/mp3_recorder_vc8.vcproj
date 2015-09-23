@@ -1080,10 +1080,6 @@
 				>
 			</File>
 			<File
-				RelativePath="struct.h"
-				>
-			</File>
-			<File
 				RelativePath=".\SyncObjects.h"
 				>
 			</File>

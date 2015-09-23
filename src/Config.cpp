@@ -1,10 +1,5 @@
-////////////////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
-//#include "MP3_Recorder.h"
 #include "Config.h"
-//#include <mmsystem.h>
-//#include "BASS_Functions.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -12,39 +7,9 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//NOTE: kept for options history.
 /*
-CConfig::CConfig()
-{
-	loadConfig();
-}
-//------------------------------------------------------------------------------
-
-CConfig::~CConfig()
-{
-	saveConfig();
-	//SetAutoRun( conf_dial_gen.bAutoRun != 0 );
-}
-//------------------------------------------------------------------------------
-
-bool CConfig::loadConfig()
-{
-	RegisterRead();
-	ValidateRead();
-	return true;
-}
-//------------------------------------------------------------------------------
-
-bool CConfig::saveConfig()
-{
-	return RegisterWrite();
-}
-//------------------------------------------------------------------------------
-
-//////////////////////////////////////////////////////////////////////
-// Register read/write functions
-//////////////////////////////////////////////////////////////////////
-
 void CConfig::RegisterRead()
 {
 	CWinApp* App = AfxGetApp();
@@ -80,90 +45,8 @@ void CConfig::RegisterRead()
 	conf_dial_an.strAutoName = App->GetProfileString( "Autoname", "Current template", "%b%d_%H%M" );
 	conf_dial_an.strTDefault = App->GetProfileString( "Autoname", "Default template", "%b%d_%H%M" );
 }
-//------------------------------------------------------------------------------
-
-void CConfig::ValidateRead()
-{
-	if (!Bass::IsPlaybackDeviceValid(conf_dial_gen.nPlayDevice))
-		conf_dial_gen.nPlayDevice = -1;
-	if (!Bass::IsRecordingDeviceValid(conf_dial_gen.nRecDevice))
-		conf_dial_gen.nRecDevice = -1;
-}
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------
 */
-//bool CConfig::RegisterWrite()
-//{
-//	return false;
-	/*
-	CWinApp* App = AfxGetApp();
-
-	App->WriteProfileInt( "General", "Always on Top",	conf_prog.bAlwaysOnTop );
-	App->WriteProfileInt( "General", "Easy Move",		conf_prog.bEasyMove );
-	App->WriteProfileInt( "General", "Xcoord",			conf_prog.nXcoord );
-	App->WriteProfileInt( "General", "Ycoord",			conf_prog.nYcoord );
-	App->WriteProfileInt( "General", "DialogIndex",		conf_prog.nDialogIndex );
-	App->WriteProfileString( "General", "LastFileName",	conf_prog.strLastFileName );
-	App->WriteProfileString( "General", "LastFilePath",	conf_prog.strLastFilePath );
-	App->WriteProfileInt( "General", "Graph Type",		conf_prog.nGraphType );
-	App->WriteProfileInt( "General", "Show max peaks",	conf_prog.bGraphMaxpeaks);
-	App->WriteProfileInt( "General", "Sound Monitor",	conf_prog.bMonitoring );
-	App->WriteProfileInt( "General", "Playback volume",	conf_prog.nPlayVolume );
-	App->WriteProfileInt( "General", "Recording line",	conf_prog.nRecLineID );
-
-	App->WriteProfileInt( "General", "Loader",			conf_dial_gen.nLoader );
-	App->WriteProfileInt( "General", "Minimized",		conf_dial_gen.bMinimized );
-	App->WriteProfileInt( "General", "AutoRun",			conf_dial_gen.bAutoRun );
-	App->WriteProfileInt( "General", "Tool Tips",		conf_dial_gen.bToolTips );
-	App->WriteProfileInt( "General", "Show icon in tray",  conf_dial_gen.bTrayIcon );
-	App->WriteProfileInt( "General", "Minimize to tray",   conf_dial_gen.bTrayMin );
-	App->WriteProfileInt( "General", "Multiple instances", conf_dial_gen.bMInstances );
-	App->WriteProfileInt( "General", "Playback device",	conf_dial_gen.nPlayDevice );
-	App->WriteProfileInt( "General", "Recording device",	conf_dial_gen.nRecDevice );
-
-	App->WriteProfileInt( "File types\\MP3", "Bitrate",	conf_dial_mp3.nBitrate );
-	App->WriteProfileInt( "File types\\MP3", "Freq",	conf_dial_mp3.nFreq );
-	App->WriteProfileInt( "File types\\MP3", "Stereo",	conf_dial_mp3.nStereo );
-	App->WriteProfileInt( "File types\\MP3", "AutoFreq",conf_dial_mp3.bAutoFreq );
-
-	App->WriteProfileString( "Autoname", "Current template", conf_dial_an.strAutoName );
-	int b = App->WriteProfileString( "Autoname", "Default template", conf_dial_an.strTDefault );
-	//int b = App->WriteProfileString( "Autoname", "Default template", "%b%d_%H%M" );
-	//int b = App->WriteProfileString( "Autoname", "Default template", "%Y%m%d_%H%M" );
-
-	return ( b != 0 );
-	*/
-//}
-
-//====================================================================
-/*
-bool CConfig::SetAutoRun( bool bSet )
-{
-	HKEY hKey;
-	const char szAppName[]	  = "SvRecorder";
-	const char szRegRunPath[] = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
-
-	LONG lResult = RegOpenKeyEx( HKEY_CURRENT_USER, szRegRunPath, 0,
-		KEY_ALL_ACCESS,	&hKey);
-
-	if( lResult != ERROR_SUCCESS )
-		return false;
-
-	if( bSet ) {
-		char szFullAppName[500];
-		GetModuleFileName( NULL, szFullAppName, 500 );
-		RegSetValueEx( hKey, szAppName, 0, REG_SZ,
-			reinterpret_cast<const unsigned char *>(szFullAppName),
-			strlen( szFullAppName ) + 1 );
-	}
-	else
-		RegDeleteValue( hKey, szAppName );
-
-	RegCloseKey( hKey );
-	return true;
-}
-*/
-//////////////////////////////////////////////////////////////////////
-
 //void RegistryConfig::SetRegistryKey(const CString& regPath)
 //{
 //	CMP3_RecorderApp* winApp = dynamic_cast<CMP3_RecorderApp*>(AfxGetApp());

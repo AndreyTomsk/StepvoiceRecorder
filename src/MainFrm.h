@@ -9,9 +9,6 @@
 #include "MySlider.h"
 #include "SliderVol.h"
 
-#include "Encoder_MP3.h"
-
-#include "struct.h"
 #include "TitleText.h"
 
 #include "SystemTray.h"
@@ -28,6 +25,7 @@
 #include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
+
 enum ProgramState
 {
 	STOP_STATE,
@@ -41,28 +39,12 @@ enum ProgramState
 
 class CMainFrame : public CFrameWnd
 {
-	//static void CALLBACK LoopbackStreamDSP(HDSP handle, DWORD channel,
-	//	void *buffer, DWORD length, void *user);
-
 	friend class CGraphWnd;
-
-	//static CMainFrame* m_pMainFrame;
 
 	static float PeaksCallback(int a_channel, void* userData);
 	static int   LinesCallback(int a_channel, float* a_buffer, int a_size, void* userData);
 	static float PeaksCallback_Wasapi(int a_channel, void* userData);
 	static int   LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size, void* userData);
-
-	///Callback function to process sample data
-	//static BOOL CALLBACK NewRecordProc(HRECORD a_handle, void* a_buffer, DWORD a_length, void* a_user);
-	//static BOOL CALLBACK MonitoringProc(HRECORD a_handle, void* a_buffer, DWORD a_length, void* a_user);
-	//static DWORD CALLBACK WasapiRecordingProc(void *buffer, DWORD length, void *user);
-
-
-	//VisualizationData* m_visualization_data;
-	//BassVistaLoopback* m_vista_loopback;
-	//HDSP m_loopback_hdsp;
-	//HDSP m_mute_hdsp;
 
 	float m_playback_volume;
 	float m_recording_volume;
@@ -71,16 +53,9 @@ class CMainFrame : public CFrameWnd
 	bool CanPlay() const;
 	bool CanRecord() const;
 
-	CEncoder_MP3*	m_pEncoder;
 	CTitleText*		m_title;
-	//CFile			m_record_file;
-
-	//int m_bMonitoringBtn;
-
 	ProgramState	m_nState;
 
-	// program configuration
-	//CConfig			m_conf;
 	// Display windows
 	CIcoWnd			m_IcoWnd;
 	CTimeWnd		m_TimeWnd;
@@ -112,22 +87,18 @@ public:
 	virtual ~CMainFrame();
 
 	void UpdateInterface();
-	//bool IsMonitoringOnly();
 	void OnBtnMonitoring();
 	void OnBtnVas();
-	//BOOL ShowWindow();
 	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
 
 protected:
 	void ProcessSliderTime(UINT nSBCode, UINT nPos);
 	void ProcessSliderVol(UINT nSBCode, UINT nPos);
-	//void Convert(UINT nCurSec, char* pszTime, int nStrSize);
 	void OpenFile(CString strFileName);
 
 	void UpdateStatWindow();
 	void UpdateButtonState(UINT nID);
 	void UpdateWindowTitle_SeekTo(double curSeconds, double allSeconds, int displayTimeMs);
-	//CString GetAutoName(CString& strPattern);
 
 	/**
 	 * Parses string, replacing patterns by real values. Currently supports:
