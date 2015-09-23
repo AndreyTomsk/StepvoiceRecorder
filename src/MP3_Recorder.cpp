@@ -335,7 +335,7 @@ _lNoNag:
 	m_pMainWnd = pFrame;
 
 	pFrame->DragAcceptFiles(TRUE);
-	pFrame->ShowWindow();
+	pFrame->ShowWindow(SW_SHOW);
 	pFrame->UpdateWindow();
 	if (CMD_LENGTH > 0)
 	{

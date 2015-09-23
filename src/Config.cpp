@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "MP3_Recorder.h"
+//#include "MP3_Recorder.h"
 #include "Config.h"
-#include <mmsystem.h>
-#include "BASS_Functions.h"
+//#include <mmsystem.h>
+//#include "BASS_Functions.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -13,7 +13,7 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
 CConfig::CConfig()
 {
 	loadConfig();
@@ -90,10 +90,10 @@ void CConfig::ValidateRead()
 		conf_dial_gen.nRecDevice = -1;
 }
 //------------------------------------------------------------------------------
-
-bool CConfig::RegisterWrite()
-{
-	return false;
+*/
+//bool CConfig::RegisterWrite()
+//{
+//	return false;
 	/*
 	CWinApp* App = AfxGetApp();
 
@@ -132,7 +132,7 @@ bool CConfig::RegisterWrite()
 
 	return ( b != 0 );
 	*/
-}
+//}
 
 //====================================================================
 /*
@@ -164,11 +164,11 @@ bool CConfig::SetAutoRun( bool bSet )
 */
 //////////////////////////////////////////////////////////////////////
 
-void RegistryConfig::SetRegistryKey(const CString& regPath)
-{
-	CMP3_RecorderApp* winApp = dynamic_cast<CMP3_RecorderApp*>(AfxGetApp());
-	winApp->SetRegistryKey(regPath);
-}
+//void RegistryConfig::SetRegistryKey(const CString& regPath)
+//{
+//	CMP3_RecorderApp* winApp = dynamic_cast<CMP3_RecorderApp*>(AfxGetApp());
+//	winApp->SetRegistryKey(regPath);
+//}
 //--------------------------------------------------------------------
 
 struct RegistryPlace
@@ -230,9 +230,15 @@ void RegistryConfig::SetOption<CString>(const CString& initialPath, const CStrin
 //--------------------------------------------------------------------
 
 template<>
+void RegistryConfig::SetOption<long>(const CString& initialPath, const long& value)
+{
+	SetOption<int>(initialPath, value);
+}
+//--------------------------------------------------------------------
+
+template<>
 void RegistryConfig::SetOption<bool>(const CString& initialPath, const bool& value)
 {
 	SetOption<int>(initialPath, value ? 1 : 0);
 }
 //--------------------------------------------------------------------
-//////////////////////////////////////////////////////////////////////

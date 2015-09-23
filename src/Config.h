@@ -7,7 +7,7 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-
+/*
 //////////////////////////////////////////////////////////////////////
 class CConfig  
 {
@@ -35,7 +35,7 @@ private:
 	CONF_DIAL_MP3	conf_dial_mp3;
 	CONF_DIAL_AN	conf_dial_an;
 };
-
+*/
 //////////////////////////////////////////////////////////////////////
 //Path - path to registry entry. For example: "File types\\MP3\\Bitrate".
 //Here "File types\\MP3" is registry path, "Bitrate" - entry name.
@@ -43,7 +43,7 @@ private:
 class RegistryConfig
 {
 public:
-	static void SetRegistryKey(const CString& regPath);
+	//static void SetRegistryKey(const CString& regPath);
 
 	template<class T>
 	static T GetOption(const CString& path, const T& defaultValue);

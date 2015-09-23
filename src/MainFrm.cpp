@@ -351,8 +351,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_StatWnd.ShowWindow(SW_SHOW);  m_StatWnd.UpdateWindow();
 
 	// Setting graphs display mode
-	m_GraphWnd.SetDisplayMode(CGraphWnd::DisplayMode(m_conf.GetConfProg()->nGraphType));
-	m_GraphWnd.ShowMaxpeaks(m_conf.GetConfProg()->bGraphMaxpeaks != 0);
+	//const int graphType = RegistryConfig::GetOption(_T("General\\Graph Type"), 0);
+	//const bool maxPeaks = RegistryConfig::GetOption(_T("General\\Show max peaks"), 1);
+	//m_GraphWnd.SetDisplayMode(CGraphWnd::DisplayMode(graphType));
+	//m_GraphWnd.ShowMaxpeaks(maxPeaks);
 
 	// Adjusting the position and volume sliders
 	CRect rT(106, 55, 286, 78);
@@ -405,11 +407,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Creating icon for the system tray
 	m_TrayIcon.Create(this, WM_ICON_NOTIFY, "Stepvoice Recorder",
 		LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_TRAY_STOP)), IDR_TRAY_MENU);
-	if(m_conf.GetConfDialGen()->bTrayIcon)
-		m_TrayIcon.ShowIcon();
-	else
-		m_TrayIcon.HideIcon();
 	UpdateTrayText();
+	if(RegistryConfig::GetOption(_T("General\\Show icon in tray"), 0))
+		m_TrayIcon.ShowIcon();
 
 	// Setting up Monitoring
 	const bool monEnabled = RegistryConfig::GetOption(_T("General\\Sound Monitor"), 0);
@@ -444,8 +444,8 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 	
 	int nScreenCX = GetSystemMetrics(SM_CXSCREEN);
 	int nScreenCY = GetSystemMetrics(SM_CYSCREEN);
-	cs.x  = m_conf.GetConfProg()->nXcoord;
-	cs.y  = m_conf.GetConfProg()->nYcoord;
+	cs.x  = RegistryConfig::GetOption(_T("General\\Xcoord"), 300);
+	cs.y  = RegistryConfig::GetOption(_T("General\\Ycoord"), 200);
 	if (cs.x >= (nScreenCX-40) || cs.y >= (nScreenCY-40))
 	{
 		cs.x  = (nScreenCX - cs.cx)/2;
@@ -468,7 +468,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 	return TRUE;
 }
-
+/*
 /////////////////////////////////////////////////////////////////////////////
 BOOL CMainFrame::ShowWindow()
 {	
@@ -483,7 +483,7 @@ BOOL CMainFrame::ShowWindow()
 
 	return CFrameWnd::ShowWindow(nCmdShow);
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame message handlers
 /////////////////////////////////////////////////////////////////////////////
@@ -498,7 +498,7 @@ LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	if (m_conf.GetConfProg()->bEasyMove)
+	if (RegistryConfig::GetOption(_T("General\\Easy Move"), 1))
 	{
 		CPoint pt;
 		GetCursorPos(&pt);
@@ -570,12 +570,12 @@ void CMainFrame::OnDestroy()
 	if (!IsIconic())
 	{
 		CRect r; GetWindowRect(&r);
-		m_conf.GetConfProg()->nXcoord = r.left;
-		m_conf.GetConfProg()->nYcoord = r.top;
+		RegistryConfig::SetOption(_T("General\\Xcoord"), r.left);
+		RegistryConfig::SetOption(_T("General\\Ycoord"), r.top);
 	}
-	m_conf.GetConfProg()->nGraphType = m_GraphWnd.GetDisplayMode();
-	m_conf.GetConfProg()->bGraphMaxpeaks = (int)m_GraphWnd.MaxpeaksVisible();
-	m_conf.GetConfProg()->nPlayVolume = int(m_playback_volume * 10000);
+	//RegistryConfig::SetOption(_T("General\\Graph Type"), m_GraphWnd.GetDisplayMode());
+	//RegistryConfig::SetOption(_T("General\\Show max peaks"), m_GraphWnd.MaxpeaksVisible());
+	RegistryConfig::SetOption(_T("General\\Playback volume"), int(m_playback_volume * 10000));
 }
 
 //===========================================================================
@@ -909,18 +909,20 @@ void CMainFrame::OnOptCom()
 //===========================================================================
 void CMainFrame::OnOptEm() 
 {
-	//Reverting the state of dragging window from any point
-	m_conf.GetConfProg()->bEasyMove = m_conf.GetConfProg()->bEasyMove ? 0 : 1;
+	//Reverting feature of dragging window from any point
+	int curEM = RegistryConfig::GetOption(_T("General\\Easy Move"), 1);
+	RegistryConfig::SetOption(_T("General\\Easy Move"), curEM ? 0 : 1);
 }
 
 //===========================================================================
 void CMainFrame::OnOptTop() 
 {
-	// Link to the window top option
-	int& l_top = m_conf.GetConfProg()->bAlwaysOnTop;
-	l_top = l_top ? 0 : 1;
+	//Reverting feature
+	int curOnTop = RegistryConfig::GetOption(_T("General\\Always on Top"), 0);
+	curOnTop = curOnTop ? 0 : 1;
+	RegistryConfig::SetOption(_T("General\\Always on Top"), curOnTop);
 
-	const CWnd* pWndType = (l_top) ? &wndTopMost : &wndNoTopMost;
+	const CWnd* pWndType = curOnTop ? &wndTopMost : &wndNoTopMost;
 	SetWindowPos(pWndType, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOSIZE|SWP_NOMOVE);
 }
 
@@ -1312,15 +1314,13 @@ void CMainFrame::OnUpdateSoundPlay(CCmdUI* pCmdUI)
 //------------------------------------------------------------------------------
 void CMainFrame::OnUpdateOptTop(CCmdUI* pCmdUI) 
 {
-	int enable = m_conf.GetConfProg()->bAlwaysOnTop;
-	pCmdUI->SetCheck(enable);
+	pCmdUI->SetCheck(RegistryConfig::GetOption(_T("General\\Always on Top"), 0));
 }
 
 //------------------------------------------------------------------------------
 void CMainFrame::OnUpdateOptEm(CCmdUI* pCmdUI) 
 {
-	int enable = m_conf.GetConfProg()->bEasyMove;
-	pCmdUI->SetCheck(enable);
+	pCmdUI->SetCheck(RegistryConfig::GetOption(_T("General\\Easy Move"), 1));
 }
 
 //===========================================================================
@@ -1411,8 +1411,8 @@ void CMainFrame::OnOptSnddev()
 /////////////////////////////////////////////////////////////////////////////
 BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
-	if(!m_conf.GetConfDialGen()->bToolTips)
-		return true;
+	//if(!m_conf.GetConfDialGen()->bToolTips)
+	//	return true;
 
 	// need to handle both ANSI and UNICODE versions of the message
 	TOOLTIPTEXTA* pTTTA = (TOOLTIPTEXTA*)pNMHDR;
@@ -1465,14 +1465,16 @@ LRESULT CMainFrame::OnTrayNotification(WPARAM wParam, LPARAM lParam)
 void CMainFrame::OnSize(UINT nType, int cx, int cy) 
 {
 	CFrameWnd::OnSize(nType, cx, cy);
-	
-	if(nType==SIZE_MINIMIZED && m_conf.GetConfDialGen()->bTrayMin)
+
+	const bool showIconInTray = RegistryConfig::GetOption(_T("General\\Show icon in tray"), 0);
+	const bool minimizeToTray = RegistryConfig::GetOption(_T("General\\Minimize to tray"), 0);
+	if (nType==SIZE_MINIMIZED && minimizeToTray)
 	{
-		if(!m_conf.GetConfDialGen()->bTrayIcon)
+		if (!showIconInTray)
 			m_TrayIcon.ShowIcon();
-		::ShowWindow(this->GetSafeHwnd(), SW_HIDE);
+		ShowWindow(SW_HIDE);
 	}
-	else if(nType==SIZE_RESTORED && !m_conf.GetConfDialGen()->bTrayIcon)
+	else if (nType==SIZE_RESTORED && !showIconInTray)
 	{
 		m_TrayIcon.HideIcon();
 	}
@@ -1488,11 +1490,11 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 			int nCmdShow = (wndStyle&WS_MINIMIZE || !(wndStyle&WS_VISIBLE))
 				? SW_RESTORE : SW_MINIMIZE;
 
-			if (nCmdShow == SW_MINIMIZE && m_conf.GetConfDialGen()->bTrayMin)
-			{
+			const bool minimizeToTray = RegistryConfig::GetOption(_T("General\\Minimize to tray"), 0);
+			if (nCmdShow == SW_MINIMIZE && minimizeToTray)
 				nCmdShow = SW_HIDE;
-			}
-			::ShowWindow(this->GetSafeHwnd(), nCmdShow);
+
+			ShowWindow(nCmdShow);
 		}
 		break;
 	case IDM_TRAY_REC:

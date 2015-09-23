@@ -49,6 +49,8 @@ CGraphWnd::CGraphWnd()
 //------------------------------------------------------------------------------
 CGraphWnd::~CGraphWnd()
 {
+	RegistryConfig::SetOption(_T("General\\Graph Type"), int(m_display_mode));
+	RegistryConfig::SetOption(_T("General\\Show max peaks"), m_bMaxpeaks);
 }
 
 //------------------------------------------------------------------------------
@@ -84,6 +86,15 @@ int CGraphWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	ResetMaxpeakMarks();
 	Clear();
+
+	// Loading settings.
+
+	m_bMaxpeaks = RegistryConfig::GetOption(_T("General\\Show max peaks"), 1) ? true : false;
+
+	int dm = RegistryConfig::GetOption(_T("General\\Graph Type"), 0);
+	dm = max(E_DISPLAY_PEAKS, min(dm, E_DISPLAY_NONE));
+	SetDisplayMode(DisplayMode(dm));
+
 	return 0;
 }
 

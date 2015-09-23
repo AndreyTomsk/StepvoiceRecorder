@@ -80,7 +80,7 @@ class CMainFrame : public CFrameWnd
 	ProgramState	m_nState;
 
 	// program configuration
-	CConfig			m_conf;
+	//CConfig			m_conf;
 	// Display windows
 	CIcoWnd			m_IcoWnd;
 	CTimeWnd		m_TimeWnd;
@@ -115,7 +115,7 @@ public:
 	//bool IsMonitoringOnly();
 	void OnBtnMonitoring();
 	void OnBtnVas();
-	BOOL ShowWindow();
+	//BOOL ShowWindow();
 	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
 
 protected:
