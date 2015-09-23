@@ -19,7 +19,6 @@
 #include "FilterFileWriterWAV.h"
 #include "Debug.h"
 #include "MySheet.h"
-#include "ShellUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -935,6 +934,14 @@ void CMainFrame::OnBtnSTOP()
 //===========================================================================
 void CMainFrame::OnBtnREC()
 {
+	/*
+	if (m_recordingFileName.IsEmpty())
+	{
+		//...
+		ASSERT(!m_recordingFileName.IsEmpty());
+	}
+	*/
+
 	if (m_recordingFileName.IsEmpty())
 	{
 		OnBtnOPEN();

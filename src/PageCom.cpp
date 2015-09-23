@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "PageCom.h"
-#include "ShellUtils.h"
+#include "FileUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -50,7 +50,7 @@ void CPageCom::DoDataExchange(CDataExchange* pDX)
 BOOL CPageCom::OnKillActive()
 {
 	UpdateData();
-	if (!ShellUtils::FolderExists(m_outputFolder))
+	if (!FileUtils::FolderExists(m_outputFolder))
 	{
 		CString msg;
 		msg.Format(_T("Folder '%s' does not exist or not accessible."), m_outputFolder);
@@ -89,7 +89,7 @@ BOOL CPageCom::OnHelpInfo(HELPINFO* pHelpInfo)
 
 BOOL CPageCom::OnInitDialog()
 {
-	const CString defaultOutputFolder = ShellUtils::GetSpecialFolder(CSIDL_DESKTOP);
+	const CString defaultOutputFolder = FileUtils::GetSpecialFolder(CSIDL_DESKTOP);
 
 	m_outputFolder = RegistryConfig::GetOption(_T("General\\OutputFolder"), defaultOutputFolder);
 	m_storeInOutputFolder = RegistryConfig::GetOption(_T("General\\StoreInOutputFolder"), FALSE);
@@ -105,7 +105,7 @@ BOOL CPageCom::OnInitDialog()
 
 void CPageCom::OnBnClickedOutputFolder()
 {
-	if (ShellUtils::DialogPickupFolder(m_outputFolder))
+	if (FileUtils::DialogPickupFolder(m_outputFolder))
 		SetDlgItemText(IDE_OUTPUT_FOLDER, m_outputFolder);
 }
 //---------------------------------------------------------------------------

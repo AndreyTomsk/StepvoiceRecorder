@@ -10,7 +10,7 @@
 
 #include "UrlWnd.h"
 #include "version.h"
-#include "ShellUtils.h"
+#include "FileUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -390,7 +390,7 @@ void CMP3_RecorderApp::OnHelpDoc()
 {
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
 
-	CString l_help_file = ShellUtils::GetProgramFolder() + _T("\\svrec.chm::/stepvoice_recorder/overview.html");
+	CString l_help_file = FileUtils::GetProgramFolder() + _T("\\svrec.chm::/stepvoice_recorder/overview.html");
 	::HtmlHelp(GetDesktopWindow(), l_help_file, HH_DISPLAY_TOPIC, NULL);
 }
 
@@ -398,7 +398,7 @@ void CMP3_RecorderApp::OnHelpHowto()
 {
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
 
-	CString l_help_file = ShellUtils::GetProgramFolder() + _T("\\svrec.chm::/stepvoice_recorder/how_to_register.html");
+	CString l_help_file = FileUtils::GetProgramFolder() + _T("\\svrec.chm::/stepvoice_recorder/how_to_register.html");
 	::HtmlHelp(GetDesktopWindow(), l_help_file, HH_DISPLAY_TOPIC, NULL);
 }
 

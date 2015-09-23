@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "MySheet.h"
-#include "ShellUtils.h"
+#include "FileUtils.h"
 #include <htmlhelp.h>
 
 #ifdef _DEBUG
@@ -39,7 +39,7 @@ BOOL CMySheet::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	if (LOWORD(wParam == IDHELP))
 	{
-		CString strFile = ShellUtils::GetProgramFolder();
+		CString strFile = FileUtils::GetProgramFolder();
 		strFile += _T("\\svrec.chm::/how_to_use/preferences.html");
 		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
 	}

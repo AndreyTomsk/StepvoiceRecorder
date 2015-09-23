@@ -681,7 +681,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ShellUtils.cpp"
+				RelativePath=".\FileUtils.cpp"
 				>
 			</File>
 			<File
@@ -1056,7 +1056,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ShellUtils.h"
+				RelativePath=".\FileUtils.h"
 				>
 			</File>
 			<File
