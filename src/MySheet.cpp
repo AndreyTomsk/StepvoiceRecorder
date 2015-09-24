@@ -39,9 +39,9 @@ BOOL CMySheet::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	if (LOWORD(wParam == IDHELP))
 	{
-		CString strFile = FileUtils::GetProgramFolder();
-		strFile += _T("\\svrec.chm::/how_to_use/preferences.html");
-		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
+		using namespace FileUtils;
+		CString helpFile = CombinePath(GetProgramFolder(), _T("svrec.chm::/how_to_use/preferences.html"));
+		::HtmlHelp(::GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
 	}
 
 	return CPropertySheet::OnCommand(wParam, lParam);

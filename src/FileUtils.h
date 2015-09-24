@@ -7,11 +7,10 @@ namespace FileUtils
 	//for a list of known folder ids (CSIDL_MYDOCUMENTS, etc.).
 	CString GetSpecialFolder(int csidl);
 
-	CString GetProgramFolder();
-	CString AddProgramFolderAndFile(LPCTSTR fileName);
-
 	//Displays a "select folder" dialog.
 	bool DialogPickupFolder(CString& folderPath); //[in/out]
+
+	CString GetProgramFolder();
 
 	bool FolderExists(const CString& path);
 	bool FileExists(const CString& path);
@@ -23,8 +22,8 @@ namespace FileUtils
 	CString GetFolderOnly(LPCTSTR path);
 	CString AddBackslash(LPCTSTR path);
 	CString RemoveBackslash(LPCTSTR path);
-	CString AddFolderAndFile(LPCTSTR folder, LPCTSTR file);
-	CString AddExtension(LPCTSTR path, LPCTSTR ext);
-	CString GetFileExtension(LPCTSTR path);
-	CString ChangeFileExtension(LPCTSTR path, LPCTSTR newExt);
+	CString CombinePath(LPCTSTR folder, LPCTSTR file);
+	CString AddFileExt(LPCTSTR path, LPCTSTR ext);
+	CString GetFileExt(LPCTSTR path);
+	CString ChangeFileExt(LPCTSTR path, LPCTSTR newExt);
 }

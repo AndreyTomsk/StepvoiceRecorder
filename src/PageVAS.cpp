@@ -175,9 +175,9 @@ BOOL CPageVAS::OnCommand(WPARAM wParam, LPARAM lParam)
 	if (nID == IDC_DLG_TRIALNOTE && (nCode == BN_CLICKED || nCode == BN_DOUBLECLICKED))
 	{
 		// отображаем "How To Order" страницу
-		CString strFile = FileUtils::GetProgramFolder();
-		strFile += _T("\\svrec.chm::/stepvoice_recorder/how_to_register.html");
-		::HtmlHelp(::GetDesktopWindow(), strFile, HH_DISPLAY_TOPIC, NULL);
+		using namespace FileUtils;
+		CString helpFile = CombinePath(GetProgramFolder(), _T("svrec.chm::/stepvoice_recorder/how_to_register.html"));
+		::HtmlHelp(::GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
 	}
 	
 	return CPropertyPage::OnCommand(wParam, lParam);

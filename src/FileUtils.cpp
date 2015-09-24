@@ -85,7 +85,7 @@ CString GetFileName(LPCTSTR path)
 CString GetFileNameNoExt(LPCTSTR path)
 {
 	CString csFile = GetFileName(path);
-	if(!GetFileExtension(csFile).IsEmpty()) { // Is there an extension
+	if(!GetFileExt(csFile).IsEmpty()) { // Is there an extension
 		::PathRemoveExtension(csFile.GetBuffer(_MAX_PATH));
 		csFile.ReleaseBuffer();
 	}
@@ -124,7 +124,7 @@ CString RemoveBackslash(LPCTSTR path)
 }
 //---------------------------------------------------------------------------
 
-CString AddFolderAndFile(LPCTSTR Folder, LPCTSTR File)
+CString CombinePath(LPCTSTR Folder, LPCTSTR File)
 {
 	CString cs = Folder;
 	::PathAddBackslash(cs.GetBuffer(_MAX_PATH));
@@ -134,13 +134,7 @@ CString AddFolderAndFile(LPCTSTR Folder, LPCTSTR File)
 }
 //---------------------------------------------------------------------------
 
-CString AddProgramFolderAndFile(LPCTSTR fileName)
-{
-	return AddFolderAndFile(GetProgramFolder(), fileName);
-}
-//---------------------------------------------------------------------------
-
-CString AddExtension(LPCTSTR path, LPCTSTR ext)
+CString AddFileExt(LPCTSTR path, LPCTSTR ext)
 {
 	CString cs = path;
 	::PathAddExtension(cs.GetBuffer(_MAX_PATH),ext);
@@ -149,7 +143,7 @@ CString AddExtension(LPCTSTR path, LPCTSTR ext)
 }
 //---------------------------------------------------------------------------
 
-CString GetFileExtension(LPCTSTR path)
+CString GetFileExt(LPCTSTR path)
 {
 	CString cs;
 	cs = ::PathFindExtension(path);
@@ -157,7 +151,7 @@ CString GetFileExtension(LPCTSTR path)
 }
 //---------------------------------------------------------------------------
 
-CString RenameFileExtension(LPCTSTR path, LPCTSTR newExt)
+CString RenameFileExt(LPCTSTR path, LPCTSTR newExt)
 {
 	CString cs = path;
 	::PathRenameExtension(cs.GetBuffer(_MAX_PATH), newExt);

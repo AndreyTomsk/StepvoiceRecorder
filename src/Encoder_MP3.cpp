@@ -41,7 +41,8 @@ CEncoder_MP3::~CEncoder_MP3()
   
 void CEncoder_MP3::LoadLameLibrary()
 {
-	const CString lameFullPath = FileUtils::GetProgramFolder() + _T("\\lame_enc.dll");
+	using namespace FileUtils;
+	const CString lameFullPath = CombinePath(GetProgramFolder(), _T("lame_enc.dll"));
 
 	m_hDll = ::LoadLibrary(lameFullPath);
 	if (m_hDll == NULL)
