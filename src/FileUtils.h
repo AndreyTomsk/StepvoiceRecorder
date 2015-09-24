@@ -17,13 +17,13 @@ namespace FileUtils
 
 	//code taken from:
 	//http://www.camaswood.com/tech/some-handy-file-functions-for-use-with-mfc/
-	CString GetFileName(LPCTSTR path);
-	CString GetFileNameNoExt(LPCTSTR path);
-	CString GetFolderOnly(LPCTSTR path);
-	CString AddBackslash(LPCTSTR path);
-	CString RemoveBackslash(LPCTSTR path);
-	CString CombinePath(LPCTSTR folder, LPCTSTR file);
-	CString AddFileExt(LPCTSTR path, LPCTSTR ext);
-	CString GetFileExt(LPCTSTR path);
-	CString ChangeFileExt(LPCTSTR path, LPCTSTR newExt);
+	CString GetFileName(const CString& path);
+	CString GetFileNameNoExt(const CString& path);
+	CString GetFolderOnly(const CString& path);
+	CString AddBackslash(const CString& path);
+	CString RemoveBackslash(const CString& path);
+	CString CombinePath(const CString& folder, const CString& file);
+	CString AddFileExt(const CString& path, const CString& ext); //fails if extension present, if ext empty ".exe" is used
+	CString GetFileExt(const CString& path);
+	CString ChangeFileExt(const CString& path, const CString& newExt);
 }

@@ -72,17 +72,17 @@ bool FileExists(const CString& path)
 }
 //---------------------------------------------------------------------------
 
-CString GetFileName(LPCTSTR path)
+CString GetFileName(const CString& path)
 {
 //	Strip off the path and return just the filename part
-	CString temp = (LPCTSTR) path; // Force CString to make a copy
+	CString temp = path; // Force CString to make a copy
 	::PathStripPath(temp.GetBuffer(0));
 	temp.ReleaseBuffer(-1);
 	return temp;
 }
 //---------------------------------------------------------------------------
 
-CString GetFileNameNoExt(LPCTSTR path)
+CString GetFileNameNoExt(const CString& path)
 {
 	CString csFile = GetFileName(path);
 	if(!GetFileExt(csFile).IsEmpty()) { // Is there an extension
@@ -93,18 +93,18 @@ CString GetFileNameNoExt(LPCTSTR path)
 }
 //---------------------------------------------------------------------------
 
-CString GetFolderOnly(LPCTSTR path)
+CString GetFolderOnly(const CString& path)
 {
 //	Strip off the file name so we can direct the file scanning dialog to go
 //	back to the same directory as before.
-	CString temp = (LPCTSTR) path; // Force CString to make a copy
+	CString temp = path; // Force CString to make a copy
 	::PathRemoveFileSpec(temp.GetBuffer(0));
 	temp.ReleaseBuffer(-1);
 	return temp;
 }
 //---------------------------------------------------------------------------
 
-CString AddBackslash(LPCTSTR path)
+CString AddBackslash(const CString& path)
 {
 	CString cs = path;
 	::PathAddBackslash(cs.GetBuffer(_MAX_PATH));
@@ -115,7 +115,7 @@ CString AddBackslash(LPCTSTR path)
 }
 //---------------------------------------------------------------------------
 
-CString RemoveBackslash(LPCTSTR path)
+CString RemoveBackslash(const CString& path)
 {
 	CString cs = path;
 	::PathRemoveBackslash(cs.GetBuffer(_MAX_PATH));
@@ -124,7 +124,7 @@ CString RemoveBackslash(LPCTSTR path)
 }
 //---------------------------------------------------------------------------
 
-CString CombinePath(LPCTSTR Folder, LPCTSTR File)
+CString CombinePath(const CString& Folder, const CString& File)
 {
 	CString cs = Folder;
 	::PathAddBackslash(cs.GetBuffer(_MAX_PATH));
@@ -134,16 +134,23 @@ CString CombinePath(LPCTSTR Folder, LPCTSTR File)
 }
 //---------------------------------------------------------------------------
 
-CString AddFileExt(LPCTSTR path, LPCTSTR ext)
+static CString AddPoint(const CString& ext)
+{
+	//Adds point to non-empty extension.
+	return (ext.IsEmpty() || ext[0] == _T('.')) ? ext : _T('.') + ext;
+}
+//---------------------------------------------------------------------------
+
+CString AddFileExt(const CString& path, const CString& ext)
 {
 	CString cs = path;
-	::PathAddExtension(cs.GetBuffer(_MAX_PATH),ext);
+	::PathAddExtension(cs.GetBuffer(_MAX_PATH), AddPoint(ext));
 	cs.ReleaseBuffer(-1);
 	return cs;
 }
 //---------------------------------------------------------------------------
 
-CString GetFileExt(LPCTSTR path)
+CString GetFileExt(const CString& path)
 {
 	CString cs;
 	cs = ::PathFindExtension(path);
@@ -151,10 +158,10 @@ CString GetFileExt(LPCTSTR path)
 }
 //---------------------------------------------------------------------------
 
-CString RenameFileExt(LPCTSTR path, LPCTSTR newExt)
+CString ChangeFileExt(const CString& path, const CString& newExt)
 {
 	CString cs = path;
-	::PathRenameExtension(cs.GetBuffer(_MAX_PATH), newExt);
+	::PathRenameExtension(cs.GetBuffer(_MAX_PATH), AddPoint(newExt));
 	return cs;
 }
 //---------------------------------------------------------------------------
