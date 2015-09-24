@@ -111,9 +111,7 @@ protected:
 protected:
 	DECLARE_DYNAMIC(CMainFrame)
 	//{{AFX_VIRTUAL(CMainFrame)
-	public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	protected:
 	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 	//}}AFX_VIRTUAL

@@ -89,6 +89,13 @@ int RegistryConfig::GetOption<int>(const CString& initialPath, const int& defaul
 //--------------------------------------------------------------------
 
 template<>
+bool RegistryConfig::GetOption<bool>(const CString& initialPath, const bool& defaultValue)
+{
+	return GetOption<int>(initialPath, defaultValue ? 1 : 0) ? true : false;
+}
+//--------------------------------------------------------------------
+
+template<>
 CString RegistryConfig::GetOption<CString>(const CString& initialPath, const CString& defaultValue)
 {
 	const RegistryPlace rp = GetRegistryPlace(initialPath);

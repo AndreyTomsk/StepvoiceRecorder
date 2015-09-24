@@ -305,6 +305,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	this->SetWindowPos(&wndTop, rW.left, rW.top, rW.right-rW.left, rW.bottom-rW.top,
 		SWP_NOZORDER | SWP_NOMOVE);
 
+	//Setting window on top.
+	bool curOnTop = RegistryConfig::GetOption(_T("General\\Always on Top"), false);
+	Helpers::SetOnTop(this, curOnTop);
+
 	// Creating interface windows
 	m_IcoWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(1, 0, 24, 25), this, IDW_ICO);
 	m_TimeWnd.Create(NULL, NULL, WS_CHILD|WS_VISIBLE, CRect(24, 0, 106, 25), this, IDW_TIME);
@@ -814,9 +818,9 @@ void CMainFrame::OnOptTop()
 	curOnTop = curOnTop ? 0 : 1;
 	RegistryConfig::SetOption(_T("General\\Always on Top"), curOnTop);
 
-	const CWnd* pWndType = curOnTop ? &wndTopMost : &wndNoTopMost;
-	SetWindowPos(pWndType, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOSIZE|SWP_NOMOVE);
+	Helpers::SetOnTop(this, curOnTop);
 }
+//--------------------------------------------------------------------
 
 //===========================================================================
 // BUTTONS

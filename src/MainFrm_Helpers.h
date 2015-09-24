@@ -23,6 +23,8 @@ namespace Helpers
 	//Returns output Folder from options (if set) or from a last used file.
 	//If both folders empty - returns path to desktop folder.
 	CString GetOutputFolder();
+
+	void SetOnTop(CWnd* wnd, bool top);
 	
 	//CString GetAutonameRegEx(CString strTemplate, CString fileExtension);
 

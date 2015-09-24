@@ -83,7 +83,7 @@ int CGraphWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	ResetMaxpeakMarks();
 	Clear();
 
-	m_bMaxpeaks = RegistryConfig::GetOption(_T("General\\Show max peaks"), 1) ? true : false;
+	m_bMaxpeaks = RegistryConfig::GetOption(_T("General\\Show max peaks"), true);
 	SetDisplayMode(RegistryConfig::GetOption(_T("General\\Graph Type"), 0));
 	return 0;
 }

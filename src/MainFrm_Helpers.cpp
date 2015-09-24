@@ -78,12 +78,19 @@ CString GetOutputFolder()
 	const CString lastFileFolder = FileUtils::GetFolderOnly(lastFileName);
 
 	const CString optionFolder = RegistryConfig::GetOption(_T("General\\OutputFolder"), CString());
-	const bool storeInOptionFolder = RegistryConfig::GetOption(_T("General\\StoreInOutputFolder"), 0) ? true : false;
+	const bool storeInOptionFolder = RegistryConfig::GetOption(_T("General\\StoreInOutputFolder"), false);
 
 	if (optionFolder.IsEmpty() || lastFileFolder.IsEmpty())
 		return FileUtils::GetSpecialFolder(CSIDL_DESKTOP);
 	else
 		return storeInOptionFolder ? optionFolder : lastFileFolder;
+}
+//---------------------------------------------------------------------------
+
+void SetOnTop(CWnd* wnd, bool top)
+{
+	const CWnd* pWndType = top ? &CWnd::wndTopMost : &CWnd::wndNoTopMost;
+	wnd->SetWindowPos(pWndType, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOSIZE|SWP_NOMOVE);
 }
 //---------------------------------------------------------------------------
 
