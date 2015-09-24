@@ -1,10 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////
-#if !defined(AFX_CONTROLBUTTON_H__95BD7841_CBF4_11D7_BC33_444553540000__INCLUDED_)
-#define AFX_CONTROLBUTTON_H__95BD7841_CBF4_11D7_BC33_444553540000__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 /////////////////////////////////////////////////////////////////////////////
 class CControlButton : public CButton
@@ -13,8 +7,8 @@ public:
 	CControlButton();
 	virtual ~CControlButton();
 
-	BOOL  Create( const RECT &rect, CWnd* pParentWnd, UINT nID );
-	void  Press();
+	BOOL Create( const RECT &rect, CWnd* pParentWnd, UINT nID );
+	void Press();
 	HICON SetIcon( int nResourceID );
 
 private:
@@ -30,10 +24,6 @@ protected:
 	//{{AFX_MSG(CControlButton)
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
-public:
 	virtual BOOL OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult);
+public:
 };
-
-/////////////////////////////////////////////////////////////////////////////
-//{{AFX_INSERT_LOCATION}}
-#endif // !defined(AFX_CONTROLBUTTON_H__95BD7841_CBF4_11D7_BC33_444553540000__INCLUDED_)

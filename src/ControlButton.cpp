@@ -1,4 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "ControlButton.h"
 
@@ -46,9 +45,8 @@ void CControlButton::Press()
 //===========================================================================
 HICON CControlButton::SetIcon( int nResourceID )
 {
-	return CButton::SetIcon(
-		LoadIcon( AfxGetInstanceHandle(), MAKEINTRESOURCE(nResourceID) )
-		);
+	return CButton::SetIcon( LoadIcon(AfxGetInstanceHandle(),
+		MAKEINTRESOURCE(nResourceID)) );
 }
 
 //===========================================================================

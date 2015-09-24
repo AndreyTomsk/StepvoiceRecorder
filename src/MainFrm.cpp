@@ -814,11 +814,10 @@ void CMainFrame::OnOptEm()
 void CMainFrame::OnOptTop() 
 {
 	//Reverting feature
-	int curOnTop = RegistryConfig::GetOption(_T("General\\Always on Top"), 0);
-	curOnTop = curOnTop ? 0 : 1;
-	RegistryConfig::SetOption(_T("General\\Always on Top"), curOnTop);
 
-	Helpers::SetOnTop(this, curOnTop);
+	bool curOnTop = RegistryConfig::GetOption(_T("General\\Always on Top"), false);
+	RegistryConfig::SetOption(_T("General\\Always on Top"), !curOnTop);
+	Helpers::SetOnTop(this, !curOnTop);
 }
 //--------------------------------------------------------------------
 

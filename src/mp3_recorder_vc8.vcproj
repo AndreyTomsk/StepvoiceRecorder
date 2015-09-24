@@ -243,10 +243,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BASS_VistaLoopback.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\bitmapbtn.cpp"
 				>
 			</File>
@@ -321,7 +317,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Encoder_WAV.cpp"
+				RelativePath="EnterCodeDlg.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -343,26 +339,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="EnterCodeDlg.cpp"
+				RelativePath=".\FileUtils.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Filter.cpp"
@@ -681,10 +659,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\FileUtils.cpp"
-				>
-			</File>
-			<File
 				RelativePath="SliderVol.cpp"
 				>
 				<FileConfiguration
@@ -912,10 +886,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BASS_VistaLoopback.h"
-				>
-			</File>
-			<File
 				RelativePath=".\bitmapbtn.h"
 				>
 			</File>
@@ -948,23 +918,15 @@
 				>
 			</File>
 			<File
-				RelativePath="Decoder_MP3.h"
-				>
-			</File>
-			<File
-				RelativePath="Encoder.h"
-				>
-			</File>
-			<File
 				RelativePath="Encoder_MP3.h"
 				>
 			</File>
 			<File
-				RelativePath="Encoder_WAV.h"
+				RelativePath="EnterCodeDlg.h"
 				>
 			</File>
 			<File
-				RelativePath="EnterCodeDlg.h"
+				RelativePath=".\FileUtils.h"
 				>
 			</File>
 			<File
@@ -1053,10 +1015,6 @@
 			</File>
 			<File
 				RelativePath=".\SampleConverter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FileUtils.h"
 				>
 			</File>
 			<File

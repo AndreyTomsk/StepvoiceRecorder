@@ -1,5 +1,4 @@
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#pragma once
 
 #define SAFE_DELETE(p) if(p) { delete p; p = NULL; }
 #define SAFE_DELETE_ARRAY(p) if(p) { delete [] p; p = NULL; }
@@ -9,8 +8,6 @@
 //WASAPI COM wrappers related macro (see WasapiHelpers.cpp)
 #define EIF(x) if (FAILED(hr=(x))) { goto Exit; }	// Exit If Failed.
 #define SAFE_RELEASE(x) { if (x != NULL) { x.Release(); x = NULL; } }
-
-#endif
 
 //Intended to use in header - declares (empty) class copy constructor and assignment operator.
 #define NON_COPYABLE(class) class(const class&); class& operator=(const class&);
