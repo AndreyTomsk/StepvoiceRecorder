@@ -19,6 +19,7 @@
 #include "FilterFileWriterWAV.h"
 #include "Debug.h"
 #include "MySheet.h"
+#include "FileUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -606,13 +607,13 @@ void CMainFrame::OnFileDelete()
 }
 
 //=======not from menu, but useful one :)===========================================
-void CMainFrame::OpenFile(CString fileName)
+void CMainFrame::OpenFile(CString filePath)
 {
 	OnFileClose(); //updates m_recordingFileName and m_bassPlaybackHandle.
 
-	if (Helpers::IsSuitableForRecording(fileName))
+	if (Helpers::IsSuitableForRecording(filePath))
 	{
-		m_recordingFileName = fileName;
+		m_recordingFileName = filePath;
 	}
 	else
 	{
@@ -626,7 +627,7 @@ void CMainFrame::OpenFile(CString fileName)
 			//Bass::ShowErrorFrom(_T("BASS_Init"));
 			//return;
 		}
-		m_bassPlaybackHandle = BASS_StreamCreateFile(false, fileName, 0, 0, 0);
+		m_bassPlaybackHandle = BASS_StreamCreateFile(false, filePath, 0, 0, 0);
 		if (!m_bassPlaybackHandle)
 		{
 			DWORD currentDeviceID = BASS_GetDevice();
@@ -636,16 +637,12 @@ void CMainFrame::OpenFile(CString fileName)
 		}
 	}
 
-	RegistryConfig::SetOption(_T("General\\LastFile"), fileName);
+	RegistryConfig::SetOption(_T("General\\LastFile"), filePath);
 
 	// Modifying window caption to "<FILE> - StepVoice Recorder".
 
-	const int slashPos = fileName.ReverseFind('\\');
-	const CString shortName = (slashPos == -1) ? fileName
-		: fileName.Right(fileName.GetLength() - slashPos - 1);
-
 	CString newCaption;
-	AfxFormatString1(newCaption, IDS_FILETITLE, shortName);
+	AfxFormatString1(newCaption, IDS_FILETITLE, FileUtils::GetFileName(filePath));
 	m_title->SetTitleText(newCaption);
 	
 	UpdateStatWindow();
@@ -827,16 +824,10 @@ void CMainFrame::OnOptTop()
 
 void CMainFrame::OnBtnOPEN()
 {
-	const CString generatedName = Helpers::GetMp3AutonameFromConfig();
-	
-	const CString lastFileName = RegistryConfig::GetOption(_T("General\\LastFile"), CString());
-	const int slashPos = lastFileName.ReverseFind(_T('\\'));
-	const CString lastFilePath = (slashPos != -1) ? lastFileName.Left(slashPos) : CString();
-
-	const CString outputFolder = RegistryConfig::GetOption(_T("General\\OutputFolder"), CString());
-	const bool storeInOutputFolder = RegistryConfig::GetOption(_T("General\\StoreInOutputFolder"), 0);
-
 	// Creating a standard file open dialog
+
+	const CString generatedName = Helpers::GetMp3AutonameFromConfig();
+	const CString outputFolder = Helpers::GetOutputFolder();
 
 	CString dialogTitle, filesFilter;
 	dialogTitle.LoadString(IDS_FILENEWOPENTITLE);
@@ -844,7 +835,7 @@ void CMainFrame::OnBtnOPEN()
 
 	CFileDialog openDialog(true, _T("mp3"), generatedName, OFN_HIDEREADONLY | OFN_EXPLORER, filesFilter);
 	openDialog.m_ofn.lpstrTitle= dialogTitle;
-	openDialog.m_ofn.lpstrInitialDir = storeInOutputFolder ? outputFolder : lastFilePath;
+	openDialog.m_ofn.lpstrInitialDir = outputFolder;
 
 	if (openDialog.DoModal() == IDOK)
 	{	
@@ -934,19 +925,11 @@ void CMainFrame::OnBtnSTOP()
 //===========================================================================
 void CMainFrame::OnBtnREC()
 {
-	/*
 	if (m_recordingFileName.IsEmpty())
 	{
-		//...
+		//Automatically creating file, suitable for recording.
+		OpenFile(Helpers::GetNewRecordingFilePath());
 		ASSERT(!m_recordingFileName.IsEmpty());
-	}
-	*/
-
-	if (m_recordingFileName.IsEmpty())
-	{
-		OnBtnOPEN();
-		if (m_recordingFileName.IsEmpty())
-			return;
 	}
 
 	MonitoringStop();

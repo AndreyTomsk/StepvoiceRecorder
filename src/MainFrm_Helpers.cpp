@@ -1,14 +1,12 @@
-////////////////////////////////////////////////////////////////////////////////
+#include "stdafx.h"
+#include "MainFrm_Helpers.h"
+#include "FileUtils.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
-
-#include "stdafx.h"
-#include "MainFrm_Helpers.h"
-#include "Config.h"
-//#include <atlrx.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +32,25 @@ CString ToString_HMMSS(double seconds)
 }
 //------------------------------------------------------------------------------
 
+CString GetNewRecordingFilePath()
+{
+	using namespace FileUtils;
+	const CString autonameNoExt = GetFileNameNoExt(GetMp3AutonameFromConfig());
+	const CString outputFolder = GetOutputFolder();
+
+	CString outputFile = CombinePath(outputFolder, autonameNoExt + _T(".mp3"));
+	int index = 2;
+
+	while (FileExists(outputFile))
+	{
+		CString newAutoname;
+		newAutoname.Format(_T("%s_%02d.mp3"), autonameNoExt, index++);
+		outputFile = CombinePath(outputFolder, newAutoname);
+	}
+	return outputFile;
+}
+//------------------------------------------------------------------------------
+
 bool IsSuitableForRecording(const CString& filePath, DWORD* outErrorCode)
 {
 	HANDLE fileHandle = CreateFile(filePath, GENERIC_READ, FILE_SHARE_WRITE,
@@ -54,6 +71,21 @@ bool IsSuitableForRecording(const CString& filePath, DWORD* outErrorCode)
 	return (fileSize.QuadPart == 0);
 }
 //------------------------------------------------------------------------------
+
+CString GetOutputFolder()
+{
+	const CString lastFileName = RegistryConfig::GetOption(_T("General\\LastFile"), CString());
+	const CString lastFileFolder = FileUtils::GetFolderOnly(lastFileName);
+
+	const CString optionFolder = RegistryConfig::GetOption(_T("General\\OutputFolder"), CString());
+	const bool storeInOptionFolder = RegistryConfig::GetOption(_T("General\\StoreInOutputFolder"), 0) ? true : false;
+
+	if (optionFolder.IsEmpty() || lastFileFolder.IsEmpty())
+		return FileUtils::GetSpecialFolder(CSIDL_DESKTOP);
+	else
+		return storeInOptionFolder ? optionFolder : lastFileFolder;
+}
+//---------------------------------------------------------------------------
 
 CString FilterTemplate(CString a_template)
 {
