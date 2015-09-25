@@ -11,6 +11,7 @@
 #include "UrlWnd.h"
 #include "version.h"
 #include "FileUtils.h"
+//#include <vld.h> //Header file from "Visual Leak Detector" - detecting memory leaks.
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

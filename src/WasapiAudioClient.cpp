@@ -33,7 +33,7 @@ CWasapiAudioClient::CWasapiAudioClient(int device, DWORD freq, DWORD chans)
 	ASSERT(result);
 	EIF(WasapiHelpers::GetActiveDevice(CString(info.id), &m_audioClient));
 
-	WriteDbg() << __FUNCTION__ << " ::device=" << device << ", name=" << info.name;
+	//WriteDbg() << __FUNCTION__ << " ::device=" << device << ", name=" << info.name;
 
 	const DWORD streamFlags = (info.flags & BASS_DEVICE_LOOPBACK) ? AUDCLNT_STREAMFLAGS_LOOPBACK : 0;
 	const REFERENCE_TIME bufferDuration = 500 * MFTIMES_PER_MILLISEC;

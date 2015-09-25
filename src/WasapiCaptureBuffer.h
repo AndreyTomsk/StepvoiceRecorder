@@ -19,15 +19,15 @@ class CWasapiCaptureBuffer
 	NON_COPYABLE(CWasapiCaptureBuffer);
 
 public:
-	CWasapiCaptureBuffer(IAudioClient* ac);
+	CWasapiCaptureBuffer(CComPtr<IAudioClient> ac);
 	~CWasapiCaptureBuffer();
 
 	bool FillBuffer(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError) const;
 	//bool FillBuffer2(BYTE* destBuffer, const UINT32& bufferSize, bool& streamError) const;
 
 private:
-	IAudioClient* m_audioClient;
-	IAudioCaptureClient* m_captureClient;
+	CComPtr<IAudioClient> m_audioClient;
+	CComPtr<IAudioCaptureClient> m_captureClient;
 	int m_frameSize;
 	mutable int m_captureBufferOffset;
 };

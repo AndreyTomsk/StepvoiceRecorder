@@ -17,7 +17,6 @@
 
 #include <bass.h>
 #include <bassmix.h>
-#include "BASS_VistaLoopback.h"
 #include "VisualizationData.h"
 
 #include "Filter.h" //for NOTIFY_CALLBACK

@@ -11,7 +11,7 @@ static char THIS_FILE[] = __FILE__;
 
 /////////////////////////////////////////////////////////////////////////////
 
-CWasapiCaptureBuffer::CWasapiCaptureBuffer(IAudioClient* ac)
+CWasapiCaptureBuffer::CWasapiCaptureBuffer(CComPtr<IAudioClient> ac)
 	:m_audioClient(ac)
 	,m_captureClient(NULL)
 	,m_frameSize(0)

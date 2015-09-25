@@ -10,7 +10,7 @@ static char THIS_FILE[] = __FILE__;
 
 /////////////////////////////////////////////////////////////////////////////
 
-CWasapiCaptureBufferSimple::CWasapiCaptureBufferSimple(IAudioCaptureClient* cc)
+CWasapiCaptureBufferSimple::CWasapiCaptureBufferSimple(CComPtr<IAudioCaptureClient> cc)
 	:m_captureClient(cc)
 	,m_framesInNextPacket(0)
 	,m_buffer(NULL)

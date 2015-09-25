@@ -16,7 +16,7 @@ class CWasapiCaptureBufferSimple
 {
 	NON_COPYABLE(CWasapiCaptureBufferSimple);
 public:
-	CWasapiCaptureBufferSimple(IAudioCaptureClient* cc);
+	CWasapiCaptureBufferSimple(CComPtr<IAudioCaptureClient> cc);
 	~CWasapiCaptureBufferSimple();
 
 	bool IsError() const;
@@ -26,7 +26,7 @@ public:
 	void SetPacketFullRead(bool fullRead);
 
 private:
-	IAudioCaptureClient* m_captureClient;
+	CComPtr<IAudioCaptureClient> m_captureClient;
 	UINT32 m_framesInNextPacket;
 	BYTE* m_buffer;
 	bool m_isError;
