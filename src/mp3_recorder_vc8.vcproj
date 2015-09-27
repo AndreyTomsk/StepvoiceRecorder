@@ -727,6 +727,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\StrUtils.cpp"
+				>
+			</File>
+			<File
 				RelativePath="SystemTray.cpp"
 				>
 				<FileConfiguration
@@ -1035,6 +1039,10 @@
 			</File>
 			<File
 				RelativePath="StdAfx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StrUtils.h"
 				>
 			</File>
 			<File

@@ -55,6 +55,18 @@ private:
 	void DeleteRecordingSourceItems();
 	int  GetDefaultItemHeight() const;
 
+	//CONFIG RELATED FUNCTIONS
+
+	void LoadSelectedDevicesFromConfig();
+	void SaveSelectedDevices();
+
+	//Returns a string with device names, for options.
+	static CString DevicesToString(WasapiHelpers::DevicesArray arr, TCHAR delimeter);
+
+	//Returns a valid devices array. Each device ID searched in allDevices.
+	static WasapiHelpers::DevicesArray DevicesFromString(CString strNames,
+		TCHAR delimeter, const WasapiHelpers::DevicesArray& allDevices);
+
 private:
 	std::vector<CRecordingSourceItem*> m_recordingSourceItems;
 	WasapiHelpers::DevicesArray m_allDevices;

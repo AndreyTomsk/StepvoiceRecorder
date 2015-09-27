@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "RecordingSourceDlg.h"
+#include "StrUtils.h"
 #include <algorithm> //for std::find
 #include <basswasapi.h>
+#include <vector>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -30,7 +32,7 @@ CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 {
 	if (!g_dialogInstance)
 	{
-		g_dialogInstance = new CRecordingSourceDlg(NULL); //deleted by dialog
+		g_dialogInstance = new CRecordingSourceDlg(NULL); //deleted by dialog (see PostNcDestroy)
 		g_dialogInstance->Create(CRecordingSourceDlg::IDD);
 	}
 	return g_dialogInstance;
@@ -41,7 +43,6 @@ CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 	:CDialog(CRecordingSourceDlg::IDD, pParent)
 {
-	m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
 }
 //---------------------------------------------------------------------------
 
@@ -49,6 +50,9 @@ void CRecordingSourceDlg::Execute(CPoint& pos)
 {
 	m_allDevices = WasapiHelpers::GetRecordingDevicesList();
 	WasapiHelpers::InitRecordingDevices(m_allDevices);
+
+	if (m_selectedDevices.empty())
+		LoadSelectedDevicesFromConfig();
 
 	CreateRecordingSourceItems(m_allDevices);
 	UpdateRecordingSourceItems();
@@ -138,6 +142,7 @@ BOOL CRecordingSourceDlg::OnInitDialog()
 
 void CRecordingSourceDlg::PostNcDestroy()
 {
+	SaveSelectedDevices();
 	DeleteRecordingSourceItems();
 	g_dialogInstance = NULL;
 
@@ -249,5 +254,64 @@ void CRecordingSourceDlg::OnRecodingSourceItemClicked()
 		m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
 
 	this->GetParent()->PostMessage(WM_RECSOURCE_CHANGED);
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::LoadSelectedDevicesFromConfig()
+{
+	const CString deviceNames = RegistryConfig::GetOption(_T("General\\SelectedDevices"), CString());
+	m_selectedDevices = DevicesFromString(deviceNames, _T('|'), m_allDevices);
+	if (m_selectedDevices.empty())
+		m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceDlg::SaveSelectedDevices()
+{
+	const CString deviceNames = DevicesToString(m_selectedDevices, _T('|'));
+	RegistryConfig::SetOption(_T("General\\SelectedDevices"), deviceNames);
+}
+//---------------------------------------------------------------------------
+
+using namespace WasapiHelpers;
+//---------------------------------------------------------------------------
+
+CString CRecordingSourceDlg::DevicesToString(DevicesArray arr, TCHAR delimeter)
+{
+	std::vector<CString> deviceNames;
+	for (size_t i = 0; i < arr.size(); i++)
+		deviceNames.push_back(arr[i].second);
+
+	return StrUtils::Join(deviceNames, delimeter);
+}
+//---------------------------------------------------------------------------
+
+struct ByName
+{
+	ByName(const CString& name) : m_requiredName(name) {}
+	bool operator()(DeviceIdNamePair p) const { return p.second == m_requiredName; }
+
+private:
+	CString m_requiredName;
+};
+//---------------------------------------------------------------------------
+
+DevicesArray CRecordingSourceDlg::DevicesFromString(
+	CString strNames, TCHAR delimeter, const DevicesArray& allDevices)
+{
+	DevicesArray result;
+
+	std::vector<CString> arrNames = StrUtils::Split(strNames, delimeter);
+	for (size_t i = 0; i < arrNames.size(); i++)
+	{
+		const CString curName = arrNames[i];
+		const DevicesArray::const_iterator it =
+			std::find_if(allDevices.begin(), allDevices.end(), ByName(curName));
+
+		if (it != allDevices.end())
+			result.push_back(*it);
+	}
+
+	return result;
 }
 //---------------------------------------------------------------------------
