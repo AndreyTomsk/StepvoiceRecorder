@@ -35,6 +35,7 @@ CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 		g_dialogInstance = new CRecordingSourceDlg(NULL); //deleted by dialog (see PostNcDestroy)
 		g_dialogInstance->Create(CRecordingSourceDlg::IDD);
 	}
+	g_dialogInstance->UpdateDeviceArrays();
 	return g_dialogInstance;
 }
 
@@ -46,13 +47,21 @@ CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 }
 //---------------------------------------------------------------------------
 
+void CRecordingSourceDlg::UpdateDeviceArrays()
+{
+	//Re-initializing all devices list in case of disconnecting/installing
+	//new recording devices to system. Selected devices are stored by names
+	//in system registry (updated on dialog close), we should also update
+	//its IDs in array (in case of devices change in system).
+	m_allDevices = WasapiHelpers::GetRecordingDevicesList();
+	LoadSelectedDevicesFromConfig();
+}
+//---------------------------------------------------------------------------
+
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
-	m_allDevices = WasapiHelpers::GetRecordingDevicesList();
+	ASSERT(!m_allDevices.empty());
 	WasapiHelpers::InitRecordingDevices(m_allDevices);
-
-	if (m_selectedDevices.empty())
-		LoadSelectedDevicesFromConfig();
 
 	CreateRecordingSourceItems(m_allDevices);
 	UpdateRecordingSourceItems();
@@ -87,6 +96,8 @@ void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimiz
 		this->ShowWindow(SW_HIDE);
 		this->GetParent()->PostMessage(WM_RECSOURCE_DLGCLOSED);
 		WasapiHelpers::FreeRecordingDevices(m_allDevices);
+
+		SaveSelectedDevices();
 	}
 }
 //---------------------------------------------------------------------------
@@ -142,7 +153,6 @@ BOOL CRecordingSourceDlg::OnInitDialog()
 
 void CRecordingSourceDlg::PostNcDestroy()
 {
-	SaveSelectedDevices();
 	DeleteRecordingSourceItems();
 	g_dialogInstance = NULL;
 

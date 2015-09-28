@@ -28,6 +28,7 @@ CWasapiRecorderMulti::CWasapiRecorderMulti(
 	// Creating WASAPI recorders for each device. Calculating result freq and channels.
 	// For easier mixing, we get minimal frequency among all channels as result.
 
+	ASSERT(devices.size() > 0);
 	for (unsigned i = 0; i < devices.size(); i++)
 	{
 		const WasapiHelpers::DeviceIdNamePair& p = devices[i];
