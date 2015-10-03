@@ -93,8 +93,12 @@ BOOL InitRecordingDevices(const DevicesArray& devices)
 	while (it != devices.end())
 	{
 		DeviceIdNamePair p = *it++;
+
+		//TODO: can be lengthy operation (HDMI devices), refactor/move to thread.
+		//WriteDbg() << __FUNCTION__ << " ::2.1, device name=" << p.second;
 		result = BASS_WASAPI_Init(p.first, 44100, 2, BASS_WASAPI_AUTOFORMAT, 0.5, 0, EmptyProc, NULL);
 		result = BASS_WASAPI_Start();
+		//WriteDbg() << __FUNCTION__ << " ::2.2";
 
 		//BASS_WASAPI_AUTOFORMAT helps - my webcam's microphone (Logitech C270)
 		//initializes recording with 48000Hz, Mono. See GetDeviceActualData above.
