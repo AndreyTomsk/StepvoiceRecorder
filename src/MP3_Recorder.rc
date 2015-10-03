@@ -534,19 +534,19 @@ STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "MP3_Recorder"
     IDS_ERROR_DIRECTORY     "Unable to start recording. The directory specified doesn't exist."
-    IDS_FILETITLE           "<%1> - Stepvoice Recorder"
+    IDS_FILETITLE           "%1 - Stepvoice Recorder"
     IDS_NOFILE              "no file"
     IDS_FILEOPENTITLE       "Open File"
     IDS_FILENEWTITLE        "Create File"
     IDS_FILEFILTER          "MPEG audio files (*.MP3)|*.mp3|All files (*.*)|*.*||"
     IDS_FILENEWOPENTITLE    "Create/Open file"
     IDS_SEEKTO              "Seek To: %s/%s (%d%%)"
-    IDS_DEL_ASK             "Move file to Recycle Bin ?\n""%1"""
+    IDS_DEL_ASK             "Move file to Recycle Bin?\n""%1"""
 END
 
 STRINGTABLE 
 BEGIN
-    IDS_CLEAR_ASK           "Clear file permanently ?\n""%1"""
+    IDS_CLEAR_ASK           "Clear file permanently?\n""%1"""
     IDS_TT_OPEN             "Create/Open File (Ctrl - O)"
     IDS_TT_REC              "Record/Pause (Enter)"
     IDS_TT_STOP             "Stop (Shift - Space)"

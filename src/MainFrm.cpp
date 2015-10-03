@@ -538,7 +538,7 @@ void CMainFrame::OnFileClose()
 		m_bassPlaybackHandle = 0;
 	}
 
-	// Setting the default window text: <no file> - Stepvoice Recorder
+	// Setting the default window text: no_file - Stepvoice Recorder
 	CString strTitle, strNoFile((LPCSTR)IDS_NOFILE);
 	AfxFormatString1(strTitle, IDS_FILETITLE, strNoFile);
 	m_title->SetTitleText(strTitle);
