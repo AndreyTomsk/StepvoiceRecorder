@@ -44,9 +44,9 @@ Source: order.url;                 DestDir: {app}; Flags: ignoreversion
 
 Source: ..\bin\{#User_AppExeName}; DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\lame_enc.dll;       DestDir: {app}; Flags: ignoreversion
+Source: ..\bin\ResetOptions.reg;   DestDir: {app}; Flags: ignoreversion
 Source: ..\doc\Help\SvRec.chm;     DestDir: {app}; Flags: ignoreversion
 Source: ..\..\bass\bass.dll;       DestDir: {app}; Flags: ignoreversion
-Source: ..\..\bassmix\bassmix.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\..\basswasapi\basswasapi.dll; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
