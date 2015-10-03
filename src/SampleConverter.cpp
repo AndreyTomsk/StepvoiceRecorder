@@ -13,7 +13,8 @@ namespace SampleConverter
 
 int GetSrcSampleCount(int srcFreq, int dstFreq, int dstSampleCount)
 {
-	ASSERT(srcFreq != dstFreq);
+	if (srcFreq == dstFreq)
+		return dstSampleCount;
 
 	//Resampling formula:
 	//    srcSampleCount = dstSampleCount * srcFreq / dstFreq;
@@ -30,6 +31,9 @@ int GetSrcSampleCount(int srcFreq, int dstFreq, int dstSampleCount)
 bool VerifyDstSampleCount(int srcFreq, int srcSampleCount, int dstFreq,
 	int testDstSampleCount)
 {
+	if (srcFreq == dstFreq)
+		return srcSampleCount == testDstSampleCount;
+
 	const int skipIndex = srcFreq / (srcFreq - dstFreq);
 	//const int dstSampleCount = srcSampleCount - (srcSampleCount/skipIndex);
 
