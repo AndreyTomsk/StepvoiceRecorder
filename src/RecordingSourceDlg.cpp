@@ -60,6 +60,8 @@ void CRecordingSourceDlg::UpdateDeviceArrays()
 
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
+	CWaitCursor wait;
+
 	ASSERT(!m_allDevices.empty());
 	WasapiHelpers::InitRecordingDevices(m_allDevices);
 
