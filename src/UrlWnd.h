@@ -1,8 +1,4 @@
-#ifndef _URLWND_H
-#define _URLWND_H
 #pragma once
-
-/////////////////////////////////////////////////////////////////////////////
 
 class CUrlWnd : public CStatic
 {
@@ -12,21 +8,14 @@ public:
 
 	void SetUrl(CString pszUrl);
 
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CUrlWnd)
-	//}}AFX_VIRTUAL
-	// Generated message map functions
 protected:
-	//{{AFX_MSG(CUrlWnd)
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg HBRUSH CtlColor(CDC* pDC, UINT nCtlColor);
+	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
 private:
 	CString m_strUrl;
+	bool m_isUnderline;
+	CFont m_underlineFont;
 };
-
-/////////////////////////////////////////////////////////////////////////////
-
-#endif // _URLWND_H

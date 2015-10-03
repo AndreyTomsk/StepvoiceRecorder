@@ -59,7 +59,6 @@
 #define IDR_GRAPHMENU                   184
 #define IDR_STATMENU                    192
 #define IDD_ENTERCODE                   193
-#define IDC_HAND2                       194
 #define IDR_MAINFRAME2                  195
 #define IDD_NAGSCREEN                   198
 #define IDD_AUTONAME                    199

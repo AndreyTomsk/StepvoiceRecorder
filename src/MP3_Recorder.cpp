@@ -94,9 +94,6 @@ HBRUSH CAboutDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
-	if(pWnd->m_hWnd == GetDlgItem(IDC_GETNOW)->m_hWnd)
-		pDC->SetTextColor(RGB(0, 0, 230));
-
 	REG_CRYPT_BEGIN;
 #ifndef _DEBUG
 	if (pWnd->m_hWnd == GetDlgItem (IDC_REGNAME)->m_hWnd)
@@ -160,7 +157,6 @@ BOOL CAboutDlg::OnInitDialog()
 	pThanksEdit->SetWindowText(l_wnd_text);
 
 	m_wndOrder.SubclassDlgItem(IDC_GETNOW, this);
-	//m_wndOrder.Init();
 	m_wndOrder.SetUrl("http://stepvoice.com/order.shtml");
 
 

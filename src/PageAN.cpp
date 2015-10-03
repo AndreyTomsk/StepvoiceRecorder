@@ -62,7 +62,7 @@ BOOL CPageAN::OnInitDialog()
 
 	// изменяем курсор в группе template codes
 	SetClassLong(GetDlgItem(IDC_STATIC0_0)->GetSafeHwnd(), GCL_HCURSOR,
-		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_HAND2))); //вместо IDC_HAND
+		(LONG)LoadCursor(NULL, IDC_HAND));
 	
 	return TRUE;
 }
@@ -83,7 +83,7 @@ void CPageAN::OnDestroy()
 	
 	// изменяем курсор в группе template codes на стардартный
 	SetClassLong(GetDlgItem(IDC_STATIC0_0)->GetSafeHwnd(), GCL_HCURSOR,
-		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_ARROW))); //вместо IDC_HAND
+		(LONG)LoadCursor(NULL, IDC_ARROW));
 }
 //---------------------------------------------------------------------------
 

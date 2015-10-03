@@ -1159,10 +1159,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RES\hand.cur"
-				>
-			</File>
-			<File
 				RelativePath="RES\ico00001.ico"
 				>
 			</File>
@@ -1232,6 +1228,10 @@
 			</File>
 			<File
 				RelativePath="RES\mixline0.ico"
+				>
+			</File>
+			<File
+				RelativePath="RES\mixline3.ico"
 				>
 			</File>
 			<File

@@ -8,22 +8,24 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
+
 BEGIN_MESSAGE_MAP(CUrlWnd, CStatic)
-	//{{AFX_MSG_MAP(CUrlWnd)
-	ON_WM_CREATE()
+	ON_WM_CTLCOLOR_REFLECT() //just took from internet
+	ON_WM_SETCURSOR()
 	ON_WM_LBUTTONDOWN()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 
-CUrlWnd::CUrlWnd()
+CUrlWnd::CUrlWnd() : m_isUnderline(false)
 {
 }
 //---------------------------------------------------------------------------
 
 CUrlWnd::~CUrlWnd()
 {
+	if ((HFONT)m_underlineFont)
+		m_underlineFont.DeleteObject();
 }
 //---------------------------------------------------------------------------
 
@@ -33,15 +35,28 @@ void CUrlWnd::SetUrl(CString pszUrl)
 }
 //---------------------------------------------------------------------------
 
-int CUrlWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) 
+BOOL CUrlWnd::OnSetCursor(CWnd* /*pWnd*/, UINT /*nHitTest*/, UINT /*message*/)
 {
-	if (CStatic::OnCreate(lpCreateStruct) == -1)
-		return -1;
-	
-	SetClassLong(m_hWnd, GCL_HCURSOR,
-		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_HAND)) );
-	
-	return 0;
+	::SetCursor(::LoadCursor(NULL, IDC_HAND));
+	return TRUE;
+}
+//---------------------------------------------------------------------------
+
+HBRUSH CUrlWnd::CtlColor(CDC* pDC, UINT /*nCtlColor*/)
+{
+	pDC->SetTextColor(RGB(0, 0, 230));
+	pDC->SetBkMode(TRANSPARENT);
+
+	if (m_isUnderline && !(HFONT)m_underlineFont)
+	{
+		LOGFONT lf;
+		GetFont()->GetLogFont(&lf);
+		lf.lfUnderline = TRUE;
+		m_underlineFont.CreateFontIndirect(&lf);
+		pDC->SelectObject(&m_underlineFont);
+	}
+
+	return (HBRUSH)GetStockObject(NULL_BRUSH);
 }
 //---------------------------------------------------------------------------
 

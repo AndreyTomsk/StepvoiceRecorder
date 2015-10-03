@@ -107,7 +107,7 @@ BOOL CPageVAS::OnInitDialog()
 
 	// меняем курсор
 	SetClassLong(GetDlgItem(IDC_DLG_TRIALNOTE)->GetSafeHwnd(), GCL_HCURSOR,
-		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_HAND2)));
+		(LONG)LoadCursor(NULL, IDC_HAND));
 
 	return TRUE;
 }
@@ -156,7 +156,7 @@ void CPageVAS::OnDestroy()
 	
 	// меняем курсор на стандартный
 	SetClassLong(GetDlgItem(IDC_DLG_TRIALNOTE)->GetSafeHwnd(), GCL_HCURSOR,
-		(LONG)LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_ARROW)));
+		(LONG)LoadCursor(NULL, IDC_ARROW));
 }
 //---------------------------------------------------------------------------
 
