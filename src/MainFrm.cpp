@@ -17,7 +17,6 @@
 #include "Encoder_MP3.h"
 #include "FilterFileWriter.h"
 #include "FilterFileWriterWAV.h"
-#include "Debug.h"
 #include "MySheet.h"
 #include "FileUtils.h"
 
@@ -418,7 +417,6 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 	wc.hInstance	= AfxGetInstanceHandle();
 	wc.lpfnWndProc	= ::DefWindowProc;
 	wc.style		= CS_HREDRAW|CS_VREDRAW|CS_DBLCLKS;
-	wc.hCursor		= ::LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground= HBRUSH(16);
 	wc.hIcon		= ::LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME));
 	wc.lpszClassName= "SvRec";

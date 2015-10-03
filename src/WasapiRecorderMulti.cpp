@@ -8,7 +8,6 @@
 #include "WasapiAudioClient.h"
 #include "WasapiHelpers.h"
 #include "BASS_Functions.h" //for Bass::ShowErrorFrom
-#include "Debug.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

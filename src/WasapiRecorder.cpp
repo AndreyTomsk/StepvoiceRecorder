@@ -1,12 +1,7 @@
-// WasapiRecorder.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include <basswasapi.h>
 #include "WasapiRecorder.h"
 #include "WasapiHelpers.h"
-#include "Debug.h"
-
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

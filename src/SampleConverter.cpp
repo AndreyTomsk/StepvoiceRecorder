@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "SampleConverter.h"
-#include "Debug.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

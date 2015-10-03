@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "WasapiCaptureBuffer.h"
 #include "WasapiCaptureBufferSimple.h"
-#include "Debug.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

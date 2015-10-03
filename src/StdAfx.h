@@ -3,18 +3,15 @@
 //      are changed infrequently
 //
 
-#if !defined(AFX_STDAFX_H__B2320827_E089_44D4_9281_C17F08F9A315__INCLUDED_)
-#define AFX_STDAFX_H__B2320827_E089_44D4_9281_C17F08F9A315__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-
 #include <SdkDdkVer.h>
+#undef  NTDDI_VERSION
 #define NTDDI_VERSION NTDDI_VISTA
+#undef  _WIN32_WINNT
 #define _WIN32_WINNT _WIN32_WINNT_VISTA
 
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
+//#define OEMRESOURCE		//For 'LoadOEMCursor' function
 
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
@@ -28,7 +25,4 @@
 #include "protect.h"
 #include "resource.h"
 #include "Config.h"
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-#endif // !defined(AFX_STDAFX_H__B2320827_E089_44D4_9281_C17F08F9A315__INCLUDED_)
+#include "Debug.h"
