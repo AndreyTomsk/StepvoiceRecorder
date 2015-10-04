@@ -954,10 +954,6 @@
 				>
 			</File>
 			<File
-				RelativePath="htmlhelp.h"
-				>
-			</File>
-			<File
 				RelativePath="IcoWnd.h"
 				>
 			</File>

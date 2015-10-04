@@ -2,7 +2,7 @@
 //
 #include "stdafx.h"
 #include "EnterCodeDlg.h"
-#include "HtmlHelp.h"
+#include <htmlhelp.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

@@ -1,11 +1,7 @@
-/////////////////////////////////////////////////////////////////////////////
-// NagScreenDlg.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include "NagScreenDlg.h"
 #include "EnterCodeDlg.h"
-#include "HtmlHelp.h"
+#include <htmlhelp.h>
 #include "version.h"
 #include "FileUtils.h"
 #include "StrUtils.h"
@@ -19,35 +15,25 @@ static char THIS_FILE[] = __FILE__;
 const CString ORDER_URL(_T("http://stepvoice.com/order.shtml"));
 
 /////////////////////////////////////////////////////////////////////////////
+
 BEGIN_MESSAGE_MAP(CNagScreenDlg, CDialog)
-	//{{AFX_MSG_MAP(CNagScreenDlg)
 	ON_BN_CLICKED(IDC_ENTERCODE, OnEntercode)
 	ON_BN_CLICKED(IDC_ORDER, OnOrder)
 	ON_WM_TIMER()
 	ON_WM_CTLCOLOR()
 	ON_BN_CLICKED(IDC_BUTTON1, OnOrder)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
+
 CNagScreenDlg::CNagScreenDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CNagScreenDlg::IDD, pParent)
 {
-	//{{AFX_DATA_INIT(CNagScreenDlg)
-	//}}AFX_DATA_INIT
 	m_BoldFont.CreateFont (-8, 0, 0, 0, FW_BOLD,  0, 0, 0, 0, 0, 0, 0, 0,
 		_T("MS Sans Serif"));
 }
+//---------------------------------------------------------------------------
 
-
-void CNagScreenDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CNagScreenDlg)
-	//}}AFX_DATA_MAP
-}
-
-/////////////////////////////////////////////////////////////////////////////
 BOOL CNagScreenDlg::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
@@ -81,8 +67,8 @@ BOOL CNagScreenDlg::OnInitDialog()
 	}
 	return TRUE;
 }
+//---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
 void CNagScreenDlg::OnTimer(UINT nIDEvent) 
 {
 	static int nSeconds = 2;
@@ -97,9 +83,8 @@ void CNagScreenDlg::OnTimer(UINT nIDEvent)
 
 	CDialog::OnTimer(nIDEvent);
 }
+//---------------------------------------------------------------------------
 
-
-/////////////////////////////////////////////////////////////////////////////
 HBRUSH CNagScreenDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
 {
 	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
@@ -114,8 +99,8 @@ HBRUSH CNagScreenDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 	return hbr;
 }
+//---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
 void CNagScreenDlg::OnEntercode() 
 {
 	CEnterCodeDlg dlg;
@@ -128,9 +113,10 @@ void CNagScreenDlg::OnEntercode()
 		ShellExecute(::GetDesktopWindow(), _T("open"), programPath, NULL, NULL, SW_SHOW);
 	}
 }
+//---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
 void CNagScreenDlg::OnOrder() 
 {
 	ShellExecute(::GetDesktopWindow(), _T("open"), ORDER_URL, NULL, NULL, SW_SHOW);
 }
+//---------------------------------------------------------------------------

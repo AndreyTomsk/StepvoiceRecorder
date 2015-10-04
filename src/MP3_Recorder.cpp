@@ -378,8 +378,6 @@ void CMP3_RecorderApp::OnHelpDoc()
 {
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
 
-	CString test = FileUtils::GetProgramFolder();
-
 	using namespace FileUtils;
 	CString helpFile = CombinePath(GetProgramFolder(), _T("svrec.chm::/stepvoice_recorder/overview.html"));
 	::HtmlHelp(GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
