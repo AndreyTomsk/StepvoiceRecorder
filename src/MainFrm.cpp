@@ -182,8 +182,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	//}}AFX_MSG_MAP
 	ON_REGISTERED_MESSAGE(UWM_ARE_YOU_ME, OnAreYouMe)
 	ON_REGISTERED_MESSAGE(UWM_PARSE_LINE, OnParseLine)
-	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTW, 0, 0xFFFF, OnToolTipNotify)
-	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTA, 0, 0xFFFF, OnToolTipNotify)
+	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXT, 0, 0xFFFF, OnToolTipNotify)
 	ON_UPDATE_COMMAND_UI_RANGE(IDM_SOUND_PLAY, IDM_SOUND_END, OnUpdateSoundPlay)
 	ON_MESSAGE(WM_ICON_NOTIFY, OnTrayNotification)
 	ON_MESSAGE(WM_FILTER_NOTIFY, OnFilterNotify)
@@ -328,7 +327,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_SliderTime.SetWindowRgn(rgnT, false);
 	m_SliderTime.SetRange(0, 1000);
 
-	m_SliderFrame.Create(_T("Static"), "", WS_CHILD|WS_VISIBLE|SS_ETCHEDFRAME,
+	m_SliderFrame.Create(_T("Static"), _T(""), WS_CHILD|WS_VISIBLE|SS_ETCHEDFRAME,
 		CRect(109, 53, 283, 82), this, IDC_STATIC);
 
 	CRect rV(185, 84, 185+70, 84+23);
@@ -356,7 +355,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_BtnSTOP.SetIcon(IDI_STOP);
 	m_BtnREC.SetIcon(IDI_REC);
 
-	m_BtnFrame.Create(_T("Static"), "", WS_CHILD|WS_VISIBLE|SS_ETCHEDFRAME,
+	m_BtnFrame.Create(_T("Static"), _T(""), WS_CHILD|WS_VISIBLE|SS_ETCHEDFRAME,
 		CRect(1, 80, 283, 113), this, IDC_STATIC);
 
 	EnableToolTips(true);
@@ -368,7 +367,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	// Creating icon for the system tray
-	m_TrayIcon.Create(this, WM_ICON_NOTIFY, "Stepvoice Recorder",
+	m_TrayIcon.Create(this, WM_ICON_NOTIFY, _T("Stepvoice Recorder"),
 		LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_TRAY_STOP)), IDR_TRAY_MENU);
 	UpdateTrayText();
 	if(RegistryConfig::GetOption(_T("General\\Show icon in tray"), 0))
@@ -410,7 +409,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 	}
 
 	cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
-	cs.lpszClass = "SvRec";
+	cs.lpszClass = _T("SvRec");
 
 	WNDCLASS wc;
 	ZeroMemory(&wc, sizeof(wc));
@@ -419,7 +418,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 	wc.style		= CS_HREDRAW|CS_VREDRAW|CS_DBLCLKS;
 	wc.hbrBackground= HBRUSH(16);
 	wc.hIcon		= ::LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME));
-	wc.lpszClassName= "SvRec";
+	wc.lpszClassName= _T("SvRec");
 	AfxRegisterClass(&wc);
 
 	return TRUE;
@@ -1161,44 +1160,29 @@ void CMainFrame::OnOptSnddev()
 /////////////////////////////////////////////////////////////////////////////
 BOOL CMainFrame::OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
-	// need to handle both ANSI and UNICODE versions of the message
-	TOOLTIPTEXTA* pTTTA = (TOOLTIPTEXTA*)pNMHDR;
-	TOOLTIPTEXTW* pTTTW = (TOOLTIPTEXTW*)pNMHDR;
-	CString strTipText;
-
-	// Getting an element ID and a string from it
-	if(pNMHDR->code == TTN_NEEDTEXTA && (pTTTA->uFlags & TTF_IDISHWND) ||
-	   pNMHDR->code == TTN_NEEDTEXTW && (pTTTW->uFlags & TTF_IDISHWND))
-	{	// idFrom is actually the HWND of the tool
-		UINT nID = ::GetDlgCtrlID((HWND)pNMHDR->idFrom);
-		switch(nID)
-		{
-		case IDB_BTNOPEN:		nID = IDS_TT_OPEN; break;
-		case IDB_BTNREC:		nID = IDS_TT_REC;  break;
-		case IDB_BTNSTOP:		nID = IDS_TT_STOP; break;
-		case IDB_BTNPLAY:		nID = IDS_TT_PLAY; break;
-		case IDS_SLIDERTIME:	nID = IDS_TT_SEEKBAR; break;
-		case IDW_GRAPH:			nID = IDS_TT_WAVEWND; break;
-		case IDW_TIME:			nID = IDS_TT_TIMEWND; break;
-		case IDW_STAT:			nID = IDS_TT_STATWND; break;
-		case IDB_MIX_SEL:		nID = IDS_TT_MIXSEL; break;
-		case IDS_SLIDERVOL:		nID = IDS_TT_VOLBAR; break;
-		case IDB_BTN_VAS:		nID = IDS_TT_VAS;	break;
-		case IDB_BTN_MON:		nID = IDS_TT_MONITORING;break;
-		default:
-			return true;
-		}
-		strTipText = CString((LPCSTR)nID);
+	UINT nID = ::GetDlgCtrlID((HWND)pNMHDR->idFrom);
+	switch (nID)
+	{
+	case IDB_BTNOPEN:		nID = IDS_TT_OPEN; break;
+	case IDB_BTNREC:		nID = IDS_TT_REC;  break;
+	case IDB_BTNSTOP:		nID = IDS_TT_STOP; break;
+	case IDB_BTNPLAY:		nID = IDS_TT_PLAY; break;
+	case IDS_SLIDERTIME:	nID = IDS_TT_SEEKBAR; break;
+	case IDW_GRAPH:			nID = IDS_TT_WAVEWND; break;
+	case IDW_TIME:			nID = IDS_TT_TIMEWND; break;
+	case IDW_STAT:			nID = IDS_TT_STATWND; break;
+	case IDB_MIX_SEL:		nID = IDS_TT_MIXSEL; break;
+	case IDS_SLIDERVOL:		nID = IDS_TT_VOLBAR; break;
+	case IDB_BTN_VAS:		nID = IDS_TT_VAS;	break;
+	case IDB_BTN_MON:		nID = IDS_TT_MONITORING;break;
+	default:
+		return TRUE;
 	}
 
-	// Copying hint string into the structure
-	if (pNMHDR->code == TTN_NEEDTEXTA)
-	  lstrcpyn(pTTTA->szText, strTipText, sizeof(pTTTA->szText));
-	else
-	  _mbstowcsz(pTTTW->szText, strTipText, sizeof(pTTTW->szText));
-	*pResult = 0;
-
-	return true;
+	TOOLTIPTEXT *pText = (TOOLTIPTEXT *)pNMHDR;
+	pText->lpszText = MAKEINTRESOURCE(nID);
+	pText->hinst = AfxGetInstanceHandle();
+	return TRUE;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1447,7 +1431,7 @@ void CMainFrame::OnBtnMonitoring()
 	}
 	else if ((m_nState == STOP_STATE) && !MonitoringStart())
 	{
-		AfxMessageBox("Monitoring error!", MB_OK);
+		AfxMessageBox(_T("Monitoring error"), MB_OK);
 		m_StatWnd.m_btnMon.SetCheck(false);
 	}
 }
@@ -1685,7 +1669,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 
 LRESULT CMainFrame::OnRecSourceChanged(WPARAM wParam, LPARAM lParam)
 {
-	OutputDebugString(__FUNCTION__"\n");
+	WriteDbg() << __FUNCTION__ << _T("\n");
 	return 0;
 }
 //------------------------------------------------------------------------------

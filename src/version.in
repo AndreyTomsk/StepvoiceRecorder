@@ -1,13 +1,14 @@
-
-#ifndef _VERSION_NEW_H
-#define _VERSION_NEW_H
+#pragma once
 
 #define FILEVER       1,9,0,$WCREV$
 #define PRODUCTVER    1,9,0,$WCREV$
-#define STRFILEVER    "1, 9, 0, $WCREV$\0"
-#define STRPRODUCTVER "1, 9, 0, $WCREV$\0"
 
-#define WMS_VERBUILD  "$WCREV$"
-#define WMS_VERDATE   "$WCNOW$"
-
-#endif //_VERSION_NEW_H
+#ifdef UNICODE
+	#define STRFILEVER       L"1.9.0.$WCREV$\0"
+	#define WMS_VERBUILD     L"$WCREV$\0"
+	#define WMS_VERDATE      L"$WCNOW$\0"
+#else
+	#define STRFILEVER       "1.9.0.$WCREV$\0"
+	#define WMS_VERBUILD     "$WCREV$\0"
+	#define WMS_VERDATE      "$WCNOW$\0"
+#endif

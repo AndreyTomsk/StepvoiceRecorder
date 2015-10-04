@@ -15,7 +15,7 @@ class CEnterCodeDlg : public CDialog
 // Construction
 public:
 	CEnterCodeDlg(CWnd* pParent = NULL);   // standard constructor
-	bool RegisterKey(LPCSTR pszKey, bool multiUserKey = false);
+	bool RegisterKey(CString key, bool multiUserKey = false);
 
 // Dialog Data
 	//{{AFX_DATA(CEnterCodeDlg)

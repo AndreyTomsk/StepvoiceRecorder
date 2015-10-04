@@ -167,15 +167,13 @@ BOOL CAboutDlg::OnInitDialog()
 #endif
 	REG_CRYPT_END;
 
-	// Preparing the version string.
-	int n[4] = {0, 0, 0, 0};
-	sscanf_s(STRFILEVER, _T("%d, %d, %d, %d\0"), &n[0], &n[1], &n[2], &n[3]);
+	// Preparing version string.
 
 	CString l_format_string;
 	GetDlgItemText(IDC_STATIC_VERSION, l_format_string);
 	
 	CString l_version_string;
-	l_version_string.Format(l_format_string, n[0], n[1], n[2], n[3]);
+	l_version_string.Format(l_format_string, STRFILEVER);
 	SetDlgItemText(IDC_STATIC_VERSION, l_version_string);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -271,7 +269,7 @@ BOOL CMP3_RecorderApp::InitInstance()
 	SetRegistryKey(_T("StepVoice Software"));
 	//RegistryConfig::SetRegistryKey(_T("StepVoice Software"));
 
-	if (m_lpCmdLine[0] != _T('\0') && strcmp(m_lpCmdLine, _T("/register")) == 0)
+	if (m_lpCmdLine[0] != _T('\0') && CString(m_lpCmdLine) == _T("/register"))
 	{
 #ifdef SPECIAL_VERSION
 			// Adding a registration key into the system registry
@@ -365,16 +363,9 @@ void CMP3_RecorderApp::OnHelpOrderOnline()
 
 void CMP3_RecorderApp::OnHelpEmail() 
 {
-	// Preparing the version string.
-	int n[4] = {0, 0, 0, 0};
-	CString l_version_string(_T("%d.%d.%d.%d"));
-
-	sscanf_s(STRFILEVER, _T("%d, %d, %d, %d\0"), &n[0], &n[1], &n[2], &n[3]);
-	l_version_string.Format(l_version_string, n[0], n[1], n[2], n[3]);
-
 	CString l_mail_string;
 	l_mail_string.Format(_T("mailto:support@stepvoice.com?subject=[%s %s] "),
-		_T("svrec"), l_version_string);
+		_T("svrec"), STRFILEVER);
 
 	///@bug Add body message regarding common recording problems.
 	///see "mailto" in Windows SDK.
@@ -386,6 +377,8 @@ void CMP3_RecorderApp::OnHelpEmail()
 void CMP3_RecorderApp::OnHelpDoc() 
 {
 	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
+
+	CString test = FileUtils::GetProgramFolder();
 
 	using namespace FileUtils;
 	CString helpFile = CombinePath(GetProgramFolder(), _T("svrec.chm::/stepvoice_recorder/overview.html"));

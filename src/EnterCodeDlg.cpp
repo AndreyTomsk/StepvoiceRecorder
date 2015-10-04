@@ -54,24 +54,20 @@ BOOL CEnterCodeDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-bool CEnterCodeDlg::RegisterKey(LPCSTR pszKey, bool multiUserKey)
+bool CEnterCodeDlg::RegisterKey(CString strKey, bool multiUserKey)
 {
-	HKEY hKey;
-    DWORD dwDisposition;
-
 	// удаляем все ненужное из строки
-	CString strKey = pszKey;
 
-	strKey.Remove(' ');	// удаляем все пробелы
-	const char BEGIN_MARK[] = "KEYBEGINKEY";// метка "KEY BEGIN KEY" без пробелов
-	const char END_MARK[]   = "KEYENDKEY";	// метка "KEY END KEY" без пробелов
+	strKey.Remove(_T(' '));	// удаляем все пробелы
+	const TCHAR BEGIN_MARK[] = _T("KEYBEGINKEY");// метка "KEY BEGIN KEY" без пробелов
+	const TCHAR END_MARK[]   = _T("KEYENDKEY");  // метка "KEY END KEY" без пробелов
 
 	int nLength = strKey.Find(BEGIN_MARK);
 	if(nLength != -1)
 	{	// если метка начала ключа найдена, то оставляем правую часть после нее
 		nLength = strKey.GetLength() - nLength - (sizeof(BEGIN_MARK) - 1);
 		strKey = strKey.Right(nLength);
-		strKey.TrimLeft('-');	// убираем минусы слева
+		strKey.TrimLeft(_T('-'));	// убираем минусы слева
 		strKey.TrimLeft();		// убираем "переход строки" если есть (слева)
 	}
 
@@ -79,30 +75,19 @@ bool CEnterCodeDlg::RegisterKey(LPCSTR pszKey, bool multiUserKey)
 	if(nLength != -1)
 	{	// если метка конца ключа найдена, то оставляем левую часть до нее
 		strKey = strKey.Left(nLength);
-		strKey.TrimRight('-');	// убираем минусы справа
+		strKey.TrimRight(_T('-'));	// убираем минусы справа
 		strKey.TrimRight();		// убираем "переход строки" если есть (справа)
 	}
 
-	// открываем ветку реестра
-	HKEY destHKEY = multiUserKey ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
-	if (ERROR_SUCCESS != RegCreateKeyEx(destHKEY,
-		"Software\\StepVoice Software\\svrec", 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey,
-		&dwDisposition)) 
-    {
-        return FALSE;
-    }
+	// Writing key to registry
 
-	// записываем в реестр ключ
-	if (RegSetValueEx(hKey, "Key", 0, REG_SZ, (BYTE*)strKey.GetBuffer(strKey.GetLength()),
-		strKey.GetLength()) != ERROR_SUCCESS)
-    { 
-        RegCloseKey(hKey);
-        return FALSE;
-    }
+	const DWORD keySizeBytes = (strKey.GetLength()+1)*sizeof(TCHAR);
+	const LONG result = RegSetKeyValue(
+		multiUserKey ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER,
+		_T("Software\\Stepvoice Software\\svrec"), _T("Key"),
+		REG_SZ, strKey,	keySizeBytes);
 
-    RegCloseKey(hKey);
-    return TRUE;
+	return result == ERROR_SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -136,7 +121,7 @@ void CEnterCodeDlg::OnOK()
 	}
 
 	if (FALSE == RegisterKey(strCode)) {
-		MessageBox("Error writing to the registry", "Error", MB_ICONERROR);
+		MessageBox(_T("Error writing to the registry"), _T("Error"), MB_ICONERROR);
 		CDialog::OnOK();
 		return;
 	}

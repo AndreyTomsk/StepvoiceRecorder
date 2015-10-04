@@ -7,6 +7,8 @@
 #include "EnterCodeDlg.h"
 #include "HtmlHelp.h"
 #include "version.h"
+#include "FileUtils.h"
+#include "StrUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -14,7 +16,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-#define ORDER_URL "http://stepvoice.com/order.shtml"
+const CString ORDER_URL(_T("http://stepvoice.com/order.shtml"));
 
 /////////////////////////////////////////////////////////////////////////////
 BEGIN_MESSAGE_MAP(CNagScreenDlg, CDialog)
@@ -34,7 +36,7 @@ CNagScreenDlg::CNagScreenDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CNagScreenDlg)
 	//}}AFX_DATA_INIT
 	m_BoldFont.CreateFont (-8, 0, 0, 0, FW_BOLD,  0, 0, 0, 0, 0, 0, 0, 0,
-		"MS Sans Serif");
+		_T("MS Sans Serif"));
 }
 
 
@@ -65,16 +67,16 @@ BOOL CNagScreenDlg::OnInitDialog()
 
 	SetTimer(1, 1000, NULL);
 
+	// Setting version number in window caption.
 	{
-		// Setting a version number in window caption
-		int n[4] = {0, 0, 0, 0};
-		sscanf_s(STRFILEVER, _T("%d, %d, %d, %d\0"), &n[0], &n[1], &n[2], &n[3]);
+		std::vector<CString> numbers = StrUtils::Split(STRFILEVER, _T('.'));
+		ASSERT(numbers.size() == 4);
 
 		CString l_format_string;
 		GetWindowText(l_format_string);
 
 		CString l_version_string;
-		l_version_string.Format(l_format_string, n[0], n[1], n[2], n[3]);
+		l_version_string.Format(l_format_string, numbers[0], numbers[1]);
 		SetWindowText(l_version_string);
 	}
 	return TRUE;
@@ -122,14 +124,13 @@ void CNagScreenDlg::OnEntercode()
 		// Exit code as IDOK - to make an error and quit current instance.
 		PostMessage(WM_COMMAND, IDOK, (LPARAM)GetDlgItem(IDCANCEL)->m_hWnd);
 
-		char FileName[MAX_PATH];
-		GetModuleFileName(AfxGetInstanceHandle(), FileName, MAX_PATH);
-		ShellExecute(::GetDesktopWindow(), "open", FileName, NULL, NULL, SW_SHOW);
+		const CString programPath = FileUtils::GetProgramPath();
+		ShellExecute(::GetDesktopWindow(), _T("open"), programPath, NULL, NULL, SW_SHOW);
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void CNagScreenDlg::OnOrder() 
 {
-	ShellExecute(::GetDesktopWindow(), "open", ORDER_URL, NULL, NULL, SW_SHOW);
+	ShellExecute(::GetDesktopWindow(), _T("open"), ORDER_URL, NULL, NULL, SW_SHOW);
 }

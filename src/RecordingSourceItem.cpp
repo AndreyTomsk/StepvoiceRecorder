@@ -181,7 +181,7 @@ void CRecordingSourceItem::SetLevel(unsigned levelPercent)
 
 void CRecordingSourceItem::OnCheckboxClicked()
 {
-	GetParent()->PostMessageA(WM_COMMAND,
+	GetParent()->PostMessage(WM_COMMAND,
 		MAKEWPARAM(IDC_RECORDING_DEVICE, BN_CLICKED), 0);
 }
 //---------------------------------------------------------------------------

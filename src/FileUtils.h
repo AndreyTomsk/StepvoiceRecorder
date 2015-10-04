@@ -10,6 +10,7 @@ namespace FileUtils
 	//Displays a "select folder" dialog.
 	bool DialogPickupFolder(CString& folderPath); //[in/out]
 
+	CString GetProgramPath();
 	CString GetProgramFolder();
 
 	bool FolderExists(const CString& path);

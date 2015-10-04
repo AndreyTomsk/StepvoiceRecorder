@@ -47,7 +47,7 @@ BOOL CTimerDlg::OnInitDialog()
 	// устанавливаем вид диалога
 	this->SetWindowText(m_tdi.strCaption);
 	pDlgText->SetWindowText(m_tdi.strDlgText);
-	strBtnText.Format("%s (%d)", m_tdi.strBtnText, m_tdi.nCloseTime);
+	strBtnText.Format(_T("%s (%d)"), m_tdi.strBtnText, m_tdi.nCloseTime);
 	pBtnClose->SetWindowText(strBtnText);
 	pDlgIcon->SetIcon(LoadIcon(NULL, IDI_INFORMATION));
 
@@ -74,7 +74,7 @@ void CTimerDlg::OnTimer(UINT nIDEvent)
 		this->PostMessage(WM_COMMAND, IDOK, LONG(pBtnClose->m_hWnd));
 
 	// изменяем текст на кнопке вида: OK(29)
-	strBtnText.Format("%s (%d)", m_tdi.strBtnText, m_nSeconds);
+	strBtnText.Format(_T("%s (%d)"), m_tdi.strBtnText, m_nSeconds);
 	pBtnClose->SetWindowText(strBtnText);
 	
 	CDialog::OnTimer(nIDEvent);

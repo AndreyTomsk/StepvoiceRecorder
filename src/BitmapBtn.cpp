@@ -44,7 +44,7 @@ BOOL CBitmapBtn::Create(CImageList *pImageList, const POINT &pt, CWnd *pParentWn
 	int nBtnH = btnImageInfo.rcImage.bottom - btnImageInfo.rcImage.top;
 
 	// создаем окно по размерам битмапа кнопки
-	return CWnd::Create(NULL, "", WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS,
+	return CWnd::Create(NULL, _T(""), WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS,
 		CRect(pt.x, pt.y, pt.x+nBtnW, pt.y+nBtnH), pParentWnd, nID);
 }
 //===========================================================================

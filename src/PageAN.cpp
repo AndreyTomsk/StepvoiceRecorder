@@ -27,7 +27,7 @@ CPageAN::CPageAN()
 	:CPropertyPage(CPageAN::IDD)
 {
 	m_BoldFont.CreateFont (-8, 0, 0, 0, FW_BOLD,  0, 0, 0, 0, 0, 0, 0, 0,
-		"MS Sans Serif");
+		_T("MS Sans Serif"));
 }
 //---------------------------------------------------------------------------
 
@@ -145,7 +145,7 @@ BOOL CPageAN::OnCommand(WPARAM wParam, LPARAM lParam)
 		CEdit* pETemplate = (CEdit *)GetDlgItem(IDE_NAMETEMPLATE);
 
 		// удаляем выделенный текст (если есть)
-		pETemplate->ReplaceSel("", true);
+		pETemplate->ReplaceSel(_T(""), true);
 
 		if(nID != IDC_AN_TDEFAULT)
 		{

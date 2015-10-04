@@ -62,7 +62,7 @@ HBRUSH CUrlWnd::CtlColor(CDC* pDC, UINT /*nCtlColor*/)
 
 void CUrlWnd::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	ShellExecute(::GetDesktopWindow(), "open", m_strUrl, NULL, NULL, SW_SHOW);
+	ShellExecute(::GetDesktopWindow(), _T("open"), m_strUrl, NULL, NULL, SW_SHOW);
 	CStatic::OnLButtonDown(nFlags, point);
 }
 //---------------------------------------------------------------------------

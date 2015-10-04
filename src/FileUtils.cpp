@@ -21,13 +21,18 @@ CString GetSpecialFolder(int csidl)
 }
 //---------------------------------------------------------------------------
 
-CString GetProgramFolder()
+CString GetProgramPath()
 {
 	TCHAR exeName[MAX_PATH*2] = {0};
 	GetModuleFileName(AfxGetInstanceHandle(), exeName, MAX_PATH*2);
+	return CString(exeName);
 
-	CString programPath(exeName);
-	return programPath.Left(programPath.ReverseFind(_T('\\')));
+}
+//---------------------------------------------------------------------------
+
+CString GetProgramFolder()
+{
+	return GetFolderOnly(GetProgramPath());
 }
 //---------------------------------------------------------------------------
 

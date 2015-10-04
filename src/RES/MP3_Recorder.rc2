@@ -37,14 +37,14 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Comments", "Advanced mp3 audio recorder with friendly interface."
-            VALUE "CompanyName", "StepVoice Software"
+            VALUE "CompanyName", "Stepvoice Software"
             VALUE "FileDescription", "Stepvoice Recorder - friendly mp3 audio recorder"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "Stepvoice Recorder"
-            VALUE "LegalCopyright", "Copyright © 2003-2009 StepVoice Software"
+            VALUE "LegalCopyright", "Copyright © 2015 Stepvoice Software"
             VALUE "OriginalFilename", "SvRec.exe"
             VALUE "ProductName", "Stepvoice Recorder"
-            VALUE "ProductVersion", STRPRODUCTVER
+            VALUE "ProductVersion", STRFILEVER
         END
     END
     BLOCK "VarFileInfo"
