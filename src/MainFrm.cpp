@@ -944,7 +944,13 @@ void CMainFrame::OnBtnREC()
 		int frequency = RegistryConfig::GetOption(_T("File types\\MP3\\Freq"), 44100);
 		int channels = RegistryConfig::GetOption(_T("File types\\MP3\\Stereo"), 1) + 1;
 
-		WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+		using namespace WasapiHelpers;
+		DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+		if (selectedDevices.empty() || (selectedDevices.size() == 1 && selectedDevices[0] == EMPTY_DEVICE)) {
+			AfxMessageBox(_T("Recording devices not found."), MB_OK);
+			return;
+		}
+
 		CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, frequency, channels);
 		//CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, frequency, channels);
 		recorder->SetVolume(m_recording_volume);
@@ -1431,7 +1437,7 @@ void CMainFrame::OnBtnMonitoring()
 	}
 	else if ((m_nState == STOP_STATE) && !MonitoringStart())
 	{
-		AfxMessageBox(_T("Monitoring error"), MB_OK);
+		AfxMessageBox(_T("Monitoring error."), MB_OK);
 		m_StatWnd.m_btnMon.SetCheck(false);
 	}
 }
@@ -1454,7 +1460,11 @@ bool CMainFrame::MonitoringStart()
 	if (!m_monitoringChain.IsEmpty())
 		MonitoringStop();
 
-	WasapiHelpers::DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+	using namespace WasapiHelpers;
+	DevicesArray selectedDevices = CRecordingSourceDlg::GetInstance()->GetSelectedDevices();
+	if (selectedDevices.empty() || (selectedDevices.size() == 1 && selectedDevices[0] == EMPTY_DEVICE))
+		return false;
+
 	CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, 44100, 2);
 	//CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, 44100, 2);
 	recorder->SetVolume(m_recording_volume);

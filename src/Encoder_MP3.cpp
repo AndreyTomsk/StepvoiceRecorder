@@ -189,7 +189,7 @@ void CEncoder_MP3::WriteVBRHeader(const CString& filePath)
 	CloseHandle(l_file_handle);
 	*/
 	CT2CA filePathA(filePath);
-	beWriteVBRHeader(filePathA);
+	beWriteVBRHeader(filePathA.m_psz);
 }
 //---------------------------------------------------------------------------
 
