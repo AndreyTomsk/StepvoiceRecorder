@@ -18,6 +18,8 @@
 #define IDR_MAINFRAME                   128
 #define IDB_MIX_SEL                     129
 #define IDS_ERROR_DIRECTORY             129
+#define IDS_ERROR_REGISTER_WRITE        130
+#define IDS_REGISTRATION_RESTART        131
 #define IDS_FILETITLE                   132
 #define IDI_PLAY                        133
 #define IDS_NOFILE                      133
@@ -43,8 +45,6 @@
 #define IDS_TT_WAVEWND                  160
 #define IDS_TT_TIMEWND                  161
 #define IDS_TT_STATWND                  162
-#define IDS_REG_CAPTION                 163
-#define IDS_REG_TEXT_OK                 164
 #define IDS_VOLUME_TITLE                166
 #define IDS_TT_VOLBAR                   167
 #define IDS_TT_MIXSEL                   168
@@ -118,7 +118,6 @@
 #define IDC_PASTE                       1047
 #define IDC_CLEAR                       1048
 #define IDC_THANKYOU                    1049
-#define IDC_BUTTON1                     1050
 #define IDC_UNREGVERSION                1051
 #define IDC_ONLINEREGISTER              1052
 #define IDC_GETNOW                      1054
@@ -165,6 +164,7 @@
 #define IDC_RESULT_NAME                 1180
 #define IDC_STORE_IN_OUTPUT_FOLDER      1181
 #define IDC_ON_TOP                      1182
+#define IDC_UNREGNOTICE                 1183
 #define IDW_RECORDING_ITEM              5000
 #define IDM_FILE_NEW                    32773
 #define IDM_FILE_OPEN                   32774
@@ -214,7 +214,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        249
 #define _APS_NEXT_COMMAND_VALUE         32931
-#define _APS_NEXT_CONTROL_VALUE         1183
+#define _APS_NEXT_CONTROL_VALUE         1184
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
 #endif

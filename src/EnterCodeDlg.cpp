@@ -114,22 +114,13 @@ void CEnterCodeDlg::OnOK()
 {
 	CString strCode;
 	GetDlgItemText(IDC_EDITCODE, strCode);
-
-	if (strCode.IsEmpty()) {
-		CDialog::OnOK();
-		return;
+	if (!strCode.IsEmpty())
+	{
+		if (RegisterKey(strCode))
+			AfxMessageBox(IDS_REGISTRATION_RESTART, MB_OK|MB_ICONINFORMATION);
+		else
+			AfxMessageBox(IDS_ERROR_REGISTER_WRITE, MB_OK|MB_ICONWARNING);
 	}
-
-	if (FALSE == RegisterKey(strCode)) {
-		MessageBox(_T("Error writing to the registry"), _T("Error"), MB_ICONERROR);
-		CDialog::OnOK();
-		return;
-	}
-
-	CString strText((LPCSTR)IDS_REG_TEXT_OK);
-	CString strCaption((LPCSTR)IDS_REG_CAPTION);
-	MessageBox(strText, strCaption, MB_OK);
-
 	CDialog::OnOK();
 }
 
