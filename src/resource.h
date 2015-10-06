@@ -124,7 +124,6 @@
 #define IDC_GETNOW                      1054
 #define IDE_NAMETEMPLATE                1063
 #define IDC_AN_EXTEXT                   1075
-#define IDC_VAS_ENABLE                  1078
 #define IDC_VAS_SILENTPAUSE             1081
 #define IDC_VAS_SILENTSTOP              1082
 #define IDC_VAS_THRESHOLD               1085
@@ -165,6 +164,7 @@
 #define IDC_EXAMPLE_NAME                1180
 #define IDC_RESULT_NAME                 1180
 #define IDC_STORE_IN_OUTPUT_FOLDER      1181
+#define IDC_ON_TOP                      1182
 #define IDW_RECORDING_ITEM              5000
 #define IDM_FILE_NEW                    32773
 #define IDM_FILE_OPEN                   32774
@@ -187,7 +187,6 @@
 #define ID_GRAPH_NONE                   32868
 #define IDM_FILE_DELETE                 32870
 #define IDM_FILE_CLEAR                  32871
-#define ID_STAT_PREF                    32873
 #define IDM_OPT_SNDDEV                  32874
 #define ID_HELP_HOWTO                   32875
 #define ID_HELP_ENTERREGISTRATIONCODE   32876
@@ -202,10 +201,11 @@
 #define ID_HELP_ORDERONLINE             32901
 #define IDA_VOL_UP                      32908
 #define IDA_VOL_DOWN                    32909
-#define ID_GRAPH_MONITORING             32923
 #define ID_OPTIONS_SELECTSOUCE          32924
 #define ID_OPTIONS_SELECTRECORDINGSOUCE 32925
 #define ID_OPTIONS_SELECTRECORDINGSOURCE 32926
+#define IDM_OPT_MONITOR                 32929
+#define IDM_OPT_VAS                     32930
 
 // Next default values for new objects
 // 
@@ -213,8 +213,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        249
-#define _APS_NEXT_COMMAND_VALUE         32927
-#define _APS_NEXT_CONTROL_VALUE         1182
+#define _APS_NEXT_COMMAND_VALUE         32931
+#define _APS_NEXT_CONTROL_VALUE         1183
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
 #endif

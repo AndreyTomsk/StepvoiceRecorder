@@ -29,7 +29,6 @@ CPageVAS::CPageVAS()
 	:CPropertyPage(CPageVAS::IDD)
 	,m_thresholdIndex(0)
 	,m_delayIndex(0)
-	,m_enable(FALSE)
 	,m_action(0)
 {
 	m_FontWarn.CreateFont(12, 0, 0, 0, FW_LIGHT,  0, 0, 0, 0, 0, 0, 0, 0,
@@ -46,7 +45,6 @@ void CPageVAS::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
 
-	DDX_Check(pDX, IDC_VAS_ENABLE, m_enable);
 	DDX_Radio(pDX, IDC_VAS_SILENTPAUSE, m_action);
 }
 //---------------------------------------------------------------------------
@@ -54,7 +52,6 @@ void CPageVAS::DoDataExchange(CDataExchange* pDX)
 #pragma optimize ("", off)
 BOOL CPageVAS::OnInitDialog() 
 {
-	m_enable = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
 	m_action = RegistryConfig::GetOption(_T("Tools\\VAS\\Action"), 0);
 	const int configTreshold = RegistryConfig::GetOption(_T("Tools\\VAS\\Threshold"), -30);
 	const int configWaitTime = RegistryConfig::GetOption(_T("Tools\\VAS\\WaitTime"), 2000);
@@ -88,12 +85,9 @@ BOOL CPageVAS::OnInitDialog()
 #ifndef _DEBUG
 	CStatic* pTrialNote = (CStatic *)GetDlgItem(IDC_DLG_TRIALNOTE);
 
-	// дизаблим VAS после завершения триального периода
+	// Показываем надпись об отключении фичи после триального периода.
 	if (fsProtect_GetDaysLeft() <= 0)
-	{	
-		CButton *pBtnEnable = (CButton *)GetDlgItem(IDC_VAS_ENABLE);
-		pBtnEnable->EnableWindow(false);
-		m_enable = false;
+	{
 		pTrialNote->ModifyStyle(0, WS_VISIBLE);
 		pTrialNote->Invalidate(false);
 	}
@@ -116,16 +110,9 @@ BOOL CPageVAS::OnInitDialog()
 
 void CPageVAS::OnOK() 
 {
-#ifndef _DEBUG
-	// дизаблим VAS после завершения триального периода
-	if(fsProtect_GetDaysLeft() <= 0)
-		m_enable = false;
-#endif
-
 	CSliderCtrl* pSlider1 = static_cast<CSliderCtrl*>(GetDlgItem(IDC_VAS_THRESHOLD));
 	CSliderCtrl* pSlider2 = static_cast<CSliderCtrl*>(GetDlgItem(IDC_VAS_TIME));
 
-	RegistryConfig::SetOption(_T("Tools\\VAS\\Enable"),   m_enable);
 	RegistryConfig::SetOption(_T("Tools\\VAS\\Action"),   m_action);
 	RegistryConfig::SetOption(_T("Tools\\VAS\\Threshold"),VAS_THRESHOLD[pSlider1->GetPos()]);
 	RegistryConfig::SetOption(_T("Tools\\VAS\\WaitTime"), VAS_WAITTIME[pSlider2->GetPos()]);

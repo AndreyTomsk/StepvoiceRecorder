@@ -126,6 +126,8 @@ protected:
 	afx_msg void OnDestroy();
 	afx_msg void OnOptEm();
 	afx_msg void OnOptTop();
+	afx_msg void OnOptMonitor();
+	afx_msg void OnOptVAS();
 	afx_msg void OnBtnOPEN();
 	afx_msg void OnBtnPLAY();
 	afx_msg void OnBtnSTOP();
@@ -140,8 +142,8 @@ protected:
 	afx_msg void OnFileClose();
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnUpdateSoundRec(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateOptTop(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateOptEm(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateOptMonitor(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateOptVAS(CCmdUI* pCmdUI);
 	afx_msg void OnSoundRecA();
 	afx_msg void OnSoundPlayA();
 	afx_msg void OnSoundBegin();
@@ -157,7 +159,6 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnUpdateTrayPlay(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateTrayRec(CCmdUI* pCmdUI);
-	afx_msg void OnStatPref();
 	afx_msg void OnVolUpA();
 	afx_msg void OnVolDownA();
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);

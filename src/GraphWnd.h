@@ -30,9 +30,7 @@ protected:
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(UINT nIDEvent);
-	afx_msg void OnGraphMonitoring();
 	afx_msg void OnGraphMenu(UINT nID);
-	afx_msg void OnUpdateGraphMenu(CCmdUI* pCmdUI);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	DECLARE_MESSAGE_MAP()
 

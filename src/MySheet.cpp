@@ -28,7 +28,7 @@ CMySheet::CMySheet()
 
 CString CMySheet::GetWindowTitle()
 {
-	return _T("Preferences");
+	return _T("Options");
 }
 //---------------------------------------------------------------------------
 

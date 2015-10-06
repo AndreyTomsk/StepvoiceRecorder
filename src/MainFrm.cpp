@@ -138,8 +138,15 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	//{{AFX_MSG_MAP(CMainFrame)
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
-	ON_COMMAND(IDM_OPT_EM, OnOptEm)
+
 	ON_COMMAND(IDM_OPT_TOP, OnOptTop)
+	ON_COMMAND(IDM_OPT_EM, OnOptEm)
+	ON_COMMAND(IDM_OPT_MONITOR, OnOptMonitor)
+	ON_COMMAND(IDM_OPT_VAS, OnOptVAS)
+
+	ON_UPDATE_COMMAND_UI(IDM_OPT_MONITOR, OnUpdateOptMonitor)
+	ON_UPDATE_COMMAND_UI(IDM_OPT_VAS, OnUpdateOptVAS)
+
 	ON_BN_CLICKED(IDB_BTNOPEN, OnBtnOPEN)
 	ON_BN_CLICKED(IDB_BTNPLAY, OnBtnPLAY)
 	ON_BN_CLICKED(IDB_BTNSTOP, OnBtnSTOP)
@@ -154,8 +161,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(IDM_FILE_CLOSE, OnFileClose)
 	ON_WM_TIMER()
 	ON_UPDATE_COMMAND_UI(IDM_SOUND_REC, OnUpdateSoundRec)
-	ON_UPDATE_COMMAND_UI(IDM_OPT_TOP, OnUpdateOptTop)
-	ON_UPDATE_COMMAND_UI(IDM_OPT_EM, OnUpdateOptEm)
 	ON_COMMAND(IDA_SOUND_REC, OnSoundRecA)
 	ON_COMMAND(IDA_SOUND_PLAY, OnSoundPlayA)
 	ON_COMMAND(IDM_SOUND_BEGIN, OnSoundBegin)
@@ -171,7 +176,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_SIZE()
 	ON_UPDATE_COMMAND_UI(IDM_TRAY_PLAY, OnUpdateTrayPlay)
 	ON_UPDATE_COMMAND_UI(IDM_TRAY_REC, OnUpdateTrayRec)
-	ON_COMMAND(ID_STAT_PREF, OnStatPref)
 	ON_COMMAND(IDA_VOL_UP, OnVolUpA)
 	ON_COMMAND(IDA_VOL_DOWN, OnVolDownA)
 	ON_COMMAND(IDM_FILE_CREATEOPEN, OnBtnOPEN)
@@ -373,18 +377,18 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if(RegistryConfig::GetOption(_T("General\\Show icon in tray"), 0))
 		m_TrayIcon.ShowIcon();
 
-	// Setting up Monitoring
+	// Setting up Monitoring and Voice Activation.
 	const bool monEnabled = RegistryConfig::GetOption(_T("General\\Sound Monitor"), 0);
-	m_StatWnd.m_btnMon.SetCheck(monEnabled);
-
-	// Setting up Voice Activation System
 	const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
+#ifndef _DEBUG
+	// дизаблим VAS после завершения триального периода
+	if(fsProtect_GetDaysLeft() <= 0)
+		goto End;
+#endif
+	m_StatWnd.m_btnMon.SetCheck(monEnabled);
 	m_StatWnd.m_btnVas.SetCheck(vasEnabled);
 
-	CMenu* pRecDeviceMenu = this->GetMenu()->GetSubMenu(2);
-	ASSERT(pRecDeviceMenu);
-	pRecDeviceMenu->RemoveMenu(0, MF_BYPOSITION); // Removing loopback device menu
-
+End:
 	return 0;
 }
 #pragma optimize("", on)
@@ -764,11 +768,6 @@ void CMainFrame::OnSoundEnd()
 //===========================================================================
 // MENU : Options
 //===========================================================================
-void CMainFrame::OnStatPref() 
-{
-	OnOptCom();
-}
-
 void CMainFrame::OnOptCom()
 {
 	CMySheet optDlg;
@@ -776,6 +775,9 @@ void CMainFrame::OnOptCom()
 		return
 
 	UpdateStatWindow();
+
+	// Handling "Always on Top" option
+	Helpers::SetOnTop(this, RegistryConfig::GetOption(_T("General\\Always on Top"), false));
 
 	// Checking tray options
 
@@ -786,8 +788,7 @@ void CMainFrame::OnOptCom()
 
 	//Updating GUI and filter with new VAS parameters.
 
-	const bool isEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
-	if (isEnabled && m_StatWnd.m_btnVas.IsChecked())
+	if (m_StatWnd.m_btnVas.IsChecked())
 	{
 		//Button already pressed and VAS is running. Its
 		//parameters could be updated in options dialog.
@@ -795,8 +796,6 @@ void CMainFrame::OnOptCom()
 		m_StatWnd.m_btnVas.SetCheck(false);
 		m_StatWnd.m_btnVas.SetCheck(true);
 	}
-	else
-		m_StatWnd.m_btnVas.SetCheck(isEnabled);
 }
 
 //===========================================================================
@@ -1076,24 +1075,39 @@ void CMainFrame::OnUpdateSoundRec(CCmdUI* pCmdUI)
 {
 	pCmdUI->Enable(!IsPlaying(m_nState));
 }
-
 //------------------------------------------------------------------------------
+
 void CMainFrame::OnUpdateSoundPlay(CCmdUI* pCmdUI)
 {
 	pCmdUI->Enable(!IsRecording(m_nState));
 }
-
 //------------------------------------------------------------------------------
-void CMainFrame::OnUpdateOptTop(CCmdUI* pCmdUI) 
-{
-	pCmdUI->SetCheck(RegistryConfig::GetOption(_T("General\\Always on Top"), 0));
-}
 
-//------------------------------------------------------------------------------
-void CMainFrame::OnUpdateOptEm(CCmdUI* pCmdUI) 
+void CMainFrame::OnOptMonitor()
 {
-	pCmdUI->SetCheck(RegistryConfig::GetOption(_T("General\\Easy Move"), 1));
+	const UINT itemState = GetMenu()->GetMenuState(IDM_OPT_MONITOR, MF_BYCOMMAND);
+	m_StatWnd.m_btnMon.SetCheck(!(itemState == MF_CHECKED));
 }
+//------------------------------------------------------------------------------
+
+void CMainFrame::OnOptVAS()
+{
+	const UINT itemState = GetMenu()->GetMenuState(IDM_OPT_VAS, MF_BYCOMMAND);
+	m_StatWnd.m_btnVas.SetCheck(!(itemState == MF_CHECKED));
+}
+//------------------------------------------------------------------------------
+
+void CMainFrame::OnUpdateOptMonitor(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(m_StatWnd.m_btnMon.IsChecked());
+}
+//------------------------------------------------------------------------------
+
+void CMainFrame::OnUpdateOptVAS(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(m_StatWnd.m_btnVas.IsChecked());
+}
+//------------------------------------------------------------------------------
 
 //===========================================================================
 // ACCELERATORS
@@ -1135,7 +1149,7 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 /////////////////////////////////////////////////////////////////////////////
 void CMainFrame::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
-	OnStatPref();
+	OnOptCom();
 	CFrameWnd::OnLButtonDblClk(nFlags, point);
 }
 

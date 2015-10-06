@@ -10,6 +10,7 @@ class CPageCom : public CPropertyPage
 	BOOL	m_TrayMin;
 	BOOL	m_multipleInstances;
 	BOOL	m_storeInOutputFolder;
+	BOOL	m_alwaysOnTop;
 
 public:
 	CPageCom();

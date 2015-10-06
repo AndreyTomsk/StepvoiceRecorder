@@ -5,7 +5,6 @@ class CPageVAS : public CPropertyPage
 	DECLARE_DYNCREATE(CPageVAS)
 	enum { IDD = IDD_VAS };
 
-	BOOL	m_enable;
 	int		m_action;
 	int		m_thresholdIndex;
 	int		m_delayIndex;

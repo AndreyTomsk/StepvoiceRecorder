@@ -26,6 +26,7 @@ CPageCom::CPageCom()
 	,m_TrayMin(FALSE)
 	,m_multipleInstances(FALSE)
 	,m_storeInOutputFolder(FALSE)
+	,m_alwaysOnTop(FALSE)
 {
 }
 //---------------------------------------------------------------------------
@@ -43,6 +44,7 @@ void CPageCom::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_TRAYMIN, m_TrayMin);
 	DDX_Check(pDX, IDC_GEN_MINSTANCES, m_multipleInstances);
 	DDX_Check(pDX, IDC_STORE_IN_OUTPUT_FOLDER, m_storeInOutputFolder);
+	DDX_Check(pDX, IDC_ON_TOP, m_alwaysOnTop);
 	DDX_Text(pDX, IDE_OUTPUT_FOLDER, m_outputFolder);
 }
 //---------------------------------------------------------------------------
@@ -68,6 +70,7 @@ void CPageCom::OnOK()
 	RegistryConfig::SetOption(_T("General\\Show icon in tray"), m_TrayIcon);
 	RegistryConfig::SetOption(_T("General\\Minimize to tray"), m_TrayMin);
 	RegistryConfig::SetOption(_T("General\\Multiple instances"), m_multipleInstances);
+	RegistryConfig::SetOption(_T("General\\Always on Top"), m_alwaysOnTop);
 
 	CPropertyPage::OnOK();
 }
@@ -96,6 +99,7 @@ BOOL CPageCom::OnInitDialog()
 	m_TrayIcon = RegistryConfig::GetOption(_T("General\\Show icon in tray"), FALSE);
 	m_TrayMin  = RegistryConfig::GetOption(_T("General\\Minimize to tray"), FALSE);
 	m_multipleInstances = RegistryConfig::GetOption(_T("General\\Multiple instances"), FALSE);
+	m_alwaysOnTop = RegistryConfig::GetOption(_T("General\\Always on Top"), FALSE);
 
 	CPropertyPage::OnInitDialog(); //internally calls DoDataExchange
 	OnBnClickedStoreInOutputFolder();
