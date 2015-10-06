@@ -5,8 +5,8 @@
 #include "MP3_Recorder.h"
 
 #include "MainFrm.h"
-#include "EnterCodeDlg.h"
 #include "NagScreenDlg.h"
+#include "EnterCodeDlg.h"
 
 #include "UrlWnd.h"
 #include "version.h"
@@ -243,8 +243,7 @@ BOOL CALLBACK CMP3_RecorderApp::searcher(HWND hWnd, LPARAM lParam)
 
 bool CMP3_RecorderApp::IsNeedOneInstance()
 {
-	return (AfxGetApp()->GetProfileInt(
-		_T("General"), _T("Multiple instances"), 0) == 0);
+	return !RegistryConfig::GetOption(_T("General\\Multiple instances"), false);
 }
 
 bool CMP3_RecorderApp::IsAlreadyRunning()
@@ -300,12 +299,12 @@ BOOL CMP3_RecorderApp::InitInstance()
 				::SetForegroundWindow( hOther );
 				::ShowWindow( hOther, SW_RESTORE );
 			}
+			return FALSE; // window exist, exiting this instance
         }
-
-		return FALSE; // exiting this instance
+		//return FALSE; // exiting
     }
 
-	// showing nag-screen. BUG: some customers reported, that SVR crashes after
+	// Displaying nag-screen. BUG: some customers reported, that SVR crashes after
 	// pasted reg. key and restart. Possible protector bug. Goto statement ok.
 
 	REG_CRYPT_BEGIN;
@@ -395,7 +394,13 @@ void CMP3_RecorderApp::OnHelpHowto()
 void CMP3_RecorderApp::OnHelpEntercode() 
 {
 	CEnterCodeDlg dlg;
-	dlg.DoModal();
+	if (dlg.DoModal() == IDOK)
+	{
+		//Restarting program to check the registration key.
+		AfxGetMainWnd()->PostMessageW(WM_CLOSE);
+		const CString programPath = FileUtils::GetProgramPath();
+		ShellExecute(::GetDesktopWindow(), _T("open"), programPath, NULL, NULL, SW_SHOW);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

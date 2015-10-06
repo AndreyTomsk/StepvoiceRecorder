@@ -25,7 +25,7 @@ END_MESSAGE_MAP()
 CNagScreenDlg::CNagScreenDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CNagScreenDlg::IDD, pParent)
 {
-	m_boldFont.CreateFont(-8, 0, 0, 0, FW_BOLD,  0, 0, 0, 0, 0, 0, 0, 0,
+	m_boldFont.CreateFont(12, 0, 0, 0, FW_BOLD,  0, 0, 0, 0, 0, 0, 0, 0,
 		_T("MS Sans Serif"));
 }
 //---------------------------------------------------------------------------
@@ -49,7 +49,10 @@ HBRUSH CNagScreenDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
 	if (pWnd->m_hWnd == GetDlgItem(IDC_THANKYOU)->m_hWnd)
+	{
 		pDC->SelectObject(&m_boldFont);
+		pDC->SetTextColor(RGB(0, 120, 0));
+	}
 
 	//else if (pWnd->m_hWnd == GetDlgItem(IDC_UNREGNOTICE)->m_hWnd) {
 	//	pDC->SelectObject(&m_BoldFont);

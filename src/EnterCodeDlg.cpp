@@ -120,8 +120,10 @@ void CEnterCodeDlg::OnOK()
 			AfxMessageBox(IDS_REGISTRATION_RESTART, MB_OK|MB_ICONINFORMATION);
 		else
 			AfxMessageBox(IDS_ERROR_REGISTER_WRITE, MB_OK|MB_ICONWARNING);
+		CDialog::OnOK();
 	}
-	CDialog::OnOK();
+	else
+		CDialog::OnCancel();
 }
 
 /////////////////////////////////////////////////////////////////////////////
