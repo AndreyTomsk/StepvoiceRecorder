@@ -304,6 +304,7 @@ BOOL CMP3_RecorderApp::InitInstance()
 		//return FALSE; // exiting
     }
 
+	/*
 	// Displaying nag-screen. BUG: some customers reported, that SVR crashes after
 	// pasted reg. key and restart. Possible protector bug. Goto statement ok.
 
@@ -325,6 +326,7 @@ BOOL CMP3_RecorderApp::InitInstance()
 	}
 
 _lNoNag:
+	*/
 	CMainFrame* pFrame = new CMainFrame;
 	m_pMainWnd = pFrame;
 
@@ -429,6 +431,28 @@ BOOL CMP3_RecorderApp::OnIdle(LONG lCount)
 	if (CWinApp::OnIdle(lCount))
 	{
 		return TRUE;
+	}
+
+	static bool nagScreenDisplayed = false;
+	static DWORD initialMS = ::GetTickCount();
+
+	REG_CRYPT_BEGIN;
+	nagScreenDisplayed = true;
+	REG_CRYPT_END;
+
+	if (!nagScreenDisplayed && ::GetTickCount()-initialMS > 500)
+	{
+		try
+		{
+			CNagScreenDlg nagDlg(AfxGetMainWnd());
+			UINT resultID = nagDlg.DoModal();
+			resultID = resultID / (resultID - IDOK); //Just some obfuscation: close button is IDCANCEL
+			nagScreenDisplayed = true;
+		}
+		catch (...)
+		{
+			AfxGetMainWnd()->PostMessage(WM_CLOSE);
+		}
 	}
 
 	// Updating the main window interface

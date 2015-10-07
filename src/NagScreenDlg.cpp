@@ -51,7 +51,7 @@ HBRUSH CNagScreenDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	if (pWnd->m_hWnd == GetDlgItem(IDC_THANKYOU)->m_hWnd)
 	{
 		pDC->SelectObject(&m_boldFont);
-		pDC->SetTextColor(RGB(0, 120, 0));
+		pDC->SetTextColor(RGB(0, 130, 0));
 	}
 
 	//else if (pWnd->m_hWnd == GetDlgItem(IDC_UNREGNOTICE)->m_hWnd) {

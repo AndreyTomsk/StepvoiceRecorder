@@ -298,7 +298,7 @@ BEGIN
     PUSHBUTTON      "Paste",IDC_PASTE,5,77,55,15
     DEFPUSHBUTTON   "OK",IDOK,68,77,55,15
     PUSHBUTTON      "Cancel",IDCANCEL,130,77,55,15
-    LTEXT           "Paste your registration code in the field below:",IDC_STATIC,5,5,180,8
+    LTEXT           "Paste your registration key in the field below:",IDC_STATIC,5,5,180,8
 END
 
 IDD_AUTONAME DIALOG  0, 0, 232, 100
@@ -370,17 +370,17 @@ BEGIN
     ICON            IDR_MAINFRAME,IDC_TDLG_ICON,7,7,21,20
 END
 
-IDD_NAGSCREEN DIALOGEX 0, 0, 217, 83
+IDD_NAGSCREEN DIALOGEX 0, 0, 232, 89
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "Unregistered version (%d days left)"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "OK",IDCANCEL,5,58,65,17
-    PUSHBUTTON      "Order",IDC_ORDER,77,58,65,17
-    PUSHBUTTON      "Enter key...",IDC_ENTERCODE,147,58,65,17
-    ICON            IDR_MAINFRAME,IDC_STATIC,191,1,20,20,SS_CENTERIMAGE
-    LTEXT           "Thank you for trying Stepvoice Recorder!",IDC_THANKYOU,5,8,180,12
-    LTEXT           "After evaluation period is over, some features will be disabled. Registered version does not display this notice.",IDC_UNREGNOTICE,5,29,207,17
+    PUSHBUTTON      "Close",IDCANCEL,6,66,70,17
+    PUSHBUTTON      "Order",IDC_ORDER,81,66,70,17
+    PUSHBUTTON      "Enter key...",IDC_ENTERCODE,156,66,70,17
+    ICON            IDR_MAINFRAME,IDC_STATIC,205,6,20,20,SS_CENTERIMAGE
+    LTEXT           "Thank you for trying Stepvoice Recorder!",IDC_THANKYOU,6,11,188,12
+    LTEXT           "After evaluation period is over, some features will be disabled. Support further development of this program by ordering a full version.",IDC_UNREGNOTICE,6,34,220,28
 END
 
 IDD_RECORDING_SOURCE DIALOGEX 0, 0, 201, 149
@@ -463,10 +463,10 @@ BEGIN
 
     IDD_NAGSCREEN, DIALOG
     BEGIN
-        LEFTMARGIN, 5
-        RIGHTMARGIN, 212
-        TOPMARGIN, 5
-        BOTTOMMARGIN, 75
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 226
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 83
     END
 
     IDD_RECORDING_SOURCE, DIALOG
@@ -516,7 +516,7 @@ BEGIN
     IDS_ERROR_DIRECTORY     "Unable to start recording. The directory specified doesn't exist."
     IDS_ERROR_REGISTER_WRITE "Unable to write into the system registry."
     IDS_REGISTRATION_RESTART 
-                            "Thank you! Program will be restarted to test the registration key."
+                            "Thank you! Program will be restarted to validate the key."
     IDS_FILETITLE           "%1 - Stepvoice Recorder"
     IDS_NOFILE              "no file"
     IDS_FILEOPENTITLE       "Open File"
