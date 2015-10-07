@@ -370,17 +370,17 @@ BEGIN
     ICON            IDR_MAINFRAME,IDC_TDLG_ICON,7,7,21,20
 END
 
-IDD_NAGSCREEN DIALOGEX 0, 0, 232, 89
+IDD_NAGSCREEN DIALOGEX 0, 0, 208, 82
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "Unregistered version (%d days left)"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "Close",IDCANCEL,6,66,70,17
-    PUSHBUTTON      "Order",IDC_ORDER,81,66,70,17
-    PUSHBUTTON      "Enter key...",IDC_ENTERCODE,156,66,70,17
-    ICON            IDR_MAINFRAME,IDC_STATIC,205,6,20,20,SS_CENTERIMAGE
-    LTEXT           "Thank you for trying Stepvoice Recorder!",IDC_THANKYOU,6,11,188,12
-    LTEXT           "After evaluation period is over, some features will be disabled. Support further development of this program by ordering a full version.",IDC_UNREGNOTICE,6,34,220,28
+    PUSHBUTTON      "Close",IDCANCEL,6,60,61,16
+    PUSHBUTTON      "Order",IDC_ORDER,73,60,61,16
+    PUSHBUTTON      "Enter key...",IDC_ENTERCODE,141,60,61,16
+    ICON            IDR_MAINFRAME,IDC_STATIC,181,6,20,20,SS_CENTERIMAGE
+    LTEXT           "Thank you for trying Stepvoice Recorder!",IDC_THANKYOU,6,11,171,12
+    CTEXT           "After evaluation period is over, some features will be disabled. Support further development by ordering a full version.",IDC_UNREGNOTICE,6,31,196,23
 END
 
 IDD_RECORDING_SOURCE DIALOGEX 0, 0, 201, 149
@@ -464,9 +464,9 @@ BEGIN
     IDD_NAGSCREEN, DIALOG
     BEGIN
         LEFTMARGIN, 6
-        RIGHTMARGIN, 226
+        RIGHTMARGIN, 202
         TOPMARGIN, 6
-        BOTTOMMARGIN, 83
+        BOTTOMMARGIN, 76
     END
 
     IDD_RECORDING_SOURCE, DIALOG

@@ -309,6 +309,9 @@ void CGraphWnd::ShowVASMark(bool a_enabled, double a_threshold)
 		m_vas_marks[1] = 2 + m_wndsize.cx-6 + a_threshold/60 * (m_wndsize.cx-6);
 	}
 
+	if (a_enabled)
+		SetDisplayMode(E_DISPLAY_PEAKS_DB);
+
 	m_bShowVASMark = a_enabled;
 	Clear();
 }
