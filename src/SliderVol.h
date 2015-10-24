@@ -23,11 +23,15 @@ protected:
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnCustomDraw(NMHDR* pNotifyStruct, LRESULT* result);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
 private:
 	bool m_is_dragging;
+
+	CBrush m_brush;
+	CPen m_pen;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

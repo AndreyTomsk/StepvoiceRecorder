@@ -338,6 +338,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CRgn rgnV;
 	rgnV.CreateRectRgn(0+6, 0, rV.right-rV.left-6, 26);
 	m_SliderVol.Create(WS_CHILD|WS_VISIBLE|TBS_HORZ|TBS_NOTICKS|TBS_BOTH,
+	//m_SliderVol.Create(WS_CHILD|WS_VISIBLE|TBS_HORZ|TBS_NOTICKS|TBS_NOTHUMB,
 		rV, this, IDS_SLIDERVOL);
 	m_SliderVol.SetWindowRgn(rgnV, false);
 	m_SliderVol.SetRange(0, 100);
