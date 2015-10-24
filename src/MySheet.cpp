@@ -21,8 +21,8 @@ CMySheet::CMySheet()
 
 	AddPage(&m_pc);
 	AddPage(&m_pr);
-	AddPage(&m_pv);
 	AddPage(&m_pa);	
+	AddPage(&m_pv);
 }
 //---------------------------------------------------------------------------
 
