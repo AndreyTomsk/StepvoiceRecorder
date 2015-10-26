@@ -27,4 +27,6 @@ private:
 	std::wstringstream m_stream;
 };
 
+WriteDbg& operator <<(WriteDbg& writer, CString str);
+
 //typedef WriteDbg DbgWrite;

@@ -18,4 +18,12 @@ WriteDbg::~WriteDbg()
 {
 	::OutputDebugStringW(m_stream.str().c_str());
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+WriteDbg& operator <<(WriteDbg& writer, CString str)
+{
+	writer << str.GetBuffer(str.GetLength());
+	return writer;
+}
 //---------------------------------------------------------------------------

@@ -41,4 +41,18 @@ CString Join(const std::vector<CString>& tokens, TCHAR delimeter)
 }
 //---------------------------------------------------------------------------
 
+CString ToString(int value)
+{
+	CString result;
+	result.Format(_T("%d"), value);
+	return result;
+}
+//---------------------------------------------------------------------------
+
+int FromString(CString str)
+{
+	return _ttoi(str);
+}
+//---------------------------------------------------------------------------
+
 } //namespace StrUtils

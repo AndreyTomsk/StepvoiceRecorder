@@ -61,12 +61,13 @@ private:
 	void LoadSelectedDevicesFromConfig();
 	void SaveSelectedDevices();
 
+
 	//Returns a string with device names, for options.
-	static CString DevicesToString(WasapiHelpers::DevicesArray arr, TCHAR delimeter);
+	static CString DevicesToString(WasapiHelpers::DevicesArray arr, TCHAR delimeter = _T('\n'));
 
 	//Returns a valid devices array. Each device ID searched in allDevices.
 	static WasapiHelpers::DevicesArray DevicesFromString(CString strNames,
-		TCHAR delimeter, const WasapiHelpers::DevicesArray& allDevices);
+		const WasapiHelpers::DevicesArray& allDevices, TCHAR delimeter = _T('\n'));
 
 private:
 	std::vector<CRecordingSourceItem*> m_recordingSourceItems;
