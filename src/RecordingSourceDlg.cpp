@@ -1,9 +1,7 @@
 #include "stdafx.h"
 #include "RecordingSourceDlg.h"
-#include "StrUtils.h"
 #include <algorithm> //for std::find
 #include <basswasapi.h>
-#include <vector>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -272,7 +270,7 @@ void CRecordingSourceDlg::OnRecodingSourceItemClicked()
 void CRecordingSourceDlg::LoadSelectedDevicesFromConfig()
 {
 	const CString deviceNames = RegistryConfig::GetOption(_T("General\\SelectedDevices"), CString());
-	m_selectedDevices = DevicesFromString(deviceNames, m_allDevices);
+	m_selectedDevices = WasapiHelpers::DevicesFromString(deviceNames, m_allDevices);
 	if (m_selectedDevices.empty())
 		m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
 }
@@ -280,69 +278,7 @@ void CRecordingSourceDlg::LoadSelectedDevicesFromConfig()
 
 void CRecordingSourceDlg::SaveSelectedDevices()
 {
-	const CString deviceNames = DevicesToString(m_selectedDevices);
+	const CString deviceNames = WasapiHelpers::DevicesToString(m_selectedDevices);
 	RegistryConfig::SetOption(_T("General\\SelectedDevices"), deviceNames);
-}
-//---------------------------------------------------------------------------
-
-using namespace WasapiHelpers;
-//---------------------------------------------------------------------------
-
-CString CRecordingSourceDlg::DevicesToString(DevicesArray arr, TCHAR delimeter)
-{
-	//Saving device name with ID ("<id>|<name>\n<id>|<name>\n...") to fix
-	//several different devices with same name problem.
-
-	std::vector<CString> deviceNames;
-	for (size_t i = 0; i < arr.size(); i++)
-	{
-		const CString id = StrUtils::ToString(arr[i].first);
-		const CString name = arr[i].second;
-		deviceNames.push_back(id + _T('|') + name);
-	}
-
-	return StrUtils::Join(deviceNames, delimeter);
-}
-//---------------------------------------------------------------------------
-
-struct ByName
-{
-	ByName(const CString& id, const CString& name)
-		:m_requiredID(StrUtils::FromString(id))
-		,m_requiredName(name)
-	{
-	}
-	bool operator()(DeviceIdNamePair p) const
-	{
-		return p.first == m_requiredID && p.second == m_requiredName;
-	}
-
-private:
-	CString m_requiredName;
-	DWORD m_requiredID;
-};
-//---------------------------------------------------------------------------
-
-DevicesArray CRecordingSourceDlg::DevicesFromString(
-	CString strNames, const DevicesArray& allDevices, TCHAR delimeter)
-{
-	DevicesArray result;
-
-	std::vector<CString> arrNames = StrUtils::Split(strNames, delimeter);
-	for (size_t i = 0; i < arrNames.size(); i++)
-	{
-		//Extracting device id and name from full string.
-		std::vector<CString> arrIDName = StrUtils::Split(arrNames[i], _T('|'));
-		if (arrIDName.size() != 2)
-			continue;
-
-		const DevicesArray::const_iterator it =
-			std::find_if(allDevices.begin(), allDevices.end(), ByName(arrIDName[0], arrIDName[1]));
-
-		if (it != allDevices.end())
-			result.push_back(*it);
-	}
-
-	return result;
 }
 //---------------------------------------------------------------------------

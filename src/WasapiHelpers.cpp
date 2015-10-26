@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include <basswasapi.h>
+#include <algorithm> //for std::find
 #include "WasapiHelpers.h"
+#include "StrUtils.h"
 #include "common.h" //for EIF,SAFE_RELEASE macro
 
 #ifdef _DEBUG
@@ -154,6 +156,66 @@ HRESULT GetActiveDevice(const CString& strDeviceID, IAudioClient **audioClient)
 	hr = (*audioClient != NULL);
 Exit:
 	return hr;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+const TCHAR DEVICES_DELIMETER = _T('\n');
+const TCHAR ID_DELIMETER = _T('|');
+
+struct MatchByIDName
+{
+	MatchByIDName(const CString& id, const CString& name)
+		:m_requiredID(StrUtils::FromString(id))
+		,m_requiredName(name)
+	{
+	}
+	bool operator()(DeviceIdNamePair p) const
+	{
+		return p.first == m_requiredID && p.second == m_requiredName;
+	}
+
+private:
+	CString m_requiredName;
+	DWORD m_requiredID;
+};
+//---------------------------------------------------------------------------
+
+CString DevicesToString(WasapiHelpers::DevicesArray arr)
+{
+	std::vector<CString> deviceNames;
+	for (size_t i = 0; i < arr.size(); i++)
+	{
+		const CString id = StrUtils::ToString(arr[i].first);
+		const CString name = arr[i].second;
+		deviceNames.push_back(id + ID_DELIMETER + name);
+	}
+
+	return StrUtils::Join(deviceNames, DEVICES_DELIMETER);
+}
+//---------------------------------------------------------------------------
+
+DevicesArray DevicesFromString(CString strNames, const DevicesArray& validDevices)
+{
+	DevicesArray result;
+
+	std::vector<CString> devices = StrUtils::Split(strNames, DEVICES_DELIMETER);
+	for (size_t i = 0; i < devices.size(); i++)
+	{
+		//Extracting device id and name from full string.
+		std::vector<CString> idName = StrUtils::Split(devices[i], ID_DELIMETER);
+		if (idName.size() != 2)
+			continue;
+
+		MatchByIDName match(idName[0], idName[1]);
+		const DevicesArray::const_iterator it =
+			std::find_if(validDevices.begin(), validDevices.end(), match);
+
+		if (it != validDevices.end())
+			result.push_back(*it);
+	}
+
+	return result;
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -58,6 +58,11 @@ namespace WasapiHelpers
 
 	HRESULT GetActiveDevice(const CString& strDeviceID, IAudioClient **audioClient);
 
+	//Saving device name with ID ("<id>|<name>\n<id>|<name>\n...") to fix
+	//several different devices with same name problem.
+	CString DevicesToString(WasapiHelpers::DevicesArray arr);
+	DevicesArray DevicesFromString(CString strNames, const DevicesArray& allValidDevices);
+
 /////////////////////////////////////////////////////////////////////////////
 } // namespace WasapiHelpers
 
