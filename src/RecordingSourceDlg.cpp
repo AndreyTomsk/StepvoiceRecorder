@@ -34,7 +34,7 @@ CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 		g_dialogInstance = new CRecordingSourceDlg(NULL); //deleted by dialog (see PostNcDestroy)
 		g_dialogInstance->Create(CRecordingSourceDlg::IDD);
 	}
-	g_dialogInstance->UpdateDeviceArrays();
+	g_dialogInstance->UpdateDeviceArrays(); //Must be here, we can just call GetSelectedDevices.
 	return g_dialogInstance;
 }
 
