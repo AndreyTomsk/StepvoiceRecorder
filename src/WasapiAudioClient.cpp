@@ -2,7 +2,6 @@
 #include <basswasapi.h>
 #include "WasapiAudioClient.h"
 #include "WasapiHelpers.h" //for GetActiveDevice
-#include "common.h" //for EIF
 #include "SampleConverter.h"
 
 #ifdef _DEBUG

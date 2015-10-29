@@ -3,7 +3,6 @@
 #pragma once
 
 #include <Audioclient.h> //for IAudioCaptureClient
-#include "common.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //IAudioCaptureClient wrapper. The object locks a WASAPI stream during

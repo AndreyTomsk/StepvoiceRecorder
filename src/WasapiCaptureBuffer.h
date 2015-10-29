@@ -3,7 +3,6 @@
 #pragma once
 
 #include <Audioclient.h> //for IAudioCaptureClient
-#include "common.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //This class is used for requesting a custom amount of frames from WASAPI

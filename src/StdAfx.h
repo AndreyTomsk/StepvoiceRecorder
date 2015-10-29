@@ -24,5 +24,6 @@
 #include "asprotect.h"
 #include "protect.h"
 #include "resource.h"
+#include "common.h"
 #include "Config.h"
 #include "Debug.h"

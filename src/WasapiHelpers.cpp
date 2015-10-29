@@ -3,7 +3,6 @@
 #include <algorithm> //for std::find
 #include "WasapiHelpers.h"
 #include "StrUtils.h"
-#include "common.h" //for EIF,SAFE_RELEASE macro
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

@@ -3,7 +3,6 @@
 #include <Audiopolicy.h> //for IAudioSessionControl
 #include "WasapiRecorderStream.h"
 #include "WasapiHelpers.h" //for GetActiveDevice
-#include "common.h" //for EIF
 //#include <Wmcodecdsp.h> //supports auto gain control, echo cancellation, noise filter
 
 #ifdef _DEBUG

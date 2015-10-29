@@ -5,7 +5,6 @@
 #include "MP3_Recorder.h"
 #include "MainFrm.h"
 #include "MainFrm_Helpers.h"
-#include "common.h"
 #include "BASS_Functions.h"
 #include "RecordingSourceDlg.h"
 #include <basswasapi.h>

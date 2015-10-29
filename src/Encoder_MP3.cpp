@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Encoder_MP3.h"
 #include "FileUtils.h"
-#include "common.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
