@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "RecordingSourceDlg.h"
+#include "DeviceLevels.h"
 #include <algorithm> //for std::find
-#include <basswasapi.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -23,6 +23,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 
 static CRecordingSourceDlg* g_dialogInstance = NULL;
+static CDeviceLevels* g_deviceLevels = NULL;
 
 //---------------------------------------------------------------------------
 
@@ -58,10 +59,14 @@ void CRecordingSourceDlg::UpdateDeviceArrays()
 
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
-	CWaitCursor wait;
+	if (m_allDevices.empty())
+	{
+		AfxMessageBox(_T("Recording devices not found."));
+		return;
+	}
 
-	ASSERT(!m_allDevices.empty());
-	WasapiHelpers::InitRecordingDevices(m_allDevices);
+	SAFE_DELETE(g_deviceLevels);
+	g_deviceLevels = new CDeviceLevels(m_allDevices);
 
 	CreateRecordingSourceItems(m_allDevices);
 	UpdateRecordingSourceItems();
@@ -95,8 +100,8 @@ void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimiz
 		KillTimer(IDD_RECORDING_SOURCE);
 		this->ShowWindow(SW_HIDE);
 		this->GetParent()->PostMessage(WM_RECSOURCE_DLGCLOSED);
-		WasapiHelpers::FreeRecordingDevices(m_allDevices);
 
+		SAFE_DELETE(g_deviceLevels);
 		SaveSelectedDevices();
 	}
 }
@@ -236,7 +241,7 @@ void CRecordingSourceDlg::UpdateRecordingSourceItems()
 		const WasapiHelpers::DeviceIdNamePair p = m_allDevices[i];
 		const DWORD deviceID = p.first;
 
-		const float deviceLevel = BASS_WASAPI_GetDeviceLevel(deviceID, -1); //all channels
+		const float deviceLevel = g_deviceLevels->GetLevel(deviceID);
 		const int deviceLevelPercent = deviceLevel == -1 ? 0 : unsigned(deviceLevel*100);
 
 		if (std::find(sd.begin(), sd.end(), p) != sd.end())

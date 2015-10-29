@@ -295,6 +295,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DeviceLevels.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Encoder_MP3.cpp"
 				>
 				<FileConfiguration
@@ -919,6 +923,10 @@
 			</File>
 			<File
 				RelativePath="Decoder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DeviceLevels.h"
 				>
 			</File>
 			<File
