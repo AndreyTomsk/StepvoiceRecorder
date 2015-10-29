@@ -28,7 +28,7 @@ CWasapiRecorderStream::CWasapiRecorderStream(int device)
 	BASS_WASAPI_DEVICEINFO info;
 	BOOL result = BASS_WASAPI_GetDeviceInfo(device, &info);
 	ASSERT(result);
-	EIF(WasapiHelpers::GetActiveDevice(CString(info.id), &m_audio_client));
+	EIF(WasapiHelpers::ActivateDevice(CString(info.id), &m_audio_client));
 
 	const DWORD streamFlags = (info.flags & BASS_DEVICE_LOOPBACK) ? AUDCLNT_STREAMFLAGS_LOOPBACK : 0;
 	const REFERENCE_TIME bufferDuration = 500 * MFTIMES_PER_MILLISEC;

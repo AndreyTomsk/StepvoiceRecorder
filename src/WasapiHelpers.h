@@ -53,10 +53,10 @@ namespace WasapiHelpers
 	//We can monitor and display current peak levels only when a recording device
 	//is opened. It is easy to see loopback device levels (if any music playing),
 	//but must explicitly initialize all microphones, etc.
-	BOOL InitRecordingDevices(const DevicesArray& devices);
-	BOOL FreeRecordingDevices(const DevicesArray& devices);
+	//BOOL InitRecordingDevices(const DevicesArray& devices);
+	//BOOL FreeRecordingDevices(const DevicesArray& devices);
 
-	HRESULT GetActiveDevice(const CString& strDeviceID, IAudioClient **audioClient);
+	HRESULT ActivateDevice(const CString& strDeviceID, IAudioClient **audioClient);
 
 	//Saving device name with ID ("<id>|<name>\n<id>|<name>\n...") to fix
 	//several different devices with same name problem.

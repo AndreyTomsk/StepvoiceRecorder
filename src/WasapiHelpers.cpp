@@ -85,7 +85,7 @@ BOOL GetDeviceActualData(int device, DWORD freq, DWORD chans,
 	return BASS_WASAPI_Free();
 }
 //---------------------------------------------------------------------------
-
+/*
 BOOL InitRecordingDevices(const DevicesArray& devices)
 {
 	BOOL result = FALSE;
@@ -122,8 +122,8 @@ BOOL FreeRecordingDevices(const DevicesArray& devices)
 	return result;
 }
 //---------------------------------------------------------------------------
-
-HRESULT GetActiveDevice(const CString& strDeviceID, IAudioClient **audioClient)
+*/
+HRESULT ActivateDevice(const CString& strDeviceID, IAudioClient **audioClient)
 {
 	CComPtr<IMMDeviceEnumerator> deviceEnumerator;
 	CComPtr<IMMDeviceCollection> deviceCollection;

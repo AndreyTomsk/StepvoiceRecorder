@@ -29,7 +29,7 @@ CWasapiAudioClient::CWasapiAudioClient(int device, DWORD freq, DWORD chans)
 	BASS_WASAPI_DEVICEINFO info;
 	BOOL result = BASS_WASAPI_GetDeviceInfo(device, &info);
 	ASSERT(result);
-	EIF(WasapiHelpers::GetActiveDevice(CString(info.id), &m_audioClient));
+	EIF(WasapiHelpers::ActivateDevice(CString(info.id), &m_audioClient));
 
 	//WriteDbg() << __FUNCTION__ << " ::device=" << device << ", name=" << info.name;
 
