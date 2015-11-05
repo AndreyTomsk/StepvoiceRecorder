@@ -5,7 +5,8 @@
 #define User_AppName    "Stepvoice Recorder"
 #define User_AppExeName "SvRec.exe"
 
-#define User_AppVersion GetFileVersion(AddBackslash(SourcePath) + "..\bin\" + User_AppExeName)
+#define FullAppVersion GetFileVersion(AddBackslash(SourcePath) + "..\bin\" + User_AppExeName)
+#define User_AppVersion Copy(FullAppVersion, 1, 5)
 #define User_OutputFile "svrec" + Copy(User_AppVersion, 1, 1) + Copy(User_AppVersion, 3, 1)
 
 [Setup]
