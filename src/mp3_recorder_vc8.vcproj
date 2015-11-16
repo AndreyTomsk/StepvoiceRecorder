@@ -475,6 +475,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\MyException.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MySheet.cpp"
 				>
 				<FileConfiguration
@@ -975,6 +979,10 @@
 			</File>
 			<File
 				RelativePath="MP3_Recorder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MyException.h"
 				>
 			</File>
 			<File

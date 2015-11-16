@@ -950,18 +950,28 @@ void CMainFrame::OnBtnREC()
 			return;
 		}
 
-		CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, frequency, channels);
-		//CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, frequency, channels);
-		recorder->SetVolume(m_recording_volume);
+		try
+		{
+			CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, frequency, channels);
+			//CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, frequency, channels);
+			recorder->SetVolume(m_recording_volume);
 
-		frequency = recorder->GetActualFrequency();
-		channels = recorder->GetActualChannelCount();
+			frequency = recorder->GetActualFrequency();
+			channels = recorder->GetActualChannelCount();
 
-		m_recordingChain.AddFilter(recorder);
-		m_recordingChain.AddFilter(new VasFilter(vasThresholdDB, vasWaitTimeMS, vasEnabled));
-		m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
-		m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
-		//m_recordingChain.AddFilter(new FileWriterWAV(m_recordingFileName, frequency, channels));
+			m_recordingChain.AddFilter(recorder);
+			m_recordingChain.AddFilter(new VasFilter(vasThresholdDB, vasWaitTimeMS, vasEnabled));
+			m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
+			m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
+			//m_recordingChain.AddFilter(new FileWriterWAV(m_recordingFileName, frequency, channels));
+		}
+		catch (CException* e)
+		{
+			e->ReportError();
+			e->Delete();
+			m_recordingChain.Empty();
+			return;
+		}
 	}
 
 	IWasapiRecorder* recorder = m_recordingChain.GetFilter<IWasapiRecorder>();

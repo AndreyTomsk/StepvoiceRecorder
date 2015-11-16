@@ -66,7 +66,6 @@
 #define IDR_TRAY_MENU                   201
 #define IDS_ERROR_LAME_NOTVALID         201
 #define IDI_TRAY_STOP                   202
-#define IDS_ERROR_LAME_INIT             202
 #define IDI_TRAY_REC                    203
 #define IDI_TRAY_PAUSE                  204
 #define IDI_TRAY_PLAY                   205

@@ -553,7 +553,6 @@ STRINGTABLE
 BEGIN
     IDS_ERROR_LAME_NOTFOUND """lame_enc.dll"" library not found."
     IDS_ERROR_LAME_NOTVALID """lame_enc.dll"" library not valid."
-    IDS_ERROR_LAME_INIT     "Failed to initialize encoder."
 END
 
 #endif    // English (U.S.) resources

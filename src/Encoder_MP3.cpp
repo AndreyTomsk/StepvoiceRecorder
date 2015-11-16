@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Encoder_MP3.h"
 #include "FileUtils.h"
+#include "MyException.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -102,7 +103,13 @@ void CEncoder_MP3::InitEncoder(int bitrate, int frequency, int channels)
 	DWORD dwSamples = 0, dwBufOutMinSize = 0;
 	BE_ERR err = beInitStream(&m_beConfig, &dwSamples, &dwBufOutMinSize, &m_hbeStream);
 	if (err != BE_ERR_SUCCESSFUL)
-		throw new CNotSupportedException(TRUE, IDS_ERROR_LAME_INIT);
+	{
+		CString error;
+		error.Format(
+			_T("Failed to initialize encoder at bitrate %d, frequency %d, channels %d (error %d)."),
+			bitrate, frequency, channels, err);
+		throw new CMyException(error);
+	}
 
 	m_chunkBufFloatSize = dwSamples;
 	m_chunkBufFloat_l = new float[m_chunkBufFloatSize];
