@@ -242,6 +242,13 @@ DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 					break;
 				std::transform(vDst.begin(), vDst.end(), vTmp.begin(), vDst.begin(), MixChannels);
 				vDstFilled = true;
+
+				//All buffers must be non-empty, or distortions possible.
+				//if (ac->GetData((BYTE*)&vTmp.front(), BUFFER_SIZE_BYTES, streamError))
+				//{
+				//	std::transform(vDst.begin(), vDst.end(), vTmp.begin(), vDst.begin(), MixChannels);
+				//	vDstFilled = true;
+				//}
 			}
 			if (!vDstFilled)
 				break;
