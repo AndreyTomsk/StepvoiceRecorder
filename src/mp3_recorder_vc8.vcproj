@@ -50,7 +50,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c;..\..\bassmix\c;..\..\basswasapi\c"
+				AdditionalIncludeDirectories="..\third-party"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -80,11 +80,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib bassmix.lib basswasapi.lib"
+				AdditionalDependencies="htmlhelp.lib bass.lib basswasapi.lib"
 				OutputFile="$(OutDir)\SvRec_d.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c;..\..\bassmix\c;..\..\basswasapi\c"
+				AdditionalLibraryDirectories="..\bin"
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
@@ -158,7 +158,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\..\HtmlHelp\include;..\..\lame\Dll;..\..\bass\c;..\..\bassmix\c;..\..\basswasapi\c"
+				AdditionalIncludeDirectories="..\third-party"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -187,12 +187,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib bassmix.lib basswasapi.lib"
+				AdditionalDependencies="htmlhelp.lib bass.lib basswasapi.lib"
 				OutputFile="$(OutDir)\SvRec.exe"
 				Version="1.5"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\HtmlHelp\lib;..\..\bass\c;..\..\bassmix\c;..\..\basswasapi\c"
+				AdditionalLibraryDirectories="..\bin"
 				GenerateManifest="false"
 				ProgramDatabaseFile="$(IntDir)\SvRec.pdb"
 				GenerateMapFile="true"
