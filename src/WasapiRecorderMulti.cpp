@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <bassmix.h>
 #include <math.h> //for abs
 #include <vector>
 #include <algorithm>

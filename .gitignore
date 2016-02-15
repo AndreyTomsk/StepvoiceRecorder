@@ -2,3 +2,6 @@ version.h
 *.ncb
 *.suo
 *.vcproj.*
+obj/
+bin/SvRec*.exe
+bin/SvRec*.ilk

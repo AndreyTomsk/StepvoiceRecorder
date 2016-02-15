@@ -16,7 +16,6 @@
 #include "TimerDlg.h"
 
 #include <bass.h>
-#include <bassmix.h>
 #include "VisualizationData.h"
 
 #include "Filter.h" //for NOTIFY_CALLBACK

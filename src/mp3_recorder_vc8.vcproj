@@ -80,7 +80,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="htmlhelp.lib bass.lib basswasapi.lib"
+				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib basswasapi.lib"
 				OutputFile="$(OutDir)\SvRec_d.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -187,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="htmlhelp.lib bass.lib basswasapi.lib"
+				AdditionalDependencies="winmm.lib htmlhelp.lib bass.lib basswasapi.lib"
 				OutputFile="$(OutDir)\SvRec.exe"
 				Version="1.5"
 				LinkIncremental="1"
