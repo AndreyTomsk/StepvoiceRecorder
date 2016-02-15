@@ -1,0 +1,4 @@
+version.h
+*.ncb
+*.suo
+*.vcproj.*
