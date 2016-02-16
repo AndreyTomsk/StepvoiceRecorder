@@ -27,3 +27,4 @@
 #include "common.h"
 #include "Config.h"
 #include "Debug.h"
+#include "Log.h"

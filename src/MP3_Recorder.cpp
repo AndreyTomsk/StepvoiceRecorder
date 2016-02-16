@@ -268,6 +268,9 @@ BOOL CMP3_RecorderApp::InitInstance()
 	SetRegistryKey(_T("StepVoice Software"));
 	//RegistryConfig::SetRegistryKey(_T("StepVoice Software"));
 
+	CLog::Open(FileUtils::GetProgramFolder() + _T("\\SvRec_log.txt"));
+	LOG_INFO() << "Program started";
+
 	if (m_lpCmdLine[0] != _T('\0') && CString(m_lpCmdLine) == _T("/register"))
 	{
 #ifdef SPECIAL_VERSION

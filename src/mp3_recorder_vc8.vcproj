@@ -407,6 +407,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Log.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MainFrm.cpp"
 				>
 				<FileConfiguration
@@ -967,6 +971,10 @@
 			</File>
 			<File
 				RelativePath="IcoWnd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Log.h"
 				>
 			</File>
 			<File
