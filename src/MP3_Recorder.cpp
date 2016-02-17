@@ -268,7 +268,7 @@ BOOL CMP3_RecorderApp::InitInstance()
 	SetRegistryKey(_T("StepVoice Software"));
 	//RegistryConfig::SetRegistryKey(_T("StepVoice Software"));
 
-	CLog::Open(FileUtils::GetProgramFolder() + _T("\\SvRec_log.txt"));
+	InitLogger();
 	LOG_INFO() << "Program started";
 
 	if (m_lpCmdLine[0] != _T('\0') && CString(m_lpCmdLine) == _T("/register"))
@@ -344,6 +344,57 @@ _lNoNag:
 	}
 
 	return TRUE;
+}
+//---------------------------------------------------------------------------
+
+void CMP3_RecorderApp::InitLogger()
+{
+	//Checking stepvoice data folder.
+
+	using namespace FileUtils;
+	const CString appDataFolder = GetSpecialFolder(CSIDL_COMMON_APPDATA);
+	const CString svrecDataFolder = CombinePath(appDataFolder, _T("Stepvoice"));
+
+	if (!FolderExists(svrecDataFolder) && !::CreateDirectory(svrecDataFolder, NULL))
+	{
+		AfxMessageBox(_T("Unable to create log folder: ") + svrecDataFolder);
+		return;
+	}
+
+	//Keeping only last 3 log files in folder (in case of some problem,
+	//user reopen svrec and send report with current-normal and previous-
+	//problematic logs). Log names are in this format:
+	//	SvRec_1.log.txt <-- oldest
+	//	SvRec_2.log.txt
+	//	SvRec_3.log.txt <-- newest
+
+	const CString log1Path = CombinePath(svrecDataFolder, _T("SvRec_1.log.txt"));
+	const CString log2Path = CombinePath(svrecDataFolder, _T("SvRec_2.log.txt"));
+	const CString log3Path = CombinePath(svrecDataFolder, _T("SvRec_3.log.txt"));
+
+	const bool haveLog1 = FileExists(log1Path);
+	const bool haveLog2 = FileExists(log2Path);
+	const bool haveLog3 = FileExists(log3Path);
+
+	//When all files present - remove the oldest log and shift names.
+	if (haveLog3)
+	{
+		if (haveLog1)
+			::DeleteFile(log1Path);
+		if (haveLog2)
+			::MoveFile(log2Path, log1Path);
+		::MoveFile(log3Path, log2Path);
+	}
+
+	//Ok, previous logs processed, creating logger with appropriate path.
+
+	if (haveLog3 || haveLog2)
+		CLog::Open(log3Path);
+	else
+	if (haveLog1)
+		CLog::Open(log2Path);
+	else
+		CLog::Open(log1Path);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

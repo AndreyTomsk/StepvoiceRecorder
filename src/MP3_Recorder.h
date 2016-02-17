@@ -35,6 +35,7 @@ private:
 	bool IsNeedOneInstance();
 	bool IsAlreadyRunning();
 	static BOOL CALLBACK searcher(HWND hWnd, LPARAM lParam);
+	void InitLogger();
 
 private:
 	bool m_is_vista;
