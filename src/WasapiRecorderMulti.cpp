@@ -225,7 +225,9 @@ static float MixChannels(float a, float b)
 DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 {
 	CWasapiRecorderMulti* recorder = static_cast<CWasapiRecorderMulti*>(lpParam);
-	const DWORD BUFFER_SIZE = 2048;
+
+	//NOTE: problematic thing. If too large, devices could not fill it.
+	const DWORD BUFFER_SIZE = 1024;
 	const DWORD BUFFER_SIZE_BYTES = BUFFER_SIZE*sizeof(float);
 
 	std::vector<float> vDst;
@@ -242,7 +244,7 @@ DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 			break;
 		}
 
-		::Sleep(100); //Letting data appear in recorders.
+		::Sleep(200); //Letting data appear in recorders.
 		while (true)
 		{
 			CMyLock lock(recorder->m_sync_object);
