@@ -15,6 +15,7 @@ public:
 	//{{AFX_VIRTUAL(CMP3_RecorderApp)
 public:
 	virtual BOOL InitInstance();
+	virtual int ExitInstance();
 	//}}AFX_VIRTUAL
 
 public:
@@ -36,6 +37,8 @@ private:
 	bool IsAlreadyRunning();
 	static BOOL CALLBACK searcher(HWND hWnd, LPARAM lParam);
 	void InitLogger();
+	CString GetWindowsVersionString() const;
+	bool IsWow64() const; //function from msdn, x64 windows check
 
 private:
 	bool m_is_vista;

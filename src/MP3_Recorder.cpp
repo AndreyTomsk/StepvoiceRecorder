@@ -11,6 +11,7 @@
 #include "UrlWnd.h"
 #include "version.h"
 #include "FileUtils.h"
+#include <versionhelpers.h>
 //#include <vld.h> //Header file from "Visual Leak Detector" - detecting memory leaks.
 
 #ifdef _DEBUG
@@ -205,12 +206,8 @@ CMP3_RecorderApp theApp;
 
 ////////////////////////////////////////////////////////////////////////////////
 CMP3_RecorderApp::CMP3_RecorderApp()
+	:m_is_vista(::IsWindowsVistaOrGreater())
 {
-	// Checking if running in Vista.
-	OSVERSIONINFO OSVersion;
-	OSVersion.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	::GetVersionEx(&OSVersion);
-	m_is_vista = OSVersion.dwMajorVersion > 5;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,9 +264,6 @@ BOOL CMP3_RecorderApp::InitInstance()
 	//New SetRegistryKey commented - must be called once.
 	SetRegistryKey(_T("StepVoice Software"));
 	//RegistryConfig::SetRegistryKey(_T("StepVoice Software"));
-
-	InitLogger();
-	LOG_INFO() << "Program started";
 
 	if (m_lpCmdLine[0] != _T('\0') && CString(m_lpCmdLine) == _T("/register"))
 	{
@@ -330,6 +324,12 @@ BOOL CMP3_RecorderApp::InitInstance()
 
 _lNoNag:
 	*/
+
+	//Initializing logger after the running instance check (avoid log creation error).
+	InitLogger();
+	LOG_INFO() << "Program started.";
+	LOG_INFO() << "Operation system: " << GetWindowsVersionString() << '.';
+
 	CMainFrame* pFrame = new CMainFrame;
 	m_pMainWnd = pFrame;
 
@@ -344,6 +344,13 @@ _lNoNag:
 	}
 
 	return TRUE;
+}
+//---------------------------------------------------------------------------
+
+int CMP3_RecorderApp::ExitInstance()
+{
+	LOG_INFO() << "Program stopped.";
+	return 0;
 }
 //---------------------------------------------------------------------------
 
@@ -395,6 +402,63 @@ void CMP3_RecorderApp::InitLogger()
 		CLog::Open(log2Path);
 	else
 		CLog::Open(log1Path);
+}
+//---------------------------------------------------------------------------
+
+CString CMP3_RecorderApp::GetWindowsVersionString() const
+{
+	CString version = _T("?");
+
+	//if (::IsWindows10OrGreater())
+	//	version = _T("10");
+	if (::IsWindows8Point1OrGreater())
+		version = _T("8.1");
+	else
+	if (::IsWindows8OrGreater())
+		version = _T("8.0");
+	else
+	if (::IsWindows7SP1OrGreater())
+		version = _T("7 (SP1)");
+	else
+	if (::IsWindows7OrGreater())
+		version = _T("7");
+	else
+	if (::IsWindowsVistaSP2OrGreater())
+		version = _T("Vista (SP2)");
+	else
+	if (::IsWindowsVistaSP1OrGreater())
+		version = _T("Vista (SP1)");
+	else
+	if (::IsWindowsVistaOrGreater())
+		version = _T("Vista");
+
+	CString resultString;
+	resultString.Format(_T("Windows %s (or greater) %s"), version, IsWow64() ? _T("x64") : _T("x32"));
+	return resultString;
+}
+//---------------------------------------------------------------------------
+
+bool CMP3_RecorderApp::IsWow64() const
+{
+	BOOL bIsWow64 = FALSE;
+
+	//IsWow64Process is not available on all supported versions of Windows.
+	//Use GetModuleHandle to get a handle to the DLL that contains the function
+	//and GetProcAddress to get a pointer to the function if available.
+
+	typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+	LPFN_ISWOW64PROCESS fnIsWow64Process;
+	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(
+		GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
+
+	if (NULL != fnIsWow64Process)
+	{
+		if (!fnIsWow64Process(GetCurrentProcess(),&bIsWow64))
+		{
+			//handle error
+		}
+	}
+	return bIsWow64 ? true : false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
