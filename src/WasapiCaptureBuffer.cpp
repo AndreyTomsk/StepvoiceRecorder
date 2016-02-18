@@ -44,7 +44,16 @@ bool CWasapiCaptureBuffer::FillBuffer(BYTE* destBuffer,
 	UINT32 framesAvailable = 0;
 	streamError = m_audioClient->GetCurrentPadding(&framesAvailable) != S_OK;
 	if (streamError || (framesAvailable*m_frameSize-m_captureBufferOffset) < destBufferSize)
+	{
+		if (streamError)
+			LOG_ERROR() << __FUNCTION__ << ", streamError.";
+		else
+			LOG_WARNING() << "FillBuffer"
+						<< ", insufficient frames(1)=" << framesAvailable
+						<< ", available bytes=" << framesAvailable*m_frameSize-m_captureBufferOffset
+						<< ", destBufferSize=" << destBufferSize;
 		return false;
+	}
 
 	UINT32 destBufferOffset = 0;
 	while (destBufferOffset < destBufferSize)
@@ -55,11 +64,12 @@ bool CWasapiCaptureBuffer::FillBuffer(BYTE* destBuffer,
 		{
 			UINT32 realframesAvailable = 0;
 			m_audioClient->GetCurrentPadding(&realframesAvailable);
-			WriteDbg() << "streamError=" << streamError
-				       << ", or no frames available. fA=" << framesAvailable
-					   << ", real fA=" << realframesAvailable
-					   << ". captureOffset=" << m_captureBufferOffset
-					   << ", destBufferSize" << destBufferSize;
+			LOG_WARNING() << "FillBuffer"
+						<< ", streamError = " << streamError
+						<< ", insufficient frames(2)=" << framesAvailable
+						<< ", realframesAvailable=" << realframesAvailable
+						<< ", captureOffset=" << m_captureBufferOffset
+						<< ", destBufferSize=" << destBufferSize;
 			return false;
 		}
 

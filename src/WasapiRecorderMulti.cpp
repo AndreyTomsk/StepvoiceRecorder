@@ -23,6 +23,11 @@ CWasapiRecorderMulti::CWasapiRecorderMulti(
 	,m_exitThread(false)
 	,m_recorderState(eStopped)
 {
+	LOG_DEBUG();
+	LOG_DEBUG() << __FUNCTION__<< ", frequency: " << freq << ", channels: " << chans << ", devices:";
+	for (size_t i = 0; i < devices.size(); i++)
+		LOG_DEBUG() << "  " << devices[i].first << " - " << devices[i].second;
+
 	// Creating WASAPI recorders for each device. Calculating result freq and channels.
 	// For easier mixing, we get minimal frequency among all channels as result.
 
@@ -39,6 +44,8 @@ CWasapiRecorderMulti::CWasapiRecorderMulti(
 		m_actualChans = max(m_actualChans, ac->GetActualChannelCount());
 	}
 
+	LOG_DEBUG() << "actual frequency: " << m_actualFreq << ", actual channels: " << m_actualChans;
+
 	//Not forget resampling. Getting fixed data count from each stream - 
 	//should mix all sounds at one sample rate and stereo mode.
 
@@ -50,11 +57,15 @@ CWasapiRecorderMulti::CWasapiRecorderMulti(
 	m_streamEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL); //manual, not signaled
 	m_streamThread = ::CreateThread(NULL, 0, ReadDataFromStreamProc, this, 0, 0);
 	ASSERT(m_streamThread != NULL);
+
+	LOG_DEBUG() << "Ok";
 }
 //---------------------------------------------------------------------------
 
 CWasapiRecorderMulti::~CWasapiRecorderMulti()
 {
+	LOG_DEBUG() << __FUNCTION__;
+
 	//Close working thread.
 	m_exitThread = true;
 	::SetEvent(m_streamEvent);
@@ -65,6 +76,8 @@ CWasapiRecorderMulti::~CWasapiRecorderMulti()
 
 	for (unsigned i = 0; i < m_audioClients.size(); i++)
 		delete m_audioClients[i];
+
+	LOG_DEBUG() << "Ok";
 }
 //---------------------------------------------------------------------------
 
@@ -82,6 +95,8 @@ DWORD CWasapiRecorderMulti::GetActualChannelCount() const
 
 BOOL CWasapiRecorderMulti::Start()
 {
+	LOG_DEBUG() << __FUNCTION__;
+
 	CMyLock lock(m_sync_object);
 
 	BOOL atLeastOneStarted = FALSE;
@@ -93,6 +108,8 @@ BOOL CWasapiRecorderMulti::Start()
 		m_recorderState = eStarted;
 		::SetEvent(m_streamEvent);
 	}
+
+	LOG_DEBUG() << "Ok, atLeastOneStarted=" << atLeastOneStarted;
 	return atLeastOneStarted;
 }
 //---------------------------------------------------------------------------
@@ -116,6 +133,8 @@ BOOL CWasapiRecorderMulti::Pause()
 
 BOOL CWasapiRecorderMulti::Stop()
 {
+	LOG_DEBUG() << __FUNCTION__;
+
 	//Aqquire lock to ensure ProcessData in worker thread is finished. This is
 	//needed to let other filters close their resources (we have an example in
 	//MainFrm.cpp - ForceClose is called to file just after stopping recorder).
@@ -126,6 +145,8 @@ BOOL CWasapiRecorderMulti::Stop()
 
 	BOOL result = ::ResetEvent(m_streamEvent);
 	m_recorderState = eStopped;
+
+	LOG_DEBUG() << "Ok, result=" << result;
 	return result;
 }
 //---------------------------------------------------------------------------
@@ -216,14 +237,20 @@ DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 	{
 		::WaitForSingleObject(recorder->m_streamEvent, INFINITE);
 		if (recorder->m_exitThread)
+		{
+			LOG_DEBUG() << __FUNCTION__ <<", exiting thread.";
 			break;
+		}
 
 		::Sleep(100); //Letting data appear in recorders.
 		while (true)
 		{
 			CMyLock lock(recorder->m_sync_object);
 			if (recorder->m_recorderState != eStarted)
+			{
+				LOG_DEBUG() << __FUNCTION__ <<", not started.";
 				break;
+			}
 
 			// 1. Clear result buffer;
 			// 2. Get stream buffer;
@@ -238,7 +265,11 @@ DWORD WINAPI CWasapiRecorderMulti::ReadDataFromStreamProc(LPVOID lpParam)
 				bool streamError = false;
 				CWasapiAudioClient* ac = recorder->m_audioClients[i];
 				if (!ac->GetData((BYTE*)&vTmp.front(), BUFFER_SIZE_BYTES, streamError))
+				{
+					//LOG_DEBUG() << __FUNCTION__ << ", no data in device " << ac->GetDeviceID();
 					break;
+				}
+
 				std::transform(vDst.begin(), vDst.end(), vTmp.begin(), vDst.begin(), MixChannels);
 				vDstFilled = true;
 

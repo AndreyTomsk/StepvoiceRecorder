@@ -33,9 +33,14 @@ CFile CLog::m_logFile;
 
 CLog::CLog()
 {
+	SYSTEMTIME t;
+	::GetLocalTime(&t);
+
+	CString curTime;
+	curTime.Format(_T("%02d:%02d:%02d.%03d"), t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
+
 	//Using 'this' just to write CString correctly. See operator overload in header.
-	CString dateTimeInCurLocale = CTime::GetCurrentTime().Format(_T("%x-%X"));
-	*this << dateTimeInCurLocale << ' ';
+	*this << curTime << ' ';
 }
 //---------------------------------------------------------------------------
 

@@ -2,6 +2,7 @@
 #include "RecordingSourceDlg.h"
 #include "DeviceLevels.h"
 #include <algorithm> //for std::find
+#include "StrUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -59,6 +60,10 @@ void CRecordingSourceDlg::UpdateDeviceArrays()
 
 void CRecordingSourceDlg::Execute(CPoint& pos)
 {
+	LOG_DEBUG() << __FUNCTION__ << ", all devices:";
+	for (size_t i = 0; i < m_allDevices.size(); i++)
+		LOG_DEBUG() << "  " << m_allDevices[i].first << " - " << m_allDevices[i].second;
+
 	if (m_allDevices.empty())
 	{
 		AfxMessageBox(_T("Recording devices not found."));
@@ -103,6 +108,10 @@ void CRecordingSourceDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimiz
 
 		SAFE_DELETE(g_deviceLevels);
 		SaveSelectedDevices();
+
+		//LOG_DEBUG() << "Dialog closed, selected devices:";
+		//for (size_t i = 0; i < m_selectedDevices.size(); i++)
+		//	LOG_DEBUG() << "  " << m_selectedDevices[i].second;
 	}
 }
 //---------------------------------------------------------------------------

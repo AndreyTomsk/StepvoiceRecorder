@@ -22,6 +22,7 @@ CWasapiAudioClient::CWasapiAudioClient(int device, DWORD freq, DWORD chans)
 	,m_resampleFreq(0)
 	,m_resampleChans(0)
 {
+	LOG_DEBUG() << __FUNCTION__ << ", deviceID: " << m_deviceID;
 	HRESULT hr;
 
 	// Taking device, based on device ID string (BASS enumeration doesn't
@@ -31,29 +32,40 @@ CWasapiAudioClient::CWasapiAudioClient(int device, DWORD freq, DWORD chans)
 	ASSERT(result);
 	EIF(WasapiHelpers::ActivateDevice(CString(info.id), &m_audioClient));
 
+	LOG_DEBUG() << "  activated.";
+
 	//WriteDbg() << __FUNCTION__ << " ::device=" << device << ", name=" << info.name;
 
 	const DWORD streamFlags = (info.flags & BASS_DEVICE_LOOPBACK) ? AUDCLNT_STREAMFLAGS_LOOPBACK : 0;
 	const REFERENCE_TIME bufferDuration = 500 * MFTIMES_PER_MILLISEC;
 
 	EIF(InitMixFormat(m_audioClient, freq, chans, &m_wfx));
+	LOG_DEBUG() << "  mix-format received.";
+
 	EIF(m_audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, streamFlags, bufferDuration, 0, m_wfx, NULL));
 	EIF(m_audioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&m_captureClient));
+
+	LOG_DEBUG() << "  initialized.";
 
 	m_captureBuffer = new CWasapiCaptureBuffer(m_audioClient);
 	m_resampleFreq = m_wfx->nSamplesPerSec;
 	m_resampleChans = m_wfx->nChannels;
 
 Exit:
+	LOG_DEBUG() << "  Ok, result=" << int(hr);
 	return;
 }
 //---------------------------------------------------------------------------
 
 CWasapiAudioClient::~CWasapiAudioClient()
 {
+	LOG_DEBUG() << __FUNCTION__ << ", deviceID: " << m_deviceID;
+
 	Stop();
 	SAFE_DELETE(m_captureBuffer);
 	CoTaskMemFree(m_wfx);
+
+	LOG_DEBUG() << "  Ok";
 }
 //---------------------------------------------------------------------------
 
