@@ -116,7 +116,6 @@
 #define IDC_PLAYERICON                  1045
 #define IDC_PASTE                       1047
 #define IDC_CLEAR                       1048
-#define IDC_THANKYOU                    1049
 #define IDC_UNREGVERSION                1051
 #define IDC_ONLINEREGISTER              1052
 #define IDC_GETNOW                      1054

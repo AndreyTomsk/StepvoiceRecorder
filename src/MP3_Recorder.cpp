@@ -68,7 +68,6 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 	ON_BN_CLICKED(IDC_PLAYERICON, OnPlayerIcon)
 	ON_WM_TIMER()
 	//}}AFX_MSG_MAP
-	//ON_NOTIFY(NM_CLICK, IDC_PLAYERICON, OnPlayerIcon)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,20 +88,6 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAboutDlg)
 	//}}AFX_DATA_MAP
-}
-
-HBRUSH CAboutDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
-{
-	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
-
-	REG_CRYPT_BEGIN;
-#ifndef _DEBUG
-	if (pWnd->m_hWnd == GetDlgItem (IDC_REGNAME)->m_hWnd)
-		pDC->SelectObject (&m_FontBold);
-#endif
-	REG_CRYPT_END;
-
-	return hbr;
 }
 
 void CAboutDlg::OnPlayerIcon() 
@@ -180,6 +165,21 @@ BOOL CAboutDlg::OnInitDialog()
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
+//---------------------------------------------------------------------------
+
+HBRUSH CAboutDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
+{
+	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	REG_CRYPT_BEGIN;
+#ifndef _DEBUG
+	if (pWnd->m_hWnd == GetDlgItem (IDC_REGNAME)->m_hWnd)
+		pDC->SelectObject (&m_FontBold);
+#endif
+	REG_CRYPT_END;
+
+	return hbr;
+}
 #pragma optimize ("", on)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,8 +195,6 @@ BEGIN_MESSAGE_MAP(CMP3_RecorderApp, CWinApp)
 	ON_COMMAND(IDM_HELP_DOC, OnHelpDoc)
 	ON_COMMAND(ID_HELP_ENTERCODE, OnHelpEntercode)
 	ON_COMMAND(ID_HELP_HOWTO, OnHelpHowto)
-	ON_UPDATE_COMMAND_UI(ID_HELP_ENTERCODE, OnUpdateHelpEntercode)
-	ON_UPDATE_COMMAND_UI(ID_HELP_HOWTO, OnUpdateHelpHowto)
 	ON_COMMAND(IDA_HELP_DOC, OnHelpDoc)
 	ON_COMMAND(ID_HELP_ORDERONLINE, OnHelpOrderOnline)
 	//}}AFX_MSG_MAP
@@ -258,7 +256,6 @@ bool CMP3_RecorderApp::IsAlreadyRunning()
 	return l_already_running;
 }
 
-#pragma optimize ("", off)
 ////////////////////////////////////////////////////////////////////////////////
 BOOL CMP3_RecorderApp::InitInstance()
 {
@@ -301,30 +298,6 @@ BOOL CMP3_RecorderApp::InitInstance()
         }
 		//return FALSE; // exiting
     }
-
-	/*
-	// Displaying nag-screen. BUG: some customers reported, that SVR crashes after
-	// pasted reg. key and restart. Possible protector bug. Goto statement ok.
-
-	REG_CRYPT_BEGIN;
-	//#ifndef _DEBUG
-		goto _lNoNag;
-	//#endif
-	REG_CRYPT_END;
-
-	try
-	{
-		CNagScreenDlg NagDlg;
-		UINT nIDRet = NagDlg.DoModal();
-		nIDRet = nIDRet / (nIDRet - IDOK);
-	}
-	catch (...)
-	{
-		return FALSE;
-	}
-
-_lNoNag:
-	*/
 
 	//Initializing logger after the running instance check (avoid log creation error).
 	InitLogger();
@@ -529,25 +502,8 @@ void CMP3_RecorderApp::OnHelpEntercode()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void CMP3_RecorderApp::OnUpdateHelpHowto(CCmdUI* pCmdUI) 
-{
-	/*
-	REG_CRYPT_BEGIN;
-	pCmdUI->Enable(false);
-	REG_CRYPT_END;
-	*/
-}
 
-void CMP3_RecorderApp::OnUpdateHelpEntercode(CCmdUI* pCmdUI) 
-{
-	/*
-	REG_CRYPT_BEGIN;
-	pCmdUI->Enable(false);
-	REG_CRYPT_END;
-	*/
-}
-
-////////////////////////////////////////////////////////////////////////////////
+#pragma optimize ("", off)
 BOOL CMP3_RecorderApp::OnIdle(LONG lCount)
 {
 	// Letting the base class make all needed work
@@ -585,6 +541,6 @@ BOOL CMP3_RecorderApp::OnIdle(LONG lCount)
 
 	return FALSE;	// No more idle time needed
 }
+#pragma optimize ("", on)
 
 ////////////////////////////////////////////////////////////////////////////////
-#pragma optimize ("", on)
