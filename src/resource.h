@@ -148,7 +148,6 @@
 #define IDC_STATIC8_1                   1159
 #define IDC_STATIC9_1                   1160
 #define IDC_AN_TDEFAULT                 1161
-#define IDC_DLG_TRIALNOTE               1164
 #define IDC_GEN_MINSTANCES              1165
 #define IDC_STATIC_VERSION              1166
 #define IDC_PLAYBACK_DEVICE             1167

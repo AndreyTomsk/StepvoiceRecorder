@@ -275,22 +275,11 @@ CMainFrame::~CMainFrame()
 }
 
 /////////////////////////////////////////////////////////////////////////////
-#pragma optimize("", off)
+
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
-	// Removing the "Register" menu in registered mode
-	REG_CRYPT_BEGIN;
-	#ifndef _DEBUG
-		CMenu* pMenu = this->GetMenu();
-		pMenu->RemoveMenu(4, MF_BYPOSITION);
-		CMenu* pHelpSubMenu = pMenu->GetSubMenu(3);
-		pHelpSubMenu->EnableMenuItem(5, MF_GRAYED|MF_BYPOSITION);
-		this->DrawMenuBar();
-	#endif
-	REG_CRYPT_END;
 
 	// Adjusting vertical window size
 	int nMenuHeight = GetSystemMetrics(SM_CYMENU);
@@ -380,18 +369,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Setting up Monitoring and Voice Activation.
 	const bool monEnabled = RegistryConfig::GetOption(_T("General\\Sound Monitor"), 0);
 	const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
-#ifndef _DEBUG
-	// дизаблим VAS после завершения триального периода
-	if(fsProtect_GetDaysLeft() <= 0)
-		goto End;
-#endif
+
 	m_StatWnd.m_btnMon.SetCheck(monEnabled);
 	m_StatWnd.m_btnVas.SetCheck(vasEnabled);
-
-End:
 	return 0;
 }
-#pragma optimize("", on)
 
 /////////////////////////////////////////////////////////////////////////////
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
@@ -618,11 +600,12 @@ void CMainFrame::OpenFile(CString filePath)
 
 	if (Helpers::IsSuitableForRecording(filePath))
 	{
+		LOG_DEBUG() << __FUNCTION__ << ", " << filePath << " (NEW)";
 		m_recordingFileName = filePath;
 	}
 	else
 	{
-		//WriteDbg() << __FUNCTION__ << " ::3 (BASS_Init)";
+		LOG_DEBUG() << __FUNCTION__ << ", " << filePath << " (EXISTING)";
 
 		BOOL result = BASS_Init(-1, 44100, 0, GetSafeHwnd(), NULL);
 		if (!result)
@@ -1446,12 +1429,6 @@ void CMainFrame::OnVolDownA()
 
 void CMainFrame::OnBtnMonitoring()
 {
-#ifndef _DEBUG
-	// Button is disabled after the trial period is over
-	if(fsProtect_GetDaysLeft() <= 0)
-		return;
-#endif
-
 	const bool monitoringButtonChecked = m_StatWnd.m_btnMon.IsChecked();
 	RegistryConfig::SetOption(_T("General\\Sound Monitor"), monitoringButtonChecked);
 
@@ -1516,12 +1493,6 @@ void CMainFrame::MonitoringStop()
 
 void CMainFrame::OnBtnVas()
 {
-#ifndef _DEBUG
-	// Button is disabled after the trial period is over
-	if(fsProtect_GetDaysLeft() <= 0)
-		return;
-#endif
-
 	const bool vasEnabled = m_StatWnd.m_btnVas.IsChecked();
 	RegistryConfig::SetOption(_T("Tools\\VAS\\Enable"), vasEnabled);
 

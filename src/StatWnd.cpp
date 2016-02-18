@@ -95,14 +95,6 @@ int CStatWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_btnVas.Create(&vasIL, CPoint(88, 3), this, IDB_BTN_VAS);
 	m_btnMon.Create(&monIL, CPoint(132, 3), this, IDB_BTN_MON);
 
-#ifndef _DEBUG
-	if(fsProtect_GetDaysLeft() <= 0)
-	{	// дизаблим кнопки
-		m_btnVas.Enable(false);
-		m_btnMon.Enable(false);
-	}
-#endif
-	
 	return 0;
 }
 
@@ -228,35 +220,19 @@ void CStatWnd::OnRButtonUp(UINT nFlags, CPoint point)
 /////////////////////////////////////////////////////////////////////////////
 void CStatWnd::OnBtnMon()
 {
-#ifndef _DEBUG
-	// дизаблим после завершения триального периода
-	if(fsProtect_GetDaysLeft() <= 0)
-		return;
-#endif
-
-	// вызываем функцию обработки нажатия
-	CMainFrame* pMainWnd = (CMainFrame *)GetParent();
-	pMainWnd->OnBtnMonitoring();
+	static_cast<CMainFrame*>(GetParent())->OnBtnMonitoring();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 void CStatWnd::OnBtnVas()
 {
-#ifndef _DEBUG
-	// дизаблим после завершения триального периода
-	if(fsProtect_GetDaysLeft() <= 0)
-		return;
-#endif
-
-	// вызываем функцию обработки нажатия
-	CMainFrame* pMainWnd = (CMainFrame *)GetParent();
-	pMainWnd->OnBtnVas();
+	static_cast<CMainFrame*>(GetParent())->OnBtnVas();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 BOOL CStatWnd::OnToolTipNotify(UINT id, NMHDR *pNMHDR, LRESULT *pResult)
 {
-	CMainFrame* pMainWnd = (CMainFrame *)GetParent();
-	return pMainWnd->OnToolTipNotify(id, pNMHDR, pResult);
+	CMainFrame* mainWnd = static_cast<CMainFrame*>(GetParent());
+	return mainWnd->OnToolTipNotify(id, pNMHDR, pResult);
 }

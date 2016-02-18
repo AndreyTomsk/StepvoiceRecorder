@@ -15,8 +15,6 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CPageVAS, CPropertyPage)
 
 BEGIN_MESSAGE_MAP(CPageVAS, CPropertyPage)
-	ON_WM_CTLCOLOR()
-	ON_WM_DESTROY()
 	ON_WM_HELPINFO()
 END_MESSAGE_MAP()
 
@@ -49,7 +47,6 @@ void CPageVAS::DoDataExchange(CDataExchange* pDX)
 }
 //---------------------------------------------------------------------------
 
-#pragma optimize ("", off)
 BOOL CPageVAS::OnInitDialog() 
 {
 	m_action = RegistryConfig::GetOption(_T("Tools\\VAS\\Action"), 0);
@@ -82,30 +79,8 @@ BOOL CPageVAS::OnInitDialog()
 	pSlider->SetPageSize(1);
 	pSlider->SetPos(m_delayIndex);
 
-#ifndef _DEBUG
-	CStatic* pTrialNote = (CStatic *)GetDlgItem(IDC_DLG_TRIALNOTE);
-
-	// ѕоказываем надпись об отключении фичи после триального периода.
-	if (fsProtect_GetDaysLeft() <= 0)
-	{
-		pTrialNote->ModifyStyle(0, WS_VISIBLE);
-		pTrialNote->Invalidate(false);
-	}
-
-	// убираем триальную надпись в зарегистрированной версии
-	REG_CRYPT_BEGIN;
-	pTrialNote->ModifyStyle(WS_VISIBLE, 0);
-	pTrialNote->Invalidate(false);
-	REG_CRYPT_END;
-#endif
-
-	// мен€ем курсор
-	SetClassLong(GetDlgItem(IDC_DLG_TRIALNOTE)->GetSafeHwnd(), GCL_HCURSOR,
-		(LONG)LoadCursor(NULL, IDC_HAND));
-
 	return TRUE;
 }
-#pragma optimize ("", on)
 //---------------------------------------------------------------------------
 
 void CPageVAS::OnOK() 
@@ -121,52 +96,9 @@ void CPageVAS::OnOK()
 }
 //---------------------------------------------------------------------------
 
-HBRUSH CPageVAS::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
-{
-	HBRUSH hbr = CPropertyPage::OnCtlColor(pDC, pWnd, nCtlColor);
-	
-	// TODO: Change any attributes of the DC here
-	if (pWnd->m_hWnd == GetDlgItem(IDC_DLG_TRIALNOTE)->m_hWnd)
-	{
-		pDC->SelectObject(&m_FontWarn);
-		pDC->SetTextColor(RGB(128, 0, 0));
-	}
-	
-	// TODO: Return a different brush if the default is not desired
-	return hbr;
-}
-//---------------------------------------------------------------------------
-
-void CPageVAS::OnDestroy() 
-{
-	CPropertyPage::OnDestroy();
-	
-	// мен€ем курсор на стандартный
-	SetClassLong(GetDlgItem(IDC_DLG_TRIALNOTE)->GetSafeHwnd(), GCL_HCURSOR,
-		(LONG)LoadCursor(NULL, IDC_ARROW));
-}
-//---------------------------------------------------------------------------
-
 BOOL CPageVAS::OnHelpInfo(HELPINFO* pHelpInfo) 
 {
 	GetParent()->SendMessage(WM_COMMAND, IDHELP, (LPARAM)GetSafeHwnd());	
 	return CPropertyPage::OnHelpInfo(pHelpInfo);
-}
-//---------------------------------------------------------------------------
-
-BOOL CPageVAS::OnCommand(WPARAM wParam, LPARAM lParam) 
-{
-	UINT nID = LOWORD(wParam);
-	int nCode = HIWORD(wParam);
-
-	if (nID == IDC_DLG_TRIALNOTE && (nCode == BN_CLICKED || nCode == BN_DOUBLECLICKED))
-	{
-		// отображаем "How To Order" страницу
-		using namespace FileUtils;
-		CString helpFile = CombinePath(GetProgramFolder(), _T("svrec.chm::/stepvoice_recorder/how_to_register.html"));
-		::HtmlHelp(::GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
-	}
-	
-	return CPropertyPage::OnCommand(wParam, lParam);
 }
 //---------------------------------------------------------------------------

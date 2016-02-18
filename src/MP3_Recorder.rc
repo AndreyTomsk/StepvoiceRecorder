@@ -127,58 +127,57 @@ IDI_MIXLINE03           ICON                    "res\\mixline3.ico"
 // Menu
 //
 
-IDR_MAINFRAME MENUEX 
+IDR_MAINFRAME MENU 
 BEGIN
-    POPUP "&File",                          65535,MFT_STRING,MFS_ENABLED
+    POPUP "&File"
     BEGIN
-        MENUITEM "Create/&Open... \aCtrl - O",  IDM_FILE_CREATEOPEN,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Close",                      IDM_FILE_CLOSE,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "Cle&ar\aCtrl - A",            IDM_FILE_CLEAR,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Move to Recycle Bin",        IDM_FILE_DELETE,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "&Find...\aCtrl - F",          IDM_FILE_FINDFILE,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "E&xit\aAlt - F4",             ID_APP_EXIT,MFT_STRING,MFS_ENABLED
+        MENUITEM "Create/&Open... \aCtrl - O",  IDM_FILE_CREATEOPEN
+        MENUITEM "&Close",                      IDM_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "Cle&ar\aCtrl - A",            IDM_FILE_CLEAR
+        MENUITEM "&Move to Recycle Bin",        IDM_FILE_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "&Find...\aCtrl - F",          IDM_FILE_FINDFILE
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\aAlt - F4",             ID_APP_EXIT
     END
-    POPUP "&Sound",                         65535,MFT_STRING,MFS_ENABLED
+    POPUP "&Sound"
     BEGIN
-        MENUITEM "&Rec./Pause\aEnter",          IDM_SOUND_REC,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Stop\aShift - Space",        IDM_SOUND_STOP,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Play/Pause\aSpace",          IDM_SOUND_PLAY,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "&Jump to begin\aHome",        IDM_SOUND_BEGIN,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Back 5 seconds\aLeft",       IDM_SOUND_REW,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Fwd 5 seconds\aRight",       IDM_SOUND_FF,MFT_STRING,MFS_ENABLED
-        MENUITEM "Jump to &end\aEnd",           IDM_SOUND_END,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Rec./Pause\aEnter",          IDM_SOUND_REC
+        MENUITEM "&Stop\aShift - Space",        IDM_SOUND_STOP
+        MENUITEM "&Play/Pause\aSpace",          IDM_SOUND_PLAY
+        MENUITEM SEPARATOR
+        MENUITEM "&Jump to begin\aHome",        IDM_SOUND_BEGIN
+        MENUITEM "&Back 5 seconds\aLeft",       IDM_SOUND_REW
+        MENUITEM "&Fwd 5 seconds\aRight",       IDM_SOUND_FF
+        MENUITEM "Jump to &end\aEnd",           IDM_SOUND_END
     END
-    POPUP "&Tools",                         65535,MFT_STRING,MFS_ENABLED
+    POPUP "&Tools"
     BEGIN
-        MENUITEM "O&ptions...\aCtrl - P",       IDM_OPT_COM,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "Input &Monitor",              IDM_OPT_MONITOR,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Sound Activation",           IDM_OPT_VAS,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "Sound &Devices...",           IDM_OPT_SNDDEV,MFT_STRING,MFS_ENABLED
+        MENUITEM "O&ptions...\aCtrl - P",       IDM_OPT_COM
+        MENUITEM SEPARATOR
+        MENUITEM "Input &Monitor",              IDM_OPT_MONITOR
+        MENUITEM "&Sound Activation",           IDM_OPT_VAS
+        MENUITEM SEPARATOR
+        MENUITEM "Sound &Devices...",           IDM_OPT_SNDDEV
     END
-    POPUP "&Help",                          65535,MFT_STRING,MFS_ENABLED
+    POPUP "&Help"
     BEGIN
-        MENUITEM "&Help contents\aF1",          IDM_HELP_DOC,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "&Open log folder",            ID_HELP_OPENLOGFOLDER,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Send e-mail to support",     IDM_HELP_EMAIL,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Web-site",                   IDM_HELP_WWW,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        POPUP "&Program Registration",          65535,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Help contents\aF1",          IDM_HELP_DOC
+        MENUITEM SEPARATOR
+        MENUITEM "&Open log folder",            ID_HELP_OPENLOGFOLDER
+        MENUITEM "&Send e-mail to support",     IDM_HELP_EMAIL
+        MENUITEM "&Web-site",                   IDM_HELP_WWW
+        MENUITEM SEPARATOR
+        POPUP "&Program Registration"
         BEGIN
-            MENUITEM "How To &Register",            ID_HELP_HOWTO,MFT_STRING,MFS_ENABLED
-            MENUITEM "&Order online",               ID_HELP_ORDERONLINE,MFT_STRING,MFS_ENABLED
-            MENUITEM "&Enter registration key...",  ID_HELP_ENTERCODE,MFT_STRING,MFS_ENABLED
+            MENUITEM "How To &Register",            ID_HELP_HOWTO
+            MENUITEM "&Order online",               ID_HELP_ORDERONLINE
+            MENUITEM "&Enter registration key...",  ID_HELP_ENTERCODE
         END
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "&About ...",                  ID_APP_ABOUT,MFT_STRING,MFS_ENABLED
+        MENUITEM SEPARATOR
+        MENUITEM "&About ...",                  ID_APP_ABOUT
     END
-    MENUITEM "&Register",                   ID_HELP_ORDERONLINE,MFT_STRING | MFT_RIGHTJUSTIFY,MFS_ENABLED
 END
 
 IDR_GRAPHMENU MENU 
@@ -357,7 +356,6 @@ BEGIN
     LTEXT           "8",IDC_STATIC,214,36,8,8
     GROUPBOX        "Detection time (seconds)",IDC_STATIC,119,5,108,41
     GROUPBOX        "After a silence detected",IDC_STATIC,5,52,222,28
-    LTEXT           "NOTE: after the trial period is over this feature will be disabled since the program is unregistered.",IDC_DLG_TRIALNOTE,5,82,226,18,SS_NOTIFY | NOT WS_VISIBLE
 END
 
 IDD_TIMERDLG DIALOG  0, 0, 182, 58
@@ -371,17 +369,18 @@ BEGIN
     ICON            IDR_MAINFRAME,IDC_TDLG_ICON,7,7,21,20
 END
 
-IDD_NAGSCREEN DIALOGEX 0, 0, 208, 83
+IDD_NAGSCREEN DIALOGEX 0, 0, 219, 98
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
-CAPTION "Unregistered version (%d days left)"
+CAPTION "Thank you for trying Stepvoice Recorder"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "Close",IDCANCEL,6,60,61,16
-    PUSHBUTTON      "Order",IDC_ORDER,73,60,61,16
-    PUSHBUTTON      "Enter key...",IDC_ENTERCODE,141,60,61,16
-    ICON            IDR_MAINFRAME,IDC_STATIC,181,6,20,20,SS_CENTERIMAGE
-    LTEXT           "Thank you for trying Stepvoice Recorder!",IDC_THANKYOU,6,11,171,12
-    CTEXT           "After evaluation period is over, some features will be disabled. Support further development by ordering a full version.",IDC_UNREGNOTICE,6,31,196,23
+    PUSHBUTTON      "Enter key...",IDC_ENTERCODE,6,75,71,16
+    PUSHBUTTON      "Use Recorder without registering",IDCANCEL,83,75,130,16
+    ICON            IDR_MAINFRAME,IDC_STATIC,192,6,21,20,SS_CENTERIMAGE
+    LTEXT           "You may evaluate this program as long as you like. If you find it useful then we would appreciate your registration of this product.",IDC_UNREGNOTICE,6,6,183,34
+    LTEXT           "To register visit our website at:",IDC_STATIC,6,39,97,8
+    LTEXT           "www.stepvoice.com",IDC_ORDER,107,39,96,8,SS_NOTIFY
+    LTEXT           " After your order has been processed, you will receive an email containing the registration key.",IDC_STATIC,6,48,207,19
 END
 
 IDD_RECORDING_SOURCE DIALOGEX 0, 0, 201, 149
@@ -465,9 +464,9 @@ BEGIN
     IDD_NAGSCREEN, DIALOG
     BEGIN
         LEFTMARGIN, 6
-        RIGHTMARGIN, 202
+        RIGHTMARGIN, 213
         TOPMARGIN, 6
-        BOTTOMMARGIN, 76
+        BOTTOMMARGIN, 91
     END
 
     IDD_RECORDING_SOURCE, DIALOG
