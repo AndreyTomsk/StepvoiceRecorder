@@ -4,6 +4,8 @@
 
 #define User_AppName    "Stepvoice Recorder"
 #define User_AppExeName "SvRec.exe"
+#define MyCompanyUrl    "http://www.stepvoice.com"
+#define MyCompanyName   "Andrey Firsov"
 
 #define FullAppVersion GetFileVersion(AddBackslash(SourcePath) + "..\bin\" + User_AppExeName)
 #define User_AppVersion Copy(FullAppVersion, 1, 5)
@@ -15,7 +17,6 @@ AppID={#User_AppName}
 AppVerName={#User_AppName} {#User_AppVersion}
 DefaultDirName={pf}\{#User_AppName}
 DefaultGroupName={#User_AppName}
-UninstallDisplayIcon={app}\SvRec.exe
 DirExistsWarning=no
 WizardImageFile=WizModernImage-IS.bmp
 WizardSmallImageFile=WizModernSmallImage-IS.bmp
@@ -26,6 +27,13 @@ PrivilegesRequired=none
 
 OutputBaseFilename={#User_OutputFile}
 SignTool=Standard /d $qStepvoice Recorder Setup$q /du $qhttp://stepvoice.com$q $f
+
+
+;Installer-related options (Uninstall data)
+AppPublisher={#MyCompanyName}
+AppPublisherURL={#MyCompanyUrl}
+AppSupportURL={#MyCompanyUrl}
+UninstallDisplayIcon={app}\SvRec.exe
 
 [Registry]
 Root: HKLM; Subkey: "Software\Stepvoice Software"; Flags: uninsdeletekeyifempty
@@ -44,11 +52,11 @@ Source: Stepvoice Recorder Home.url; DestDir: {app}; Flags: ignoreversion
 Source: order.url;                 DestDir: {app}; Flags: ignoreversion
 
 Source: ..\bin\{#User_AppExeName}; DestDir: {app}; Flags: ignoreversion
+Source: ..\bin\bass.dll;           DestDir: {app}; Flags: ignoreversion
+Source: ..\bin\basswasapi.dll;     DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\lame_enc.dll;       DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\ResetOptions.reg;   DestDir: {app}; Flags: ignoreversion
 Source: ..\doc\Help\SvRec.chm;     DestDir: {app}; Flags: ignoreversion
-Source: ..\..\bass\bass.dll;       DestDir: {app}; Flags: ignoreversion
-Source: ..\..\basswasapi\basswasapi.dll; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 ;Name: {group}\Order Online;                   Filename: {app}\order.url; WorkingDir: {app}
@@ -59,6 +67,9 @@ Name: {group}\Uninstall;                      FileName: {uninstallexe}
 
 Name: {userdesktop}\Stepvoice Recorder;       FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: desktopicon
 Name: {userappdata}\Microsoft\Internet Explorer\Quick Launch\Stepvoice Recorder; FileName: {app}\{#User_AppExeName}; WorkingDir: {app}; Tasks: quicklaunchicon
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{commonappdata}\Stepvoice"
 
 [Tasks]
 Name: desktopicon; Description: Create a &desktop icon; GroupDescription: Additional icons:

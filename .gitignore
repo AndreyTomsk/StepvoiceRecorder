@@ -1,7 +1,11 @@
 version.h
 *.ncb
 *.suo
+*.aps
 *.vcproj.*
 obj/
+install/Output/
 bin/SvRec*.exe
 bin/SvRec*.ilk
+doc/Help/SvRec.chm
+
