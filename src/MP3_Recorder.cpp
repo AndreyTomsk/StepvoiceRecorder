@@ -190,6 +190,7 @@ BEGIN_MESSAGE_MAP(CMP3_RecorderApp, CWinApp)
 	//{{AFX_MSG_MAP(CMP3_RecorderApp)
 	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
 	ON_COMMAND(IDM_HELP_WWW, OnHelpWww)
+	ON_COMMAND(ID_HELP_OPENLOGFOLDER, OnHelpOpenLogFolder)
 	ON_COMMAND(IDM_HELP_EMAIL, OnHelpEmail)
 	ON_COMMAND(IDM_HELP_DOC, OnHelpDoc)
 	ON_COMMAND(ID_HELP_ENTERCODE, OnHelpEntercode)
@@ -349,7 +350,7 @@ _lNoNag:
 
 int CMP3_RecorderApp::ExitInstance()
 {
-	LOG_INFO() << "Program stopped.";
+	LOG_INFO() << "Program closed.";
 	return 0;
 }
 //---------------------------------------------------------------------------
@@ -480,17 +481,21 @@ void CMP3_RecorderApp::OnHelpOrderOnline()
 		SW_SHOWNORMAL);
 }
 
+void CMP3_RecorderApp::OnHelpOpenLogFolder()
+{
+	const CString appDataFolder = FileUtils::GetSpecialFolder(CSIDL_COMMON_APPDATA);
+	const CString svrecDataFolder = FileUtils::CombinePath(appDataFolder, _T("Stepvoice"));
+	ShellExecute(::GetDesktopWindow(), _T("open"), svrecDataFolder, NULL, NULL, SW_SHOW);
+}
+
 void CMP3_RecorderApp::OnHelpEmail() 
 {
-	CString l_mail_string;
-	l_mail_string.Format(_T("mailto:support@stepvoice.com?subject=[%s %s] "),
-		_T("svrec"), STRFILEVER);
+	CString mailString;
+	mailString.Format(_T("mailto:support@stepvoice.com?subject=[svrec %s]&body=(Please attach log files, accessible via program menu: Help | Open log folder)"),
+		STRFILEVER);
 
-	///@bug Add body message regarding common recording problems.
-	///see "mailto" in Windows SDK.
-
-	l_mail_string.Replace(_T(" "), _T("%20"));
-	ShellExecute(0, NULL, l_mail_string, NULL, NULL, SW_SHOWNORMAL);
+	mailString.Replace(_T(" "), _T("%20"));
+	ShellExecute(0, NULL, mailString, NULL, NULL, SW_SHOWNORMAL);
 }
 
 void CMP3_RecorderApp::OnHelpDoc() 

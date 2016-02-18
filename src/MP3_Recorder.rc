@@ -165,8 +165,9 @@ BEGIN
     BEGIN
         MENUITEM "&Help contents\aF1",          IDM_HELP_DOC,MFT_STRING,MFS_ENABLED
         MENUITEM MFT_SEPARATOR
-        MENUITEM "&Web-site",                   IDM_HELP_WWW,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Open log folder",            ID_HELP_OPENLOGFOLDER,MFT_STRING,MFS_ENABLED
         MENUITEM "&Send e-mail to support",     IDM_HELP_EMAIL,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Web-site",                   IDM_HELP_WWW,MFT_STRING,MFS_ENABLED
         MENUITEM MFT_SEPARATOR
         POPUP "&Program Registration",          65535,MFT_STRING,MFS_ENABLED
         BEGIN
