@@ -7,6 +7,7 @@ rem --------------------------------------------------------
 
 	cd Help
 	hhc SvRec.hhp
+	copy SvRec.chm ..\..\bin\SvRec.chm
 	cd ..
 
 rem

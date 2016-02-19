@@ -41,7 +41,7 @@ BEGIN
             VALUE "FileDescription", "Stepvoice Recorder - friendly mp3 audio recorder"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "Stepvoice Recorder"
-            VALUE "LegalCopyright", "Copyright © 2015 Stepvoice Software"
+            VALUE "LegalCopyright", "Copyright © 2016 Stepvoice Software"
             VALUE "OriginalFilename", "SvRec.exe"
             VALUE "ProductName", "Stepvoice Recorder"
             VALUE "ProductVersion", STRFILEVER

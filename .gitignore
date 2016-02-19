@@ -7,5 +7,6 @@ obj/
 install/Output/
 bin/SvRec*.exe
 bin/SvRec*.ilk
+bin/SvRec.chm
 doc/Help/SvRec.chm
 
