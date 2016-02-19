@@ -7,7 +7,7 @@ rem echo %BUILD_DATE:~2,6%
 rem Creating version.h containing version information based on git rev. number
 for /f "delims=" %%a in ('git rev-list --all --count') do @set RevNumber=%%a
 
-set VersionDots=1.9.2.%RevNumber%
+set VersionDots=2.0.0.%RevNumber%
 set VersionCommas=%VersionDots:.=,%
 
 echo #pragma once				> version.h

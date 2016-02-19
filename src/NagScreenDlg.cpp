@@ -32,11 +32,13 @@ BOOL CNagScreenDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 	SetIcon(LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME)), TRUE); 
 
-	BOOL result = m_wndOrder.SubclassDlgItem(IDC_GETNOW, this);
+	m_wndOrder.SubclassDlgItem(IDC_GETNOW, this);
 	m_wndOrder.SetUrl("http://stepvoice.com/order.shtml");
 
 	CString version(STRFILEVER);
-	CString mainVer = version.Left(version.ReverseFind(_T('.')));
+	CString mainVer;
+	mainVer = version.Left(version.ReverseFind(_T('.')));
+	mainVer = mainVer.Left(mainVer.ReverseFind(_T('.')));
 	SetWindowText(_T("Stepvoice Recorder ") + mainVer);
 
 	return TRUE;
