@@ -11,11 +11,6 @@
 		<param name="Local" value="stepvoice_recorder\overview.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Autoname Options">
-		<param name="Name" value="Recorder Preferences">
-		<param name="Local" value="how_to_use\preferences.html">
-		</OBJECT>
-	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Bitrate">
 		<param name="Name" value="Encode Options">
 		<param name="Local" value="how_to_use\mp3_encoding.html">
@@ -27,8 +22,8 @@
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Display Window">
-		<param name="Name" value="Recording Level">
-		<param name="Local" value="how_to_use\recording_level.html">
+		<param name="Name" value="Input Level">
+		<param name="Local" value="how_to_use\input_level.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Encode Options">
@@ -52,28 +47,18 @@
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Peak Meter, dB">
-		<param name="Name" value="Recording Level">
-		<param name="Local" value="how_to_use\recording_level.html">
+		<param name="Name" value="Input Level">
+		<param name="Local" value="how_to_use\input_level.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Recorder Preferences">
-		<param name="Name" value="Recorder Preferences">
-		<param name="Local" value="how_to_use\preferences.html">
-		</OBJECT>
-	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Recording Level">
-		<param name="Name" value="Recording Level">
-		<param name="Local" value="how_to_use\recording_level.html">
+		<param name="Name" value="Input Level">
+		<param name="Name" value="Input Level">
+		<param name="Local" value="how_to_use\input_level.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Recording Source">
 		<param name="Name" value="Recording Source">
 		<param name="Local" value="how_to_use\recording_source.html">
-		</OBJECT>
-	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Scheduler Options">
-		<param name="Name" value="Recorder Preferences">
-		<param name="Local" value="how_to_use\preferences.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="StereoMix">
@@ -87,8 +72,8 @@
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Threshold level">
-		<param name="Name" value="Voice Activation">
-		<param name="Local" value="how_to_use\voice_activation.html">
+		<param name="Name" value="Sound Activation">
+		<param name="Local" value="how_to_use\sound_activation.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="User Support">
@@ -96,9 +81,9 @@
 		<param name="Local" value="stepvoice_recorder\user_support.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Voice Activation">
-		<param name="Name" value="Voice Activation">
-		<param name="Local" value="how_to_use\voice_activation.html">
+		<param name="Name" value="Sound Activation">
+		<param name="Name" value="Sound Activation">
+		<param name="Local" value="how_to_use\sound_activation.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="What's New">

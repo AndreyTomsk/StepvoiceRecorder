@@ -53,13 +53,8 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Recording Level">
-			<param name="Local" value="how_to_use\recording_level.html">
-			<param name="ImageNumber" value="11">
-			</OBJECT>
-		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Voice Activation">
-			<param name="Local" value="how_to_use\voice_activation.html">
+			<param name="Name" value="Input Level">
+			<param name="Local" value="how_to_use\input_level.html">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
@@ -68,13 +63,13 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Command Line Options">
-			<param name="Local" value="how_to_use\command_line.html">
+			<param name="Name" value="Sound Activation">
+			<param name="Local" value="how_to_use\sound_activation.html">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Recorder Preferences">
-			<param name="Local" value="how_to_use\preferences.html">
+			<param name="Name" value="Command Line Options">
+			<param name="Local" value="how_to_use\command_line.html">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 	</UL>

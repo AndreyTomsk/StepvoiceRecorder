@@ -19,10 +19,9 @@ stepvoice_recorder\user_support.html
 stepvoice_recorder\whats_new.html
 how_to_use\command_line.html
 how_to_use\mp3_encoding.html
-how_to_use\preferences.html
-how_to_use\recording_level.html
+how_to_use\input_level.html
 how_to_use\recording_source.html
-how_to_use\voice_activation.html
+how_to_use\sound_activation.html
 stepvoice_recorder\overview.html
 
 [INFOTYPES]
