@@ -35,14 +35,19 @@ private:
 CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans)
 	:m_deviceID(device)
 {
+	LOG_DEBUG();
+	LOG_DEBUG() << __FUNCTION__ << ", device=" << device << ", frequency=" << freq << ", channels=" << chans;
+
 	if (!WasapiHelpers::GetDeviceActualData(device, freq, chans, m_actualFreq, m_actualChans))
 		return;
 
-	//WriteDbg() << __FUNCTION__ << " :: (BASS INIT)";
+	LOG_DEBUG() << "  actual data received. actualFreq=" << m_actualFreq << ", actualChans=" << m_actualChans;
 
 	const bool isMono = (m_actualChans == 1);
 	if (!BASS_Init(0 /*no sound device*/, m_actualFreq, isMono ? BASS_DEVICE_MONO : 0, 0, NULL))
 		return;
+
+	LOG_DEBUG() << "  bass initialized";
 
 	//if (outputProc == NULL)
 	//	outputProc = EmptyProc; //could not initialize if output procedure empty
@@ -53,19 +58,24 @@ CWasapiRecorder::CWasapiRecorder(int device, DWORD freq, DWORD chans)
 		0,		//interval (in seconds) between callback function calls, 0=use default.
 		OutputProc,
 		this);
+
 	ASSERT(result);
+	LOG_DEBUG() << "Ok, bass wasapi init result=" << result;
 }
 //---------------------------------------------------------------------------
 
 CWasapiRecorder::~CWasapiRecorder()
 {
+	LOG_DEBUG() << __FUNCTION__;
+
 	CurrentThreadDevice temp(m_deviceID);
 	BASS_WASAPI_Free();
 
-	//WriteDbg() << __FUNCTION__ << " :: (BASS FREE)";
+	LOG_DEBUG() << "  bass wasapi free.";
 
 	BASS_SetDevice(0); //no sound device
 	BASS_Free();
+	LOG_DEBUG() << "  Ok.";
 }
 //---------------------------------------------------------------------------
 

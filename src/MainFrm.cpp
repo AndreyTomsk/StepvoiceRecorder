@@ -829,6 +829,8 @@ void CMainFrame::OnBtnOPEN()
 //===========================================================================
 void CMainFrame::OnBtnPLAY()
 {
+	LOG_DEBUG() << __FUNCTION__ << ", m_nState=" << m_nState;
+
 	if (!this->CanPlay())
 		return;
 
@@ -863,6 +865,8 @@ void CMainFrame::OnBtnPLAY()
 //===========================================================================
 void CMainFrame::OnBtnSTOP()
 {
+	LOG_DEBUG() << __FUNCTION__ << ", m_nState=" << m_nState;
+
 	if (m_nState == STOP_STATE)
 		return;
 
@@ -907,6 +911,8 @@ void CMainFrame::OnBtnSTOP()
 //===========================================================================
 void CMainFrame::OnBtnREC()
 {
+	LOG_DEBUG() << __FUNCTION__ << ", m_nState=" << m_nState;
+
 	if (m_recordingFileName.IsEmpty())
 	{
 		//Automatically creating file, suitable for recording.
@@ -1433,6 +1439,8 @@ void CMainFrame::OnVolDownA()
 
 void CMainFrame::OnBtnMonitoring()
 {
+	LOG_DEBUG() << __FUNCTION__;
+
 	const bool monitoringButtonChecked = m_StatWnd.m_btnMon.IsChecked();
 	RegistryConfig::SetOption(_T("General\\Sound Monitor"), monitoringButtonChecked);
 
@@ -1450,6 +1458,8 @@ void CMainFrame::OnBtnMonitoring()
 
 bool CMainFrame::MonitoringRestart()
 {
+	LOG_DEBUG() << __FUNCTION__;
+
 	if (m_StatWnd.m_btnMon.IsChecked() && m_nState == STOP_STATE && !m_destroyingMainWindow)
 	{
 		MonitoringStop();
@@ -1461,6 +1471,8 @@ bool CMainFrame::MonitoringRestart()
 
 bool CMainFrame::MonitoringStart()
 {
+	LOG_DEBUG() << __FUNCTION__;
+
 	ASSERT(m_monitoringChain.IsEmpty());
 	if (!m_monitoringChain.IsEmpty())
 		MonitoringStop();
@@ -1491,6 +1503,8 @@ bool CMainFrame::MonitoringStart()
 //------------------------------------------------------------------------------
 void CMainFrame::MonitoringStop()
 {
+	LOG_DEBUG() << __FUNCTION__;
+
 	if (!m_monitoringChain.IsEmpty())
 	{
 		m_GraphWnd.StopUpdate();
@@ -1683,7 +1697,7 @@ LRESULT CMainFrame::OnRecSourceDialogClosed(WPARAM wParam, LPARAM lParam)
 
 LRESULT CMainFrame::OnRecSourceChanged(WPARAM wParam, LPARAM lParam)
 {
-	WriteDbg() << __FUNCTION__ << _T("\n");
+	LOG_DEBUG() << __FUNCTION__;
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -1726,7 +1740,7 @@ LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
 			continue;
 		}
 
-		WriteDbg() << "UNHANDLED PARAMETER: " << param;
+		LOG_ERROR() << __FUNCTION__ << "UNHANDLED PARAMETER: " << param.name;
 	}
 	m_filterNotifications.clear();
 	return 0;
