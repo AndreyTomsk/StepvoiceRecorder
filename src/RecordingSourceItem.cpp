@@ -155,8 +155,12 @@ bool CRecordingSourceItem::GetCheck() const
 
 void CRecordingSourceItem::SetCheck(bool check)
 {
-	m_itemCheckBox.SetCheck(check ? BST_CHECKED : BST_UNCHECKED);
-	OnCheckboxClicked();
+	const bool isChecked = (m_itemCheckBox.GetCheck() == BST_CHECKED);
+	if (check != isChecked)
+	{
+		m_itemCheckBox.SetCheck(check ? BST_CHECKED : BST_UNCHECKED);
+		OnCheckboxClicked();
+	}
 }
 //---------------------------------------------------------------------------
 
