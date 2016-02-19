@@ -935,14 +935,18 @@ void CMainFrame::OnBtnREC()
 
 		try
 		{
-			CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, frequency, channels);
-			//CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, frequency, channels);
-			recorder->SetVolume(m_recording_volume);
+			//TODO: temp fix for Multi-recorder bugs - using simple recorder for one device.
+			IWasapiRecorder* recorder = NULL;
+			if (selectedDevices.size() == 1)
+				recorder = new CWasapiRecorder(selectedDevices[0].first, frequency, channels);
+			else
+				recorder = new CWasapiRecorderMulti(selectedDevices, frequency, channels);
 
+			recorder->SetVolume(m_recording_volume);
 			frequency = recorder->GetActualFrequency();
 			channels = recorder->GetActualChannelCount();
 
-			m_recordingChain.AddFilter(recorder);
+			m_recordingChain.AddFilter(dynamic_cast<Filter*>(recorder));
 			m_recordingChain.AddFilter(new VasFilter(vasThresholdDB, vasWaitTimeMS, vasEnabled));
 			m_recordingChain.AddFilter(new CEncoder_MP3(bitrate, frequency, channels));
 			m_recordingChain.AddFilter(new FileWriter(m_recordingFileName));
@@ -1466,11 +1470,16 @@ bool CMainFrame::MonitoringStart()
 	if (selectedDevices.empty() || (selectedDevices.size() == 1 && selectedDevices[0] == EMPTY_DEVICE))
 		return false;
 
-	CWasapiRecorderMulti* recorder = new CWasapiRecorderMulti(selectedDevices, 44100, 2);
-	//CWasapiRecorder* recorder = new CWasapiRecorder(selectedDevices[0].first, 44100, 2);
+	//TODO: temp fix for Multi-recorder bugs - using simple recorder for one device.
+	IWasapiRecorder* recorder = NULL;
+	if (selectedDevices.size() == 1)
+		recorder = new CWasapiRecorder(selectedDevices[0].first, 44100, 2);
+	else
+		recorder = new CWasapiRecorderMulti(selectedDevices, 44100, 2);
+
 	recorder->SetVolume(m_recording_volume);
 
-	m_monitoringChain.AddFilter(recorder);
+	m_monitoringChain.AddFilter(dynamic_cast<Filter*>(recorder));
 	if (recorder->Start())
 	{
 		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, recorder);
