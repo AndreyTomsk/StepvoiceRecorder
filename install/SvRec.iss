@@ -23,7 +23,6 @@ WizardSmallImageFile=WizModernSmallImage-IS.bmp
 LicenseFile=.\license.txt
 Compression=lzma/max
 SolidCompression=yes
-PrivilegesRequired=none
 
 OutputBaseFilename={#User_OutputFile}
 SignTool=Standard /d $qStepvoice Recorder Setup$q /du $qhttp://stepvoice.com$q $f

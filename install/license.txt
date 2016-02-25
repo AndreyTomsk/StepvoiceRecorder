@@ -1,9 +1,9 @@
 Stepvoice Recorder
 
-Copyright © 2015 Andrey Firsov. All Rights Reserved.
+Copyright © 2016 Andrey Firsov. All Rights Reserved.
 
 The author hereby gives you a non-exclusive license to use the software.
-For evaluation, the license is granted, and is time-limited to 30 days. For registered release you have to pay a license fee. 
+For evaluation, the license is granted, and is not time-limited. For registered release you have to pay a license fee. 
  
 You may:  
 - use the Software on any single computer;  
