@@ -372,6 +372,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_StatWnd.m_btnMon.SetCheck(monEnabled);
 	m_StatWnd.m_btnVas.SetCheck(vasEnabled);
+
+	//CString test = Helpers::GetNewRecordingFilePath(_T("D:\\Feb26_2016_02.mp3"));
 	return 0;
 }
 
@@ -1721,12 +1723,28 @@ LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
 		{
 			const int vasAction = RegistryConfig::GetOption(_T("Tools\\VAS\\Action"), 0);
 			const bool stopOnSilence = vasAction == 1;
+			const bool newFileOnSilence = vasAction == 2;
 			const bool isSilence = param.valueInt == 1;
+			LOG_DEBUG() << __FUNCTION__ << "VAS.HandleSilence: isSilence=" << isSilence << ", vasAction=" << vasAction;
 
 			if (isSilence && stopOnSilence)
 				OnBtnSTOP();
 			else
 			{
+				if (isSilence && newFileOnSilence)
+				{
+					ASSERT(!m_recordingFileName.IsEmpty());
+					m_recordingFileName = Helpers::GetNewRecordingFilePath(m_recordingFileName);
+
+					LOG_DEBUG() << __FUNCTION__ << "VAS.HandleSilence: creating_file=" << m_recordingFileName;
+					m_recordingChain.GetFilter<FileWriter>()->CreateNewFile(m_recordingFileName);
+
+					// Modifying window caption to "<FILE> - StepVoice Recorder".
+					CString newCaption;
+					AfxFormatString1(newCaption, IDS_FILETITLE, FileUtils::GetFileName(m_recordingFileName));
+					m_title->SetTitleText(newCaption);
+				}
+
 				const int icoWndIcon = isSilence ? ICON_RECVAS : ICON_REC;
 				const int trayIcon = isSilence ? IDI_TRAY_PAUSE : IDI_TRAY_REC;
 				m_IcoWnd.SetNewIcon(icoWndIcon);

@@ -29,8 +29,6 @@ CPageVAS::CPageVAS()
 	,m_delayIndex(0)
 	,m_action(0)
 {
-	m_FontWarn.CreateFont(12, 0, 0, 0, FW_LIGHT,  0, 0, 0, 0, 0, 0, 0, 0,
-		_T("Arial"));
 }
 //---------------------------------------------------------------------------
 
@@ -42,7 +40,6 @@ CPageVAS::~CPageVAS()
 void CPageVAS::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
-
 	DDX_Radio(pDX, IDC_VAS_SILENTPAUSE, m_action);
 }
 //---------------------------------------------------------------------------

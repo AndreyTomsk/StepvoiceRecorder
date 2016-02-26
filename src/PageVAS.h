@@ -8,7 +8,6 @@ class CPageVAS : public CPropertyPage
 	int		m_action;
 	int		m_thresholdIndex;
 	int		m_delayIndex;
-	CFont	m_FontWarn;
 
 public:
 	CPageVAS();

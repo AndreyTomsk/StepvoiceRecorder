@@ -14,6 +14,7 @@ namespace Helpers
 	//in output folder. If current autoname exist - generate next one for checking.
 	//Adds "_02", "_03", etc. suffixes to name.
 	CString GetNewRecordingFilePath();
+	CString GetNewRecordingFilePath(CString baseFilePath);
 
 	//strTemplate - string template, passed to CTime.Format method.
 	CString FilterTemplate(CString strTemplate);

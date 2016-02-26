@@ -160,6 +160,7 @@
 #define IDC_STORE_IN_OUTPUT_FOLDER      1181
 #define IDC_ON_TOP                      1182
 #define IDC_UNREGNOTICE                 1183
+#define IDC_RADIO1                      1184
 #define IDW_RECORDING_ITEM              5000
 #define IDM_FILE_NEW                    32773
 #define IDM_FILE_OPEN                   32774
@@ -210,7 +211,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        249
 #define _APS_NEXT_COMMAND_VALUE         32932
-#define _APS_NEXT_CONTROL_VALUE         1184
+#define _APS_NEXT_CONTROL_VALUE         1185
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
 #endif

@@ -10,14 +10,23 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 
 FileWriter::FileWriter(const CString& fileName)
-	:m_outputFile(fileName, CFile::modeCreate | CFile::modeWrite | CFile::shareDenyWrite)
 {
+	CreateNewFile(fileName);
 }
 //---------------------------------------------------------------------------
 
 FileWriter::~FileWriter()
 {
 	ForceClose();
+}
+//---------------------------------------------------------------------------
+
+void FileWriter::CreateNewFile(const CString& fileName)
+{
+	CMyLock lock(m_syncObject);
+
+	ForceClose();
+	m_outputFile.Open(fileName, CFile::modeCreate | CFile::modeWrite | CFile::shareDenyWrite);
 }
 //---------------------------------------------------------------------------
 
@@ -39,6 +48,8 @@ ULONGLONG FileWriter::GetFileLength() const
 
 bool FileWriter::ProcessData(void* buffer, DWORD lengthBytes)
 {
+	CMyLock lock(m_syncObject);
+
 	//static const DWORD msecInitial = ::GetTickCount();
 	//static int counter = 0;
 	try

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MainFrm_Helpers.h"
 #include "FileUtils.h"
+#include "StrUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -39,15 +40,39 @@ CString GetNewRecordingFilePath()
 	const CString outputFolder = GetOutputFolder();
 
 	CString outputFile = CombinePath(outputFolder, autonameNoExt + _T(".mp3"));
-	int index = 2;
+	return GetNewRecordingFilePath(outputFile);
+}
+//------------------------------------------------------------------------------
 
-	while (FileExists(outputFile))
+CString GetNewRecordingFilePath(CString filePath)
+{
+	//Check if file name has "<name>_NNN.mp3" format, where NNN - some number.
+	//If yes, then extract <name> and number, increment number and check such
+	//file not exist. NOTE: excluding numbers with 4 digits (NNNN) - possible
+	//year (not incrementing).
+
+	using namespace FileUtils;
+	const CString baseFolder = GetFolderOnly(filePath);		
+	
+	CString baseName = GetFileNameNoExt(filePath);
+	int newIndex = 2;
+
+	const int dividerPos = baseName.ReverseFind(_T('_'));
+	const int digitCount = baseName.GetLength() - dividerPos - 1;
+	if (dividerPos != -1 && digitCount > 0 && digitCount < 4)
 	{
-		CString newAutoname;
-		newAutoname.Format(_T("%s_%02d.mp3"), autonameNoExt, index++);
-		outputFile = CombinePath(outputFolder, newAutoname);
+		const CString digits = baseName.Right(digitCount);
+		baseName = baseName.Left(dividerPos);
+		newIndex = StrUtils::FromString(digits) + 1;
 	}
-	return outputFile;
+
+	while (FileExists(filePath))
+	{
+		CString newName;
+		newName.Format(_T("%s_%02d.mp3"), baseName, newIndex++);
+		filePath = CombinePath(baseFolder, newName);
+	}
+	return filePath;
 }
 //------------------------------------------------------------------------------
 
