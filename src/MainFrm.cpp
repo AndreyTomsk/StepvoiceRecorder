@@ -1731,7 +1731,8 @@ LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
 				OnBtnSTOP();
 			else
 			{
-				if (isSilence && newFileOnSilence)
+				//Creating new file when high signal detected
+				if (newFileOnSilence && !isSilence)
 				{
 					ASSERT(!m_recordingFileName.IsEmpty());
 					m_recordingFileName = Helpers::GetNewRecordingFilePath(m_recordingFileName);
