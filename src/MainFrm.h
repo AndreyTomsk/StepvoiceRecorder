@@ -20,7 +20,9 @@
 
 #include "Filter.h" //for NOTIFY_CALLBACK
 #include "FilterChain.h"
+#include "AutoGainControl.h"
 #include <vector>
+#include <memory>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -127,6 +129,7 @@ protected:
 	afx_msg void OnOptTop();
 	afx_msg void OnOptMonitor();
 	afx_msg void OnOptVAS();
+	afx_msg void OnOptAutoGainControl();
 	afx_msg void OnBtnOPEN();
 	afx_msg void OnBtnPLAY();
 	afx_msg void OnBtnSTOP();
@@ -143,6 +146,7 @@ protected:
 	afx_msg void OnUpdateSoundRec(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateOptMonitor(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateOptVAS(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateOptAutoGainControl(CCmdUI* pCmdUI);
 	afx_msg void OnSoundRecA();
 	afx_msg void OnSoundPlayA();
 	afx_msg void OnSoundBegin();
@@ -185,6 +189,7 @@ private:
 	HSTREAM m_bassPlaybackHandle;
 
 	std::vector<Parameter> m_filterNotifications;
+	std::auto_ptr<CAutoGainControl> m_autoGainControl;
 	
 	//This flag helps to avoid monitoring start on window destruction. We have
 	//a CRecordingSourceDlg::GetInstance() call to get a selected devices. If

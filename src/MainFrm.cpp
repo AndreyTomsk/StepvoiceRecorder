@@ -142,9 +142,11 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(IDM_OPT_EM, OnOptEm)
 	ON_COMMAND(IDM_OPT_MONITOR, OnOptMonitor)
 	ON_COMMAND(IDM_OPT_VAS, OnOptVAS)
+	ON_COMMAND(ID_TOOLS_AUTOGAINCONTROL, OnOptAutoGainControl)
 
 	ON_UPDATE_COMMAND_UI(IDM_OPT_MONITOR, OnUpdateOptMonitor)
 	ON_UPDATE_COMMAND_UI(IDM_OPT_VAS, OnUpdateOptVAS)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_AUTOGAINCONTROL, OnUpdateOptAutoGainControl)
 
 	ON_BN_CLICKED(IDB_BTNOPEN, OnBtnOPEN)
 	ON_BN_CLICKED(IDB_BTNPLAY, OnBtnPLAY)
@@ -367,11 +369,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_TrayIcon.ShowIcon();
 
 	// Setting up Monitoring and Voice Activation.
+
 	const bool monEnabled = RegistryConfig::GetOption(_T("General\\Sound Monitor"), 0);
 	const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
-
 	m_StatWnd.m_btnMon.SetCheck(monEnabled);
 	m_StatWnd.m_btnVas.SetCheck(vasEnabled);
+
+	if (RegistryConfig::GetOption(_T("General\\AutoGainControl"), false))
+		m_autoGainControl.reset(new CAutoGainControl());
 
 	//CString test = Helpers::GetNewRecordingFilePath(_T("D:\\Feb26_2016_02.mp3"));
 	return 0;
@@ -893,6 +898,8 @@ void CMainFrame::OnBtnSTOP()
 		ASSERT(!m_recordingFileName.IsEmpty());
 		KillTimer(2);
 		m_GraphWnd.StopUpdate(); //need it here, before recorder chain is destroyed
+		if (m_autoGainControl.get() != NULL)
+			m_autoGainControl->Stop();
 
 		m_recordingChain.GetFilter<IWasapiRecorder>()->Stop();
 		m_recordingChain.GetFilter<FileWriter>()->ForceClose();
@@ -1102,6 +1109,28 @@ void CMainFrame::OnOptVAS()
 }
 //------------------------------------------------------------------------------
 
+void CMainFrame::OnOptAutoGainControl()
+{
+	const bool doAutoGain = !RegistryConfig::GetOption(_T("General\\AutoGainControl"), false);
+	RegistryConfig::SetOption(_T("General\\AutoGainControl"), doAutoGain);
+
+	if (doAutoGain) {
+		IWasapiRecorder* recorder = NULL;
+		if (!m_recordingChain.IsEmpty())
+			recorder = m_recordingChain.GetFilter<IWasapiRecorder>();
+		if (!m_monitoringChain.IsEmpty())
+			recorder = m_monitoringChain.GetFilter<IWasapiRecorder>();
+		
+		m_autoGainControl.reset(new CAutoGainControl());
+		if (recorder != NULL)
+			m_autoGainControl->Start(recorder, &m_SliderVol);
+	}
+	else {
+		m_autoGainControl.reset();
+	}
+}
+//------------------------------------------------------------------------------
+
 void CMainFrame::OnUpdateOptMonitor(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetCheck(m_StatWnd.m_btnMon.IsChecked());
@@ -1113,6 +1142,12 @@ void CMainFrame::OnUpdateOptVAS(CCmdUI* pCmdUI)
 	pCmdUI->SetCheck(m_StatWnd.m_btnVas.IsChecked());
 }
 //------------------------------------------------------------------------------
+
+void CMainFrame::OnUpdateOptAutoGainControl(CCmdUI* pCmdUI)
+{
+	bool isAutoGain = RegistryConfig::GetOption(_T("General\\AutoGainControl"), false);
+	pCmdUI->SetCheck(isAutoGain);
+}
 
 //===========================================================================
 // ACCELERATORS
@@ -1497,6 +1532,9 @@ bool CMainFrame::MonitoringStart()
 	if (recorder->Start())
 	{
 		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, recorder);
+		if (m_autoGainControl.get() != NULL)
+			m_autoGainControl->Start(recorder, &m_SliderVol);
+
 		return true;
 	}
 	return false;
@@ -1510,6 +1548,9 @@ void CMainFrame::MonitoringStop()
 	if (!m_monitoringChain.IsEmpty())
 	{
 		m_GraphWnd.StopUpdate();
+		if (m_autoGainControl.get() != NULL)
+			m_autoGainControl->Stop();
+
 		m_monitoringChain.GetFilter<IWasapiRecorder>()->Stop();
 		m_monitoringChain.Empty();
 	}
@@ -1560,6 +1601,7 @@ void CMainFrame::UpdateInterface()
 	if (g_currentState == m_nState)
 		return;
 
+	IWasapiRecorder* recorder = NULL;
 	switch (m_nState)
 	{
 	case PLAY_STATE:
@@ -1582,8 +1624,10 @@ void CMainFrame::UpdateInterface()
 		break;
 
 	case RECORD_STATE:
-		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi,
-			m_recordingChain.GetFilter<IWasapiRecorder>());
+		recorder = m_recordingChain.GetFilter<IWasapiRecorder>();
+		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, recorder);		
+		if (m_autoGainControl.get() != NULL)
+			m_autoGainControl->Start(recorder, &m_SliderVol);
 
 		m_BtnREC.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
@@ -1592,6 +1636,9 @@ void CMainFrame::UpdateInterface()
 
 	case PAUSEREC_STATE:
 		m_GraphWnd.StopUpdate();
+		if (m_autoGainControl.get() != NULL)
+			m_autoGainControl->Stop();
+
 		m_BtnREC.SetIcon(IDI_REC);
 		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);
 		m_IcoWnd.SetNewIcon(ICON_PAUSER);

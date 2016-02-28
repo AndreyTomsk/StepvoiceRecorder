@@ -239,6 +239,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\AutoGainControl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Bass_Functions.cpp"
 				>
 			</File>
@@ -897,6 +901,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\AutoGainControl.h"
+				>
+			</File>
 			<File
 				RelativePath=".\BASS_Functions.h"
 				>

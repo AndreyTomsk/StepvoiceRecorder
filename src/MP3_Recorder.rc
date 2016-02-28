@@ -157,6 +157,7 @@ BEGIN
         MENUITEM "O&ptions...\aCtrl - P",       IDM_OPT_COM
         MENUITEM SEPARATOR
         MENUITEM "Input &Monitor",              IDM_OPT_MONITOR
+        MENUITEM "&Auto Gain Control",          ID_TOOLS_AUTOGAINCONTROL
         MENUITEM "&Sound Activation",           IDM_OPT_VAS
         MENUITEM SEPARATOR
         MENUITEM "Sound &Devices...",           IDM_OPT_SNDDEV
