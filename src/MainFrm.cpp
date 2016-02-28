@@ -1399,6 +1399,8 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
    m_SliderVol.GetRange(minpos, maxpos);
    curpos = m_SliderVol.GetPos();
 
+	LOG_DEBUG() << __FUNCTION__ << ":: m_recording_volume=" << m_recording_volume;
+
 	// Informing user
 	const int nPercent = int(100.0 * curpos / (maxpos - minpos));
 
