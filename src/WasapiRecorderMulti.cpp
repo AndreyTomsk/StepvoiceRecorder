@@ -180,7 +180,7 @@ float CWasapiRecorderMulti::GetVolume() const
 	if (!m_audioClients.empty())
 		return m_audioClients[0]->GetVolume();
 	else
-		return 1.0;
+		return 1.0f;
 }
 //---------------------------------------------------------------------------
 

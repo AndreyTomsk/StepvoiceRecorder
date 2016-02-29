@@ -135,14 +135,15 @@ BOOL CWasapiRecorder::IsStopped() const
 
 BOOL CWasapiRecorder::VolumeControlAvailable() const
 {
-	return GetVolume() != -1;
+	return BASS_WASAPI_GetVolume(BASS_WASAPI_CURVE_WINDOWS) != -1;
 }
 //---------------------------------------------------------------------------
 
 float CWasapiRecorder::GetVolume() const
 {
 	CurrentThreadDevice temp(m_deviceID);
-	return BASS_WASAPI_GetVolume(BASS_WASAPI_CURVE_WINDOWS);
+	const float resultVolume = BASS_WASAPI_GetVolume(BASS_WASAPI_CURVE_WINDOWS);
+	return (resultVolume != -1) ? resultVolume : 1.0f;
 }
 //---------------------------------------------------------------------------
 

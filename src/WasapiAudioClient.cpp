@@ -140,7 +140,7 @@ BOOL CWasapiAudioClient::IsStopped() const
 
 float CWasapiAudioClient::GetVolume() const
 {
-	float resultVolume = 0;
+	float resultVolume = 1.0f;
 	if (m_audioClient)
 	{
 		HRESULT hr;
