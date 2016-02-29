@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include <math.h> //for abs
+#include <cmath> //for float abs
 #include <vector>
 #include <algorithm>
 #include "SampleConverter.h"
@@ -197,7 +197,7 @@ float CWasapiRecorderMulti::GetPeakLevel(int channel) const
 	float maxLevel = 0;
 	for (unsigned i = 0; i < m_audioClients.size(); i++)
 	{
-		const float streamLevel = abs(m_audioClients[i]->GetPeakLevel(channel));
+		const float streamLevel = std::abs(m_audioClients[i]->GetPeakLevel(channel));
 		maxLevel = max(maxLevel, streamLevel);
 	}
 	return maxLevel;

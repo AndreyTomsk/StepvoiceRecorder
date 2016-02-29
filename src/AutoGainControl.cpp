@@ -3,6 +3,7 @@
 #include "Utility.h" //for CStopwatchMS
 #include <list>
 #include <algorithm>
+#include <cmath> //for float abs
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -98,7 +99,7 @@ DWORD WINAPI CAutoGainControl::AdjustmentProc(LPVOID lpParam)
 
 		if (maxLevels.size() == 1000)
 			maxLevels.pop_front();
-		maxLevels.push_back(abs(recorder->GetPeakLevel(-1))); //both channels peak
+		maxLevels.push_back(std::abs(recorder->GetPeakLevel(-1))); //both channels peak
 
 		//each 2 seconds - updating volume slider.
 

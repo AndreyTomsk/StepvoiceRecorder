@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <bass.h>
 #include <basswasapi.h>
-#include <math.h>
+#include <cmath>
 #include "Bass_Functions.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@ float GetMaxPeakDB(DWORD a_handle)
 	ASSERT(l_ch_level != -1);
 
 	DWORD l_level = max(LOWORD(l_ch_level), HIWORD(l_ch_level));
-	return 20 * log10(float(l_level) / 32768);
+	return 20 * std::log10(float(l_level) / 32768);
 }
 //---------------------------------------------------------------------------
 

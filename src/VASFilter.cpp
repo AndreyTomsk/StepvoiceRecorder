@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "VASFilter.h"
-#include <math.h> //for log10
+#include <cmath> //for log10
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -115,7 +115,7 @@ bool VasFilter::SilenceDetected(float* buffer, DWORD length) const
 {
 	for (unsigned i = 0; i < length; i++)
 	{
-		const float peakDB = 20 * log10(abs(buffer[i]));
+		const float peakDB = 20 * std::log10(std::abs(buffer[i]));
 		if (peakDB > m_tresholdDB)
 			return false;
 	}

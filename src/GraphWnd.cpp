@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "GraphWnd.h"
-#include <math.h>
+#include <cmath>
 #include <mmsystem.h> //for multimedia timer
 
 #ifdef _DEBUG
@@ -230,7 +230,7 @@ void CGraphWnd::DrawPeaks()
 		{
 			if (l_cur_peak > 0)
 			{
-				l_cur_peak = 20 * log10(l_cur_peak / MAXPEAK); //is < 0
+				l_cur_peak = 20 * std::log10(l_cur_peak / MAXPEAK); //is < 0
 				l_cur_peak = m_wndsize.cx-6 + l_cur_peak/GRAPH_MAXDB * (m_wndsize.cx-6);
 			}
 		}
