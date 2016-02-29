@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include <map>
-#include <math.h>
+#include <cmath>
 
 #include "MP3_Recorder.h"
 #include "MainFrm.h"
@@ -957,7 +957,9 @@ void CMainFrame::OnBtnREC()
 			else
 				recorder = new CWasapiRecorderMulti(selectedDevices, frequency, channels);
 
+			recorder->AddEvent(VolumeChangedEvent, this);
 			recorder->SetVolume(m_recording_volume);
+
 			frequency = recorder->GetActualFrequency();
 			channels = recorder->GetActualChannelCount();
 
@@ -1123,7 +1125,7 @@ void CMainFrame::OnOptAutoGainControl()
 		
 		m_autoGainControl.reset(new CAutoGainControl());
 		if (recorder != NULL)
-			m_autoGainControl->Start(recorder, &m_SliderVol);
+			m_autoGainControl->Start(recorder);
 	}
 	else {
 		m_autoGainControl.reset();
@@ -1394,12 +1396,10 @@ void CMainFrame::ProcessSliderTime(UINT nSBCode, UINT nPos)
 //------------------------------------------------------------------------------
 void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 {
-   // Get the minimum and maximum scroll-bar positions.
-   int minpos, maxpos, curpos;
-   m_SliderVol.GetRange(minpos, maxpos);
-   curpos = m_SliderVol.GetPos();
-
-	LOG_DEBUG() << __FUNCTION__ << ":: m_recording_volume=" << m_recording_volume;
+	// Get the minimum and maximum scroll-bar positions.
+	int minpos, maxpos, curpos;
+	m_SliderVol.GetRange(minpos, maxpos);
+	curpos = m_SliderVol.GetPos();
 
 	// Informing user
 	const int nPercent = int(100.0 * curpos / (maxpos - minpos));
@@ -1408,7 +1408,9 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 	if (!m_recordingFileName.IsEmpty() || m_nState == STOP_STATE)
 	{
 		strTitle.Format(IDS_VOLUME_TITLE, nPercent, CString(_T("recording")));
-		m_recording_volume = (float)nPercent / 100;
+		CSliderUpdateLock lock(m_SliderVol);
+
+		m_recording_volume = float(nPercent) / 100;
 		if (!m_recordingChain.IsEmpty())
 			m_recordingChain.GetFilter<IWasapiRecorder>()->SetVolume(m_recording_volume);
 		if (!m_monitoringChain.IsEmpty())
@@ -1438,8 +1440,22 @@ void CMainFrame::ProcessSliderVol(UINT nSBCode, UINT nPos)
 		break;
 	}
 }
-
 //------------------------------------------------------------------------------
+
+void CMainFrame::VolumeChangedEvent(float curVolume, void* user)
+{
+	CMainFrame* mainFrame = static_cast<CMainFrame*>(user);
+	mainFrame->m_recording_volume = curVolume; //volume changed from auto gain
+
+	if (!mainFrame->m_SliderVol.IsUpdating())
+		mainFrame->m_SliderVol.SetVolume(curVolume);
+
+	//LOG_DEBUG() << __FUNCTION__
+	//	<< ", isUpdating=" << mainFrame->m_SliderVol.IsUpdating()
+	//	<< ", curVolume=" << curVolume;
+}
+//------------------------------------------------------------------------------
+
 BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) 
 {
 	(zDelta > 0) ?  OnVolUpA() : OnVolDownA();
@@ -1528,6 +1544,7 @@ bool CMainFrame::MonitoringStart()
 	else
 		recorder = new CWasapiRecorderMulti(selectedDevices, 44100, 2);
 
+	recorder->AddEvent(VolumeChangedEvent, this);
 	recorder->SetVolume(m_recording_volume);
 
 	m_monitoringChain.AddFilter(dynamic_cast<Filter*>(recorder));
@@ -1535,7 +1552,7 @@ bool CMainFrame::MonitoringStart()
 	{
 		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, recorder);
 		if (m_autoGainControl.get() != NULL)
-			m_autoGainControl->Start(recorder, &m_SliderVol);
+			m_autoGainControl->Start(recorder);
 
 		return true;
 	}
@@ -1608,14 +1625,12 @@ void CMainFrame::UpdateInterface()
 	{
 	case PLAY_STATE:
 		m_GraphWnd.StartUpdate(PeaksCallback, LinesCallback, this);
+		m_SliderVol.SetVolume(m_playback_volume);
 
 		m_BtnPLAY.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_PLAY);
 		m_IcoWnd.SetNewIcon(ICON_PLAY);
 		m_BtnMIX_SEL.SetIcon(IDI_MIXLINE);
-
-		if (!m_SliderVol.IsDragging())
-			UpdateVolumeSlider(m_SliderVol, m_playback_volume);
 		break;
 
 	case PAUSEPLAY_STATE:
@@ -1629,7 +1644,7 @@ void CMainFrame::UpdateInterface()
 		recorder = m_recordingChain.GetFilter<IWasapiRecorder>();
 		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, recorder);		
 		if (m_autoGainControl.get() != NULL)
-			m_autoGainControl->Start(recorder, &m_SliderVol);
+			m_autoGainControl->Start(recorder);
 
 		m_BtnREC.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
@@ -1652,15 +1667,13 @@ void CMainFrame::UpdateInterface()
 			m_GraphWnd.StopUpdate();
 
 		m_SliderTime.SetCurPos(0);
+		m_SliderVol.SetVolume(m_recording_volume);
+
 		m_BtnREC.SetIcon(IDI_REC);
 		m_BtnPLAY.SetIcon(IDI_PLAY);
 		m_TrayIcon.SetIcon(IDI_TRAY_STOP);
 		m_IcoWnd.SetNewIcon(ICON_STOP);
 		m_BtnMIX_SEL.SetIcon(IDI_MIXLINE03);
-
-		if (!m_SliderVol.IsDragging())
-			UpdateVolumeSlider(m_SliderVol, m_recording_volume);
-
 		UpdateStatWindow();
 		break;
 	}
@@ -1668,17 +1681,6 @@ void CMainFrame::UpdateInterface()
 	UpdateButtonState(IDB_BTNPLAY);
 	UpdateButtonState(IDB_BTNREC);
 	g_currentState = m_nState;
-}
-//------------------------------------------------------------------------------
-
-void CMainFrame::UpdateVolumeSlider(CSliderVol& slider, float volumeLevel)
-{
-	const int rangeMin = slider.GetRangeMin();
-	const int rangeMax = slider.GetRangeMax();
-
-	ASSERT(volumeLevel >= 0 && volumeLevel <= 1);
-	const int volumePos = rangeMin + (rangeMax-rangeMin) * volumeLevel;
-	slider.SetPos(volumePos);
 }
 //------------------------------------------------------------------------------
 

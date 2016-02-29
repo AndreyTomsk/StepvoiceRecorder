@@ -18,6 +18,7 @@ END_MESSAGE_MAP()
 ////////////////////////////////////////////////////////////////////////////////
 CSliderVol::CSliderVol()
 	:m_is_dragging(false)
+	,m_is_updating(false)
 {
 	m_brush.CreateSolidBrush(RGB(0, 0, 0));
 	m_pen.CreatePen(PS_SOLID, 1, RGB(128, 128, 128)); // dark gray
@@ -83,3 +84,18 @@ afx_msg void CSliderVol::OnCustomDraw(NMHDR* pNotifyStruct, LRESULT* result)
     } 
 	*/
 }
+//---------------------------------------------------------------------------
+
+float CSliderVol::GetVolume() const
+{
+	return float(GetPos()-GetRangeMin()) / (GetRangeMax()-GetRangeMin());
+}
+//------------------------------------------------------------------------------
+
+void CSliderVol::SetVolume(float volumeLevel)
+{
+	volumeLevel = max(0.0f, min(volumeLevel, 1.0f));
+	SetPos(GetRangeMin() + int((GetRangeMax()-GetRangeMin()) * volumeLevel));
+}
+//------------------------------------------------------------------------------
+

@@ -15,7 +15,6 @@ static char THIS_FILE[] = __FILE__;
 
 CAutoGainControl::CAutoGainControl()
 	:m_recorder(NULL)
-	,m_volumeSlider(NULL)
 	,m_exitThread(false)
 	,m_thread(NULL)
 {
@@ -37,17 +36,15 @@ CAutoGainControl::~CAutoGainControl()
 }
 //---------------------------------------------------------------------------
 
-void CAutoGainControl::Start(IWasapiRecorder* recorder, CSliderCtrl* volumeSlider)
+void CAutoGainControl::Start(IWasapiRecorder* recorder)
 {
 	CMyLock lock(m_syncObject);
 
 	if (recorder != NULL && recorder->VolumeControlAvailable()) {
 		m_recorder = recorder;
-		m_volumeSlider = volumeSlider;
 	}
 	else {
 		m_recorder = NULL;
-		m_volumeSlider = NULL;
 	}
 
 	if (recorder != NULL && !recorder->VolumeControlAvailable())
@@ -59,7 +56,6 @@ void CAutoGainControl::Stop()
 {
 	CMyLock lock(m_syncObject);
 	m_recorder = NULL;
-	m_volumeSlider = NULL;
 }
 //---------------------------------------------------------------------------
 
@@ -74,30 +70,29 @@ DWORD WINAPI CAutoGainControl::AdjustmentProc(LPVOID lpParam)
 {
 	CStopwatchMS stopWatchMS;
 
-	//Last 10 seconds of peak levels. Each measure goes after 10msec, thus
-	//1000 elements required in list.
+	//Last 5 seconds of peak levels. Each measure goes after 25msec, thus
+	//200 elements required in list.
 	std::list<float> maxLevels;
-	maxLevels.resize(1000);
+	maxLevels.resize(200);
 
 	CAutoGainControl* agc = static_cast<CAutoGainControl*>(lpParam);
 	while (!agc->m_exitThread)
 	{
-		::Sleep(10);
+		::Sleep(25);
 		CMyLock lock(agc->m_syncObject);
 
 		//checking recorder state
 
 		IWasapiRecorder* recorder = agc->m_recorder;
-		if (recorder == NULL) {
+		if (recorder == NULL || recorder->IsPaused()) {
 			maxLevels.clear();
+			stopWatchMS.Reset();
 			continue;
 		}
-		if (recorder->IsPaused())
-			continue;
 
 		//updating maxLevels list
 
-		if (maxLevels.size() == 1000)
+		if (maxLevels.size() == 200)
 			maxLevels.pop_front();
 		maxLevels.push_back(std::abs(recorder->GetPeakLevel(-1))); //both channels peak
 
@@ -108,29 +103,20 @@ DWORD WINAPI CAutoGainControl::AdjustmentProc(LPVOID lpParam)
 
 		stopWatchMS.Reset();
 		const float curMaxLevel = *std::max_element(maxLevels.begin(), maxLevels.end());
+		//LOG_DEBUG() << "curMaxLevel=" << curMaxLevel;
 
 		//if (curMaxLevel >= 0.9) - decrease volume, if possible.
 		//if (curMexLevel <  0.8) - increase volume, if possible.
 		//else - do nothing.
 
-		CSliderCtrl* vs = agc->m_volumeSlider;
-		if (curMaxLevel >= 0.9 && (vs->GetPos() > vs->GetRangeMin())) {
-			LOG_DEBUG() << __FUNCTION__ << "::volume down, maxLevel=" << curMaxLevel;
-
-			int prevPos = max(vs->GetPos() - 2*vs->GetPageSize(), vs->GetRangeMin());
-			vs->SetPos(prevPos);
-
-			//normalizing value to exclude from next check (test).
-			//*itMaxLevel = 0.85f;
-			//maxLevels.remove_if(too_loud());
+		if (curMaxLevel >= 0.9f) {
+			recorder->SetVolume(max(recorder->GetVolume() - 0.1f, 0.0f)); //-10%
+			//normalizing value to exclude from next check (testing).
 			std::replace_if(maxLevels.begin(), maxLevels.end(), TooLoud(0.9f), 0.85f);
 		}
 		else
-		if (curMaxLevel < 0.8 && (vs->GetPos() < vs->GetRangeMax())) {
-			LOG_DEBUG() << __FUNCTION__ << "::volume up, maxLevel=" << curMaxLevel;
-
-			int nextPos = min(vs->GetPos() + 2*vs->GetPageSize(), vs->GetRangeMax());
-			vs->SetPos(nextPos);
+		if (curMaxLevel < 0.8) {
+			recorder->SetVolume(min(recorder->GetVolume() + 0.1f, 1.0f)); //+10%
 		}
 	}
 	return 0;

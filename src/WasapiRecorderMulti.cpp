@@ -186,6 +186,8 @@ float CWasapiRecorderMulti::GetVolume() const
 
 BOOL CWasapiRecorderMulti::SetVolume(float volume)
 {
+	LOG_DEBUG() << __FUNCTION__ << ", volume=" << volume;
+
 	for (unsigned i = 0; i < m_audioClients.size(); i++)
 		m_audioClients[i]->SetVolume(volume);
 	return TRUE;

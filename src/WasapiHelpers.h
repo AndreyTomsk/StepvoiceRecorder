@@ -8,6 +8,9 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
+typedef void (*OnVolumeChanged)(float curVolume, void* user);
+typedef std::pair<OnVolumeChanged, void*> PairVolumeChanged;
+
 class IWasapiRecorder
 {
 public:
@@ -24,12 +27,18 @@ public:
 	virtual BOOL  VolumeControlAvailable() const = 0;
 	virtual float GetVolume() const = 0;
 	virtual BOOL  SetVolume(float volume) = 0; //0..1
+	void AddEvent(OnVolumeChanged ove, void* userData);
 
 	virtual float GetPeakLevel(int channel) const = 0; //0 = first channel, -1 = all channels
 	virtual DWORD GetData(void* buffer, DWORD lengthBytes) const = 0; //returns -1 if error
 
 	//For compatibility with GraphWnd callback
 	virtual DWORD GetChannelData(int channel, float* buffer, int bufferSize) = 0;
+
+protected:
+	void CallVolumeChangedEvents(float curVolume) const;
+private:
+	std::vector<PairVolumeChanged> m_volumeEvents;
 };
 
 /////////////////////////////////////////////////////////////////////////////

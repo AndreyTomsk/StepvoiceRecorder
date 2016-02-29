@@ -10,12 +10,11 @@ public:
 	CAutoGainControl();
 	~CAutoGainControl();
 
-	void Start(IWasapiRecorder* recorder, CSliderCtrl* volumeSlider);
+	void Start(IWasapiRecorder* recorder);
 	void Stop();
 
 private:
 	IWasapiRecorder* m_recorder;
-	CSliderCtrl* m_volumeSlider;
 
 	CMyCriticalSection m_syncObject;
 	static DWORD WINAPI AdjustmentProc(LPVOID lpParam);

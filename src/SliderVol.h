@@ -14,9 +14,14 @@ public:
 
 public:
 	bool IsDragging() const { return m_is_dragging; }
+	bool IsUpdating() const { return m_is_updating; }
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CSliderVol)
 	//}}AFX_VIRTUAL
+
+	//volumeLevel - in range 0..1.
+	void  SetVolume(float volumeLevel);
+	float GetVolume() const;
 
 protected:
 	//{{AFX_MSG(CSliderVol)
@@ -28,10 +33,22 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
+	friend class CSliderUpdateLock;
 	bool m_is_dragging;
+	bool m_is_updating;
 
 	CBrush m_brush;
 	CPen m_pen;
+};
+//------------------------------------------------------------------------------
+
+class CSliderUpdateLock
+{
+public:
+	CSliderUpdateLock(CSliderVol& slider) : m_slider(slider) { m_slider.m_is_updating = true; }
+	~CSliderUpdateLock() { m_slider.m_is_updating = false; }
+private:
+	CSliderVol& m_slider;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

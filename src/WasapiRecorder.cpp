@@ -2,6 +2,7 @@
 #include <basswasapi.h>
 #include "WasapiRecorder.h"
 #include "WasapiHelpers.h"
+#include <algorithm>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -150,7 +151,16 @@ float CWasapiRecorder::GetVolume() const
 BOOL CWasapiRecorder::SetVolume(float volume)
 {
 	CurrentThreadDevice temp(m_deviceID);
-	return BASS_WASAPI_SetVolume(BASS_WASAPI_CURVE_WINDOWS, volume);
+	LOG_DEBUG() << __FUNCTION__ << ", volume=" << volume;
+	
+	const float initialVolume = GetVolume();
+	BOOL result = BASS_WASAPI_SetVolume(BASS_WASAPI_CURVE_WINDOWS, volume);
+
+	const float curVolume = GetVolume();
+	if (curVolume != initialVolume)
+		CallVolumeChangedEvents(curVolume);
+
+	return result;
 }
 //---------------------------------------------------------------------------
 

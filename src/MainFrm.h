@@ -46,10 +46,6 @@ class CMainFrame : public CFrameWnd
 	static float PeaksCallback_Wasapi(int a_channel, void* userData);
 	static int   LinesCallback_Wasapi(int a_channel, float* a_buffer, int a_size, void* userData);
 
-	float m_playback_volume;
-	float m_recording_volume;
-	void UpdateVolumeSlider(CSliderVol& slider, float volumeLevel);
-
 	bool CanPlay() const;
 	bool CanRecord() const;
 
@@ -190,7 +186,11 @@ private:
 
 	std::vector<Parameter> m_filterNotifications;
 	std::auto_ptr<CAutoGainControl> m_autoGainControl;
-	
+
+	float m_playback_volume;
+	float m_recording_volume;
+	static void VolumeChangedEvent(float curVolume, void* user);
+
 	//This flag helps to avoid monitoring start on window destruction. We have
 	//a CRecordingSourceDlg::GetInstance() call to get a selected devices. If
 	//this object was created during WM_DESTROY processing, PostNcDestroy not

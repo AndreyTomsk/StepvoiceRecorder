@@ -12,6 +12,28 @@ static char THIS_FILE[] = __FILE__;
 
 /////////////////////////////////////////////////////////////////////////////
 
+void IWasapiRecorder::AddEvent(OnVolumeChanged ove, void* userData)
+{
+	m_volumeEvents.push_back(PairVolumeChanged(ove, userData));
+}
+//---------------------------------------------------------------------------
+
+struct SendVolChanged
+{
+	SendVolChanged(float curVolume) : m_volume(curVolume) {}
+	void operator()(const PairVolumeChanged& p) { (p.first)(m_volume, p.second); }
+	float m_volume;
+};
+
+//---------------------------------------------------------------------------
+
+void IWasapiRecorder::CallVolumeChangedEvents(float curVolume) const
+{
+	std::for_each(m_volumeEvents.begin(), m_volumeEvents.end(), SendVolChanged(curVolume));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 namespace WasapiHelpers
 {
 //---------------------------------------------------------------------------
