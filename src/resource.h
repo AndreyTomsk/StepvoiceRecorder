@@ -78,7 +78,6 @@
 #define IDB_BTN_MON                     219
 #define IDB_PEAKMETER_MENU              220
 #define IDD_VAS                         239
-#define IDD_TIMERDLG                    240
 #define IDD_RECORDING_SOURCE            241
 #define IDI_MIXLINE                     244
 #define IDI_MIXLINE03                   248
@@ -122,8 +121,6 @@
 #define IDC_VAS_SILENTPAUSE             1081
 #define IDC_VAS_SILENTSTOP              1082
 #define IDC_VAS_THRESHOLD               1085
-#define IDC_TDLG_ICON                   1126
-#define IDC_TDLG_TEXT                   1127
 #define IDC_STATIC0_1                   1141
 #define IDC_STATIC1_1                   1142
 #define IDC_STATIC0_0                   1143

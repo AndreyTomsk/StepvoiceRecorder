@@ -13,8 +13,6 @@
 
 #include "SystemTray.h"
 
-#include "TimerDlg.h"
-
 #include <bass.h>
 #include "VisualizationData.h"
 
