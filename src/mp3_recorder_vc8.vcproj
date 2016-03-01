@@ -870,10 +870,6 @@
 				RelativePath=".\WasapiRecorderMulti.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\WasapiRecorderStream.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1109,10 +1105,6 @@
 			</File>
 			<File
 				RelativePath=".\WasapiRecorderMulti.h"
-				>
-			</File>
-			<File
-				RelativePath=".\WasapiRecorderStream.h"
 				>
 			</File>
 			<File
