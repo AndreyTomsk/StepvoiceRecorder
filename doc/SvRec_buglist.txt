@@ -1,11 +1,13 @@
 -----------------------------------------------------------------------------
 Milestone: "Version 2.1". Main goals:
 20090125 (enh) + VAS option: create new file when recording resumes.
-20080309 (enh) - Automatic recording levels adjustment.
+20080309 (enh) + Automatic recording levels adjustment.
 ???????? (enh) - split project to free and paid (Pro) versions.
 ???????? (enh) - recording from multiple sources only for Pro version.
+
 ???????? (enh) - remove ASProtect dependency.
 ???????? (enh) - install google analytics as website visits logger.
+
 -----------------------------------------------------------------------------
 
 Todo (Archive, some items not actual now)
