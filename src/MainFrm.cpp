@@ -898,8 +898,8 @@ void CMainFrame::OnBtnSTOP()
 		ASSERT(!m_recordingFileName.IsEmpty());
 		KillTimer(2);
 		m_GraphWnd.StopUpdate(); //need it here, before recorder chain is destroyed
-		if (m_autoGainControl.get() != NULL)
-			m_autoGainControl->Stop();
+		//if (m_autoGainControl.get() != NULL)
+		//	m_autoGainControl->Stop();
 
 		m_recordingChain.GetFilter<IWasapiRecorder>()->Stop();
 		m_recordingChain.GetFilter<FileWriter>()->ForceClose();
@@ -1117,15 +1117,21 @@ void CMainFrame::OnOptAutoGainControl()
 	RegistryConfig::SetOption(_T("General\\AutoGainControl"), doAutoGain);
 
 	if (doAutoGain) {
+		/*
 		IWasapiRecorder* recorder = NULL;
-		if (!m_recordingChain.IsEmpty())
-			recorder = m_recordingChain.GetFilter<IWasapiRecorder>();
 		if (!m_monitoringChain.IsEmpty())
 			recorder = m_monitoringChain.GetFilter<IWasapiRecorder>();
-		
+		if (!m_recordingChain.IsEmpty())
+			recorder = m_recordingChain.GetFilter<IWasapiRecorder>();
+
 		m_autoGainControl.reset(new CAutoGainControl());
 		if (recorder != NULL)
 			m_autoGainControl->Start(recorder);
+		*/
+		if (m_autoGainControl.get() == NULL)
+			m_autoGainControl.reset(new CAutoGainControl());
+		if (!m_monitoringChain.IsEmpty())
+			m_autoGainControl->Start(m_monitoringChain.GetFilter<IWasapiRecorder>());
 	}
 	else {
 		m_autoGainControl.reset();
@@ -1643,8 +1649,8 @@ void CMainFrame::UpdateInterface()
 	case RECORD_STATE:
 		recorder = m_recordingChain.GetFilter<IWasapiRecorder>();
 		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, recorder);		
-		if (m_autoGainControl.get() != NULL)
-			m_autoGainControl->Start(recorder);
+		//if (m_autoGainControl.get() != NULL)
+		//	m_autoGainControl->Start(recorder);
 
 		m_BtnREC.SetIcon(IDI_PAUSE);
 		m_TrayIcon.SetIcon(IDI_TRAY_REC);
@@ -1653,8 +1659,8 @@ void CMainFrame::UpdateInterface()
 
 	case PAUSEREC_STATE:
 		m_GraphWnd.StopUpdate();
-		if (m_autoGainControl.get() != NULL)
-			m_autoGainControl->Stop();
+		//if (m_autoGainControl.get() != NULL)
+		//	m_autoGainControl->Stop();
 
 		m_BtnREC.SetIcon(IDI_REC);
 		m_TrayIcon.SetIcon(IDI_TRAY_PAUSE);

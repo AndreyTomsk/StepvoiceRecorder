@@ -39,16 +39,12 @@ CAutoGainControl::~CAutoGainControl()
 void CAutoGainControl::Start(IWasapiRecorder* recorder)
 {
 	CMyLock lock(m_syncObject);
+	m_recorder = recorder;
 
-	if (recorder != NULL && recorder->VolumeControlAvailable()) {
-		m_recorder = recorder;
-	}
-	else {
+	if (m_recorder != NULL && !m_recorder->VolumeControlAvailable()) {
 		m_recorder = NULL;
-	}
-
-	if (recorder != NULL && !recorder->VolumeControlAvailable())
 		LOG_WARNING() << __FUNCTION__ <<", volume control not available.";
+	}
 }
 //---------------------------------------------------------------------------
 
