@@ -155,7 +155,7 @@ BOOL CWasapiRecorder::SetVolume(float newVolume)
 	if (newVolume == GetVolume())
 		return TRUE;
 
-	LOG_DEBUG() << __FUNCTION__ << ", newVolume=" << newVolume;
+	//LOG_DEBUG() << __FUNCTION__ << ", newVolume=" << newVolume;
 	
 	BOOL result = BASS_WASAPI_SetVolume(BASS_WASAPI_CURVE_WINDOWS, newVolume);
 	CallVolumeChangedEvents(newVolume);

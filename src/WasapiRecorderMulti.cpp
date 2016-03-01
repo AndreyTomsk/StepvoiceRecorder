@@ -192,7 +192,7 @@ BOOL CWasapiRecorderMulti::SetVolume(float newVolume)
 {
 	if (newVolume != GetVolume())
 	{
-		LOG_DEBUG() << __FUNCTION__ << ", volume=" << newVolume;
+		//LOG_DEBUG() << __FUNCTION__ << ", volume=" << newVolume;
 		for (unsigned i = 0; i < m_audioClients.size(); i++)
 			m_audioClients[i]->SetVolume(newVolume);
 	}

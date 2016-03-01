@@ -1,4 +1,11 @@
 -----------------------------------------------------------------------------
+Milestone: "Version 2.2". Main goals:
+20080309 (enh) - Make a portable build.
+20080810 (enh) - Store program options in a config (XML) file.
+20160301 (enh) - optimize config class (RegisterOption, load at startup, etc.).
+...
+
+-----------------------------------------------------------------------------
 Milestone: "Version 2.1". Main goals:
 20090125 (enh) + VAS option: create new file when recording resumes.
 20080309 (enh) + Automatic recording levels adjustment.
@@ -21,8 +28,6 @@ Todo (Archive, some items not actual now)
 
 20100110 (enh) - "remember last used stream" checkbox (for command line run).
 
-20080810 (enh) - Move program settings to a config (XML) file.
-20080309 (enh) - Make a portable build.
 20080309 (enh) - Split long recording into peices.
 ???????? (enh) - Audio normalizer and compressor filters.
 
