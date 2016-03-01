@@ -8,6 +8,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
+
 BEGIN_MESSAGE_MAP(CSliderVol, CSliderCtrl)
 	ON_WM_SETFOCUS()
 	ON_WM_LBUTTONDOWN()
@@ -16,19 +17,22 @@ BEGIN_MESSAGE_MAP(CSliderVol, CSliderCtrl)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
+
 CSliderVol::CSliderVol()
 	:m_is_dragging(false)
 	,m_is_updating(false)
+	,m_showAutomaticVolume(false)
 {
 	m_brush.CreateSolidBrush(RGB(0, 0, 0));
 	m_pen.CreatePen(PS_SOLID, 1, RGB(128, 128, 128)); // dark gray
 }
+//---------------------------------------------------------------------------
 
 CSliderVol::~CSliderVol()
 {
 }
+//---------------------------------------------------------------------------
 
-////////////////////////////////////////////////////////////////////////////////
 void CSliderVol::OnSetFocus(CWnd* pOldWnd) 
 {
 	CSliderCtrl::OnSetFocus(pOldWnd);
@@ -37,24 +41,30 @@ void CSliderVol::OnSetFocus(CWnd* pOldWnd)
 	//GetParent()->PostMessage(WM_HSCROLL, MAKEWPARAM(SB_ENDSCROLL, 0),
 	//	(LPARAM)GetSafeHwnd());
 }
+//---------------------------------------------------------------------------
 
 void CSliderVol::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	m_is_dragging = true;
 	CSliderCtrl::OnLButtonDown(nFlags, point);
 }
+//---------------------------------------------------------------------------
 
 void CSliderVol::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	m_is_dragging = false;
 	CSliderCtrl::OnLButtonUp(nFlags, point);
 }
+//---------------------------------------------------------------------------
 
 afx_msg void CSliderVol::OnCustomDraw(NMHDR* pNotifyStruct, LRESULT* result)
 {
+	if (!m_showAutomaticVolume)
+		return;
+
 	//changing style of thumb control, for details see:
 	//http://www.codeproject.com/Articles/8985/Customizing-the-Appearance-of-CSliderCtrl-Using-Cu
-	/*
+
     NMCUSTOMDRAW nmcd = *(LPNMCUSTOMDRAW)pNotifyStruct;
 
     if (nmcd.dwDrawStage == CDDS_PREPAINT)
@@ -81,8 +91,7 @@ afx_msg void CSliderVol::OnCustomDraw(NMHDR* pNotifyStruct, LRESULT* result)
 
             *result = CDRF_SKIPDEFAULT;
         }
-    } 
-	*/
+    }
 }
 //---------------------------------------------------------------------------
 
@@ -99,3 +108,13 @@ void CSliderVol::SetVolume(float volumeLevel)
 }
 //------------------------------------------------------------------------------
 
+void CSliderVol::ShowAutomaticVolume(bool autoVolume)
+{
+	if (m_showAutomaticVolume != autoVolume)
+	{
+		m_showAutomaticVolume = autoVolume;
+		this->EnableWindow(!autoVolume);
+		Invalidate();
+	}
+}
+//------------------------------------------------------------------------------

@@ -23,6 +23,8 @@ public:
 	void  SetVolume(float volumeLevel);
 	float GetVolume() const;
 
+	void ShowAutomaticVolume(bool autoVolume);
+
 protected:
 	//{{AFX_MSG(CSliderVol)
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
@@ -36,6 +38,7 @@ private:
 	friend class CSliderUpdateLock;
 	bool m_is_dragging;
 	bool m_is_updating;
+	bool m_showAutomaticVolume;
 
 	CBrush m_brush;
 	CPen m_pen;

@@ -1130,11 +1130,14 @@ void CMainFrame::OnOptAutoGainControl()
 		*/
 		if (m_autoGainControl.get() == NULL)
 			m_autoGainControl.reset(new CAutoGainControl());
-		if (!m_monitoringChain.IsEmpty())
+		if (!m_monitoringChain.IsEmpty()) {
 			m_autoGainControl->Start(m_monitoringChain.GetFilter<IWasapiRecorder>());
+			m_SliderVol.ShowAutomaticVolume(true);
+		}
 	}
 	else {
 		m_autoGainControl.reset();
+		m_SliderVol.ShowAutomaticVolume(false);
 	}
 }
 //------------------------------------------------------------------------------
@@ -1558,8 +1561,10 @@ bool CMainFrame::MonitoringStart()
 	{
 		m_GraphWnd.StartUpdate(PeaksCallback_Wasapi, LinesCallback_Wasapi, recorder);
 		if (m_autoGainControl.get() != NULL)
+		{
 			m_autoGainControl->Start(recorder);
-
+			m_SliderVol.ShowAutomaticVolume(true);
+		}
 		return true;
 	}
 	return false;
@@ -1574,7 +1579,10 @@ void CMainFrame::MonitoringStop()
 	{
 		m_GraphWnd.StopUpdate();
 		if (m_autoGainControl.get() != NULL)
+		{
 			m_autoGainControl->Stop();
+			m_SliderVol.ShowAutomaticVolume(false);
+		}
 
 		m_monitoringChain.GetFilter<IWasapiRecorder>()->Stop();
 		m_monitoringChain.Empty();
