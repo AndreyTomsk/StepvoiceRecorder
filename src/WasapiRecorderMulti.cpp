@@ -177,19 +177,25 @@ BOOL CWasapiRecorderMulti::VolumeControlAvailable() const
 
 float CWasapiRecorderMulti::GetVolume() const
 {
-	if (!m_audioClients.empty())
-		return m_audioClients[0]->GetVolume();
-	else
-		return 1.0f;
+	//Get minimal volume of all devices. Devices that doesn't have volume
+	//control (loopback, etc.) return 1.0f.
+
+	float curVolume = 1.0f;
+	for (unsigned i = 0; i < m_audioClients.size(); i++)
+		curVolume = min(curVolume, m_audioClients[i]->GetVolume());
+
+	return curVolume;
 }
 //---------------------------------------------------------------------------
 
-BOOL CWasapiRecorderMulti::SetVolume(float volume)
+BOOL CWasapiRecorderMulti::SetVolume(float newVolume)
 {
-	LOG_DEBUG() << __FUNCTION__ << ", volume=" << volume;
-
-	for (unsigned i = 0; i < m_audioClients.size(); i++)
-		m_audioClients[i]->SetVolume(volume);
+	if (newVolume != GetVolume())
+	{
+		LOG_DEBUG() << __FUNCTION__ << ", volume=" << newVolume;
+		for (unsigned i = 0; i < m_audioClients.size(); i++)
+			m_audioClients[i]->SetVolume(newVolume);
+	}
 	return TRUE;
 }
 //---------------------------------------------------------------------------

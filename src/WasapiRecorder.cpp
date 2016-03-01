@@ -136,6 +136,7 @@ BOOL CWasapiRecorder::IsStopped() const
 
 BOOL CWasapiRecorder::VolumeControlAvailable() const
 {
+	CurrentThreadDevice temp(m_deviceID);
 	return BASS_WASAPI_GetVolume(BASS_WASAPI_CURVE_WINDOWS) != -1;
 }
 //---------------------------------------------------------------------------
@@ -148,18 +149,16 @@ float CWasapiRecorder::GetVolume() const
 }
 //---------------------------------------------------------------------------
 
-BOOL CWasapiRecorder::SetVolume(float volume)
+BOOL CWasapiRecorder::SetVolume(float newVolume)
 {
 	CurrentThreadDevice temp(m_deviceID);
-	LOG_DEBUG() << __FUNCTION__ << ", volume=" << volume;
+	if (newVolume == GetVolume())
+		return TRUE;
+
+	LOG_DEBUG() << __FUNCTION__ << ", newVolume=" << newVolume;
 	
-	const float initialVolume = GetVolume();
-	BOOL result = BASS_WASAPI_SetVolume(BASS_WASAPI_CURVE_WINDOWS, volume);
-
-	const float curVolume = GetVolume();
-	if (curVolume != initialVolume)
-		CallVolumeChangedEvents(curVolume);
-
+	BOOL result = BASS_WASAPI_SetVolume(BASS_WASAPI_CURVE_WINDOWS, newVolume);
+	CallVolumeChangedEvents(newVolume);
 	return result;
 }
 //---------------------------------------------------------------------------
