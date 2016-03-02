@@ -18,7 +18,7 @@ BEGIN_MESSAGE_MAP(CRecordingSourceDlg, CDialog)
 	//}}AFX_MSG_MAP
 	ON_WM_ACTIVATE()
 	ON_WM_TIMER()
-	ON_BN_CLICKED(IDC_RECORDING_DEVICE, OnRecodingSourceItemClicked)
+	ON_MESSAGE(WM_RECSOURCE_ITEM_CLICKED, OnRecodingSourceItemClicked)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,7 @@ CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 
 CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 	:CDialog(CRecordingSourceDlg::IDD, pParent)
+	,m_multiSelection(true)
 {
 }
 //---------------------------------------------------------------------------
@@ -220,7 +221,7 @@ void CRecordingSourceDlg::CreateRecordingSourceItems(const WasapiHelpers::Device
 		const int top = itemHeight*i;
 		const CRect itemRect(0+margin, top+margin, itemWidth-2*margin, top+margin+itemHeight);
 
-		CRecordingSourceItem* newItem = new CRecordingSourceItem(deviceName);
+		CRecordingSourceItem* newItem = new CRecordingSourceItem(deviceName, m_multiSelection);
 		newItem->Create(NULL, NULL, WS_CHILD|WS_VISIBLE, itemRect, this, IDW_RECORDING_ITEM+i);
 		m_recordingSourceItems.push_back(newItem);
 	}
@@ -260,24 +261,41 @@ void CRecordingSourceDlg::UpdateRecordingSourceItems()
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceDlg::OnRecodingSourceItemClicked()
+LRESULT CRecordingSourceDlg::OnRecodingSourceItemClicked(WPARAM wParam, LPARAM lParam)
 {
+	CRecordingSourceItem* clickedItem = reinterpret_cast<CRecordingSourceItem*>(wParam);
+	ASSERT(clickedItem != NULL);
+
 	//Filling selected devices list and notifying parent.
 
 	ASSERT(m_recordingSourceItems.size() == m_allDevices.size());
 	m_selectedDevices.clear();
 	for (unsigned i = 0; i < m_allDevices.size(); i++)
 	{
+		CRecordingSourceItem* curItem = m_recordingSourceItems[i];
 		const WasapiHelpers::DeviceIdNamePair p = m_allDevices[i];
 		const CString name = p.second;
 		const DWORD id = p.first;
-		if (m_recordingSourceItems[i]->GetCheck())
-			m_selectedDevices.push_back(WasapiHelpers::DeviceIdNamePair(id, name));
+
+		if (m_multiSelection) {
+			if (curItem->GetCheck())
+				m_selectedDevices.push_back(WasapiHelpers::DeviceIdNamePair(id, name));
+		}
+		else {
+			//In single selection, keep a selected item checked, uncheck others.
+			if (curItem == clickedItem) {
+				m_selectedDevices.push_back(WasapiHelpers::DeviceIdNamePair(id, name));
+				curItem->SetCheck(true);
+			}
+			else
+				curItem->SetCheck(false);
+		}
 	}
 	if (m_selectedDevices.empty())
 		m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
 
 	this->GetParent()->PostMessage(WM_RECSOURCE_CHANGED);
+	return 0;
 }
 //---------------------------------------------------------------------------
 
@@ -287,6 +305,9 @@ void CRecordingSourceDlg::LoadSelectedDevicesFromConfig()
 	m_selectedDevices = WasapiHelpers::DevicesFromString(deviceNames, m_allDevices);
 	if (m_selectedDevices.empty())
 		m_selectedDevices.push_back(WasapiHelpers::GetDefaultRecordingDevice());
+
+	if (!m_multiSelection) //keep single device selected.
+		m_selectedDevices.resize(1);
 }
 //---------------------------------------------------------------------------
 

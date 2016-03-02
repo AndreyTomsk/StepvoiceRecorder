@@ -1,10 +1,15 @@
 #include "stdafx.h"
 #include "RecordingSourceItem.h"
+#include "RecordingSourceDlg.h" //for WM_RECSOURCE_ITEM_CLICKED
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
+#endif
+
+#ifndef OBM_CHECK
+#define OBM_CHECK 32760 // from winuser.h
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -20,12 +25,13 @@ BEGIN_MESSAGE_MAP(CRecordingSourceItem, CWnd)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-CRecordingSourceItem::CRecordingSourceItem(const CString& caption)
-:m_caption(caption)
-,m_mouseOverWindow(false)
-,m_mouseOverCheckbox(false)
-,m_curLevel(0)
-,m_oldLevel(0)
+CRecordingSourceItem::CRecordingSourceItem(const CString& caption, bool showCheckbox)
+	:m_caption(caption)
+	,m_mouseOverWindow(false)
+	,m_mouseOverCheckbox(false)
+	,m_showCheckbox(showCheckbox)
+	,m_curLevel(0)
+	,m_oldLevel(0)
 {
 }
 //---------------------------------------------------------------------------
@@ -48,7 +54,11 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	const CRect rLevel    = CRect(wndSize.cx-51, 1, wndSize.cx-1, wndSize.cy-1);
 	const CRect rLabel    = CRect(rCheckbox.right, 1, rLevel.left, wndSize.cy-1);
 
-	m_itemCheckBox.Create(NULL, WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX, rCheckbox, this, IDC_RECORDING_DEVICE);
+	DWORD checkboxStyle = WS_CHILD|BS_AUTOCHECKBOX;
+	if (m_showCheckbox)
+		checkboxStyle |= WS_VISIBLE;
+
+	m_itemCheckBox.Create(NULL, checkboxStyle, rCheckbox, this, IDC_RECORDING_DEVICE);
 	m_itemLabel.Create(m_caption, WS_CHILD|WS_VISIBLE|SS_WORDELLIPSIS|SS_CENTERIMAGE, rLabel, this);
 	//m_itemLevel.Create(_T("0%"), WS_CHILD|WS_VISIBLE|SS_CENTER|SS_CENTERIMAGE, rLevel, this);
 
@@ -75,6 +85,9 @@ int CRecordingSourceItem::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_peakMeterBitmap.LoadBitmap(IDB_PEAKMETER_MENU);
 	m_peakMeterDC.SelectObject(&m_peakMeterBitmap);
 
+	m_checkMarkDC.CreateCompatibleDC(&dc);
+	m_checkMarkBitmap.Attach(::LoadBitmap(NULL, MAKEINTRESOURCE(OBM_CHECK)));
+	m_checkMarkDC.SelectObject(&m_checkMarkBitmap);
 	return 0;
 }
 //---------------------------------------------------------------------------
@@ -126,6 +139,15 @@ void CRecordingSourceItem::OnPaint()
 	dc.TransparentBlt(r.left, r.top, displayLevel, bm.bmHeight/2, &m_peakMeterDC,
 		0, bm.bmHeight/2, displayLevel, bm.bmHeight/2, RGB(255, 0, 255));
 
+	// If checkbox not visible, displaying check mark.
+
+	if (!m_showCheckbox && GetCheck())
+	{
+		m_checkMarkBitmap.GetObject(sizeof(BITMAP),&bm);
+		dc.TransparentBlt(7, 5, bm.bmWidth, bm.bmHeight, &m_checkMarkDC,
+			0, 0, bm.bmWidth, bm.bmHeight, RGB(255, 0, 255));
+	}
+
 	CWnd::OnPaint();
 }
 //---------------------------------------------------------------------------
@@ -144,6 +166,14 @@ void CRecordingSourceItem::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	SetCheck(!GetCheck());
 	CWnd::OnLButtonDown(nFlags, point);
+
+	OnCheckboxClicked();
+}
+//---------------------------------------------------------------------------
+
+void CRecordingSourceItem::OnCheckboxClicked()
+{
+	GetParent()->PostMessage(WM_RECSOURCE_ITEM_CLICKED, WPARAM(this));
 }
 //---------------------------------------------------------------------------
 
@@ -153,13 +183,16 @@ bool CRecordingSourceItem::GetCheck() const
 }
 //---------------------------------------------------------------------------
 
-void CRecordingSourceItem::SetCheck(bool check)
+void CRecordingSourceItem::SetCheck(bool newCheck)
 {
-	const bool isChecked = (m_itemCheckBox.GetCheck() == BST_CHECKED);
-	if (check != isChecked)
-	{
-		m_itemCheckBox.SetCheck(check ? BST_CHECKED : BST_UNCHECKED);
-		OnCheckboxClicked();
+	if (GetCheck() != newCheck) {
+		m_itemCheckBox.SetCheck(newCheck ? BST_CHECKED : BST_UNCHECKED);
+
+		//Forcing check mark re-paint
+		if (!m_showCheckbox) {
+			const CRect rCheckbox = CRect(8, 1, 30, 25);
+			InvalidateRect(&rCheckbox);
+		}
 	}
 }
 //---------------------------------------------------------------------------
@@ -180,13 +213,6 @@ void CRecordingSourceItem::SetLevel(unsigned levelPercent)
 		m_oldLevel = m_curLevel;
 		Invalidate();
 	}
-}
-//---------------------------------------------------------------------------
-
-void CRecordingSourceItem::OnCheckboxClicked()
-{
-	GetParent()->PostMessage(WM_COMMAND,
-		MAKEWPARAM(IDC_RECORDING_DEVICE, BN_CLICKED), 0);
 }
 //---------------------------------------------------------------------------
 

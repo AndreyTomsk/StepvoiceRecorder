@@ -9,7 +9,7 @@
 class CRecordingSourceItem : public CWnd
 {
 public:
-	CRecordingSourceItem(const CString& caption);
+	CRecordingSourceItem(const CString& caption, bool showCheckbox);
 	~CRecordingSourceItem();
 
 	bool GetCheck() const;
@@ -44,9 +44,12 @@ private:
 	CString m_caption;
 	bool m_mouseOverWindow;
 	bool m_mouseOverCheckbox;
+	bool m_showCheckbox;
 
 	CDC     m_peakMeterDC;
+	CDC     m_checkMarkDC;
 	CBitmap m_peakMeterBitmap;
+	CBitmap m_checkMarkBitmap;
 	int     m_curLevel;
 	int     m_oldLevel;
 };

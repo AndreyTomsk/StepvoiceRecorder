@@ -7,8 +7,9 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-#define WM_RECSOURCE_DLGCLOSED WM_USER+IDD_RECORDING_SOURCE+0
-#define WM_RECSOURCE_CHANGED   WM_USER+IDD_RECORDING_SOURCE+1
+#define WM_RECSOURCE_DLGCLOSED    WM_USER+IDD_RECORDING_SOURCE+0
+#define WM_RECSOURCE_CHANGED      WM_USER+IDD_RECORDING_SOURCE+1
+#define WM_RECSOURCE_ITEM_CLICKED WM_USER+IDD_RECORDING_SOURCE+2
 
 /////////////////////////////////////////////////////////////////////////////
 class CRecordingSourceDlg : public CDialog
@@ -43,7 +44,7 @@ protected:
 	//}}AFX_MSG
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	afx_msg void OnTimer(UINT_PTR nIDEvent); //device levels updating
-	afx_msg void OnRecodingSourceItemClicked();
+	LRESULT OnRecodingSourceItemClicked(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 
 private:
@@ -64,6 +65,7 @@ private:
 	std::vector<CRecordingSourceItem*> m_recordingSourceItems;
 	WasapiHelpers::DevicesArray m_allDevices;
 	WasapiHelpers::DevicesArray m_selectedDevices;
+	bool m_multiSelection;
 };
 
 #endif // _RECORDING_SOURCE_DLG_H
