@@ -13,13 +13,18 @@ Milestone: "Version 2.1". Main goals:
 ???????? (enh) - recording from multiple sources only for Pro version.
 
 ???????? (enh) - remove ASProtect dependency.
+20160302 (enh) - automatic check for updates.
+
+20160301 (enh) - Update website design.
 ???????? (enh) - install google analytics as website visits logger.
+20160301 (enh) - Switch from RegNow: Paypal and maybe Avangate.
+20110802 (enh) - Add supported OS list on the web-site.
+20160301 (enh) - Update pricing options, example: 12$ personal 1PC, 19$ personal 3PC.
 
 -----------------------------------------------------------------------------
 
 Todo (Archive, some items not actual now)
 -----------------------------------------
-20110802 (enh) - Add supported OS list on the web-site.
 20110202 (---) - Always open mp3 options when doubleclicking in stat window.
 
 20110124 (enh) - "record history" for VAS. A list with timing recorded parts.
