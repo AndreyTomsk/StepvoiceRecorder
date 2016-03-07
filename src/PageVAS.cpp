@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PageVAS.h"
 #include "FileUtils.h"
+#include "Utility.h"
 #include <algorithm>
 #include <htmlhelp.h>
 
@@ -76,6 +77,7 @@ BOOL CPageVAS::OnInitDialog()
 	pSlider->SetPageSize(1);
 	pSlider->SetPos(m_delayIndex);
 
+	//EnableChildWindows(GetSafeHwnd(), false);
 	return TRUE;
 }
 //---------------------------------------------------------------------------

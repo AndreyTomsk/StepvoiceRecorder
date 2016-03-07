@@ -13,3 +13,5 @@ public:
 private:
 	ULONGLONG m_startMS;
 };
+
+void EnableChildWindows(HWND parentWindow, bool enable);
