@@ -532,7 +532,7 @@ BEGIN
     IDS_VOLUME_TITLE        "Volume: %d%% (%s)"
     IDS_TT_VOLBAR           "Volume Bar"
     IDS_TT_MIXSEL           "Input source"
-    IDS_TT_VAS              "Sound Activation"
+    IDS_TT_VAS              "Silence Detection"
     IDS_TT_MONITORING       "Input Monitor"
 END
 
