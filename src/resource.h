@@ -202,6 +202,7 @@
 #define ID_HELP_OPENLOGFOLDER           32931
 #define ID_TOOLS_AUTOGAINCONTROL        32932
 #define ID_UPGRADE                      32933
+#define ID_HELP_CHECKFORUPDATES         32934
 
 // Next default values for new objects
 // 
@@ -209,7 +210,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        249
-#define _APS_NEXT_COMMAND_VALUE         32934
+#define _APS_NEXT_COMMAND_VALUE         32935
 #define _APS_NEXT_CONTROL_VALUE         1185
 #define _APS_NEXT_SYMED_VALUE           132
 #endif

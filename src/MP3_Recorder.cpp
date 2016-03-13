@@ -189,15 +189,16 @@ HBRUSH CAboutDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 BEGIN_MESSAGE_MAP(CMP3_RecorderApp, CWinApp)
 	//{{AFX_MSG_MAP(CMP3_RecorderApp)
 	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-	ON_COMMAND(IDM_HELP_WWW, OnHelpWww)
+	//ON_COMMAND(IDM_HELP_WWW, OnHelpWww)
 	ON_COMMAND(ID_HELP_OPENLOGFOLDER, OnHelpOpenLogFolder)
 	ON_COMMAND(IDM_HELP_EMAIL, OnHelpEmail)
 	ON_COMMAND(IDM_HELP_DOC, OnHelpDoc)
 	ON_COMMAND(ID_HELP_ENTERCODE, OnHelpEntercode)
-	ON_COMMAND(ID_HELP_HOWTO, OnHelpHowto)
+	//ON_COMMAND(ID_HELP_HOWTO, OnHelpHowto)
 	ON_COMMAND(IDA_HELP_DOC, OnHelpDoc)
-	ON_COMMAND(ID_HELP_ORDERONLINE, OnHelpOrderOnline)
+	//ON_COMMAND(ID_HELP_ORDERONLINE, OnHelpOrderOnline)
 	//}}AFX_MSG_MAP
+	ON_COMMAND(ID_HELP_CHECKFORUPDATES, &CMP3_RecorderApp::OnHelpCheckforupdates)
 END_MESSAGE_MAP()
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -442,17 +443,17 @@ void CMP3_RecorderApp::OnAppAbout()
 	aboutDlg.DoModal();
 }
 
-void CMP3_RecorderApp::OnHelpWww() 
-{
-	ShellExecute(0, NULL, _T("http://www.stepvoice.com"), NULL, NULL,
-		SW_SHOWNORMAL);
-}
+//void CMP3_RecorderApp::OnHelpWww() 
+//{
+//	ShellExecute(0, NULL, _T("http://www.stepvoice.com"), NULL, NULL,
+//		SW_SHOWNORMAL);
+//}
 
-void CMP3_RecorderApp::OnHelpOrderOnline() 
-{
-	ShellExecute(0, NULL, _T("http://www.stepvoice.com/order.shtml"), NULL, NULL,
-		SW_SHOWNORMAL);
-}
+//void CMP3_RecorderApp::OnHelpOrderOnline() 
+//{
+//	ShellExecute(0, NULL, _T("http://www.stepvoice.com/order.shtml"), NULL, NULL,
+//		SW_SHOWNORMAL);
+//}
 
 void CMP3_RecorderApp::OnHelpOpenLogFolder()
 {
@@ -480,14 +481,20 @@ void CMP3_RecorderApp::OnHelpDoc()
 	::HtmlHelp(GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
 }
 
-void CMP3_RecorderApp::OnHelpHowto() 
+void CMP3_RecorderApp::OnHelpCheckforupdates()
 {
-	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
-
-	using namespace FileUtils;
-	CString helpFile = CombinePath(GetProgramFolder(), _T("svrec.chm::/stepvoice_recorder/how_to_register.html"));
-	::HtmlHelp(GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
+	AfxMessageBox(_T("TODO: implement check for updates."));
+	// TODO: Add your command handler code here
 }
+
+//void CMP3_RecorderApp::OnHelpHowto() 
+//{
+//	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
+//
+//	using namespace FileUtils;
+//	CString helpFile = CombinePath(GetProgramFolder(), _T("svrec.chm::/stepvoice_recorder/how_to_register.html"));
+//	::HtmlHelp(GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
+//}
 
 void CMP3_RecorderApp::OnHelpEntercode() 
 {
