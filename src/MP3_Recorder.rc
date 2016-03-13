@@ -235,9 +235,9 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,73,140,50,14,WS_GROUP
     EDITTEXT        IDC_THANKSTO,5,76,185,59,ES_MULTILINE | ES_READONLY | WS_VSCROLL
     CTEXT           "This copy of Stepvoice Recorder is registered to:",IDC_STATIC,5,33,185,8
-    CTEXT           "UNREGISTERED VERSION",IDC_REGNAME,5,45,185,24
+    CTEXT           "Free Version",IDC_REGNAME,5,45,185,10
     ICON            IDR_MAINFRAME,IDC_PLAYERICON,5,5,20,20,SS_NOTIFY
-    LTEXT           "Click here to order online",IDC_GETNOW,58,59,79,8,SS_NOTIFY
+    LTEXT           "Upgrade to Pro Version",IDC_GETNOW,60,59,74,8,SS_NOTIFY
     GROUPBOX        "",IDC_STATIC,5,25,185,46
     LTEXT           "Stepvoice Recorder. Version %s",IDC_STATIC_VERSION,34,5,156,8,SS_NOPREFIX
     LTEXT           "Copyright © 2016 Andrey Firsov.",IDC_STATIC,34,15,156,8,SS_NOPREFIX
@@ -358,7 +358,7 @@ BEGIN
     LTEXT           "4",IDC_STATIC,193,36,8,8
     LTEXT           "8",IDC_STATIC,214,36,8,8
     GROUPBOX        "Detection time (seconds)",IDC_STATIC,119,5,108,41
-    GROUPBOX        "When silence has been detected:",IDC_STATIC,5,53,222,42
+    GROUPBOX        "If silence has been detected:",IDC_STATIC,5,53,222,42
 END
 
 IDD_NAGSCREEN DIALOGEX 0, 0, 217, 123
