@@ -17,7 +17,7 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 
-CUrlWnd::CUrlWnd() : m_isUnderline(false)
+CUrlWnd::CUrlWnd() : m_isUnderline(true)
 {
 }
 //---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ BOOL CUrlWnd::OnSetCursor(CWnd* /*pWnd*/, UINT /*nHitTest*/, UINT /*message*/)
 
 HBRUSH CUrlWnd::CtlColor(CDC* pDC, UINT /*nCtlColor*/)
 {
-	pDC->SetTextColor(RGB(0, 0, 230));
+	pDC->SetTextColor(RGB(0, 102, 204));
 	pDC->SetBkMode(TRANSPARENT);
 
 	if (m_isUnderline && !(HFONT)m_underlineFont)
