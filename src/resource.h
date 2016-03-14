@@ -158,6 +158,7 @@
 #define IDC_ON_TOP                      1182
 #define IDC_UNREGNOTICE                 1183
 #define IDC_RADIO1                      1184
+#define IDC_SUPPORT                     1186
 #define IDW_RECORDING_ITEM              5000
 #define IDM_FILE_NEW                    32773
 #define IDM_FILE_OPEN                   32774
@@ -209,9 +210,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        249
+#define _APS_NEXT_RESOURCE_VALUE        250
 #define _APS_NEXT_COMMAND_VALUE         32935
-#define _APS_NEXT_CONTROL_VALUE         1185
+#define _APS_NEXT_CONTROL_VALUE         1187
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
 #endif

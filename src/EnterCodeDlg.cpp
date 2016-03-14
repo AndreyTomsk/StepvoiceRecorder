@@ -1,5 +1,3 @@
-// EnterCodeDlg.cpp : implementation file
-//
 #include "stdafx.h"
 #include "EnterCodeDlg.h"
 #include <htmlhelp.h>
@@ -32,11 +30,10 @@ void CEnterCodeDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CEnterCodeDlg, CDialog)
 	//{{AFX_MSG_MAP(CEnterCodeDlg)
-	ON_BN_CLICKED(IDC_PASTE, OnPaste)
-	ON_BN_CLICKED(IDC_CLEAR, OnClear)
 	ON_EN_CHANGE(IDC_EDITCODE, OnChangeEditcode)
 	ON_WM_HELPINFO()
 	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDC_GETNOW, &CEnterCodeDlg::OnBnClickedGetnow)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -95,17 +92,8 @@ BOOL CEnterCodeDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	RECT rectParent;
-	this->GetParent()->GetWindowRect(&rectParent);
-	RECT rectDialog;
-	this->GetWindowRect(&rectDialog);
-
-	int newX = rectParent.right + 30 - (rectDialog.right - rectDialog.left);
-	int newY = rectParent.bottom + 42 - (rectDialog.bottom - rectDialog.top);
-	this->SetWindowPos(&wndTop, newX, newY, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
-	
-	//SetIcon(LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME)), TRUE);
-
+	m_wndLostKey.SubclassDlgItem(IDC_SUPPORT, this);
+	m_wndLostKey.SetUrl("http://stepvoice.com/support");
 	return TRUE;
 }
 
@@ -127,42 +115,16 @@ void CEnterCodeDlg::OnOK()
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void CEnterCodeDlg::OnPaste() 
-{
-	CEdit* pEditKey = (CEdit *)GetDlgItem(IDC_EDITCODE);
-
-	OnClear();
-	pEditKey->Paste();
-}
-
-/////////////////////////////////////////////////////////////////////////////
-void CEnterCodeDlg::OnClear() 
-{
-	CEdit* pEditKey = (CEdit *)GetDlgItem(IDC_EDITCODE);
-	pEditKey->SetSel(0, -1, true);
-	pEditKey->Clear();
-	pEditKey->SetFocus();
-}
-
-/////////////////////////////////////////////////////////////////////////////
 void CEnterCodeDlg::OnChangeEditcode() 
 {
-	/*CEdit* pEditKey = (CEdit *)GetDlgItem(IDC_EDITCODE);
-	int nLines	= pEditKey->GetLineCount();
-	int nLength	= pEditKey->LineLength(-1);
+	CButton* regButton = static_cast<CButton*>(GetDlgItem(IDOK));
+	CEdit* keyEdit = static_cast<CEdit*>(GetDlgItem(IDC_EDITCODE));
 
-	CButton* pBtnOK	= (CButton *)GetDlgItem(IDOK);
-	CButton* pBtnCl	= (CButton *)GetDlgItem(IDC_CLEAR);
-	if(nLines == 1 && nLength == 0)
-	{	pBtnOK->ModifyStyle(0, WS_DISABLED);
-		pBtnCl->ModifyStyle(0, WS_DISABLED);
-	}
-	else
-	{	pBtnOK->ModifyStyle(WS_DISABLED, 0);
-		pBtnCl->ModifyStyle(WS_DISABLED, 0);
-	}
-	pBtnOK->Invalidate(false);
-	pBtnCl->Invalidate(false);*/
+	CString key;
+	keyEdit->GetWindowTextW(key);
+
+	//bool simpleValidCheck = key.Left(1) == _T('0') && key.Right(1) == _T('=');
+	regButton->EnableWindow(key.GetLength() > 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -175,3 +137,9 @@ BOOL CEnterCodeDlg::OnHelpInfo(HELPINFO* pHelpInfo)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+void CEnterCodeDlg::OnBnClickedGetnow()
+{
+	const CString orderLink = _T("http://www.regnow.com/softsell/nph-softsell.cgi?item=9959-1&quantity_9959-1=1&ss_short_order=true");
+	ShellExecute(0, NULL, orderLink, NULL, NULL, SW_SHOWNORMAL);
+}
