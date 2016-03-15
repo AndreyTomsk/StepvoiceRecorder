@@ -119,6 +119,17 @@ void SetOnTop(CWnd* wnd, bool top)
 }
 //---------------------------------------------------------------------------
 
+void RemoveProSuffixFromMenu(CMenu* menu, UINT itemID)
+{
+	CString itemCaption;
+	if (menu->GetMenuStringW(itemID, itemCaption, MF_BYCOMMAND) > 0)
+	{
+		itemCaption.Replace(L" (Pro)", L"");
+		menu->ModifyMenuW(itemID, MF_BYCOMMAND, itemID, itemCaption);
+	}
+}
+//---------------------------------------------------------------------------
+
 CString FilterTemplate(CString a_template)
 {
 	const CString ALLOWED_CHARS(_T("BbdHjMmSYy%"));

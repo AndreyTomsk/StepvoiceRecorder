@@ -395,6 +395,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	REG_CRYPT_BEGIN;
 	GetMenu()->RemoveMenu(ID_UPGRADE, MF_BYCOMMAND);
 	GetMenu()->GetSubMenu(3)->RemoveMenu(ID_HELP_ENTERCODE, MF_BYCOMMAND);
+	Helpers::RemoveProSuffixFromMenu(toolsSubMenu, ID_TOOLS_AUTOGAINCONTROL);
+	Helpers::RemoveProSuffixFromMenu(toolsSubMenu, IDM_OPT_VAS);
 	REG_CRYPT_END;
 	#endif
 

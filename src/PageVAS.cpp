@@ -30,6 +30,12 @@ CPageVAS::CPageVAS()
 	,m_delayIndex(0)
 	,m_action(0)
 {
+	#ifndef _DEBUG
+	REG_CRYPT_BEGIN;
+	m_psp.dwFlags |= PSP_USETITLE;
+	m_psp.pszTitle = _T("Silence Detection");
+	REG_CRYPT_END;
+	#endif
 }
 //---------------------------------------------------------------------------
 
