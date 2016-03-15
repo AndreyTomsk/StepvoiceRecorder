@@ -791,6 +791,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\third-party\tinyxml2.cpp"
+				>
+			</File>
+			<File
 				RelativePath="TitleText.cpp"
 				>
 				<FileConfiguration

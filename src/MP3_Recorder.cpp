@@ -14,6 +14,8 @@
 #include <versionhelpers.h>
 //#include <vld.h> //Header file from "Visual Leak Detector" - detecting memory leaks.
 
+//#include "tinyxml2.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -128,6 +130,7 @@ BOOL CAboutDlg::OnInitDialog()
 	CString l_thanks_to[] = {
 		_T("MPEG Layer-3 Audio Codec Lame 3.98.2\r\n(http://www.mp3dev.org/mp3)"),
 		_T("BASS library (bass.dll) by Ian Luck\r\n(http://www.un4seen.com)"),
+		_T("TinyXML-2 library by Lee Thomason\r\n(http://www.grinninglizard.com)"),
 		_T("")
 	};
 	CString l_wnd_text;
@@ -135,8 +138,9 @@ BOOL CAboutDlg::OnInitDialog()
 	int i = 0;
 	while (l_thanks_to[i] != _T(""))
 	{
+		if (i > 0)
+			l_wnd_text += _T("\r\n\r\n");
 		l_wnd_text += l_thanks_to[i++];
-		l_wnd_text += _T("\r\n\r\n");
 	}
 
 	CEdit* pThanksEdit = (CEdit *)GetDlgItem(IDC_THANKSTO);
@@ -263,6 +267,15 @@ BOOL CMP3_RecorderApp::InitInstance()
 	//New SetRegistryKey commented - must be called once.
 	SetRegistryKey(_T("StepVoice Software"));
 	//RegistryConfig::SetRegistryKey(_T("StepVoice Software"));
+
+	/*
+	{
+		//dream.xml - test file, can be found in tinyxml2 sources.
+		tinyxml2::XMLDocument doc;
+		tinyxml2::XMLError err = doc.LoadFile("D:\\Work\\StepvoiceRecorder\\bin\\dream.xml");
+		CString text = doc.FirstChildElement( "PLAY" )->FirstChildElement( "TITLE" )->GetText();
+	}
+	*/
 
 	if (m_lpCmdLine[0] != _T('\0') && CString(m_lpCmdLine) == _T("/register"))
 	{
