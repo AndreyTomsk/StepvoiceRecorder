@@ -196,7 +196,7 @@ BEGIN_MESSAGE_MAP(CMP3_RecorderApp, CWinApp)
 	ON_COMMAND(ID_HELP_ENTERCODE, OnHelpEntercode)
 	//ON_COMMAND(ID_HELP_HOWTO, OnHelpHowto)
 	ON_COMMAND(IDA_HELP_DOC, OnHelpDoc)
-	//ON_COMMAND(ID_HELP_ORDERONLINE, OnHelpOrderOnline)
+	ON_COMMAND(ID_UPGRADE, OnHelpOrderOnline)
 	//}}AFX_MSG_MAP
 	ON_COMMAND(ID_HELP_CHECKFORUPDATES, &CMP3_RecorderApp::OnHelpCheckforupdates)
 END_MESSAGE_MAP()
@@ -449,11 +449,11 @@ void CMP3_RecorderApp::OnAppAbout()
 //		SW_SHOWNORMAL);
 //}
 
-//void CMP3_RecorderApp::OnHelpOrderOnline() 
-//{
-//	ShellExecute(0, NULL, _T("http://www.stepvoice.com/order.shtml"), NULL, NULL,
-//		SW_SHOWNORMAL);
-//}
+void CMP3_RecorderApp::OnHelpOrderOnline() 
+{
+	ShellExecute(0, NULL, _T("http://www.stepvoice.com/order.shtml"), NULL, NULL,
+		SW_SHOWNORMAL);
+}
 
 void CMP3_RecorderApp::OnHelpOpenLogFolder()
 {
@@ -519,6 +519,7 @@ BOOL CMP3_RecorderApp::OnIdle(LONG lCount)
 		return TRUE;
 	}
 
+	/*
 	static bool nagScreenDisplayed = false;
 	static DWORD initialMS = ::GetTickCount();
 
@@ -540,6 +541,7 @@ BOOL CMP3_RecorderApp::OnIdle(LONG lCount)
 			AfxGetMainWnd()->PostMessage(WM_CLOSE);
 		}
 	}
+	*/
 
 	// Updating the main window interface
 	CMainFrame* l_main_wnd = (CMainFrame*)AfxGetMainWnd();
