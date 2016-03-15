@@ -77,7 +77,13 @@ BOOL CPageVAS::OnInitDialog()
 	pSlider->SetPageSize(1);
 	pSlider->SetPos(m_delayIndex);
 
-	//EnableChildWindows(GetSafeHwnd(), false);
+	//Disabling Pro features by default.
+	EnableChildWindows(GetSafeHwnd(), false);
+	//Enabling Pro features in registered version.
+	REG_CRYPT_BEGIN;
+	EnableChildWindows(GetSafeHwnd(), true);
+	REG_CRYPT_END;
+
 	return TRUE;
 }
 //---------------------------------------------------------------------------
