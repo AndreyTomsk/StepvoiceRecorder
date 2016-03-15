@@ -9,8 +9,8 @@ Milestone: "Version 2.2". Main goals:
 Milestone: "Version 2.1". Main goals:
 20090125 (enh) + VAS option: create new file when recording resumes.
 20080309 (enh) + Automatic recording levels adjustment.
-???????? (enh) - split project to free and paid (Pro) versions.
-???????? (enh) - recording from multiple sources only for Pro version.
+???????? (enh) + split project to free and paid (Pro) versions.
+???????? (enh) + recording from multiple sources only for Pro version.
 
 ???????? (enh) - remove ASProtect dependency.
 20160302 (enh) - automatic check for updates.
@@ -20,6 +20,7 @@ Milestone: "Version 2.1". Main goals:
 20160301 (enh) - Switch from RegNow: Paypal and maybe Avangate.
 20110802 (enh) - Add supported OS list on the web-site.
 20160301 (enh) - Update pricing options, example: 12$ personal 1PC, 19$ personal 3PC.
+20160315 (enh) - update free/pro version license.
 
 -----------------------------------------------------------------------------
 

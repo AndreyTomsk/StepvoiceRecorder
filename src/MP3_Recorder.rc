@@ -157,7 +157,7 @@ BEGIN
         MENUITEM "O&ptions...\aCtrl - P",       IDM_OPT_COM,MFT_STRING,MFS_ENABLED
         MENUITEM MFT_SEPARATOR
         MENUITEM "Input &monitor",              IDM_OPT_MONITOR,MFT_STRING,MFS_ENABLED
-        MENUITEM "Input &auto gain (Pro)",      ID_TOOLS_AUTOGAINCONTROL,MFT_STRING,MFS_ENABLED
+        MENUITEM "Input &auto gain",            ID_TOOLS_AUTOGAINCONTROL,MFT_STRING,MFS_ENABLED
         MENUITEM "&Silence detection (Pro)",    IDM_OPT_VAS,MFT_STRING,MFS_ENABLED
         MENUITEM MFT_SEPARATOR
         MENUITEM "Sound &devices...",           IDM_OPT_SNDDEV,MFT_STRING,MFS_ENABLED

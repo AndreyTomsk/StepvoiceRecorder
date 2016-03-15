@@ -372,22 +372,20 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	const bool monEnabled = RegistryConfig::GetOption(_T("General\\Sound Monitor"), 0);
 	m_StatWnd.m_btnMon.SetCheck(monEnabled);
 
+	if (RegistryConfig::GetOption(_T("General\\AutoGainControl"), false))
+		m_autoGainControl.reset(new CAutoGainControl());
 
-	//Disabling Pro features by default.
+	//Disabling "silence detection" feature by default.
 	m_StatWnd.m_btnVas.Enable(false);
 	CMenu* toolsSubMenu = GetMenu()->GetSubMenu(2);
-	toolsSubMenu->EnableMenuItem(ID_TOOLS_AUTOGAINCONTROL, MF_GRAYED|MF_BYCOMMAND);
 	toolsSubMenu->EnableMenuItem(IDM_OPT_VAS, MF_GRAYED|MF_BYCOMMAND);
 
-	//Enabling Pro features in registered version (silence detection and input auto gain)
+	//Enabling "silence detection" feature in Pro version.
 	REG_CRYPT_BEGIN;
 	const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
 	m_StatWnd.m_btnVas.SetCheck(vasEnabled);
 	m_StatWnd.m_btnVas.Enable(true);
-	toolsSubMenu->EnableMenuItem(ID_TOOLS_AUTOGAINCONTROL, MF_ENABLED|MF_BYCOMMAND);
 	toolsSubMenu->EnableMenuItem(IDM_OPT_VAS, MF_ENABLED|MF_BYCOMMAND);
-	if (RegistryConfig::GetOption(_T("General\\AutoGainControl"), false))
-		m_autoGainControl.reset(new CAutoGainControl());
 	REG_CRYPT_END;
 
 	//Removing unnecessary menu entries in Pro version.
@@ -395,11 +393,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	REG_CRYPT_BEGIN;
 	GetMenu()->RemoveMenu(ID_UPGRADE, MF_BYCOMMAND);
 	GetMenu()->GetSubMenu(3)->RemoveMenu(ID_HELP_ENTERCODE, MF_BYCOMMAND);
-	Helpers::RemoveProSuffixFromMenu(toolsSubMenu, ID_TOOLS_AUTOGAINCONTROL);
 	Helpers::RemoveProSuffixFromMenu(toolsSubMenu, IDM_OPT_VAS);
 	REG_CRYPT_END;
 	#endif
-
 
 	//CString test = Helpers::GetNewRecordingFilePath(_T("D:\\Feb26_2016_02.mp3"));
 	return 0;
@@ -1182,11 +1178,8 @@ void CMainFrame::OnUpdateOptVAS(CCmdUI* pCmdUI)
 
 void CMainFrame::OnUpdateOptAutoGainControl(CCmdUI* pCmdUI)
 {
-	//Pro-version interface update (main menu)
-	REG_CRYPT_BEGIN;
 	bool isAutoGain = RegistryConfig::GetOption(_T("General\\AutoGainControl"), false);
 	pCmdUI->SetCheck(isAutoGain);
-	REG_CRYPT_END;
 }
 
 //===========================================================================
