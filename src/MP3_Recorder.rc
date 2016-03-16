@@ -291,10 +291,10 @@ CAPTION "Stepvoice Recorder registration"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     EDITTEXT        IDC_EDITCODE,7,21,229,53,ES_MULTILINE | ES_AUTOVSCROLL
-    PUSHBUTTON      "Buy online...",IDC_GETNOW,7,83,55,15
-    LTEXT           "I lost my key",IDC_SUPPORT,67,86,50,8,SS_NOTIFY | WS_TABSTOP
-    PUSHBUTTON      "Register",IDOK,121,83,55,15,WS_DISABLED
-    PUSHBUTTON      "Cancel",IDCANCEL,181,83,55,15
+    PUSHBUTTON      "Buy online...",IDC_GETNOW,7,82,60,16
+    LTEXT           "I lost my key",IDC_SUPPORT,72,85,47,8,SS_NOTIFY | WS_TABSTOP
+    PUSHBUTTON      "Register",IDOK,121,82,55,16,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,181,82,55,16
     LTEXT           "Copy and paste your registration key here:",IDC_STATIC,7,7,229,8
 END
 
