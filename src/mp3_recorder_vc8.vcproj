@@ -817,6 +817,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\NewVersionDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath="UrlWnd.cpp"
 				>
 				<FileConfiguration
@@ -1065,6 +1069,10 @@
 			</File>
 			<File
 				RelativePath="TitleText.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NewVersionDlg.h"
 				>
 			</File>
 			<File

@@ -81,6 +81,7 @@
 #define IDD_RECORDING_SOURCE            241
 #define IDI_MIXLINE                     244
 #define IDI_MIXLINE03                   248
+#define IDD_NEWVERSION                  250
 #define IDM_SOUND_REC                   300
 #define IDM_SOUND_STOP                  301
 #define IDM_SOUND_PLAY                  302
@@ -159,6 +160,7 @@
 #define IDC_UNREGNOTICE                 1183
 #define IDC_RADIO1                      1184
 #define IDC_SUPPORT                     1186
+#define IDC_DOWNLOAD_LINK               1187
 #define IDW_RECORDING_ITEM              5000
 #define IDM_FILE_NEW                    32773
 #define IDM_FILE_OPEN                   32774
@@ -210,9 +212,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        250
+#define _APS_NEXT_RESOURCE_VALUE        251
 #define _APS_NEXT_COMMAND_VALUE         32935
-#define _APS_NEXT_CONTROL_VALUE         1187
+#define _APS_NEXT_CONTROL_VALUE         1188
 #define _APS_NEXT_SYMED_VALUE           132
 #endif
 #endif

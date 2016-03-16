@@ -47,4 +47,5 @@ public:
 	virtual BOOL OnIdle(LONG lCount);
 public:
 	afx_msg void OnHelpCheckforupdates();
+	bool GetUpdateInformation(CString& latestVersion, CString& downloadLink);
 };

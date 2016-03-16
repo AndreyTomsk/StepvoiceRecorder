@@ -14,7 +14,8 @@
 #include <versionhelpers.h>
 //#include <vld.h> //Header file from "Visual Leak Detector" - detecting memory leaks.
 
-//#include "tinyxml2.h"
+#include "tinyxml2.h"
+#include "NewVersionDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -272,8 +273,11 @@ BOOL CMP3_RecorderApp::InitInstance()
 	{
 		//dream.xml - test file, can be found in tinyxml2 sources.
 		tinyxml2::XMLDocument doc;
-		tinyxml2::XMLError err = doc.LoadFile("D:\\Work\\StepvoiceRecorder\\bin\\dream.xml");
-		CString text = doc.FirstChildElement( "PLAY" )->FirstChildElement( "TITLE" )->GetText();
+		//tinyxml2::XMLError err = doc.LoadFile("D:\\Work\\StepvoiceRecorder\\bin\\dream.xml");
+		//CString text = doc.FirstChildElement( "PLAY" )->FirstChildElement( "TITLE" )->GetText();
+		tinyxml2::XMLError err = doc.LoadFile("D:\\Work\\StepvoiceRecorder\\bin\\StepvoiceRecorderUpdate.xml");
+		const CString lastVersion  = doc.FirstChildElement()->FirstChildElement("LastVersion")->GetText();
+		const CString downloadLink = doc.FirstChildElement()->FirstChildElement("DownloadLink")->GetText();
 	}
 	*/
 
@@ -494,10 +498,22 @@ void CMP3_RecorderApp::OnHelpDoc()
 	::HtmlHelp(GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
 }
 
+bool GetUpdateInformation(CString& latestVersion, CString& downloadLink)
+{
+	//TODO:
+	return false;
+}
+
 void CMP3_RecorderApp::OnHelpCheckforupdates()
 {
-	AfxMessageBox(_T("TODO: implement check for updates."));
-	// TODO: Add your command handler code here
+	const CString caption = L"Stepvoice Recorder";
+	const CString msgLatest = L"You are running the latest version!";
+	const CString msgError = L"Failed to retrieve update information.";
+	//::MessageBox(m_pMainWnd->GetSafeHwnd(), msgLatest, caption, MB_OK|MB_ICONINFORMATION);
+	//::MessageBox(m_pMainWnd->GetSafeHwnd(), msgError, caption, MB_OK|MB_ICONSTOP);
+
+	CNewVersionDlg dlg(m_pMainWnd);
+	dlg.DoModal(L"2.1.0.400", L"http://stepvoice.com/download/svrec21.exe");
 }
 
 //void CMP3_RecorderApp::OnHelpHowto() 

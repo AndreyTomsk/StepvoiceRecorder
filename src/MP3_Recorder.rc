@@ -379,6 +379,18 @@ FONT 8, "MS Shell Dlg", 400, 0, 0xCC
 BEGIN
 END
 
+IDD_NEWVERSION DIALOGEX 0, 0, 198, 73
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Stepvoice Recorder"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,74,52,50,14
+    ICON            "",IDC_STATIC0_0,7,7,21,20,SS_CENTERIMAGE
+    LTEXT           "A new version (<version>) is available!",IDC_STATIC_VERSION,35,7,156,15
+    LTEXT           "<link>",IDC_DOWNLOAD_LINK,35,32,156,8,SS_NOTIFY
+    LTEXT           "You can download this version using the link:",IDC_STATIC,35,22,156,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -455,6 +467,15 @@ BEGIN
     BEGIN
         RIGHTMARGIN, 199
         BOTTOMMARGIN, 148
+    END
+
+    IDD_NEWVERSION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 191
+        VERTGUIDE, 35
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 66
     END
 END
 #endif    // APSTUDIO_INVOKED
