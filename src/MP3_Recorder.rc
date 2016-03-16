@@ -222,9 +222,9 @@ IDB_PEAKMETER_MENU      BITMAP                  "RES\\peak_meter_menu.bmp"
 //
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 195, 158
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,73,140,50,14,WS_GROUP
     EDITTEXT        IDC_THANKSTO,5,76,185,59,ES_MULTILINE | ES_READONLY | WS_VSCROLL
@@ -238,10 +238,10 @@ BEGIN
 END
 
 IDD_COMMON DIALOGEX 0, 0, 232, 100
-STYLE DS_SETFONT | DS_CONTEXTHELP | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTEXTHELP | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "  General  "
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     CONTROL         "Store output files in:",IDC_STORE_IN_OUTPUT_FOLDER,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,8,78,10
@@ -255,10 +255,10 @@ BEGIN
 END
 
 IDD_RECORD DIALOGEX 0, 0, 232, 100
-STYLE DS_SETFONT | DS_CONTEXTHELP | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTEXTHELP | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "  Record  "
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | WS_GROUP | WS_TABSTOP,7,14,217,19
     LTEXT           "8",IDC_STATIC,14,34,8,8
@@ -286,9 +286,9 @@ BEGIN
 END
 
 IDD_ENTERCODE DIALOGEX 0, 0, 243, 105
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Stepvoice Recorder registration"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     EDITTEXT        IDC_EDITCODE,7,21,229,53,ES_MULTILINE | ES_AUTOVSCROLL
     PUSHBUTTON      "Buy online...",IDC_GETNOW,7,83,55,15
@@ -298,26 +298,26 @@ BEGIN
     LTEXT           "Copy and paste your registration key here:",IDC_STATIC,7,7,229,8
 END
 
-IDD_AUTONAME DIALOG  0, 0, 232, 100
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_AUTONAME DIALOGEX 0, 0, 232, 100
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Autoname"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     LTEXT           "Autoname template",IDC_STATIC,5,5,63,8
     LTEXT           "(default: %b%d_%H%M):",IDC_AN_TDEFAULT,70,5,157,8,SS_NOTIFY
     EDITTEXT        IDE_NAMETEMPLATE,5,16,222,14,ES_AUTOHSCROLL | ES_WANTRETURN
     LTEXT           "Result:",IDC_STATIC,5,33,26,8
     LTEXT           "File Name.mp3",IDC_AN_EXTEXT,33,33,194,8
-    LTEXT           "= year without century (00 - 99)",IDC_STATIC0_1,23,48,98,8,SS_NOTIFY
+    LTEXT           "= year without century (00 - 99)",IDC_STATIC0_1,23,48,105,8,SS_NOTIFY
     LTEXT           "= year with century",IDC_STATIC1_1,23,56,60,8,SS_NOTIFY
     LTEXT           "= abbreviated month name",IDC_STATIC2_1,23,67,85,8,SS_NOTIFY
     LTEXT           "= full month name",IDC_STATIC3_1,23,75,56,8,SS_NOTIFY
-    LTEXT           "= month number (01 - 12)",IDC_STATIC4_1,23,83,80,8,SS_NOTIFY
-    LTEXT           "= day of month (01 - 31)",IDC_STATIC5_1,143,48,76,8,SS_NOTIFY
-    LTEXT           "= day of year (001 - 366)",IDC_STATIC6_1,143,56,78,8,SS_NOTIFY
-    LTEXT           "= hour (00 - 24)",IDC_STATIC7_1,143,67,49,8,SS_NOTIFY
-    LTEXT           "= minute (00 - 59)",IDC_STATIC8_1,143,75,56,8,SS_NOTIFY
-    LTEXT           "= second (00 - 59)",IDC_STATIC9_1,143,83,58,8,SS_NOTIFY
+    LTEXT           "= month number (01 - 12)",IDC_STATIC4_1,23,83,85,8,SS_NOTIFY
+    LTEXT           "= day of month (01 - 31)",IDC_STATIC5_1,143,48,84,8,SS_NOTIFY
+    LTEXT           "= day of year (001 - 366)",IDC_STATIC6_1,143,56,84,8,SS_NOTIFY
+    LTEXT           "= hour (00 - 24)",IDC_STATIC7_1,143,67,59,8,SS_NOTIFY
+    LTEXT           "= minute (00 - 59)",IDC_STATIC8_1,143,75,61,8,SS_NOTIFY
+    LTEXT           "= second (00 - 59)",IDC_STATIC9_1,143,83,66,8,SS_NOTIFY
     LTEXT           "%y",IDC_STATIC0_0,10,48,13,8,SS_NOTIFY
     LTEXT           "%Y",IDC_STATIC1_0,10,56,13,8,SS_NOTIFY
     LTEXT           "%b",IDC_STATIC2_0,10,67,13,8,SS_NOTIFY
@@ -332,9 +332,9 @@ BEGIN
 END
 
 IDD_VAS DIALOGEX 0, 0, 232, 100
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
 CAPTION "Silence Detection (Pro)"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     CONTROL         "Slider3",IDC_VAS_THRESHOLD,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,7,14,105,20
     CONTROL         "Slider1",IDC_VAS_TIME,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,121,15,104,20
@@ -356,21 +356,21 @@ BEGIN
     GROUPBOX        "If silence has been detected:",IDC_STATIC,5,53,222,42
 END
 
-IDD_NAGSCREEN DIALOGEX 0, 0, 217, 123
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+IDD_NAGSCREEN DIALOGEX 0, 0, 227, 123
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
 CAPTION "Title"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     PUSHBUTTON      "&Enter key...",IDC_ENTERCODE,6,102,71,16
-    PUSHBUTTON      "&Use Recorder without registering",IDCANCEL,82,102,131,16
-    ICON            IDR_MAINFRAME2,IDC_STATIC,191,1,20,20,SS_CENTERIMAGE
-    LTEXT           "You may evaluate the trial version as long as you like. If you find it useful then we would appreciate your registration of this program.",IDC_STATIC,5,20,207,26
+    PUSHBUTTON      "&Use Recorder without registering",IDCANCEL,85,102,136,16
+    ICON            IDR_MAINFRAME2,IDC_STATIC,199,1,21,20,SS_CENTERIMAGE
+    LTEXT           "You may evaluate the trial version as long as you like. If you find it useful then we would appreciate your registration of this program.",IDC_STATIC,5,20,216,20
     LTEXT           "To register visit our website at:",IDC_STATIC,6,54,98,8
-    CTEXT           "www.stepvoice.com",IDC_GETNOW,103,54,82,8,SS_NOTIFY
-    LTEXT           "After your order has been processed, you will receive an email containing the registration key.",IDC_STATIC,6,67,208,19
+    CTEXT           "www.stepvoice.com",IDC_GETNOW,107,54,82,8,SS_NOTIFY
+    LTEXT           "After your order has been processed, you will receive an email containing the registration key.",IDC_STATIC,6,67,215,19
     LTEXT           "Thank you for trying Stepvoice Recorder!",IDC_THANKYOU,5,7,186,9
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,41,208,1
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,96,208,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,41,216,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,96,216,1
 END
 
 IDD_RECORDING_SOURCE DIALOGEX 0, 0, 201, 149
@@ -458,7 +458,7 @@ BEGIN
     IDD_NAGSCREEN, DIALOG
     BEGIN
         LEFTMARGIN, 6
-        RIGHTMARGIN, 213
+        RIGHTMARGIN, 221
         TOPMARGIN, 6
         BOTTOMMARGIN, 118
     END
