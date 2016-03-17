@@ -505,7 +505,7 @@ bool CMP3_RecorderApp::GetUpdateInformation(CString& latestVersion, CString& dow
 	const CString svrecDataFolder = CombinePath(appDataFolder, _T("Stepvoice"));
 
 	const CString updateFileName = L"StepvoiceRecorderUpdate.xml";
-	const CString remoteFilePath = L"http://stepvoice.com/" + updateFileName;
+	const CString remoteFilePath = L"http://stepvoice.com/download/" + updateFileName;
 	const CString localFilePath = CombinePath(svrecDataFolder, updateFileName);
 
 	DeleteUrlCacheEntry(remoteFilePath);

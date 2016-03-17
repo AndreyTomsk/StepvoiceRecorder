@@ -11,6 +11,9 @@
 #define User_AppVersion Copy(FullAppVersion, 1, 5)
 #define User_OutputFile "svrec" + Copy(User_AppVersion, 1, 1) + Copy(User_AppVersion, 3, 1)
 
+;Creating StepvoiceRecorderUpdate.xml. Placed together with installer on server download page.
+#expr Exec("make_update_xml.bat", FullAppVersion + ' ' + User_OutputFile + '.exe')
+
 [Setup]
 AppName={#User_AppName}
 AppID={#User_AppName}
