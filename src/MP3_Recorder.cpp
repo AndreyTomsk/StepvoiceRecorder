@@ -11,11 +11,15 @@
 #include "UrlWnd.h"
 #include "version.h"
 #include "FileUtils.h"
-#include <versionhelpers.h>
+#include <versionhelpers.h> //IsWindowsVistaOrGreater etc. functions
 //#include <vld.h> //Header file from "Visual Leak Detector" - detecting memory leaks.
 
 #include "tinyxml2.h"
 #include "NewVersionDlg.h"
+#include "version.h"
+
+#include <wininet.h> //for DeleteUrlCacheEntry
+#pragma comment(lib, "wininet.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -269,18 +273,6 @@ BOOL CMP3_RecorderApp::InitInstance()
 	SetRegistryKey(_T("StepVoice Software"));
 	//RegistryConfig::SetRegistryKey(_T("StepVoice Software"));
 
-	/*
-	{
-		//dream.xml - test file, can be found in tinyxml2 sources.
-		tinyxml2::XMLDocument doc;
-		//tinyxml2::XMLError err = doc.LoadFile("D:\\Work\\StepvoiceRecorder\\bin\\dream.xml");
-		//CString text = doc.FirstChildElement( "PLAY" )->FirstChildElement( "TITLE" )->GetText();
-		tinyxml2::XMLError err = doc.LoadFile("D:\\Work\\StepvoiceRecorder\\bin\\StepvoiceRecorderUpdate.xml");
-		const CString lastVersion  = doc.FirstChildElement()->FirstChildElement("LastVersion")->GetText();
-		const CString downloadLink = doc.FirstChildElement()->FirstChildElement("DownloadLink")->GetText();
-	}
-	*/
-
 	if (m_lpCmdLine[0] != _T('\0') && CString(m_lpCmdLine) == _T("/register"))
 	{
 #ifdef SPECIAL_VERSION
@@ -459,6 +451,7 @@ void CMP3_RecorderApp::OnAppAbout()
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
 }
+//---------------------------------------------------------------------------
 
 //void CMP3_RecorderApp::OnHelpWww() 
 //{
@@ -471,6 +464,7 @@ void CMP3_RecorderApp::OnHelpOrderOnline()
 	ShellExecute(0, NULL, _T("http://www.stepvoice.com/order.shtml"), NULL, NULL,
 		SW_SHOWNORMAL);
 }
+//---------------------------------------------------------------------------
 
 void CMP3_RecorderApp::OnHelpOpenLogFolder()
 {
@@ -478,6 +472,7 @@ void CMP3_RecorderApp::OnHelpOpenLogFolder()
 	const CString svrecDataFolder = FileUtils::CombinePath(appDataFolder, _T("Stepvoice"));
 	ShellExecute(::GetDesktopWindow(), _T("open"), svrecDataFolder, NULL, NULL, SW_SHOW);
 }
+//---------------------------------------------------------------------------
 
 void CMP3_RecorderApp::OnHelpEmail() 
 {
@@ -488,6 +483,7 @@ void CMP3_RecorderApp::OnHelpEmail()
 	mailString.Replace(_T(" "), _T("%20"));
 	ShellExecute(0, NULL, mailString, NULL, NULL, SW_SHOWNORMAL);
 }
+//---------------------------------------------------------------------------
 
 void CMP3_RecorderApp::OnHelpDoc() 
 {
@@ -497,24 +493,66 @@ void CMP3_RecorderApp::OnHelpDoc()
 	CString helpFile = CombinePath(GetProgramFolder(), _T("svrec.chm::/stepvoice_recorder/overview.html"));
 	::HtmlHelp(GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
 }
+//---------------------------------------------------------------------------
 
-bool GetUpdateInformation(CString& latestVersion, CString& downloadLink)
+bool CMP3_RecorderApp::GetUpdateInformation(CString& latestVersion, CString& downloadLink)
 {
-	//TODO:
-	return false;
+	LOG_DEBUG() << __FUNCTION__ <<" ::1";
+	CWaitCursor waitCursor;
+
+	using namespace FileUtils;
+	const CString appDataFolder = GetSpecialFolder(CSIDL_COMMON_APPDATA);
+	const CString svrecDataFolder = CombinePath(appDataFolder, _T("Stepvoice"));
+
+	const CString updateFileName = L"StepvoiceRecorderUpdate.xml";
+	const CString remoteFilePath = L"http://stepvoice.com/" + updateFileName;
+	const CString localFilePath = CombinePath(svrecDataFolder, updateFileName);
+
+	DeleteUrlCacheEntry(remoteFilePath);
+	HRESULT hr = URLDownloadToFile(NULL, remoteFilePath, localFilePath, 0, NULL);
+	if (hr != S_OK) {
+		LOG_DEBUG() << __FUNCTION__ <<" ::2, error, hr=" << int(hr);
+		return false;
+	}
+
+	CW2A localFilePathAnsi(localFilePath);
+	tinyxml2::XMLDocument doc;
+	tinyxml2::XMLError err = doc.LoadFile(localFilePathAnsi);
+	if (err != tinyxml2::XML_SUCCESS) {
+		LOG_DEBUG() << __FUNCTION__ <<" ::3, error, unable to load xml file.";
+		return false;
+	}
+
+	latestVersion = doc.FirstChildElement()->FirstChildElement("LastVersion")->GetText();
+	downloadLink = doc.FirstChildElement()->FirstChildElement("DownloadLink")->GetText();	
+	::DeleteFile(localFilePath);
+	LOG_DEBUG() << __FUNCTION__ <<" ::4, latestVersion=" << latestVersion << ", downloadLink=" << downloadLink;
+	return true;
 }
+//---------------------------------------------------------------------------
 
 void CMP3_RecorderApp::OnHelpCheckforupdates()
 {
 	const CString caption = L"Stepvoice Recorder";
 	const CString msgLatest = L"You are running the latest version!";
 	const CString msgError = L"Failed to retrieve update information.";
-	//::MessageBox(m_pMainWnd->GetSafeHwnd(), msgLatest, caption, MB_OK|MB_ICONINFORMATION);
-	//::MessageBox(m_pMainWnd->GetSafeHwnd(), msgError, caption, MB_OK|MB_ICONSTOP);
+
+	CString latestVersion, downloadLink;
+	if (!GetUpdateInformation(latestVersion, downloadLink))	{
+		::MessageBox(m_pMainWnd->GetSafeHwnd(), msgError, caption, MB_OK|MB_ICONSTOP);
+		return;
+	}
+
+	const CString curVersion(STRFILEVER);
+	if (curVersion >= latestVersion) {
+		::MessageBox(m_pMainWnd->GetSafeHwnd(), msgLatest, caption, MB_OK|MB_ICONINFORMATION);
+		return;
+	}
 
 	CNewVersionDlg dlg(m_pMainWnd);
-	dlg.DoModal(L"2.1.0.400", L"http://stepvoice.com/download/svrec21.exe");
+	dlg.DoModal(latestVersion, downloadLink);
 }
+//---------------------------------------------------------------------------
 
 //void CMP3_RecorderApp::OnHelpHowto() 
 //{
