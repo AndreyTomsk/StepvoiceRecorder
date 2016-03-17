@@ -26,6 +26,7 @@ WizardSmallImageFile=WizModernSmallImage-IS.bmp
 LicenseFile=.\license.txt
 Compression=lzma/max
 SolidCompression=yes
+DisableWelcomePage=no
 
 OutputBaseFilename={#User_OutputFile}
 SignTool=Standard /d $qStepvoice Recorder Setup$q /du $qhttp://stepvoice.com$q $f
@@ -59,6 +60,9 @@ Source: ..\bin\basswasapi.dll;     DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\lame_enc.dll;       DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\ResetOptions.reg;   DestDir: {app}; Flags: ignoreversion
 Source: ..\doc\Help\SvRec.chm;     DestDir: {app}; Flags: ignoreversion
+
+[Dirs]
+Name: "{commonappdata}\Stepvoice"
 
 [Icons]
 ;Name: {group}\Order Online;                   Filename: {app}\order.url; WorkingDir: {app}

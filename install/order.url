@@ -1,4 +1,4 @@
 [DEFAULT]
-BASEURL=http://www.stepvoice.com/order.html
+BASEURL=http://stepvoice.com/order.shtml
 [InternetShortcut]
-URL=http://www.stepvoice.com/order.html
+URL=http://stepvoice.com/order.shtml
