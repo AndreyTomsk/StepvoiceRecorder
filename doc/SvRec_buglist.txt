@@ -14,6 +14,7 @@ Milestone: "Version 2.1". Main goals:
 20160302 (enh) + (not automatic) check for updates.
 20160318 (bug) + windows task panel hides part of the devices selection dialog
                  (unable to select if program window stays at right bottom position).
+20160318 (bug) + fix time display goes not smooth (03, 05, 06, 08 sec, etc).
 
 20160301 (enh) - Update website design.
 ???????? (enh) - install google analytics as website visits logger.
@@ -26,7 +27,6 @@ Milestone: "Version 2.1". Main goals:
 
 Todo (Archive, some items not actual now)
 -----------------------------------------
-20160318 (bug) - fix time display goes not smooth (03, 05, 06, 08 sec, etc).
 20160318 (enh) - hide volume thumb if device doesn't support volume control.
 20160318 (enh) - migrate to VisualStudio 2015 free.
 ???????? (enh) - remove ASProtect dependency.

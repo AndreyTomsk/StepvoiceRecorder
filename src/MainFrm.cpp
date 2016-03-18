@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include <map>
-#include <cmath>
+#include <cmath> //for floor
 
 #include "MP3_Recorder.h"
 #include "MainFrm.h"
@@ -1043,14 +1043,14 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		const int bytesSec = kbitSec * (1000/8);
 		const ULONGLONG fileSize = m_recordingChain.GetFilter<FileWriter>()->GetFileLength();
 
-		curSeconds = double(fileSize / bytesSec);
+		curSeconds = fileSize / double(bytesSec);
 		allSeconds = curSeconds;
 	}
 
 	if (!m_SliderTime.IsDragging())
 		m_SliderTime.SetCurPos(int(curSeconds/allSeconds * 1000));
 
-	m_TimeWnd.SetTime((UINT)curSeconds);
+	m_TimeWnd.SetTime(std::floor(curSeconds + 0.5)); //round to integer
 	UpdateStatWindow();
 }
 
@@ -1084,7 +1084,7 @@ void CMainFrame::UpdateStatWindow()
 
 		const int bytesSec = bitrate * (1000/8); //bitrate is kbit/sec
 		fileSize = m_recordingChain.GetFilter<FileWriter>()->GetFileLength();
-		fileSeconds = double(fileSize / bytesSec);
+		fileSeconds = fileSize / double(bytesSec);
 	}
 
 	const CString strFileSeconds = Helpers::ToString_HMMSS(fileSeconds);

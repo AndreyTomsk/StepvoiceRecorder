@@ -2,6 +2,7 @@
 #include "MainFrm_Helpers.h"
 #include "FileUtils.h"
 #include "StrUtils.h"
+#include <cmath> //for floor
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -29,7 +30,8 @@ CString ToString_HMMSS(unsigned int seconds)
 
 CString ToString_HMMSS(double seconds)
 {
-	return ToString_HMMSS((unsigned int)seconds);
+	unsigned int roundSeconds = std::floor(seconds + 0.5);
+	return ToString_HMMSS(roundSeconds);
 }
 //------------------------------------------------------------------------------
 
