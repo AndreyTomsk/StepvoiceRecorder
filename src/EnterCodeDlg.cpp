@@ -93,7 +93,7 @@ BOOL CEnterCodeDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	m_wndLostKey.SubclassDlgItem(IDC_SUPPORT, this);
-	m_wndLostKey.SetUrl("http://stepvoice.com/support");
+	m_wndLostKey.SetUrl("http://stepvoice.com/support.shtml");
 	return TRUE;
 }
 
