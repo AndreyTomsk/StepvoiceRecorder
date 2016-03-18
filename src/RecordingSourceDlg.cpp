@@ -130,8 +130,8 @@ void CRecordingSourceDlg::AdjustDialogCoordinates(CRect& dialogRect) const
 	HMONITOR hMonitor = MonitorFromWindow(GetSafeHwnd(), MONITOR_DEFAULTTONEAREST);
 	GetMonitorInfo(hMonitor, &mi);
 
-	const int rightBorderOffset = dialogRect.right - mi.rcMonitor.right;
-	const int bottomBorderOffset = dialogRect.bottom - mi.rcMonitor.bottom;
+	const int rightBorderOffset = dialogRect.right - mi.rcWork.right;
+	const int bottomBorderOffset = dialogRect.bottom - mi.rcWork.bottom;
 
 	if (rightBorderOffset > 0)
 	{
