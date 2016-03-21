@@ -1,22 +1,23 @@
-Stepvoice Recorder
+1. You should carefully read the following terms and conditions before using, installing or distributing this software. Your use, distribution, or installation of Stepvoice Recorder (“SOFTWARE”) indicates your acceptance of this Agreement.
 
-Copyright © 2016 Andrey Firsov. All Rights Reserved.
+2. Andrey Firsov (“AUTHOR”) grants you a non-exclusive license to use one copy of the SOFTWARE, subject to the terms of this Agreement. The SOFTWARE is licensed, not sold. All rights not expressly granted are reserved by the AUTHOR.
 
-The author hereby gives you a non-exclusive license to use the software.
-For evaluation, the license is granted, and is not time-limited. For registered release you have to pay a license fee. 
- 
-You may:  
-- use the Software on any single computer;  
-- use the Software on a second computer so long as the primary user of each copy is the same person and more than one copy is not simultaneously;
- 
-You may not:  
-- permit other individuals to use the Software except under the terms listed above;  
-- modify, translate, reverse engineer, decompile, disassemble (except to the extent applicable laws specifically prohibit such restriction),  
-- create derivative works based on the Software;  
-- copy the Software (except as specified above);  
-- rent, lease, transfer or otherwise transfer rights to the Software;  
-- remove any proprietary notices or labels on the Software.  
+3. You may install and use the SOFTWARE on any computer used primarily by you (for example, work and home computers or desktop and laptop computers). A copy of the SOFTWARE may either be used by a single person who uses the software personally on one or more computers, or installed on a single workstation used non-simultaneously by multiple people, but not both. This is not a concurrent use license.
 
-This software is provided "as-is," without any express or implied warranty.
-In no event shall the author be held liable for any damages arising from the
-use of this software.
+4. If a multi-user license was bought, you may choose to install the SOFTWARE on as many machines as licenses were bought, but no more, or you may choose to install the SOFTWARE on one or more network servers on the condition that the number of client machines that have access to the SOFTWARE installed on that server or those servers, is equal to or less than the number of licenses bought. When the number of client machines increases, you should buy additional licenses. 
+
+5. You may not:
+- disclose your purchased SOFTWARE license keys to anyone other than the AUTHOR;
+- permit other individuals to use the SOFTWARE except under the terms listed above;  
+- modify, reverse engineer, decompile, disassemble (except to the extent applicable laws specifically prohibit such restriction) the SOFTWARE;
+- create derivative works based on the SOFTWARE;  
+- rent, lease, transfer or otherwise transfer rights to the SOFTWARE;  
+- remove any proprietary notices or labels on the SOFTWARE.  
+
+6. This SOFTWARE is provided "as-is," without any express or implied warranty. In no event shall the AUTHOR be held liable for any damages arising from the use of this SOFTWARE.
+
+7. The AUTHOR’s entire liability to you and your exclusive remedy for any breach or damages under this agreement shall be to return the price you paid for your license.
+
+8. This agreement takes effect upon your use of the SOFTWARE and remains in effect until terminated. You may terminate this agreement by destroying all copies of the SOFTWARE and any license keys in your possession. This license terminates automatically if you fail to comply with any term or condition. You agree on termination of this license to destroy all copies of the SOFTWARE and documentation in your possession.
+
+9. This written license agreement is the exclusive agreement between you and the AUTHOR concerning the SOFTWARE and documentation and supersedes any prior license agreement, purchase order, communication, advertising or representation concerning the SOFTWARE.

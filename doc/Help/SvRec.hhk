@@ -36,11 +36,6 @@
 		<param name="Local" value="stepvoice_recorder\how_to_register.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="License Agreement">
-		<param name="Name" value="License Agreement">
-		<param name="Local" value="stepvoice_recorder\license_agreement.html">
-		</OBJECT>
-	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Main Features">
 		<param name="Name" value="Overview">
 		<param name="Local" value="stepvoice_recorder\overview.html">

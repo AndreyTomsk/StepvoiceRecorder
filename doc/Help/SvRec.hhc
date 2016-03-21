@@ -23,11 +23,6 @@
 			<param name="ImageNumber" value="41">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="License Agreement">
-			<param name="Local" value="stepvoice_recorder\license_agreement.html">
-			<param name="ImageNumber" value="11">
-			</OBJECT>
-		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="What's New?">
 			<param name="Local" value="stepvoice_recorder\whats_new.html">
 			<param name="ImageNumber" value="12">
