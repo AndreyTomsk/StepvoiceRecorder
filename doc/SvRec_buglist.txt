@@ -15,13 +15,13 @@ Milestone: "Version 2.1". Main goals:
 20160318 (bug) + windows task panel hides part of the devices selection dialog
                  (unable to select if program window stays at right bottom position).
 20160318 (bug) + fix time display goes not smooth (03, 05, 06, 08 sec, etc).
+20160315 (enh) + update free/pro version license.
 
 20160301 (enh) - Update website design.
 ???????? (enh) - install google analytics as website visits logger.
 20160301 (enh) - Switch from RegNow: Paypal and maybe Avangate.
 20110802 (enh) - Add supported OS list on the web-site.
 20160301 (enh) - Update pricing options, example: 12$ personal 1PC, 19$ personal 3PC.
-20160315 (enh) - update free/pro version license.
 
 -----------------------------------------------------------------------------
 
