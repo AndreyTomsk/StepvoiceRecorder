@@ -27,11 +27,6 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-//#define SPECIAL_VERSION 1
-#ifdef SPECIAL_VERSION
-const char* SPECIAL_REGKEY="0IuDod5iSkTIHhlC2++aUJF30QIYhSySsWM920dr8YLPwfLpsrHD/uehHgTUlsXc9hwI+C7RgQiqDw9XFneqyXLquU1N1mNn09n94sBJLEJiciHOwUBSDPaJd61tStzH1PkjyX1Tt9fGif9BcGjId1IrQzOJ2QiqiBx61Xc8wUjE=";
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////
 extern TCHAR g_command_line[MAX_PATH];
 
@@ -166,14 +161,10 @@ BOOL CAboutDlg::OnInitDialog()
 BEGIN_MESSAGE_MAP(CMP3_RecorderApp, CWinApp)
 	//{{AFX_MSG_MAP(CMP3_RecorderApp)
 	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-	//ON_COMMAND(IDM_HELP_WWW, OnHelpWww)
 	ON_COMMAND(ID_HELP_OPENLOGFOLDER, OnHelpOpenLogFolder)
 	ON_COMMAND(IDM_HELP_EMAIL, OnHelpEmail)
 	ON_COMMAND(IDM_HELP_DOC, OnHelpDoc)
-	ON_COMMAND(ID_HELP_ENTERCODE, OnHelpEntercode)
-	//ON_COMMAND(ID_HELP_HOWTO, OnHelpHowto)
 	ON_COMMAND(IDA_HELP_DOC, OnHelpDoc)
-	ON_COMMAND(ID_UPGRADE, OnHelpOrderOnline)
 	//}}AFX_MSG_MAP
 	ON_COMMAND(ID_HELP_CHECKFORUPDATES, &CMP3_RecorderApp::OnHelpCheckforupdates)
 END_MESSAGE_MAP()
@@ -240,16 +231,6 @@ BOOL CMP3_RecorderApp::InitInstance()
 	//New SetRegistryKey commented - must be called once.
 	SetRegistryKey(_T("StepVoice Software"));
 	//RegistryConfig::SetRegistryKey(_T("StepVoice Software"));
-
-	if (m_lpCmdLine[0] != _T('\0') && CString(m_lpCmdLine) == _T("/register"))
-	{
-#ifdef SPECIAL_VERSION
-			// Adding a registration key into the system registry
-			CEnterCodeDlg ecDlg;
-			ecDlg.RegisterKey(SPECIAL_REGKEY, true);
-#endif
-			return true;
-	}
 
 	// Variables for command line
 	CString l_cmd_line(m_lpCmdLine);
@@ -421,19 +402,6 @@ void CMP3_RecorderApp::OnAppAbout()
 }
 //---------------------------------------------------------------------------
 
-//void CMP3_RecorderApp::OnHelpWww() 
-//{
-//	ShellExecute(0, NULL, _T("http://www.stepvoice.com"), NULL, NULL,
-//		SW_SHOWNORMAL);
-//}
-
-void CMP3_RecorderApp::OnHelpOrderOnline() 
-{
-	ShellExecute(0, NULL, _T("http://www.stepvoice.com/order.shtml"), NULL, NULL,
-		SW_SHOWNORMAL);
-}
-//---------------------------------------------------------------------------
-
 void CMP3_RecorderApp::OnHelpOpenLogFolder()
 {
 	const CString appDataFolder = FileUtils::GetSpecialFolder(CSIDL_COMMON_APPDATA);
@@ -522,30 +490,6 @@ void CMP3_RecorderApp::OnHelpCheckforupdates()
 }
 //---------------------------------------------------------------------------
 
-//void CMP3_RecorderApp::OnHelpHowto() 
-//{
-//	CMainFrame* pFrame = (CMainFrame *)m_pMainWnd;
-//
-//	using namespace FileUtils;
-//	CString helpFile = CombinePath(GetProgramFolder(), _T("svrec.chm::/stepvoice_recorder/how_to_register.html"));
-//	::HtmlHelp(GetDesktopWindow(), helpFile, HH_DISPLAY_TOPIC, NULL);
-//}
-
-void CMP3_RecorderApp::OnHelpEntercode() 
-{
-	CEnterCodeDlg dlg;
-	if (dlg.DoModal() == IDOK)
-	{
-		//Restarting program to check the registration key.
-		AfxGetMainWnd()->PostMessageW(WM_CLOSE);
-		const CString programPath = FileUtils::GetProgramPath();
-		ShellExecute(::GetDesktopWindow(), _T("open"), programPath, NULL, NULL, SW_SHOW);
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-#pragma optimize ("", off)
 BOOL CMP3_RecorderApp::OnIdle(LONG lCount)
 {
 	// Letting the base class make all needed work
@@ -561,6 +505,5 @@ BOOL CMP3_RecorderApp::OnIdle(LONG lCount)
 
 	return FALSE;	// No more idle time needed
 }
-#pragma optimize ("", on)
+//---------------------------------------------------------------------------
 
-////////////////////////////////////////////////////////////////////////////////

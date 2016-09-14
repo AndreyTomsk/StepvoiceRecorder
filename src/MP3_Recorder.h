@@ -21,13 +21,9 @@ public:
 public:
 	//{{AFX_MSG(CMP3_RecorderApp)
 	afx_msg void OnAppAbout();
-	//afx_msg void OnHelpWww();
 	afx_msg void OnHelpOpenLogFolder();
 	afx_msg void OnHelpEmail();
 	afx_msg void OnHelpDoc();
-	afx_msg void OnHelpEntercode();
-	//afx_msg void OnHelpHowto();
-	afx_msg void OnHelpOrderOnline();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

@@ -26,7 +26,6 @@ namespace Helpers
 	CString GetOutputFolder();
 
 	void SetOnTop(CWnd* wnd, bool top);
-	void RemoveProSuffixFromMenu(CMenu* menu, UINT itemID);
 
 	//CString GetAutonameRegEx(CString strTemplate, CString fileExtension);
 

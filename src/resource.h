@@ -186,7 +186,6 @@
 #define IDM_OPT_SNDDEV                  32874
 #define ID_HELP_HOWTO                   32875
 #define ID_HELP_ENTERREGISTRATIONCODE   32876
-#define ID_HELP_ENTERCODE               32876
 #define IDA_HELP_DOC                    32877
 #define IDM_TRAY_SHOW                   32878
 #define IDM_TRAY_REC                    32884
@@ -204,7 +203,6 @@
 #define IDM_OPT_VAS                     32930
 #define ID_HELP_OPENLOGFOLDER           32931
 #define ID_TOOLS_AUTOGAINCONTROL        32932
-#define ID_UPGRADE                      32933
 #define ID_HELP_CHECKFORUPDATES         32934
 
 // Next default values for new objects

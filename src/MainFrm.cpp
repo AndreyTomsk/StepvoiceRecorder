@@ -375,29 +375,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (RegistryConfig::GetOption(_T("General\\AutoGainControl"), false))
 		m_autoGainControl.reset(new CAutoGainControl());
 
-	//Disabling "silence detection" feature by default.
-	m_StatWnd.m_btnVas.Enable(false);
-	CMenu* toolsSubMenu = GetMenu()->GetSubMenu(2);
-	toolsSubMenu->EnableMenuItem(IDM_OPT_VAS, MF_GRAYED|MF_BYCOMMAND);
-
-	//Enabling "silence detection" feature in Pro version.
-	REG_CRYPT_BEGIN;
-	const bool vasEnabled = RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0);
-	m_StatWnd.m_btnVas.SetCheck(vasEnabled);
-	m_StatWnd.m_btnVas.Enable(true);
-	toolsSubMenu->EnableMenuItem(IDM_OPT_VAS, MF_ENABLED|MF_BYCOMMAND);
-	REG_CRYPT_END;
-
-	//Removing unnecessary menu entries in Pro version.
-	#ifndef _DEBUG
-	REG_CRYPT_BEGIN;
-	GetMenu()->RemoveMenu(ID_UPGRADE, MF_BYCOMMAND);
-	GetMenu()->GetSubMenu(3)->RemoveMenu(ID_HELP_ENTERCODE, MF_BYCOMMAND);
-	Helpers::RemoveProSuffixFromMenu(toolsSubMenu, IDM_OPT_VAS);
-	REG_CRYPT_END;
-	#endif
-
-	//CString test = Helpers::GetNewRecordingFilePath(_T("D:\\Feb26_2016_02.mp3"));
 	return 0;
 }
 

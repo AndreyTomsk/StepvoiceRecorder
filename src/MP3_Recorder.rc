@@ -127,53 +127,51 @@ IDI_MIXLINE03           ICON                    "res\\mixline3.ico"
 // Menu
 //
 
-IDR_MAINFRAME MENUEX 
+IDR_MAINFRAME MENU 
 BEGIN
-    POPUP "&File",                          65535,MFT_STRING,MFS_ENABLED
+    POPUP "&File"
     BEGIN
-        MENUITEM "Create/&Open... \aCtrl - O",  IDM_FILE_CREATEOPEN,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Close",                      IDM_FILE_CLOSE,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "Cle&ar\aCtrl - A",            IDM_FILE_CLEAR,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Move to Recycle Bin",        IDM_FILE_DELETE,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "&Find...\aCtrl - F",          IDM_FILE_FINDFILE,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "E&xit\aAlt - F4",             ID_APP_EXIT,MFT_STRING,MFS_ENABLED
+        MENUITEM "Create/&Open... \aCtrl - O",  IDM_FILE_CREATEOPEN
+        MENUITEM "&Close",                      IDM_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "Cle&ar\aCtrl - A",            IDM_FILE_CLEAR
+        MENUITEM "&Move to Recycle Bin",        IDM_FILE_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "&Find...\aCtrl - F",          IDM_FILE_FINDFILE
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\aAlt - F4",             ID_APP_EXIT
     END
-    POPUP "&Sound",                         65535,MFT_STRING,MFS_ENABLED
+    POPUP "&Sound"
     BEGIN
-        MENUITEM "&Rec./Pause\aEnter",          IDM_SOUND_REC,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Stop\aShift - Space",        IDM_SOUND_STOP,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Play/Pause\aSpace",          IDM_SOUND_PLAY,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "&Jump to begin\aHome",        IDM_SOUND_BEGIN,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Back 5 seconds\aLeft",       IDM_SOUND_REW,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Fwd 5 seconds\aRight",       IDM_SOUND_FF,MFT_STRING,MFS_ENABLED
-        MENUITEM "Jump to &end\aEnd",           IDM_SOUND_END,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Rec./Pause\aEnter",          IDM_SOUND_REC
+        MENUITEM "&Stop\aShift - Space",        IDM_SOUND_STOP
+        MENUITEM "&Play/Pause\aSpace",          IDM_SOUND_PLAY
+        MENUITEM SEPARATOR
+        MENUITEM "&Jump to begin\aHome",        IDM_SOUND_BEGIN
+        MENUITEM "&Back 5 seconds\aLeft",       IDM_SOUND_REW
+        MENUITEM "&Fwd 5 seconds\aRight",       IDM_SOUND_FF
+        MENUITEM "Jump to &end\aEnd",           IDM_SOUND_END
     END
-    POPUP "&Tools",                         65535,MFT_STRING,MFS_ENABLED
+    POPUP "&Tools"
     BEGIN
-        MENUITEM "O&ptions...\aCtrl - P",       IDM_OPT_COM,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "Input &monitor",              IDM_OPT_MONITOR,MFT_STRING,MFS_ENABLED
-        MENUITEM "Input &auto gain",            ID_TOOLS_AUTOGAINCONTROL,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Silence detection (Pro)",    IDM_OPT_VAS,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "Sound &devices...",           IDM_OPT_SNDDEV,MFT_STRING,MFS_ENABLED
+        MENUITEM "O&ptions...\aCtrl - P",       IDM_OPT_COM
+        MENUITEM SEPARATOR
+        MENUITEM "Input &monitor",              IDM_OPT_MONITOR
+        MENUITEM "Input &auto gain",            ID_TOOLS_AUTOGAINCONTROL
+        MENUITEM "&Silence detection",          IDM_OPT_VAS
+        MENUITEM SEPARATOR
+        MENUITEM "Sound &devices...",           IDM_OPT_SNDDEV
     END
-    POPUP "&Help",                          65535,MFT_STRING,MFS_ENABLED
+    POPUP "&Help"
     BEGIN
-        MENUITEM "&Help contents\aF1",          IDM_HELP_DOC,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Enter Pro version key...",   ID_HELP_ENTERCODE,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Check for updates",          ID_HELP_CHECKFORUPDATES,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "&Open log folder",            ID_HELP_OPENLOGFOLDER,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Send e-mail to support",     IDM_HELP_EMAIL,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "&About ...",                  ID_APP_ABOUT,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Help contents\aF1",          IDM_HELP_DOC
+        MENUITEM SEPARATOR
+        MENUITEM "&Check for updates",          ID_HELP_CHECKFORUPDATES
+        MENUITEM "&Open log folder",            ID_HELP_OPENLOGFOLDER
+        MENUITEM "&Send e-mail to support",     IDM_HELP_EMAIL
+        MENUITEM SEPARATOR
+        MENUITEM "&About ...",                  ID_APP_ABOUT
     END
-    MENUITEM "&Upgrade",                    ID_UPGRADE,MFT_STRING | MFT_RIGHTJUSTIFY,MFS_ENABLED
 END
 
 IDR_GRAPHMENU MENU 
