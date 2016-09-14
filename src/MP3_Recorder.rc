@@ -231,7 +231,6 @@ BEGIN
     CTEXT           "This copy of Stepvoice Recorder is registered to:",IDC_STATIC,5,33,185,8
     CTEXT           "Free version",IDC_REGNAME,5,45,185,24
     ICON            IDR_MAINFRAME,IDC_PLAYERICON,5,5,20,20,SS_NOTIFY
-    LTEXT           "Upgrade to Pro version",IDC_GETNOW,60,59,74,8,SS_NOTIFY
     GROUPBOX        "",IDC_STATIC,5,25,185,46
     LTEXT           "Stepvoice Recorder. Version %s",IDC_STATIC_VERSION,34,5,156,8,SS_NOPREFIX
     LTEXT           "Copyright © 2016 Andrey Firsov.",IDC_STATIC,34,15,156,8,SS_NOPREFIX

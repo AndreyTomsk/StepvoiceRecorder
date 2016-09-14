@@ -56,12 +56,9 @@ protected:
 
 	// Implementation
 protected:
-	CUrlWnd	m_wndOrder;
-	CFont	m_FontBold;
 	static bool m_bRecIcon;
 
 	//{{AFX_MSG(CAboutDlg)
-	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnPlayerIcon();
 	afx_msg void OnTimer(UINT nIDEvent);
 	virtual BOOL OnInitDialog();
@@ -71,7 +68,6 @@ protected:
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 	//{{AFX_MSG_MAP(CAboutDlg)
-	ON_WM_CTLCOLOR()
 	ON_BN_CLICKED(IDC_PLAYERICON, OnPlayerIcon)
 	ON_WM_TIMER()
 	//}}AFX_MSG_MAP
@@ -82,13 +78,9 @@ bool CAboutDlg::m_bRecIcon = false;
 
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 {
-	m_FontBold.CreateFont (-8, 0, 0, 0, FW_BOLD,  0, 0, 0, 0, 0, 0, 0, 0,
-		_T("MS Sans Serif"));
-	//{{AFX_DATA_INIT(CAboutDlg)
-	//}}AFX_DATA_INIT
-
 	m_bRecIcon = true;
 }
+//---------------------------------------------------------------------------
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -96,6 +88,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CAboutDlg)
 	//}}AFX_DATA_MAP
 }
+//---------------------------------------------------------------------------
 
 void CAboutDlg::OnPlayerIcon() 
 {
@@ -111,6 +104,7 @@ void CAboutDlg::OnPlayerIcon()
 
 	m_bRecIcon = !m_bRecIcon;
 }
+//---------------------------------------------------------------------------
 
 void CAboutDlg::OnTimer(UINT nIDEvent) 
 {
@@ -126,8 +120,8 @@ void CAboutDlg::OnTimer(UINT nIDEvent)
 	}
 	CDialog::OnTimer(nIDEvent);
 }
+//---------------------------------------------------------------------------
 
-#pragma optimize ("", off)
 BOOL CAboutDlg::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
@@ -151,17 +145,6 @@ BOOL CAboutDlg::OnInitDialog()
 	CEdit* pThanksEdit = (CEdit *)GetDlgItem(IDC_THANKSTO);
 	pThanksEdit->SetWindowText(l_wnd_text);
 
-	m_wndOrder.SubclassDlgItem(IDC_GETNOW, this);
-	m_wndOrder.SetUrl("http://stepvoice.com/order.shtml");
-
-
-	REG_CRYPT_BEGIN;
-#ifndef _DEBUG
-	SetDlgItemText(IDC_REGNAME, fsProtect_GetUserName());
-	m_wndOrder.ShowWindow(SW_HIDE);
-#endif
-	REG_CRYPT_END;
-
 	// Preparing version string.
 
 	CString l_format_string;
@@ -175,21 +158,6 @@ BOOL CAboutDlg::OnInitDialog()
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 //---------------------------------------------------------------------------
-
-HBRUSH CAboutDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
-{
-	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
-
-	REG_CRYPT_BEGIN;
-#ifndef _DEBUG
-	if (pWnd->m_hWnd == GetDlgItem (IDC_REGNAME)->m_hWnd)
-		pDC->SelectObject (&m_FontBold);
-#endif
-	REG_CRYPT_END;
-
-	return hbr;
-}
-#pragma optimize ("", on)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Recorder application class
@@ -585,30 +553,6 @@ BOOL CMP3_RecorderApp::OnIdle(LONG lCount)
 	{
 		return TRUE;
 	}
-
-	/*
-	static bool nagScreenDisplayed = false;
-	static DWORD initialMS = ::GetTickCount();
-
-	REG_CRYPT_BEGIN;
-	nagScreenDisplayed = true;
-	REG_CRYPT_END;
-
-	if (!nagScreenDisplayed && ::GetTickCount()-initialMS > 500)
-	{
-		try
-		{
-			CNagScreenDlg nagDlg(AfxGetMainWnd());
-			UINT resultID = nagDlg.DoModal();
-			resultID = resultID / (resultID - IDOK); //Just some obfuscation: close button is IDCANCEL
-			nagScreenDisplayed = true;
-		}
-		catch (...)
-		{
-			AfxGetMainWnd()->PostMessage(WM_CLOSE);
-		}
-	}
-	*/
 
 	// Updating the main window interface
 	CMainFrame* l_main_wnd = (CMainFrame*)AfxGetMainWnd();
