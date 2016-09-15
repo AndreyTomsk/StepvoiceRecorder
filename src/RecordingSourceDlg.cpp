@@ -43,12 +43,8 @@ CRecordingSourceDlg* CRecordingSourceDlg::GetInstance()
 
 CRecordingSourceDlg::CRecordingSourceDlg(CWnd* pParent /*=NULL*/)
 	:CDialog(CRecordingSourceDlg::IDD, pParent)
-	,m_multiSelection(false)
+	,m_multiSelection(true)
 {
-	//Enabling Pro features in registered version.
-	REG_CRYPT_BEGIN;
-	m_multiSelection = true;
-	REG_CRYPT_END;
 }
 //---------------------------------------------------------------------------
 

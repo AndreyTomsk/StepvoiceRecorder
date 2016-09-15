@@ -30,12 +30,6 @@ CPageVAS::CPageVAS()
 	,m_delayIndex(0)
 	,m_action(0)
 {
-	#ifndef _DEBUG
-	REG_CRYPT_BEGIN;
-	m_psp.dwFlags |= PSP_USETITLE;
-	m_psp.pszTitle = _T("Silence Detection");
-	REG_CRYPT_END;
-	#endif
 }
 //---------------------------------------------------------------------------
 
@@ -82,13 +76,6 @@ BOOL CPageVAS::OnInitDialog()
 	pSlider->SetLineSize(1);
 	pSlider->SetPageSize(1);
 	pSlider->SetPos(m_delayIndex);
-
-	//Disabling Pro features by default.
-	EnableChildWindows(GetSafeHwnd(), false);
-	//Enabling Pro features in registered version.
-	REG_CRYPT_BEGIN;
-	EnableChildWindows(GetSafeHwnd(), true);
-	REG_CRYPT_END;
 
 	return TRUE;
 }

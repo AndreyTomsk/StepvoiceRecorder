@@ -1146,10 +1146,7 @@ void CMainFrame::OnUpdateOptMonitor(CCmdUI* pCmdUI)
 
 void CMainFrame::OnUpdateOptVAS(CCmdUI* pCmdUI)
 {
-	//Pro-version interface update (main menu)
-	REG_CRYPT_BEGIN;
 	pCmdUI->SetCheck(m_StatWnd.m_btnVas.IsChecked());
-	REG_CRYPT_END;
 }
 //------------------------------------------------------------------------------
 

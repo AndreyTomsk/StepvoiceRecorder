@@ -29,17 +29,4 @@ DWORD CStopwatchMS::GetElapsedTime() const
 	else //DWORD overflow case
 		return DWORD(UINT_MAX + curMS - m_startMS);
 }
-
-/////////////////////////////////////////////////////////////////////////////
-
-BOOL CALLBACK EnableProc(HWND hwnd, LPARAM lParam)
-{
-	EnableWindow(hwnd, static_cast<BOOL>(lParam));
-	return TRUE; //continue enumeration
-}
-
-void EnableChildWindows(HWND parentWindow, bool enable)
-{
-	EnumChildWindows(parentWindow, EnableProc, enable);
-}
 //---------------------------------------------------------------------------
