@@ -353,23 +353,6 @@ BEGIN
     GROUPBOX        "If silence has been detected:",IDC_STATIC,5,53,222,42
 END
 
-IDD_NAGSCREEN DIALOGEX 0, 0, 227, 123
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
-CAPTION "Title"
-FONT 8, "MS Shell Dlg", 0, 0, 0x0
-BEGIN
-    PUSHBUTTON      "&Enter key...",IDC_ENTERCODE,6,102,71,16
-    PUSHBUTTON      "&Use Recorder without registering",IDCANCEL,85,102,136,16
-    ICON            IDR_MAINFRAME2,IDC_STATIC,199,1,21,20,SS_CENTERIMAGE
-    LTEXT           "You may evaluate the trial version as long as you like. If you find it useful then we would appreciate your registration of this program.",IDC_STATIC,5,20,216,20
-    LTEXT           "To register visit our website at:",IDC_STATIC,6,54,98,8
-    CTEXT           "www.stepvoice.com",IDC_GETNOW,107,54,82,8,SS_NOTIFY
-    LTEXT           "After your order has been processed, you will receive an email containing the registration key.",IDC_STATIC,6,67,215,19
-    LTEXT           "Thank you for trying Stepvoice Recorder!",IDC_THANKYOU,5,7,186,9
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,41,216,1
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,96,216,1
-END
-
 IDD_RECORDING_SOURCE DIALOGEX 0, 0, 201, 149
 STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | WS_POPUP | WS_CLIPCHILDREN | WS_BORDER
 FONT 8, "MS Shell Dlg", 400, 0, 0xCC
@@ -450,14 +433,6 @@ BEGIN
         LEFTMARGIN, 5
         VERTGUIDE, 227
         TOPMARGIN, 5
-    END
-
-    IDD_NAGSCREEN, DIALOG
-    BEGIN
-        LEFTMARGIN, 6
-        RIGHTMARGIN, 221
-        TOPMARGIN, 6
-        BOTTOMMARGIN, 118
     END
 
     IDD_RECORDING_SOURCE, DIALOG

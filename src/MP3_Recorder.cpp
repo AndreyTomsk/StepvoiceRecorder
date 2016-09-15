@@ -5,7 +5,6 @@
 #include "MP3_Recorder.h"
 
 #include "MainFrm.h"
-#include "NagScreenDlg.h"
 #include "EnterCodeDlg.h"
 
 #include "UrlWnd.h"

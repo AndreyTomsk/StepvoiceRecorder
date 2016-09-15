@@ -531,28 +531,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="NagScreenDlg.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\NewVersionDlg.cpp"
 				>
 			</File>
@@ -967,10 +945,6 @@
 			</File>
 			<File
 				RelativePath="MySlider.h"
-				>
-			</File>
-			<File
-				RelativePath="NagScreenDlg.h"
 				>
 			</File>
 			<File
