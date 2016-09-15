@@ -16,8 +16,6 @@
 #define IDR_MAINFRAME                   128
 #define IDB_MIX_SEL                     129
 #define IDS_ERROR_DIRECTORY             129
-#define IDS_ERROR_REGISTER_WRITE        130
-#define IDS_REGISTRATION_RESTART        131
 #define IDS_FILETITLE                   132
 #define IDI_PLAY                        133
 #define IDS_NOFILE                      133
@@ -56,7 +54,6 @@
 #define IDB_PROC_ICONS                  183
 #define IDR_GRAPHMENU                   184
 #define IDR_STATMENU                    192
-#define IDD_ENTERCODE                   193
 #define IDR_MAINFRAME2                  195
 #define IDD_AUTONAME                    199
 #define IDS_ERROR_LAME_NOTFOUND         200
@@ -107,13 +104,11 @@
 #define IDC_BITRATE_DESCR               1027
 #define IDC_TOOLTIP_ENABLE              1041
 #define IDR_OPT_RELOAD                  1042
-#define IDC_EDITCODE                    1042
 #define IDC_REGNAME                     1043
 #define IDC_THANKSTO                    1044
 #define IDC_PLAYERICON                  1045
 #define IDC_PASTE                       1047
 #define IDC_CLEAR                       1048
-#define IDC_GETNOW                      1054
 #define IDE_NAMETEMPLATE                1063
 #define IDC_AN_EXTEXT                   1075
 #define IDC_VAS_SILENTPAUSE             1081
@@ -156,7 +151,6 @@
 #define IDC_ON_TOP                      1182
 #define IDC_UNREGNOTICE                 1183
 #define IDC_RADIO1                      1184
-#define IDC_SUPPORT                     1186
 #define IDC_DOWNLOAD_LINK               1187
 #define IDW_RECORDING_ITEM              5000
 #define IDM_FILE_NEW                    32773

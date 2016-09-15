@@ -325,28 +325,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="EnterCodeDlg.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\FileUtils.cpp"
 				>
 			</File>
@@ -885,10 +863,6 @@
 			</File>
 			<File
 				RelativePath="Encoder_MP3.h"
-				>
-			</File>
-			<File
-				RelativePath="EnterCodeDlg.h"
 				>
 			</File>
 			<File

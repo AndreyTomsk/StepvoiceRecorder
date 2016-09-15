@@ -3,9 +3,7 @@
 #include <htmlhelp.h>
 
 #include "MP3_Recorder.h"
-
 #include "MainFrm.h"
-#include "EnterCodeDlg.h"
 
 #include "UrlWnd.h"
 #include "version.h"

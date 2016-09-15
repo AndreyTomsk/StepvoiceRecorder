@@ -282,19 +282,6 @@ BEGIN
     GROUPBOX        "Recording frequency (kHz)",IDC_GROUP_FREQ,61,58,166,37
 END
 
-IDD_ENTERCODE DIALOGEX 0, 0, 243, 105
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Stepvoice Recorder registration"
-FONT 8, "MS Shell Dlg", 0, 0, 0x0
-BEGIN
-    EDITTEXT        IDC_EDITCODE,7,21,229,53,ES_MULTILINE | ES_AUTOVSCROLL
-    PUSHBUTTON      "Buy online...",IDC_GETNOW,7,82,60,16
-    LTEXT           "I lost my key",IDC_SUPPORT,72,85,47,8,SS_NOTIFY | WS_TABSTOP
-    PUSHBUTTON      "Register",IDOK,121,82,55,16,WS_DISABLED
-    PUSHBUTTON      "Cancel",IDCANCEL,181,82,55,16
-    LTEXT           "Copy and paste your registration key here:",IDC_STATIC,7,7,229,8
-END
-
 IDD_AUTONAME DIALOGEX 0, 0, 232, 100
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Autoname"
@@ -412,14 +399,6 @@ BEGIN
         BOTTOMMARGIN, 95
     END
 
-    IDD_ENTERCODE, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 236
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 98
-    END
-
     IDD_AUTONAME, DIALOG
     BEGIN
         LEFTMARGIN, 5
@@ -489,9 +468,6 @@ STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "MP3_Recorder"
     IDS_ERROR_DIRECTORY     "Unable to start recording. The directory specified doesn't exist."
-    IDS_ERROR_REGISTER_WRITE "Unable to write into the system registry."
-    IDS_REGISTRATION_RESTART 
-                            "Thank you! Program will be restarted to validate the key."
     IDS_FILETITLE           "%1 - Stepvoice Recorder"
     IDS_NOFILE              "no file"
     IDS_FILEOPENTITLE       "Open File"
