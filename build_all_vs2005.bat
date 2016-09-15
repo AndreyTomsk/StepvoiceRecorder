@@ -1,7 +1,7 @@
 @echo off
 rem Building the recorder with one press.
 rem Note: last version number (git rev. number) and build
-rem date updated automatically (see src/version.in).
+rem date updated automatically (see src/pre_build.bat).
 
 
 call "%PROGRAMFILES%\Microsoft Visual Studio 8\VC\vcvarsall.bat" x86
