@@ -227,7 +227,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="post_build.bat"
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>
@@ -553,6 +553,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\NewVersionDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath="PageAN.cpp"
 				>
 				<FileConfiguration
@@ -620,28 +624,6 @@
 			</File>
 			<File
 				RelativePath="PageVAS.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="PROTECT.CPP"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -815,10 +797,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\NewVersionDlg.cpp"
-				>
 			</File>
 			<File
 				RelativePath="UrlWnd.cpp"
@@ -996,6 +974,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\NewVersionDlg.h"
+				>
+			</File>
+			<File
 				RelativePath="PageAN.h"
 				>
 			</File>
@@ -1009,10 +991,6 @@
 			</File>
 			<File
 				RelativePath="PageVAS.h"
-				>
-			</File>
-			<File
-				RelativePath="PROTECT.H"
 				>
 			</File>
 			<File
@@ -1069,10 +1047,6 @@
 			</File>
 			<File
 				RelativePath="TitleText.h"
-				>
-			</File>
-			<File
-				RelativePath=".\NewVersionDlg.h"
 				>
 			</File>
 			<File
