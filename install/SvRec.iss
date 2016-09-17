@@ -50,7 +50,6 @@ Root: HKCU; Subkey: "Software\Stepvoice Software\SvRec\General"; ValueType: stri
 [Files]
 Source: License Agreement.rtf;     DestDir: {app}; Flags: ignoreversion
 Source: Stepvoice Recorder Home.url; DestDir: {app}; Flags: ignoreversion
-Source: order.url;                 DestDir: {app}; Flags: ignoreversion
 
 Source: ..\bin\{#User_AppExeName}; DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\bass.dll;           DestDir: {app}; Flags: ignoreversion
@@ -63,7 +62,6 @@ Source: ..\doc\Help\SvRec.chm;     DestDir: {app}; Flags: ignoreversion
 Name: "{commonappdata}\Stepvoice"
 
 [Icons]
-;Name: {group}\Order Online;                   Filename: {app}\order.url; WorkingDir: {app}
 Name: {group}\Stepvoice Recorder;             FileName: {app}\{#User_AppExeName}; WorkingDir: {app}
 Name: {group}\Stepvoice Recorder Help;        FileName: {app}\SvRec.chm; WorkingDir: {app}
 Name: {group}\Stepvoice Recorder Home;        Filename: {app}\Stepvoice Recorder Home.url;
