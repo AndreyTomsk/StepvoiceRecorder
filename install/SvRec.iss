@@ -48,7 +48,6 @@ Root: HKCU; Subkey: "Software\Stepvoice Software\SvRec\General"; ValueType: stri
 
 
 [Files]
-Source: License Agreement.rtf;     DestDir: {app}; Flags: ignoreversion
 Source: Stepvoice Recorder Home.url; DestDir: {app}; Flags: ignoreversion
 
 Source: ..\bin\{#User_AppExeName}; DestDir: {app}; Flags: ignoreversion

@@ -1,23 +1,9 @@
-1. You should carefully read the following terms and conditions before using, installing or distributing this software. Your use, distribution, or installation of Stepvoice Recorder (“SOFTWARE”) indicates your acceptance of this Agreement.
+1. You should carefully read the following terms and conditions before using, installing or distributing this software. Your use, distribution, or installation of Stepvoice Recorder (“Software”) indicates your acceptance of this agreement.
 
-2. Andrey Firsov (“AUTHOR”) grants you a non-exclusive license to use one copy of the SOFTWARE, subject to the terms of this Agreement. The SOFTWARE is licensed, not sold. All rights not expressly granted are reserved by the AUTHOR.
+2. This Freeware License Agreement (the "Agreement") is a legal agreement between you, the end-user, and Andrey Firsov (the "Author") for the use of this Software. Commercial as well as non-commercial use is allowed. By using this Software or storing this program or parts of it on a computer hard drive (or other media), you agree to be bound by the terms of this agreement. Provided that you verify that you are handling the original freeware version you are hereby licensed to make as many copies of the freeware version of this Software as long as you do not charge money or request donations for such copies. You may not alter this Software in any way. You may not modify, rent or sell this Software, or create derivative works based upon this Software.
 
-3. You may install and use the SOFTWARE on any computer used primarily by you (for example, work and home computers or desktop and laptop computers). A copy of the SOFTWARE may either be used by a single person who uses the software personally on one or more computers, or installed on a single workstation used non-simultaneously by multiple people, but not both. This is not a concurrent use license.
+3. This Software is provided "as-is," without any express or implied warranty. In no event shall the Author be held liable for any damages arising from the use of this Software.
 
-4. If a multi-user license was bought, you may choose to install the SOFTWARE on as many machines as licenses were bought, but no more, or you may choose to install the SOFTWARE on one or more network servers on the condition that the number of client machines that have access to the SOFTWARE installed on that server or those servers, is equal to or less than the number of licenses bought. When the number of client machines increases, you should buy additional licenses. 
+4. This agreement takes effect upon your use of the Software and remains in effect until terminated. You may terminate this agreement by destroying all copies of the Software. This license terminates automatically if you fail to comply with any term or condition. You agree on termination of this license to destroy all copies of the Software and documentation in your possession.
 
-5. You may not:
-- disclose your purchased SOFTWARE license keys to anyone other than the AUTHOR;
-- permit other individuals to use the SOFTWARE except under the terms listed above;  
-- modify, reverse engineer, decompile, disassemble (except to the extent applicable laws specifically prohibit such restriction) the SOFTWARE;
-- create derivative works based on the SOFTWARE;  
-- rent, lease, transfer or otherwise transfer rights to the SOFTWARE;  
-- remove any proprietary notices or labels on the SOFTWARE.  
-
-6. This SOFTWARE is provided "as-is," without any express or implied warranty. In no event shall the AUTHOR be held liable for any damages arising from the use of this SOFTWARE.
-
-7. The AUTHOR’s entire liability to you and your exclusive remedy for any breach or damages under this agreement shall be to return the price you paid for your license.
-
-8. This agreement takes effect upon your use of the SOFTWARE and remains in effect until terminated. You may terminate this agreement by destroying all copies of the SOFTWARE and any license keys in your possession. This license terminates automatically if you fail to comply with any term or condition. You agree on termination of this license to destroy all copies of the SOFTWARE and documentation in your possession.
-
-9. This written license agreement is the exclusive agreement between you and the AUTHOR concerning the SOFTWARE and documentation and supersedes any prior license agreement, purchase order, communication, advertising or representation concerning the SOFTWARE.
+5. This written license agreement supersedes any prior license agreement, purchase order, communication, advertising or representation concerning the Software. All rights not expressly granted are reserved by the Author.
