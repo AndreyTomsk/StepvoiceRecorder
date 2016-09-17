@@ -77,8 +77,6 @@ Name: desktopicon; Description: Create a &desktop icon; GroupDescription: Additi
 Name: quicklaunchicon; Description: Create a &Quick Launch icon; GroupDescription: Additional icons:; Flags: unchecked
 
 [Run]
-; The line below is used only for special versions.
-Filename: {app}\{#User_AppExeName}; Parameters: "/register"
 FileName: {app}\{#User_AppExeName}; Description: Launch Stepvoice Recorder; Flags: postinstall nowait skipifsilent unchecked
 
 [_ISTool]
