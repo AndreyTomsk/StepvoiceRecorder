@@ -384,8 +384,8 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 	if( !CFrameWnd::PreCreateWindow(cs) )
 		return FALSE;
 
-	cs.cx = 290;
-	cs.cy = 120 + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYMENU);
+	cs.cx = 300;
+	cs.cy = 125 + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYMENU);
 	
 	int nScreenCX = GetSystemMetrics(SM_CXSCREEN);
 	int nScreenCY = GetSystemMetrics(SM_CYSCREEN);
