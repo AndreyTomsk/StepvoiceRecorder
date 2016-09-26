@@ -285,7 +285,6 @@
     <ClInclude Include="WaveOut.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Ico\VOLUME01.ICO" />
     <Image Include="RES\big_digits.bmp" />
     <Image Include="RES\btn_mon.bmp" />
     <Image Include="RES\btn_sched.bmp" />

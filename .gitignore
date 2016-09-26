@@ -1,12 +1,19 @@
-version.h
-*.ncb
-*.suo
-*.aps
-*.vcproj.*
 obj/
 install/Output/
 bin/SvRec*.exe
 bin/SvRec*.ilk
 bin/SvRec.chm
 doc/Help/SvRec.chm
+version.h
 
+#VStudio 2005 ignores
+*.ncb
+*.aps
+*.vcproj.*
+
+#VStudio 2015 ignores
+.vs/
+ipch/
+mp3_recorder_vc8.VC.*
+mp3_recorder.vcxproj.user
+bin/MP3_Recorder.pdb
