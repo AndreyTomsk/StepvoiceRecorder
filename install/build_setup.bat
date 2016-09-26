@@ -6,9 +6,9 @@ rem --------------------------------------------------------
 del /F /Q "Output\*.exe"
 
 echo "Loading certificate password..."
-set /p MyCertificatePassword=<MyCertificate.password
+set /p Password=<MyCertificate.password
 if exist MyCertificate.p12 (
-  set SignString="'%PROGRAMFILES(X86)%\Windows Kits\10\bin\x86\signtool.exe' sign /f %~dp0\MyCertificate.p12 /p %MyCertificatePassword% /t http://timestamp.comodoca.com/authenticode"
+  set SignString="'%PROGRAMFILES(X86)%\Windows Kits\10\bin\x86\signtool.exe' sign /f %~dp0\MyCertificate.p12 /p %Password% /t http://timestamp.comodoca.com/authenticode"
 ) else (
   set SignString=""
 )
@@ -32,6 +32,6 @@ if NOT %SignString% == "" (
 ) else (
 
   echo Making setup file without signing...
-  "%PROGRAMFILES(X86)%\Inno Setup 5\ISCC.exe" SvRec.iss /Q "/DSkipSigning"
+  "%PROGRAMFILES(X86)%\Inno Setup 5\ISCC.exe" SvRec.iss /Q "/DSignSkip"
 
 )
