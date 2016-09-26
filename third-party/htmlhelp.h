@@ -13,13 +13,20 @@
 #ifndef __HTMLHELP_H__
 #define __HTMLHELP_H__
 
+#include <winapifamily.h>
+
+#pragma region Desktop Family
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
+#if _MSC_VER < 1200
 // Defines for Win64
 #ifndef _WIN64
 #define DWORD_PTR DWORD
+#endif
 #endif
 
 // Commands to pass to HtmlHelp()
@@ -53,8 +60,10 @@ extern "C" {
 #define HH_SET_EXCLUSIVE_FILTER 0x0019  // set exclusive filtering method for untyped topics to be excluded from display
 #define HH_INITIALIZE            0x001C  // Initializes the help system.
 #define HH_UNINITIALIZE          0x001D  // Uninitializes the help system.
+#define HH_SET_QUERYSERVICE     0x001E  // Set the Host IQueryService interface
 #define HH_PRETRANSLATEMESSAGE  0x00fd  // Pumps messages. (NULL, NULL, MSG*). 
 #define HH_SET_GLOBAL_PROPERTY  0x00fc  // Set a global property. (NULL, NULL, HH_GPROP)
+#define HH_SAFE_DISPLAY_TOPIC   0x0020  // private addition to the interface for InternetExplorer.
 
 #define HHWIN_PROP_TAB_AUTOHIDESHOW (1 << 0)    // Automatically hide/show tri-pane window
 #define HHWIN_PROP_ONTOP            (1 << 1)    // Top-most window
@@ -364,19 +373,19 @@ typedef struct tagHHNTRACK
 HWND
 WINAPI
 HtmlHelpA(
-    HWND hwndCaller,
-    LPCSTR pszFile,
-    UINT uCommand,
-    DWORD_PTR dwData
+    _In_opt_ HWND hwndCaller,
+    _In_ LPCSTR pszFile,
+    _In_ UINT uCommand,
+    _In_ DWORD_PTR dwData
     );
 
 HWND
 WINAPI
 HtmlHelpW(
-    HWND hwndCaller,
-    LPCWSTR pszFile,
-    UINT uCommand,
-    DWORD_PTR dwData
+    _In_opt_ HWND hwndCaller,
+    _In_ LPCWSTR pszFile,
+    _In_ UINT uCommand,
+    _In_ DWORD_PTR dwData
     );
 #ifdef UNICODE
 #define HtmlHelp  HtmlHelpW
@@ -422,5 +431,9 @@ typedef struct tagHH_GLOBAL_PROPERTY
 #ifdef __cplusplus
 }
 #endif // __cplusplus
+
+
+#endif /* WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) */
+#pragma endregion
 
 #endif // __HTMLHELP_H__

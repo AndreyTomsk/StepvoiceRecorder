@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>MP3_Recorder</ProjectName>
+    <ProjectGuid>{254B43C3-F9C6-41C1-8F2D-084F654D1967}</ProjectGuid>
+    <RootNamespace>MP3_Recorder</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\..\bin\</OutDir>
+    <IntDir>.\..\obj\$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\..\bin\</OutDir>
+    <IntDir>.\..\obj\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+      <Command />
+    </PreBuildEvent>
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\..\bin/mp3_recorder_vc8.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\third-party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>winmm.lib;htmlhelp.lib;bass.lib;basswasapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)SvRec_d.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(IntDir)$(TargetName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+      <Command>pre_build.bat</Command>
+    </PreBuildEvent>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\..\bin/mp3_recorder_vc8.tlb</TypeLibraryName>
+      <HeaderFileName />
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\third-party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>winmm.lib;htmlhelp.lib;bass.lib;basswasapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)SvRec.exe</OutputFile>
+      <Version>1.5</Version>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ProgramDatabaseFile>$(IntDir)SvRec.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(IntDir)SvRec.map</MapFileName>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(IntDir)$(TargetName).bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command />
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\third-party\tinyxml2.cpp" />
+    <ClCompile Include="AutoGainControl.cpp" />
+    <ClCompile Include="Bass_Functions.cpp" />
+    <ClCompile Include="bitmapbtn.cpp" />
+    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="ControlButton.cpp" />
+    <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="DeviceLevels.cpp" />
+    <ClCompile Include="Encoder_MP3.cpp" />
+    <ClCompile Include="FileUtils.cpp" />
+    <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="FilterChain.cpp" />
+    <ClCompile Include="FilterFileWriter.cpp" />
+    <ClCompile Include="FilterFileWriterWAV.cpp" />
+    <ClCompile Include="GraphWnd.cpp" />
+    <ClCompile Include="IcoWnd.cpp" />
+    <ClCompile Include="Log.cpp" />
+    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MainFrm_Helpers.cpp" />
+    <ClCompile Include="MP3_Recorder.cpp" />
+    <ClCompile Include="MyException.cpp" />
+    <ClCompile Include="MySheet.cpp" />
+    <ClCompile Include="MySlider.cpp" />
+    <ClCompile Include="NewVersionDlg.cpp" />
+    <ClCompile Include="PageAN.cpp" />
+    <ClCompile Include="PageCom.cpp" />
+    <ClCompile Include="PageRec.cpp" />
+    <ClCompile Include="PageVAS.cpp" />
+    <ClCompile Include="RecordingSourceDlg.cpp" />
+    <ClCompile Include="RecordingSourceItem.cpp" />
+    <ClCompile Include="SampleConverter.cpp" />
+    <ClCompile Include="SliderVol.cpp" />
+    <ClCompile Include="StatWnd.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="StrUtils.cpp" />
+    <ClCompile Include="SystemTray.cpp" />
+    <ClCompile Include="TimeWnd.cpp" />
+    <ClCompile Include="TitleText.cpp" />
+    <ClCompile Include="UrlWnd.cpp" />
+    <ClCompile Include="Utility.cpp" />
+    <ClCompile Include="VASFilter.cpp" />
+    <ClCompile Include="VisualizationData.cpp" />
+    <ClCompile Include="WasapiAudioClient.cpp" />
+    <ClCompile Include="WasapiCaptureBuffer.cpp" />
+    <ClCompile Include="WasapiCaptureBufferSimple.cpp" />
+    <ClCompile Include="WasapiHelpers.cpp" />
+    <ClCompile Include="WasapiRecorder.cpp" />
+    <ClCompile Include="WasapiRecorderMulti.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MP3_Recorder.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AutoGainControl.h" />
+    <ClInclude Include="BASS_Functions.h" />
+    <ClInclude Include="bitmapbtn.h" />
+    <ClInclude Include="BladeMP3EncDLL.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="ControlButton.h" />
+    <ClInclude Include="CustomMenu.h" />
+    <ClInclude Include="Debug.h" />
+    <ClInclude Include="Decoder.h" />
+    <ClInclude Include="DeviceLevels.h" />
+    <ClInclude Include="Encoder_MP3.h" />
+    <ClInclude Include="FileUtils.h" />
+    <ClInclude Include="Filter.h" />
+    <ClInclude Include="FilterChain.h" />
+    <ClInclude Include="FilterFileWriter.h" />
+    <ClInclude Include="FilterFileWriterWAV.h" />
+    <ClInclude Include="GraphWnd.h" />
+    <ClInclude Include="IcoWnd.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MainFrm_Helpers.h" />
+    <ClInclude Include="MP3_Recorder.h" />
+    <ClInclude Include="MyException.h" />
+    <ClInclude Include="MySheet.h" />
+    <ClInclude Include="MySlider.h" />
+    <ClInclude Include="NewVersionDlg.h" />
+    <ClInclude Include="PageAN.h" />
+    <ClInclude Include="PageCom.h" />
+    <ClInclude Include="PageRec.h" />
+    <ClInclude Include="PageVAS.h" />
+    <ClInclude Include="RecordingSourceDlg.h" />
+    <ClInclude Include="RecordingSourceItem.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="SampleConverter.h" />
+    <ClInclude Include="SliderVol.h" />
+    <ClInclude Include="SndFile.h" />
+    <ClInclude Include="SndFile_MP3.h" />
+    <ClInclude Include="StatWnd.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="StrUtils.h" />
+    <ClInclude Include="SyncObjects.h" />
+    <ClInclude Include="SystemTray.h" />
+    <ClInclude Include="TimeWnd.h" />
+    <ClInclude Include="TitleText.h" />
+    <ClInclude Include="UrlWnd.h" />
+    <ClInclude Include="Utility.h" />
+    <ClInclude Include="VASFilter.h" />
+    <ClInclude Include="version.h" />
+    <ClInclude Include="VisualizationData.h" />
+    <ClInclude Include="WasapiAudioClient.h" />
+    <ClInclude Include="WasapiCaptureBuffer.h" />
+    <ClInclude Include="WasapiCaptureBufferSimple.h" />
+    <ClInclude Include="WasapiHelpers.h" />
+    <ClInclude Include="WasapiRecorder.h" />
+    <ClInclude Include="WasapiRecorderMulti.h" />
+    <ClInclude Include="Wave.h" />
+    <ClInclude Include="WaveIn.h" />
+    <ClInclude Include="WaveOut.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Ico\VOLUME01.ICO" />
+    <Image Include="RES\big_digits.bmp" />
+    <Image Include="RES\btn_mon.bmp" />
+    <Image Include="RES\btn_sched.bmp" />
+    <Image Include="RES\btn_vas.bmp" />
+    <Image Include="RES\gwbg_dot.bmp" />
+    <Image Include="RES\gwbg_lgp.bmp" />
+    <Image Include="RES\gwbg_lnp.bmp" />
+    <Image Include="RES\gwbg_non.bmp" />
+    <Image Include="RES\ico00001.ico" />
+    <Image Include="RES\ico00002.ico" />
+    <Image Include="RES\ico00003.ico" />
+    <Image Include="RES\ico00004.ico" />
+    <Image Include="RES\ico00005.ico" />
+    <Image Include="RES\ico00006.ico" />
+    <Image Include="RES\ico00007.ico" />
+    <Image Include="RES\ico00008.ico" />
+    <Image Include="RES\ico00009.ico" />
+    <Image Include="RES\ico00010.ico" />
+    <Image Include="RES\ico00011.ico" />
+    <Image Include="RES\ico00012.ico" />
+    <Image Include="RES\ico00013.ico" />
+    <Image Include="RES\ico00014.ico" />
+    <Image Include="RES\icon1.ico" />
+    <Image Include="RES\icons_proc.bmp" />
+    <Image Include="RES\idr_main.ico" />
+    <Image Include="RES\mixline0.ico" />
+    <Image Include="RES\mixline3.ico" />
+    <Image Include="res\MP3_Recorder.ico" />
+    <Image Include="RES\new.ico" />
+    <Image Include="RES\open2.ico" />
+    <Image Include="RES\pause.ico" />
+    <Image Include="RES\peak_meter_menu.bmp" />
+    <Image Include="RES\pmlg_24.bmp" />
+    <Image Include="RES\pmln_24.bmp" />
+    <Image Include="RES\stat_bitmaps.bmp" />
+    <Image Include="RES\stat_wnd.bmp" />
+    <Image Include="RES\stat_wnd2.bmp" />
+    <Image Include="RES\stop.ico" />
+    <Image Include="RES\time_wnd.bmp" />
+    <Image Include="RES\toolbar1.bmp" />
+    <Image Include="RES\tray_pau.ico" />
+    <Image Include="RES\tray_pla.ico" />
+    <Image Include="RES\tray_rec.ico" />
+    <Image Include="RES\tray_sto.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\MP3_Recorder.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="MP3_Recorder.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

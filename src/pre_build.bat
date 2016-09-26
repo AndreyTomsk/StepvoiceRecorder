@@ -4,8 +4,11 @@ rem (Not needed) Preparing build date string for version file (for Russian)
 rem for /f "delims=. tokens=1,2,3" %%i in ("%DATE%") do set BUILD_DATE=%%k%%j%%i
 rem echo %BUILD_DATE:~2,6%
 
+rem Had problem with git.ext not found in %PATH%, only when executed from VStudio.
+rem set > set.txt
+
 rem Creating version.h containing version information based on git rev. number
-for /f "delims=" %%a in ('git rev-list --all --count') do @set RevNumber=%%a
+for /f "delims=" %%a in ('git.exe rev-list --all --count') do @set RevNumber=%%a
 
 set VersionDots=2.1.1.%RevNumber%
 set VersionCommas=%VersionDots:.=,%
