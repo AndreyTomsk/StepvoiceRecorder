@@ -29,7 +29,9 @@ SolidCompression=yes
 DisableWelcomePage=no
 
 OutputBaseFilename={#User_OutputFile}
+#ifndef SkipSigning
 SignTool=Standard /d $qStepvoice Recorder Setup$q /du $qhttp://stepvoice.com$q $f
+#endif
 
 
 ;Installer-related options (Uninstall data)
