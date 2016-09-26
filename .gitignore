@@ -16,4 +16,4 @@ version.h
 ipch/
 mp3_recorder_vc8.VC.*
 mp3_recorder.vcxproj.user
-bin/MP3_Recorder.pdb
+bin/SvRec*.pdb
