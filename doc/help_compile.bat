@@ -3,7 +3,7 @@ rem --------------------------------------------------------
 rem Compiling the .chm help file.
 rem --------------------------------------------------------
 
-	set PATH=%PATH%;%PROGRAMFILES%\HTML Help Workshop\
+	set PATH=%PATH%;%PROGRAMFILES(X86)%\HTML Help Workshop\
 
 	cd Help
 	hhc SvRec.hhp

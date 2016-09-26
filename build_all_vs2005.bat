@@ -4,8 +4,7 @@ rem Note: last version number (git rev. number) and build
 rem date updated automatically (see src/pre_build.bat).
 
 
-call "%PROGRAMFILES%\Microsoft Visual Studio 8\VC\vcvarsall.bat" x86
-
+call "%PROGRAMFILES(X86)%\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 
 rem 1. Recorder
 cd %~d0%~p0
