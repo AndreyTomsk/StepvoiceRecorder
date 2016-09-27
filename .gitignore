@@ -14,6 +14,6 @@ version.h
 #VStudio 2015 ignores
 .vs/
 ipch/
-mp3_recorder_vc8.VC.*
+mp3_recorder.VC.*
 mp3_recorder.vcxproj.user
 bin/SvRec*.pdb
