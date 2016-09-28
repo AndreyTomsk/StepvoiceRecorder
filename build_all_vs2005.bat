@@ -9,7 +9,7 @@ call "%PROGRAMFILES(X86)%\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 rem 1. Recorder
 cd %~d0%~p0
 del /Q bin\*.exe
-devenv mp3_recorder_vc8.sln /Build Release
+devenv mp3_recorder.sln /Build Release
 
 
 rem 2. Help file

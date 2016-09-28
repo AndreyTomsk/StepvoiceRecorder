@@ -4,7 +4,7 @@
 
 #define User_AppName    "Stepvoice Recorder"
 #define User_AppExeName "SvRec.exe"
-#define MyCompanyUrl    "http://www.stepvoice.com"
+#define MyCompanyUrl    "www.stepvoice.com"
 #define MyCompanyName   "Andrey Firsov"
 
 #define FullAppVersion GetFileVersion(AddBackslash(SourcePath) + "..\bin\" + User_AppExeName)
@@ -46,18 +46,15 @@ Root: HKLM; Subkey: "Software\Stepvoice Software\SvRec"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Stepvoice Software"; Flags: uninsdeletekeyifempty
 Root: HKCU; Subkey: "Software\Stepvoice Software\SvRec"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Stepvoice Software\SvRec\General"; ValueType: string; ValueName: "LastFilePath"; ValueData: "{userdesktop}"
-;Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
-
 
 [Files]
-Source: Stepvoice Recorder Home.url; DestDir: {app}; Flags: ignoreversion
-
 Source: ..\bin\{#User_AppExeName}; DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\bass.dll;           DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\basswasapi.dll;     DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\lame_enc.dll;       DestDir: {app}; Flags: ignoreversion
 Source: ..\bin\ResetOptions.reg;   DestDir: {app}; Flags: ignoreversion
 Source: ..\doc\Help\SvRec.chm;     DestDir: {app}; Flags: ignoreversion
+Source: Stepvoice Recorder Home.url; DestDir: {app}; Flags: ignoreversion
 
 [Dirs]
 Name: "{commonappdata}\Stepvoice"
@@ -80,9 +77,6 @@ Name: quicklaunchicon; Description: Create a &Quick Launch icon; GroupDescriptio
 
 [Run]
 FileName: {app}\{#User_AppExeName}; Description: Launch Stepvoice Recorder; Flags: postinstall nowait skipifsilent unchecked
-
-[_ISTool]
-Use7zip=false
 
 [Code]
 var
@@ -146,30 +140,3 @@ begin
   else
     Result := true;
 end;
-
-// While uninstall aks a user if he wants to keep his registration info
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-var
-  saveRegInfo: Boolean;
-begin
-  case CurUninstallStep of
-    usUninstall: // pre-uninstall tasks
-      begin
-        regInfo := '';
-        if RegValueExists(HKEY_CURRENT_USER, 'Software\Stepvoice Software\SvRec', 'Key') then
-        begin
-          Beep();
-          saveRegInfo := MsgBox('Would you like to keep your registration info?', mbConfirmation, MB_YESNO) = idYes;
-          if saveRegInfo then
-            RegQueryStringValue(HKEY_CURRENT_USER, 'Software\Stepvoice Software\SvRec', 'Key', regInfo);
-        end
-      end;
-    usPostUninstall: // post-uninstall tasks
-      begin
-        if regInfo <> '' then
-          RegWriteStringValue(HKEY_CURRENT_USER, 'Software\Stepvoice Software\SvRec', 'Key', regInfo);
-      end;
-  end;
-end;
-
-//
