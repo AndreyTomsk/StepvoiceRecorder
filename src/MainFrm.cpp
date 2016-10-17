@@ -368,14 +368,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if(RegistryConfig::GetOption(_T("General\\Show icon in tray"), 0))
 		m_TrayIcon.ShowIcon();
 
-	// Setting up Monitoring
-	const bool monEnabled = RegistryConfig::GetOption(_T("General\\Sound Monitor"), 0);
-	m_StatWnd.m_btnMon.SetCheck(monEnabled);
-
+	//Updating tools GUI
+	m_StatWnd.m_btnMon.SetCheck(RegistryConfig::GetOption(_T("General\\Sound Monitor"), 0));
+	m_StatWnd.m_btnVas.SetCheck(RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0));
 	if (RegistryConfig::GetOption(_T("General\\AutoGainControl"), false))
 		m_autoGainControl.reset(new CAutoGainControl());
 
-	m_StatWnd.m_btnVas.SetCheck(RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0));
 	return 0;
 }
 
