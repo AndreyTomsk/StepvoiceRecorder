@@ -1796,7 +1796,7 @@ LRESULT CMainFrame::OnFilterNotify(WPARAM wParam, LPARAM lParam)
 				if (newFileOnSilence && !isSilence)
 				{
 					ASSERT(!m_recordingFileName.IsEmpty());
-					m_recordingFileName = Helpers::GetNewRecordingFilePath(m_recordingFileName);
+					m_recordingFileName = Helpers::GetNewRecordingFilePath();
 
 					LOG_DEBUG() << __FUNCTION__ << "VAS.HandleSilence: creating_file=" << m_recordingFileName;
 					m_recordingChain.GetFilter<FileWriter>()->CreateNewFile(m_recordingFileName);

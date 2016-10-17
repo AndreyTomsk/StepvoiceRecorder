@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Russian resources
+// Russian (Russia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-#ifdef _WIN32
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 #pragma code_page(1251)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -67,16 +65,20 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_TRAY_STOP           ICON                    "res\\tray_sto.ico"
+
 IDI_TRAY_REC            ICON                    "res\\tray_rec.ico"
+
 IDI_TRAY_PAUSE          ICON                    "res\\tray_pau.ico"
+
 IDI_TRAY_PLAY           ICON                    "res\\tray_pla.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-IDR_TRAY_MENU MENU 
+IDR_TRAY_MENU MENU
 BEGIN
     POPUP "Tray"
     BEGIN
@@ -92,18 +94,16 @@ BEGIN
     END
 END
 
-#endif    // Russian resources
+#endif    // Russian (Russia) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -113,21 +113,30 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\MP3_Recorder.ico"
+
 IDR_MAINFRAME2          ICON                    "res\\idr_main.ico"
+
 IDI_PLAY                ICON                    "res\\icon1.ico"
+
 IDI_STOP                ICON                    "res\\stop.ico"
+
 IDI_REC                 ICON                    "res\\ico00001.ico"
+
 IDI_OPEN                ICON                    "res\\ico00002.ico"
+
 IDI_PAUSE               ICON                    "res\\pause.ico"
+
 IDI_MIXLINE             ICON                    "res\\mixline0.ico"
+
 IDI_MIXLINE03           ICON                    "res\\mixline3.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-IDR_MAINFRAME MENU 
+IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -174,7 +183,7 @@ BEGIN
     END
 END
 
-IDR_GRAPHMENU MENU 
+IDR_GRAPHMENU MENU
 BEGIN
     POPUP "Graph"
     BEGIN
@@ -185,7 +194,7 @@ BEGIN
     END
 END
 
-IDR_STATMENU MENU 
+IDR_STATMENU MENU
 BEGIN
     POPUP "Stat"
     BEGIN
@@ -200,19 +209,33 @@ END
 //
 
 IDB_TIME_WND            BITMAP                  "RES\\time_wnd.bmp"
+
 IDB_STATBITMAPS         BITMAP                  "RES\\stat_bitmaps.bmp"
+
 IDB_TIMEBITMAPS         BITMAP                  "RES\\big_digits.bmp"
+
 IDB_PROC_ICONS          BITMAP                  "RES\\icons_proc.bmp"
+
 IDB_STAT_WND            BITMAP                  "RES\\stat_wnd2.bmp"
+
 IDB_BTN_VAS             BITMAP                  "RES\\btn_vas.bmp"
+
 IDB_BTN_MON             BITMAP                  "RES\\btn_mon.bmp"
+
 IDB_GWBG_LNP            BITMAP                  "RES\\gwbg_lnp.bmp"
+
 IDB_GWBG_LGP            BITMAP                  "RES\\gwbg_lgp.bmp"
+
 IDB_GWBG_DOTS           BITMAP                  "RES\\gwbg_dot.bmp"
+
 IDB_GWBG_NONE           BITMAP                  "RES\\gwbg_non.bmp"
+
 IDB_GWPM_LN             BITMAP                  "RES\\pmln_24.bmp"
+
 IDB_GWPM_LG             BITMAP                  "RES\\pmlg_24.bmp"
+
 IDB_PEAKMETER_MENU      BITMAP                  "RES\\peak_meter_menu.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -324,7 +347,7 @@ BEGIN
     CONTROL         "Slider1",IDC_VAS_TIME,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,121,15,104,20
     CONTROL         "Pause recording",IDC_VAS_SILENTPAUSE,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,12,65,72,10
     CONTROL         "Stop recording",IDC_VAS_SILENTSTOP,"Button",BS_AUTORADIOBUTTON,12,80,72,10
-    CONTROL         "Create new file",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,96,65,66,10
+    CONTROL         "Create new file (autoname)",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,96,65,104,10
     LTEXT           "-54",IDC_STATIC,10,35,11,8
     LTEXT           "-42",IDC_STATIC,32,35,11,8
     LTEXT           "-30",IDC_STATIC,54,35,11,8
@@ -365,7 +388,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -437,7 +460,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS 
+IDR_MAINFRAME ACCELERATORS
 BEGIN
     VK_F1,          IDA_HELP_DOC,           VIRTKEY, NOINVERT
     VK_SPACE,       IDA_SOUND_PLAY,         VIRTKEY, NOINVERT
@@ -461,10 +484,21 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_VAS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "MP3_Recorder"
     IDS_ERROR_DIRECTORY     "Unable to start recording. The directory specified doesn't exist."
@@ -478,7 +512,7 @@ BEGIN
     IDS_DEL_ASK             "Move file to Recycle Bin?\n""%1"""
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_CLEAR_ASK           "Clear file permanently?\n""%1"""
     IDS_TT_OPEN             "Create/Open File (Ctrl - O)"
@@ -488,7 +522,7 @@ BEGIN
     IDS_TT_SEEKBAR          "Seek Bar"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_TT_WAVEWND          "Peak/Wave Display (right click to select visualization type)"
     IDS_TT_TIMEWND          "Time Display"
@@ -500,13 +534,13 @@ BEGIN
     IDS_TT_MONITORING       "Input Monitor"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_ERROR_LAME_NOTFOUND """lame_enc.dll"" library not found."
     IDS_ERROR_LAME_NOTVALID """lame_enc.dll"" library not valid."
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

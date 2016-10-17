@@ -1,5 +1,7 @@
 -----------------------------------------------------------------------------
 Milestone: "Version 2.2". Main goals:
+20160318 (enh) + migrate to VisualStudio 2015 free.
+???????? (enh) + remove ASProtect dependency.
 20080309 (enh) - Make a portable build.
 20080810 (enh) - Store program options in a config (XML) file.
 20160301 (enh) - optimize config class (RegisterOption, load at startup, etc.).
@@ -28,8 +30,6 @@ Milestone: "Version 2.1". Main goals:
 Todo (Archive, some items not actual now)
 -----------------------------------------
 20160318 (enh) - hide volume thumb if device doesn't support volume control.
-20160318 (enh) - migrate to VisualStudio 2015 free.
-???????? (enh) - remove ASProtect dependency.
 
 
 20110202 (---) - Always open mp3 options when doubleclicking in stat window.
