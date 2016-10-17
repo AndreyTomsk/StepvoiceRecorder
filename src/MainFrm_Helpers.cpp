@@ -54,12 +54,12 @@ CString GetNewRecordingFilePath(CString filePath)
 	//year (not incrementing).
 
 	using namespace FileUtils;
-	const CString baseFolder = GetFolderOnly(filePath);		
-	
-	CString baseName = GetFileNameNoExt(filePath);
-	int newIndex = 2;
+	const CString baseFolder = GetFolderOnly(filePath);
 
-	const int dividerPos = baseName.ReverseFind(_T('_'));
+	CString baseName = GetFileNameNoExt(filePath);
+	int newIndex = 1;
+
+	const int dividerPos = baseName.ReverseFind(_T('('));
 	const int digitCount = baseName.GetLength() - dividerPos - 1;
 	if (dividerPos != -1 && digitCount > 0 && digitCount < 4)
 	{
@@ -71,7 +71,7 @@ CString GetNewRecordingFilePath(CString filePath)
 	while (FileExists(filePath))
 	{
 		CString newName;
-		newName.Format(_T("%s_%02d.mp3"), baseName, newIndex++);
+		newName.Format(_T("%s(%d).mp3"), baseName, newIndex++);
 		filePath = CombinePath(baseFolder, newName);
 	}
 	return filePath;
