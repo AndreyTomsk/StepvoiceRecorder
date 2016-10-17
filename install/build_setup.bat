@@ -27,11 +27,11 @@ if NOT %SignString% == "" (
   %SignToolCommand% ..\bin\SvRec.exe
 
   echo "Making setup file..."
-  "%PROGRAMFILES(X86)%\Inno Setup 5\ISCC.exe" SvRec.iss /Q "/sStandard=%SignToolInno% $p"
+  "%PROGRAMFILES(X86)%\Inno Setup 5\ISCC.exe" SvRec.iss "/sStandard=%SignToolInno% $p"
 
 ) else (
 
   echo Making setup file without signing...
-  "%PROGRAMFILES(X86)%\Inno Setup 5\ISCC.exe" SvRec.iss /Q "/DSignSkip"
+  "%PROGRAMFILES(X86)%\Inno Setup 5\ISCC.exe" SvRec.iss "/DSignSkip"
 
 )

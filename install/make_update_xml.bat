@@ -2,7 +2,9 @@
 rem %1 - program version
 rem %2 - installer file name
 
-set OutputFile=./Output/StepvoiceRecorderUpdate.xml
+mkdir %~dp0Output
+set OutputFile=%~dp0Output\StepvoiceRecorderUpdate.xml
+echo Creating update xml at %OutputFile%
 
 echo ^<?xml version="1.0" encoding="UTF-8"?^> > %OutputFile%
 echo ^<Application^> >> %OutputFile%
