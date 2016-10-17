@@ -375,6 +375,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (RegistryConfig::GetOption(_T("General\\AutoGainControl"), false))
 		m_autoGainControl.reset(new CAutoGainControl());
 
+	m_StatWnd.m_btnVas.SetCheck(RegistryConfig::GetOption(_T("Tools\\VAS\\Enable"), 0));
 	return 0;
 }
 
