@@ -1,3 +1,7 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
 
 #pragma once
 #include "PageCom.h"

@@ -1,3 +1,7 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
 
 #ifndef _SYNC_OBJECTS_H
 #define _SYNC_OBJECTS_H

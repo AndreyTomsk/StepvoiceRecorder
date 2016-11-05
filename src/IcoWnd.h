@@ -1,10 +1,9 @@
-/////////////////////////////////////////////////////////////////////////////
-#if !defined(AFX_ICOWND_H__F2164818_F260_440E_8714_D12C6CA8BB50__INCLUDED_)
-#define AFX_ICOWND_H__F2164818_F260_440E_8714_D12C6CA8BB50__INCLUDED_
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 /////////////////////////////////////////////////////////////////////////////
 // Порядок иконок соответствует битмапу с иконками.
@@ -45,8 +44,3 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
-
-/////////////////////////////////////////////////////////////////////////////
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-#endif // !defined(AFX_ICOWND_H__F2164818_F260_440E_8714_D12C6CA8BB50__INCLUDED_)

@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #ifndef FILTER_CHAIN_H
 #define FILTER_CHAIN_H
 #pragma once

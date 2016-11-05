@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #ifndef _RECORDING_SOURCE_DLG_H
 #define _RECORDING_SOURCE_DLG_H
 #pragma once

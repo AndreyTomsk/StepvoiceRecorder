@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #ifndef FILTER_FILE_WRITER_WAV_H
 #define FILTER_FILE_WRITER_WAV_H
 #pragma once

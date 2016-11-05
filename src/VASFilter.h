@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #ifndef VAS_FILTER_H
 #define VAS_FILTER_H
 #pragma once

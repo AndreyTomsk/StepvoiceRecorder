@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #ifndef WASAPI_CAPTURE_BUFFER2_H
 #define WASAPI_CAPTURE_BUFFER2_H
 #pragma once

@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #ifndef _SAMPLE_CONVERTER_H
 #define _SAMPLE_CONVERTER_H
 #pragma once

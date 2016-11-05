@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #include "stdafx.h"
 #include "NewVersionDlg.h"
 

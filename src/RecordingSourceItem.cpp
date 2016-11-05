@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #include "stdafx.h"
 #include "RecordingSourceItem.h"
 #include "RecordingSourceDlg.h" //for WM_RECSOURCE_ITEM_CLICKED

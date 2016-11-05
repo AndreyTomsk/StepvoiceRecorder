@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #ifndef ENCODER_MP3_H
 #define ENCODER_MP3_H
 #pragma once

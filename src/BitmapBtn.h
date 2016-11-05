@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #ifndef BITMAP_BTN_H
 #define BITMAP_BTN_H
 #pragma once

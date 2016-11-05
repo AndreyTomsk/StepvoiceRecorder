@@ -1,11 +1,9 @@
-#if !defined(AFX_MYSLIDER_H__ABD3380E_9DB1_4328_B3C1_C27FC182F0A3__INCLUDED_)
-#define AFX_MYSLIDER_H__ABD3380E_9DB1_4328_B3C1_C27FC182F0A3__INCLUDED_
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MySlider.h : header file
-//
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySlider window
@@ -77,10 +75,3 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 };
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MYSLIDER_H__ABD3380E_9DB1_4328_B3C1_C27FC182F0A3__INCLUDED_)

@@ -1,3 +1,8 @@
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
+
 #pragma once
 #ifndef __AFXWIN_H__
 	#error include 'stdafx.h' before including this file for PCH

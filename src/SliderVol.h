@@ -1,9 +1,9 @@
-#if !defined(AFX_SLIDERVOL_H__4FFCAF7A_8096_48CB_A489_1ACB3CAF88A8__INCLUDED_)
-#define AFX_SLIDERVOL_H__4FFCAF7A_8096_48CB_A489_1ACB3CAF88A8__INCLUDED_
+/*
+Stepvoice Recorder
+Copyright (C) 2004-2016 Andrey Firsov
+*/
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 ////////////////////////////////////////////////////////////////////////////////
 class CSliderVol : public CSliderCtrl
@@ -53,8 +53,3 @@ public:
 private:
 	CSliderVol& m_slider;
 };
-
-////////////////////////////////////////////////////////////////////////////////
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-#endif // !defined(AFX_SLIDERVOL_H__4FFCAF7A_8096_48CB_A489_1ACB3CAF88A8__INCLUDED_)
