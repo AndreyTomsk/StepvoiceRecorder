@@ -1,9 +1,35 @@
-1. You should carefully read the following terms and conditions before using, installing or distributing this software. Your use, distribution, or installation of Stepvoice Recorder (“Software”) indicates your acceptance of this agreement.
+Stepvoice Recorder License
+==========================
 
-2. This Freeware License Agreement (the "Agreement") is a legal agreement between you, the end-user, and Andrey Firsov (the "Author") for the use of this Software. Commercial as well as non-commercial use is allowed. By using this Software or storing this program or parts of it on a computer hard drive (or other media), you agree to be bound by the terms of this agreement. Provided that you verify that you are handling the original freeware version you are hereby licensed to make as many copies of the freeware version of this Software as long as you do not charge money or request donations for such copies. You may not alter this Software in any way. You may not modify, rent or sell this Software, or create derivative works based upon this Software.
+Except where otherwise noted, all of the documentation and software included
+in the Stepvoice Recorder package is copyrighted by Andrey Firsov.
 
-3. This Software is provided "as-is," without any express or implied warranty. In no event shall the Author be held liable for any damages arising from the use of this Software.
+Copyright (C) 2004-2016 Andrey Firsov. All rights reserved.
 
-4. This agreement takes effect upon your use of the Software and remains in effect until terminated. You may terminate this agreement by destroying all copies of the Software. This license terminates automatically if you fail to comply with any term or condition. You agree on termination of this license to destroy all copies of the Software and documentation in your possession.
+This software is provided "as-is," without any express or implied warranty.
+In no event shall the author be held liable for any damages arising from the
+use of this software.
 
-5. This written license agreement supersedes any prior license agreement, purchase order, communication, advertising or representation concerning the Software. All rights not expressly granted are reserved by the Author.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter and redistribute it,
+provided that the following conditions are met:
+
+1. All redistributions of source code files must retain all copyright
+   notices that are currently in place, and this list of conditions without
+   modification.
+
+2. All redistributions in binary form must retain all occurrences of the
+   above copyright notice and web site addresses that are currently in
+   place (for example, in the About boxes).
+
+3. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software to
+   distribute a product, an acknowledgment in the product documentation
+   would be appreciated but is not required.
+
+4. Modified versions in source or binary form must be plainly marked as
+   such, and must not be misrepresented as being the original software.
+
+
+Andrey Firsov
+http://www.stepvoice.com/
