@@ -8,7 +8,7 @@ Stepvoice Recorder is compiled using Microsoft Visual Studio
 when installing VS2015.
 
 Use **build_all_vs2015.bat** to build program and the installer
-(located in the *install/Output* folder).
+(created in the *install/Output* folder).
 
 Stepvoice Recorder uses several third-party libraries:
 * [BASS + BASSWASAPI](http://www.un4seen.com/bass.html)
