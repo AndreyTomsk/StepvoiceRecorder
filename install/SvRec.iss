@@ -17,6 +17,8 @@
 [Setup]
 AppName={#User_AppName}
 AppID={#User_AppName}
+AppCopyright=Copyright (C) 2004-2016 {#MyCompanyName}
+AppVersion={#FullAppVersion}
 AppVerName={#User_AppName} {#User_AppVersion}
 DefaultDirName={pf}\{#User_AppName}
 DefaultGroupName={#User_AppName}
