@@ -16,4 +16,4 @@ Stepvoice Recorder uses several third-party libraries:
 * [TinyXML-2](http://www.grinninglizard.com/tinyxml2/)
 
 Please note that BASS license is free for non-commercial use.
-LAME library is distributed as DLL, in *bin* folder.
+LAME library is precompiled, located in *bin* folder.
